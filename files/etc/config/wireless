@@ -1,0 +1,27 @@
+config wifi-device  wifi0
+	option type     atheros
+	option channel  10
+        option diversity 0 # 0:off, 1:on
+        option txantenna 1 # 0:auto, 1:main, 2:aux
+        option rxantenna 1 # 0:auto, 1:main, 2:aux
+	option country	276
+	option outdoor	1
+#	option txpower  1 
+
+config wifi-iface
+	option device	wifi0
+#	option network	wlan
+	option mode	adhoc
+	option ssid	olsr.freifunk.net
+	option bssid	02:ca:ff:ee:ba:be
+	option encryption none
+	option protmode 0
+	option bgscan   0
+	option uapsd    0
+	option rssi11a  9
+	option rssi11b  9
+	option rssi11g  9
+	option bintval  1000
+	option sw_merge 1
+
+

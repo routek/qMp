@@ -1,0 +1,73 @@
+
+HOWTO:
+
+
+BUILD:
+
+mkdir -p 13f
+cd 13f
+
+svn co svn://svn.openwrt.org/openwrt/branches/backfire
+git clone ssh://gitosis@qmp.cat:221/qmp.git
+git clone ../
+git clone git://gitorious.org/eigennet/packages.git eigennet/packages
+
+
+cd backfire
+rm -rf feeds/
+ln -s ../../dl # wherever you already have some openwrt downloads...
+ln -s ../qmp/files
+ln -s ../qmp/feeds.conf
+
+nano feeds.conf  # adapt path to pj-13f/packages
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+make menuconfig
+* Target System  (BCM947xxx, x86, atheros,...)
+* Target Profile (WGT634u, wrap, alix, routerstation,...) 
+(* Global build-settings -> Compile teh kernel with profiling enabled )
+(* Advanced configuration options for developers -> Toolchain options -> Build gdb )
+* Base system ->
+    qmp-big-node # for 8Mbyte flash devices  
+    qmp-small-node # for 4MByte flash devices STILL TO BIG due to ipv6calc!!! Dont TEST
+(* LuCI -> Freifunk -> luci-mod-freifunk-community  )
+
+make kernel_menuconfig 
+(* General Setup -> Small Systems -> ELF Core dumps )
+(* Networking -> options -> IPv6 -> routing-tables  )
+
+time make -j3 V=99
+
+
+
+INSTALL:
+
+for wgt634u:
+scp bin/brcm47xx/openwrt-brcm47xx-squashfs.trx root@192.168.1.1:/tmp/
+ssh root@192.168.1.1
+mtd -r write /tmp/openwrt-brcm47xx-squashfs.trx linux # do not reboot for a while to let filesystem cleanup
+
+
+
+
+
+
+POSTCONFIGURE:
+
+ssh root@192.168.1.1
+. /etc/qmp_functions.sh
+
+qmp_configure 
+# or configure individually:
+# qmp_configure_network
+# qmp_configure_olsr6
+# qmp_configure_bmx6
+# qmp_configure_system
+
+reboot 
+# or restart stuff manually:
+# /etc/init.d/network restart
+# /etc/init.d/olsrd restart
+# /etc/init.d/bmx6 restart
