@@ -1,15 +1,14 @@
 
-HOWTO:
+######## HOWTO:
 
 
-BUILD:
+#### BUILD:
 
-mkdir -p 13f
+mkdir -p 13f # or however you want to name your working directory
 cd 13f
 
+git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/ipv6-routing-prototype; cd ..
 svn co svn://svn.openwrt.org/openwrt/branches/backfire
-git clone ssh://gitosis@qmp.cat:221/qmp.git
-git clone ../
 git clone git://gitorious.org/eigennet/packages.git eigennet/packages
 
 
@@ -19,7 +18,7 @@ ln -s ../../dl # wherever you already have some openwrt downloads...
 ln -s ../qmp/files
 ln -s ../qmp/feeds.conf
 
-nano feeds.conf  # adapt path to pj-13f/packages
+nano feeds.conf  # adapt path to .../13f/packages
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -38,28 +37,34 @@ make kernel_menuconfig
 (* General Setup -> Small Systems -> ELF Core dumps )
 (* Networking -> options -> IPv6 -> routing-tables  )
 
-time make -j3 V=99
+time make V=99
 
 
 
-INSTALL:
+#### INSTALL:
 
-for wgt634u:
+## wgt634u: (tested)
 scp bin/brcm47xx/openwrt-brcm47xx-squashfs.trx root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
 mtd -r write /tmp/openwrt-brcm47xx-squashfs.trx linux # do not reboot for a while to let filesystem cleanup
 
+## alix: (untested)
+
+## fonera: (untested)
+
+## routerstation: (untested) 
 
 
 
-
-
-POSTCONFIGURE:
+#### POSTCONFIGURE:
 
 ssh root@192.168.1.1
+
+vi /etc/config/qmp # adapt to your hardware (only tested for wgt634u yet!)
+
 . /etc/qmp_functions.sh
 
-qmp_configure 
+qmp_configure
 # or configure individually:
 # qmp_configure_network
 # qmp_configure_olsr6
