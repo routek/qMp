@@ -10,26 +10,18 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bmx6
 
-#PKG_SOURCE_PROTO:=svn
-#PKG_SOURCE_URL:=http://bmx6.net/svn/trunk/bmx
-#PKG_REV:=1751
-
-#PKG_SOURCE_PROTO:=svn
-#PKG_SOURCE_URL:=http://dev.sid/svn/projects/bmx6/
-#PKG_REV:=2490
-
-#PKG_SOURCE_PROTO:=git
-#PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
-#PKG_REV:=06b6723a1b1f1d5425d5fba64f4510c5e8a1118d
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
-PKG_REV:=1bbc678e68d5d2ddf5858cff8c231beb2762215b
+PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
+PKG_REV:=c56e493c428dfa773cad83d1ce1dcbca53a23fdc
 
+#PKG_SOURCE_PROTO:=git
+#PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
+#PKG_REV:=0738371aa9985a3063d2ed099ac5a5c25df6c55b
 
 #PKG_VERSION:=r$(PKG_REV)
 #better using an increasing date (e.g.:20110101) + day-version (01), otherwise lower git hashes may prevent upgrading
-PKG_VERSION:=r2011030201
+PKG_VERSION:=r2011031502
 
 #PKG_RELEASE:=1
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6

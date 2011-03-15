@@ -1,40 +1,21 @@
-config 'bmx6' 'general'                                                                                                                                                              
+config 'bmx6' 'general'
 #       option 'runtime_dir' '/var/run/bmx6'
-#        option 'base_port' '6240'
-#        option 'prio_rules_offset' '6240'
-#        option 'rt_table_offset' 62'
-#	optiom 'http_info_port' '6239'
-#	option 'http_info_global_access' '1'
-#	option 'gsf_map_longitude' 'ref:system.@system[0].longitude'
-#	option 'gsf_map_latitude' 'ref:system.@system[0].latitude'
-#	option 'gsf_map_name' 'ref:system.@system[0].hostname'
+#       option 'niit_source' '10.202.0.116'
+
+#config 'ip_version' 'ip_version'
+#       option 'ip_version' '6'   # default is 4
+#       option 'throw_rules' '0'
+
+config 'dev' 'mesh_1'
+        option 'dev' 'eth0.12'
+
+config 'dev' 'mesh_2'
+        option 'dev' 'ath0.12'
+
+#config 'unicast_hna' 'my_global_prefix'
+#       option 'unicast_hna' '2012:0:0:74:0:0:0:0/64'
+
+#config 'unicast_hna' 'niit6to4'
+#       option 'unicast_hna' '0:0:0:0:0:ffff:10.202.0.116/128'
 
 
-config 'plugin'
-        option 'plugin' 'bmx_config.so'
-
-config 'dev'
-        option 'dev' 'ref:network.lan0_bmx6.ifname'
-
-config 'dev'
-        option 'dev' 'ref:network.wlan0_bmx6.ifname'
-
-# config 'dev'
-#        option 'dev' 'tap0:bmx6'
-
-
-# in Berlin we strictly dont route any olsr data !
-# config 'throw'
-#       option 'throw' 'olsr'
-#       option 'network' 'ref:network.lan0.ipaddr'
-#       option 'netmask' 'ref:network.lan0.netmask'
-
-
-# if you have a vpn (e.g. openvpn) or other routed network where
-# interface netmask does not match the routed netmask
-# config 'throw'
-#        option 'throw' '192.168.100.0/24'
-
-# unicast host-network announcements (HNAs) look like this:
-# config 'unicast_hna'
-#       option 'unicast_hna' '106.1.2.4/32'
