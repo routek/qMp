@@ -51,9 +51,16 @@ scp bin/brcm47xx/openwrt-brcm47xx-squashfs.trx root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
 mtd -r write /tmp/openwrt-brcm47xx-squashfs.trx linux # do not reboot for a while to let filesystem cleanup
 
+## fonera: (tested)
+scp bin/atheros/openwrt-atheros-vmlinux.lzma bin/atheros/openwrt-atheros-root.squashfs root@192.168.1.1:/tmp/
+ssh root@192.168.1.1
+mtd -e vmlinux.bin.l7 write /tmp/openwrt-atheros-vmlinux.lzma vmlinux.bin.l7
+mtd -r -e rootfs write /tmp/openwrt-atheros-root.squashfs rootfs
+
+
+
 ## alix: (untested)
 
-## fonera: (untested)
 
 ## routerstation: (untested) 
 
@@ -63,7 +70,7 @@ mtd -r write /tmp/openwrt-brcm47xx-squashfs.trx linux # do not reboot for a whil
 
 ssh root@192.168.1.1
 
-vi /etc/config/qmp # adapt to your hardware (only tested for wgt634u yet!)
+vi /etc/config/qmp # adapt to your hardware (only tested for fonera, wgt634u yet!)
 
 . /etc/qmp_functions.sh
 
