@@ -33,6 +33,9 @@ make menuconfig
     qmp-small-node # for 4MByte flash devices STILL TO BIG due to ipv6calc!!! Dont TEST
 (* LuCI -> Freifunk -> luci-mod-freifunk-community  )
 
+* remove for 4MByte-flash devices: network -> ppp
+* remove for 4MByte-flash devices: network -> ppad-mini
+
 make kernel_menuconfig 
 (* General Setup -> Small Systems -> ELF Core dumps )
 (* Networking -> options -> IPv6 -> routing-tables  )
