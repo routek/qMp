@@ -26,51 +26,14 @@ qmp_get_llocal_for_dev() {
   ip a show dev $dev | grep inet6 | awk '{print $2}'
 }
 
-qmp_get_ip6_fast() {
-
-  local addr_prefix="$1"
-  local addr="$(echo $addr_prefix | awk -F'/' '{print $1}')"
-  local mask="$(echo $addr_prefix | awk -F'/' '{print $2}')"
-
-  if [ -z "$mask" ] ; then
-    echo "qmp_get_ip6_fast: ERROR addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
-    return 1
-    mask="128"
-  fi
-
-  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | grep IPV6= | awk -F'=' '{print $2}' )
-
-  local fake_prefix16="20a2" # original input is manipulated because ipv6calc complains about reserved ipv6 addresses
-  local addr_prefix16="$(echo $addr_long | awk -F':' '{print $1}')"
-  local fake_long=$( echo $addr_long | sed -e "s/^$addr_prefix16/$fake_prefix16/g" )
-  local fake_out
-
-#  echo "qmp_get_ip6_fast: begin addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
-
-  if [ "$mask" -ge "0" ] &&  [ "$mask" -le "112" ] && [ "$(( $mask % 16))" = "0" ]; then
-
-    fake_out="$( ipv6calc --in ipv6 $fake_long/$mask -F --printprefix --out ipv6addr 2>/dev/null )::/$mask"
-
-  else
-
-    if [ "$(( $mask % 16))" != "0" ]; then
-      echo "ERROR addr_prefix=$1 mask=$mask must be multiple of 16" 1>&2
-      return 1
-    fi
-
-    fake_out="$( ipv6calc --in ipv6 $fake_long/128 -F --printprefix --out ipv6addr 2>/dev/null )"
-  fi
-
-  echo $fake_out | sed -e "s/^$fake_prefix16/$addr_prefix16/g"
-
-#  echo "qmp_get_ip6_fast: return addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
-}
 
 qmp_get_ip6_slow() {
 
   local addr_prefix="$1"
   local addr="$(echo $addr_prefix | awk -F'/' '{print $1}')"
   local mask="$(echo $addr_prefix | awk -F'/' '{print $2}')"
+
+  echo "qmp_get_ip6_slow addr_prefix=$addr_prefix addr=$addr mask=$mask" 1>&2
 
   if [ -z "$mask" ] ; then
     mask="128"
@@ -201,6 +164,61 @@ qmp_get_ip6_slow() {
 
 
 
+
+
+
+qmp_get_ip6_fast() {
+
+  if ! [ -x /usr/bin/ipv6calc ] ; then
+     qmp_get_ip6_slow $1
+     return $?
+  fi
+
+  local addr_prefix="$1"
+  local addr="$(echo $addr_prefix | awk -F'/' '{print $1}')"
+  local mask="$(echo $addr_prefix | awk -F'/' '{print $2}')"
+
+  if [ -z "$mask" ] ; then
+    echo "qmp_get_ip6_fast: ERROR addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
+    return 1
+    mask="128"
+  fi
+
+  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | grep IPV6= | awk -F'=' '{print $2}' )
+
+  local fake_prefix16="20a2" # original input is manipulated because ipv6calc complains about reserved ipv6 addresses
+  local addr_prefix16="$(echo $addr_long | awk -F':' '{print $1}')"
+  local fake_long=$( echo $addr_long | sed -e "s/^$addr_prefix16/$fake_prefix16/g" )
+  local fake_out
+
+#  echo "qmp_get_ip6_fast: begin addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
+
+  if [ "$mask" -ge "0" ] &&  [ "$mask" -le "112" ] && [ "$(( $mask % 16))" = "0" ]; then
+
+    fake_out="$( ipv6calc --in ipv6 $fake_long/$mask -F --printprefix --out ipv6addr 2>/dev/null )::/$mask"
+
+  else
+
+    if [ "$(( $mask % 16))" != "0" ]; then
+      echo "ERROR addr_prefix=$1 mask=$mask must be multiple of 16" 1>&2
+      return 1
+    fi
+
+    fake_out="$( ipv6calc --in ipv6 $fake_long/128 -F --printprefix --out ipv6addr 2>/dev/null )"
+  fi
+
+  echo $fake_out | sed -e "s/^$fake_prefix16/$addr_prefix16/g"
+
+#  echo "qmp_get_ip6_fast: return addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
+}
+
+
+
+
+
+
+
+
 qmp_calculate_ula96() {
 
   local prefix=$1 
@@ -229,6 +247,8 @@ qmp_calculate_ula96() {
   printf "%X:%X:%X:%X:%X:%X:%X:%X\n" 0x$p1 0x$p2 0x$p3  $(( ( 0x$mac1 * 0x100 ) + 0x$mac2 ))  $(( ( 0x$mac3 * 0x100 ) + 0x$mac4 ))  $(( ( 0x$mac5 * 0x100 ) + 0x$mac6 ))  0x$s1 0x$s2
 
 }
+
+
 
 qmp_calculate_addr64() {
 
@@ -264,29 +284,14 @@ qmp_get_ula96() {
   local mac=$( qmp_get_mac_for_dev $dev_mac )
   local ula96=$( qmp_calculate_ula96 $prefix $mac $suffix )
 
-
-  if ! ipv6calc --in ipv6 $prefix --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in found prefix: $prefix" 1>&2
-   return 1
-  fi
-
-  if ! ipv6calc --in ipv6 $suffix --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in found suffix: $suffix" 1>&2
-   return 1
-  fi
-
-  if ! ipv6calc --in ipv6 $( qmp_get_llocal_for_dev $dev_mac ) --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in found link-local address of dev $dev_mac" 1>&2
-   return 1
-  fi
-
-  if ! ipv6calc --in ipv6 $ula96/$mask --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in generated address $ula96/$mask" 1>&2
-   return 1
-  fi
-  
   echo "$ula96/$mask"
 }
+
+
+
+
+
+
 
 qmp_get_addr64() {
 
@@ -296,25 +301,16 @@ qmp_get_addr64() {
   local mask=$4
 
   local addr64=$( qmp_calculate_addr64 $prefix $node $suffix )
-
-
-  if ! ipv6calc --in ipv6 $prefix --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in found prefix: $prefix" 1>&2
-   return 1
-  fi
-
-  if ! ipv6calc --in ipv6 $suffix --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in found suffix: $suffix" 1>&2
-   return 1
-  fi
-
-  if ! ipv6calc --in ipv6 $addr64/$mask --out ipv6addr --showinfo > /dev/zero 2>&1  ; then
-   echo "error in generated address $addr64/$mask" 1>&2
-   return 1
-  fi
   
   echo "$addr64/$mask"
 }
+
+
+
+
+
+
+
 
 
 qmp_configure_prepare() {
@@ -332,6 +328,13 @@ qmp_configure_prepare() {
   echo "" > /etc/config/$conf
 
 }
+
+
+
+
+
+
+
 
 
 qmp_configure_network() {
@@ -415,14 +418,13 @@ qmp_configure_network() {
 
     uci set $conf.lan="interface"
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
-    uci set $conf.lan.type="bridge"
+#    uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr="192.168.1.1"
     uci set $conf.lan.netmask="255.255.255.0"
 
 
-    if qmp_uci_test qmp.interfaces.mesh_devices && uci get qmp.networks.mesh_protocol_vids; then
-
+    if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then
 
       for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
@@ -448,36 +450,9 @@ qmp_configure_network() {
           uci set $conf.$lan.netmask="255.255.255.255"
         fi
 
-	if qmp_uci_test qmp.networks.niit_prefix96 && qmp_uci_test qmp.networks.${protocol_name}_niit_routing && [ "$(uci get qmp.networks.${protocol_name}_niit_routing)" = "prefix-based" ] && qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 ; then
-
-	  local route4to6="${protocol_name}_4to6"
-	  uci set $conf.$route4to6="route"
-	  uci set $conf.$route4to6.interface="niit4to6"
-	  uci set $conf.$route4to6.target="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).0.0"
-	  uci set $conf.$route4to6.netmask="255.255.0.0"
-
-	  local route6to4="${protocol_name}_6to4"
-	  uci set $conf.$route6to4="route6"
-	  uci set $conf.$route6to4.interface="niit6to4"
-
-	  if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address && qmp_uci_test qmp.networks.${protocol_name}_6to4_netmask ; then
-	    local in6_address="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-            local in6_netmask="$(uci get qmp.networks.${protocol_name}_6to4_netmask)"
-	    uci set $conf.$route6to4.target="$(uci get qmp.networks.niit_prefix96):$in6_address/$in6_netmask"
-	  elif qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 && ! [ -z "$community_node_id" ] ; then
-	    local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-            local ipv4_prefix24="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24)"
-	    uci set $conf.$route6to4.target="$(uci get qmp.networks.niit_prefix96):$ipv4_prefix24.$ipv4_suffix24/128"
-	  fi
-
-	fi
-
-
       done
     fi
   fi
-
-
 
 
   local counter=1
@@ -508,11 +483,8 @@ qmp_configure_network() {
     done
   fi
 
-
   uci commit $conf
-
 #  /etc/init.d/$conf restart
-
 }
 
 
@@ -525,13 +497,12 @@ qmp_configure_bmx6() {
 
   qmp_configure_prepare $conf
 
-  uci set $conf.networks="bmx6"
-  uci set $conf.networks.link_window="48"
-  uci set $conf.networks.global_prefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
+  uci set $conf.general="bmx6"
+  uci set $conf.general.global_prefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
 
-  uci set $conf.ip=ip_version
-  uci set $conf.ip.ip_version="6"
-  uci set $conf.ip.throw_rules="0"
+  uci set $conf.ip_version=ip_version
+  uci set $conf.ip_version.ip_version="6"
+  uci set $conf.ip_version.throw_rules="0"
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
@@ -559,12 +530,18 @@ qmp_configure_bmx6() {
 	    uci set $conf.mesh_$counter="dev"
 	    uci set $conf.mesh_$counter.dev="$ifname"
 
+	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
+	      uci set $conf.general.niit_source="$(uci get qmp.networks.bmx6_ipv4_address)"
+	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
+	      local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
+	      uci set $conf.general.niit_source="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24"
+	    fi
+
 	    counter=$(( $counter + 1 ))
          fi
 
        done
     done
-
   fi
 
 
@@ -587,12 +564,20 @@ qmp_configure_bmx6() {
     fi
   fi
 
-
   uci commit $conf
-
 #  /etc/init.d/$conf restart
-
 }
+
+
+
+
+
+
+
+
+
+
+
 
 qmp_configure_olsr6() {
 
@@ -698,11 +683,14 @@ $( qmp_get_ip6_slow $(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks
 EOF
     fi
   fi
-
-
 #  /etc/init.d/$conf restart
-
 }
+
+
+
+
+
+
 
 qmp_configure_olsr6_uci_unused() {
 
@@ -763,14 +751,11 @@ qmp_configure_olsr6_uci_unused() {
   fi
   
   uci commit $conf
-
 #  /etc/init.d/$conf restart
-
 }
 
 
 qmp_configure_system() {
-
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
@@ -788,10 +773,10 @@ qmp_configure_system() {
   uci set uhttpd.main.listen_https="443"
   uci commit uhttpd
   /etc/init.d/uhttpd restart
-
-
-
 }
+
+
+
 
 qmp_configure() {
 

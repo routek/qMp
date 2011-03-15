@@ -1,8 +1,10 @@
+## this config should work for fonera, alix, ...
+
 
 config qmp interfaces
-  option configure_switch 'eth0'        # remove (comment line if not available)
-  option lan_devices  'eth0.1'          # will be used as is!           alix: eth0            wgt634u: eth0.1,        ns5: eth0 or remove
-  option wan_device   'eth0.2'          # will be used as is!           alix: eth1,           wgt634u: eth0.2,        ns5: eth0 or remove
+#  option configure_switch 'eth0'        # remove (comment line if not available)
+  option lan_devices  'eth0'          # will be used as is!           alix: eth0            wgt634u: eth0.1,        ns5: eth0 or remove
+  option wan_device   'eth1'          # will be used as is!           alix: eth1,           wgt634u: eth0.2,        ns5: eth0 or remove
   option mesh_devices 'eth0 ath0'       # will be extended by vlan tag! alix: eth0 ath1 ath2, wgt634u: eth0 ath0,     ns5: eth0 ath0
 
 config qmp node
@@ -22,7 +24,6 @@ config qmp networks
 # option olsr6_ipv4_address    '10.201.9.01'
 # option olsr6_ipv4_netmask    '255.255.255.0'
 # option olsr6_6to4_netmask    '120'
-  option olsr6_niit_routing    'native'            # native or prefix-based
 
   option bmx6_mesh_prefix48    'fd02:0:0'
   option bmx6_ripe_prefix48    '2012:0:0'
@@ -30,7 +31,6 @@ config qmp networks
 # option bmx6_ipv4_address     '10.202.9.01'
 # option bmx6_ipv4_netmask     '255.255.255.0'
 # option bmx6_6to4_netmask     '120'
-  option bmx6_niit_routing     'prefix-based'      # native or prefix-based
 
   option babel_mesh_prefix48   'fd03:0:0'
 
