@@ -28,8 +28,7 @@ define Package/qmp-small-node
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-relay +wide-dhcpv6-server \
-	+ipv6calc \
+	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6 +bmx6-uci-config \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \

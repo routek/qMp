@@ -30,6 +30,7 @@ define Package/qmp-big-node
 	+iperf +mtr +netcat +netperf +tcpdump \
 	+nmap +lsof \
 	+wget \
+	+ipv6calc \
 	+bmon +bwm +ebtables \
 
     
