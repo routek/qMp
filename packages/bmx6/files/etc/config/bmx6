@@ -1,3 +1,5 @@
+# for more options execute: bmx6 --help
+
 config 'bmx6' 'general'
 #       option 'runtime_dir' '/var/run/bmx6'
 #       option 'niit_source' '10.202.0.116'
