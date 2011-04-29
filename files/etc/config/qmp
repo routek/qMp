@@ -15,7 +15,7 @@ config qmp node
 config qmp networks
 
   option niit_prefix96	       '0:0:0:0:0:ffff'    # omit trailing 32 ipv4 bits !
-  option mesh_protocol_vids    'olsr6:1 bmx6:2'    # or "olsr6:1 bmx6:2 babel:3"
+  option mesh_protocol_vids    'olsr6:1 bmx6:2'    # or "olsr6:1 bmx6:2 babel:3", means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
   option mesh_vid_offset       '10'
 
   option olsr6_mesh_prefix48   'fd01:0:0'
