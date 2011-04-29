@@ -23,13 +23,13 @@ define Package/qmp-small-node
   TITLE:=Required addons for small qmp mesh nodes ( 4MByte )
   URL:=http://qmp.cat
   DEPENDS:= \
-	+luci-ssl \
+	+uhttpd +luci +luci-lib-nixio \
 	+horst \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
-	+bmx6 +bmx6-uci-config \
+	+bmx6 +bmx6-uci-config +bmx6-luci \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+babeld \
@@ -40,7 +40,6 @@ define Package/qmp-small-node
 	+kmod-niit \
 	+kmod-ipip \
 	+kmod-tun \
-	+kmod-madwifi \
 
     
 endef
@@ -53,3 +52,4 @@ endef
 
 
 $(eval $(call BuildPackage,qmp-small-node))
+

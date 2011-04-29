@@ -22,8 +22,13 @@ define Package/bmx6-luci
 endef
 
 define Package/bmx6-luci/description
-	bmx6 web interface for luci
+	bmx6 web interface for luci (json)
 endef
+
+define Package/bmx6-luci/conffiles
+/etc/config/luci-bmx6
+endef
+
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
@@ -33,16 +38,6 @@ define Build/Configure
 endef
 
 define Build/Compile
-endef
-
-define Package/bmx6-luci/postinst
-#!/bin/sh
-	uci set bmx6.luci=bmx6
-	uci set bmx6.luci.ignore=0
-	uci set bmx6.luci.level1=admin
-	uci set bmx6.luci.level2=bmx6
-	uci set bmx6.luci.json=http://127.0.0.1:8086/
-    	uci commit bmx6
 endef
 
 define Package/bmx6-luci/install
