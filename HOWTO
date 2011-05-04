@@ -23,6 +23,11 @@ nano feeds.conf  # adapt path to .../13f/packages
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
+## Only for HT40+ (MiMo) and ath9k
+mv ../qmp/files/etc/config/wireless ../qmp/files/etc/config/wireless_g
+mv ../qmp/files/etc/config/wireless_n ../qmp/files/etc/config/wireless
+
+## Configuring system
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
 * Target Profile (WGT634u, wrap, alix, routerstation,...) 
@@ -31,18 +36,22 @@ make menuconfig
 * Base system ->
     qmp-big-node # for 8Mbyte flash devices  
     qmp-small-node # for 4MByte flash devices STILL TO BIG due to ipv6calc!!! Dont TEST
-(* LuCI -> Freifunk -> luci-mod-freifunk-community  )
+		#(* LuCI -> Freifunk -> luci-mod-freifunk-community  ) 
 
 * remove for 4MByte-flash devices: network -> ppp
 * remove for 4MByte-flash devices: network -> ppad-mini
 
+## Patching files
+cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
+cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
+patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
+
+## Compiling
 make kernel_menuconfig 
 (* General Setup -> Small Systems -> ELF Core dumps )
 (* Networking -> options -> IPv6 -> routing-tables  )
 
 time make V=99
-
-
 
 #### INSTALL:
 

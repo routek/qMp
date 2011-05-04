@@ -31,7 +31,7 @@ define Package/qmp-big-node
 	+nmap +lsof \
 	+wget \
 	+ipv6calc \
-	+bmon +bwm +ebtables \
+	+bmon +bwm +ebtables +pv \
 
     
 endef
