@@ -64,7 +64,14 @@ mtd -r -e rootfs write /tmp/openwrt-atheros-root.squashfs rootfs
 sudo dd if=bin/x86/openwrt-x86-generic-combined-squashfs.img of=/dev/sdX
 
 
-## routerstation: (untested) 
+## routerstation: (tested)
+ETH="eth0"
+ROUTER_IP="192.168.1.20"
+BIN_FILE="openwrt-ar71xx-ubnt-rs-squashfs-factory.bin"
+sudo ip addr add 192.168.1.254/24 brd 192.168.1.255 dev $ETH
+cd bin/ar71xx
+echo -e "binary\nrexmt 1\ntimeout 60\ntrace\nput $BIN_FILE\n" | sudo tftp $ROUTER_IP
+# Plug the POE and holding down the button of the RouterStation.
 
 
 
