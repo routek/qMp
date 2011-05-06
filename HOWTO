@@ -27,7 +27,7 @@ nano feeds.conf  # adapt path to .../13f/packages
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
 * Target Profile (WGT634u, wrap, alix, routerstation,...) 
-(* Global build-settings -> Compile teh kernel with profiling enabled )
+(* Global build-settings -> Compile the kernel with profiling enabled )
 (* Advanced configuration options for developers -> Toolchain options -> Build gdb )
 * Base system ->
     qmp-big-node # for 8Mbyte flash devices  
