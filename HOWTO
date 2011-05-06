@@ -14,6 +14,7 @@ git clone git://gitorious.org/eigennet/packages.git eigennet/packages
 
 cd backfire
 rm -rf feeds/
+[ ! -d ../../dl ] && mkdir ../../dl # Create download directory if it don't exists.
 ln -s ../../dl # wherever you already have some openwrt downloads...
 ln -s ../qmp/files
 ln -s ../qmp/feeds.conf
