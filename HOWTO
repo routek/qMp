@@ -60,7 +60,7 @@ mtd -r -e rootfs write /tmp/openwrt-atheros-root.squashfs rootfs
 
 
 
-## alix: (untested)
+## alix2d2: (tested)
 sudo dd if=bin/x86/openwrt-x86-generic-combined-squashfs.img of=/dev/sdX
 
 
