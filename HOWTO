@@ -83,6 +83,9 @@ qmp_configure
 # qmp_configure_bmx6
 # qmp_configure_system
 
+# Load madwifi before athXk.
+mv /etc/modules.d/50-madwifi /etc/modules.d/22-madwifi
+
 reboot 
 # or restart stuff manually:
 # /etc/init.d/network restart
