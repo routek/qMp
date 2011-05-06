@@ -38,8 +38,8 @@ make menuconfig
 * remove for 4MByte-flash devices: network -> ppad-mini
 
 make kernel_menuconfig 
-(* General Setup -> Small Systems -> ELF Core dumps )
-(* Networking -> options -> IPv6 -> routing-tables  )
+(* General Setup -> Configure standard kernel features (for small systems) -> Enable ELF core dumps )
+(* Networking support -> Networking options -> The IPv6 protocol -> IPv6: Multiple Routing Tables )
 
 time make V=99
 
