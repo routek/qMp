@@ -12,12 +12,12 @@ diff -Nrup a/include/net/cfg80211.h b/include/net/cfg80211.h
 diff -Nrup a/net/mac80211/agg-rx.c b/net/mac80211/agg-rx.c
 --- a/net/mac80211/agg-rx.c	2011-04-20 19:06:11.000000000 +0200
 +++ b/net/mac80211/agg-rx.c	2011-05-03 11:28:10.484167187 +0200
-@@ -160,6 +160,8 @@ static void ieee80211_send_addba_resp(st
- 		memcpy(mgmt->bssid, sdata->vif.addr, ETH_ALEN);
- 	else if (sdata->vif.type == NL80211_IFTYPE_STATION)
+@@ -162,6 +162,8 @@ static void ieee80211_send_addba_resp(st
  		memcpy(mgmt->bssid, sdata->u.mgd.bssid, ETH_ALEN);
+ 	else if (sdata->vif.type == NL80211_IFTYPE_WDS)
+ 		memcpy(mgmt->bssid, da, ETH_ALEN);
 +	else if (sdata->vif.type == NL80211_IFTYPE_ADHOC)
-+                memcpy(mgmt->bssid, sdata->u.ibss.bssid, ETH_ALEN);
++		memcpy(mgmt->bssid, sdata->u.ibss.bssid, ETH_ALEN);
  
  	mgmt->frame_control = cpu_to_le16(IEEE80211_FTYPE_MGMT |
  					  IEEE80211_STYPE_ACTION);
@@ -33,13 +33,13 @@ diff -Nrup a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
  
  	mgmt->frame_control = cpu_to_le16(IEEE80211_FTYPE_MGMT |
  					  IEEE80211_STYPE_ACTION);
-@@ -377,7 +379,8 @@ int ieee80211_start_tx_ba_session(struct
- 	 */
+@@ -381,7 +381,8 @@ int ieee80211_start_tx_ba_session(struct
  	if (sdata->vif.type != NL80211_IFTYPE_STATION &&
  	    sdata->vif.type != NL80211_IFTYPE_AP_VLAN &&
--	    sdata->vif.type != NL80211_IFTYPE_AP)
-+	    sdata->vif.type != NL80211_IFTYPE_AP &&
-+            sdata->vif.type != NL80211_IFTYPE_ADHOC)
+ 	    sdata->vif.type != NL80211_IFTYPE_AP &&
+-	    sdata->vif.type != NL80211_IFTYPE_WDS)
++	    sdata->vif.type != NL80211_IFTYPE_WDS &&
++	    sdata->vif.type != NL80211_IFTYPE_ADHOC)
  		return -EINVAL;
  
  	if (test_sta_flags(sta, WLAN_STA_BLOCK_BA)) {
@@ -290,13 +290,13 @@ diff -Nrup a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
 diff -Nrup a/net/mac80211/rx.c b/net/mac80211/rx.c
 --- a/net/mac80211/rx.c	2011-04-20 19:06:13.000000000 +0200
 +++ b/net/mac80211/rx.c	2011-05-03 11:53:10.647797250 +0200
-@@ -2132,7 +2132,8 @@ ieee80211_rx_h_action(struct ieee80211_r
- 		 */
+@@ -2133,7 +2133,8 @@ ieee80211_rx_h_action(struct ieee80211_r
  		if (sdata->vif.type != NL80211_IFTYPE_STATION &&
  		    sdata->vif.type != NL80211_IFTYPE_AP_VLAN &&
--		    sdata->vif.type != NL80211_IFTYPE_AP)
-+		    sdata->vif.type != NL80211_IFTYPE_AP &&
-+                    sdata->vif.type != NL80211_IFTYPE_ADHOC)
+ 		    sdata->vif.type != NL80211_IFTYPE_AP &&
+-		    sdata->vif.type != NL80211_IFTYPE_WDS)
++		    sdata->vif.type != NL80211_IFTYPE_WDS &&
++		    sdata->vif.type != NL80211_IFTYPE_ADHOC)
  			break;
  
  		/* verify action_code is present */
