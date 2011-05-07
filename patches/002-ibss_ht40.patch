@@ -13,7 +13,7 @@ diff -Nrup a/ibss.c b/ibss.c
  	argv++;
  	argc--;
  
-+	if (argc && parse_channel_typ.e(argv[0], &htval)) {
++	if (argc && parse_channel_type(argv[0], &htval)) {
 +		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, htval);
 +		argv++;
 +		argc--;
