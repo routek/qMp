@@ -5,7 +5,7 @@ config qmp interfaces
 #  option configure_switch 'eth0'        # remove (comment line if not available)
   option lan_devices  'eth0'          # will be used as is!           alix: eth0            wgt634u: eth0.1,        ns5: eth0 or remove
   option wan_device   'eth1'          # will be used as is!           alix: eth1,           wgt634u: eth0.2,        ns5: eth0 or remove
-  option mesh_devices 'eth0 ath0'       # will be extended by vlan tag! alix: eth0 ath1 ath2, wgt634u: eth0 ath0,     ns5: eth0 ath0
+  option mesh_devices 'eth0 wlan0'       # will be extended by vlan tag! alix: eth0 wlan0 wlan1, wgt634u: eth0 wlan0,     ns5: eth0 wlan0
 
 config qmp node
 #  if commented out then last byte of the MAC address is used (0x000-0x0FF):
