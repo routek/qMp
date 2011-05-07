@@ -91,6 +91,9 @@ qmp_configure
 # qmp_configure_bmx6
 # qmp_configure_system
 
+uci set wireless.radio0.macaddr=$(qmp_get_mac_for_dev wlan0)
+uci commit
+
 reboot 
 # or restart stuff manually:
 # /etc/init.d/network restart
