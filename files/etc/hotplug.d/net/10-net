@@ -13,7 +13,7 @@ addif() {
 	case "$INTERFACE" in
 		ppp*|3g-*) return 0;;
 #		ath*) return 0;;
-		wlan*) return 0;;
+#		wlan*) return 0;;
 	esac
 
 	scan_interfaces
