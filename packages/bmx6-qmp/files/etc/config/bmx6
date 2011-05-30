@@ -5,8 +5,8 @@ config 'bmx6' 'general'
 #       option 'niitSource' '10.202.0.116'
 
 #config 'ipVersion' 'ipVersion'
-#       option 'ip_version' '6'   # default is 4
-#       option 'throw_rules' '0'
+#       option 'ipVersion' '6'   # default is 4
+#       option 'throwRules' '0'
 
 config 'dev' 'mesh_1'
         option 'dev' 'eth0.12'
