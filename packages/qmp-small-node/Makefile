@@ -23,14 +23,17 @@ define Package/qmp-small-node
   TITLE:=Required addons for small qmp mesh nodes ( 4MByte )
   URL:=http://qmp.cat
   DEPENDS:= \
+	+uhttpd +luci +luci-lib-nixio \
 	+luci-ssl \
 	+horst \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
+	+wireless-tools +iw \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
-	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
+	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-luci \
+	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
+	+olsrd-mod-arprefresh +olsrd-luci \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+babeld \
 	+ntpclient +ip \
@@ -41,8 +44,9 @@ define Package/qmp-small-node
 	+kmod-ipip \
 	+kmod-tun \
 	+kmod-madwifi \
+	+kmod-ath9k \
+	+kmod-ath5k
 
-    
 endef
 
 
