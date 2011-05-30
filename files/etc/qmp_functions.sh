@@ -498,11 +498,18 @@ qmp_configure_bmx6() {
   qmp_configure_prepare $conf
 
   uci set $conf.general="bmx6"
-  uci set $conf.general.global_prefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
+  uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
 
-  uci set $conf.ip_version=ip_version
-  uci set $conf.ip_version.ip_version="6"
-  uci set $conf.ip_version.throw_rules="0"
+  uci set $conf.bmx6_config_plugin=plugin
+  uci set $conf.bmx6_config_plugin.plugin=bmx6_config.so
+
+  uci set $conf.bmx6_json_plugin=plugin
+  uci set $conf.bmx6_json_plugin.plugin=bmx6_json.so
+
+  uci set $conf.ipVersion=ipVersion
+  uci set $conf.ipVersion.ipVersion="6"
+  uci set $conf.ipVersion.throwRules="0"
+
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
@@ -531,10 +538,10 @@ qmp_configure_bmx6() {
 	    uci set $conf.mesh_$counter.dev="$ifname"
 
 	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
-	      uci set $conf.general.niit_source="$(uci get qmp.networks.bmx6_ipv4_address)"
+	      uci set $conf.general.niitSource="$(uci get qmp.networks.bmx6_ipv4_address)"
 	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
 	      local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-	      uci set $conf.general.niit_source="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24"
+	      uci set $conf.general.niitSource="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24"
 	    fi
 
 	    counter=$(( $counter + 1 ))
@@ -546,8 +553,8 @@ qmp_configure_bmx6() {
 
 
   if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
-    uci set $conf.ripe="unicast_hna"
-    uci set $conf.ripe.unicast_hna="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:0/64"
+    uci set $conf.ripe="hna"
+    uci set $conf.ripe.hna="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:0/64"
   fi
 
 
@@ -556,11 +563,11 @@ qmp_configure_bmx6() {
     if qmp_uci_test qmp.networks.bmx6_ipv4_address && qmp_uci_test qmp.networks.bmx6_ipv4_netmask && qmp_uci_test qmp.networks.bmx6_6to4_netmask; then
       local niit6to4_address="$(qmp_get_ip6_slow $(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_address)/$(uci get qmp.networks.bmx6_6to4_netmask))"
       uci set $conf.niit6to4="unicast_hna"
-      uci set $conf.niit6to4.unicast_hna="$niit6to4_address/$(uci get qmp.networks.bmx6_6to4_netmask)"
+      uci set $conf.niit6to4.hna="$niit6to4_address/$(uci get qmp.networks.bmx6_6to4_netmask)"
     elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24; then
       local niit6to4_address="$(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_prefix24).$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
       uci set $conf.niit6to4="unicast_hna"
-      uci set $conf.niit6to4.unicast_hna="$niit6to4_address/128"
+      uci set $conf.niit6to4.hna="$niit6to4_address/128"
     fi
   fi
 
