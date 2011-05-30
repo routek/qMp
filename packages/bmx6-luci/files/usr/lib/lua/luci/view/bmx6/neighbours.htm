@@ -1,0 +1,22 @@
+<%+header%>
+<style type="text/css">
+#neighbour {
+	position:relative;
+}
+
+#nb_id {
+	background-color: #35ca2c;
+	font: bold;
+}
+</style>
+
+<h2><a id="content" name="content"><%:Neighbours%></a></h2>
+Current neighbours 
+<% for i,v in ipairs(data) do %>
+	<div id="neighbour"> 
+		<div id="nb_id"><%=v.node.id%></div>
+	</div>
+<%end%>
+
+<br />
+<%+footer%>

@@ -12,7 +12,7 @@ config wifi-iface
 	option device	wifi0
 #	option network	wlan
 	option mode	adhoc
-	option ssid	olsr.freifunk.net
+	option ssid	qmp
 	option bssid	02:ca:ff:ee:ba:be
 	option encryption none
 	option protmode 0

@@ -1,0 +1,27 @@
+config wifi-device  radio0
+	option type     mac80211
+	option channel  44
+	option hwmode	11na
+	option htmode	HT40+
+	list ht_capab	SHORT-GI-40
+	list ht_capab	TX-STBC
+	list ht_capab	RX-STBC1
+	list ht_capab	DSSS_CCK-40
+	option disabled 0
+	option country	ES
+	
+config wifi-iface
+	option device   radio0
+	option mode     adhoc  
+	option ssid     qmp    
+	option bssid    02:ca:ff:ee:ba:be
+	option encryption none           
+	option protmode 0                
+	option bgscan   0                
+	option uapsd    0                
+	option rssi11a  9                
+	option rssi11b  9                
+	option rssi11g  9                
+	option bintval  1000             
+	option sw_merge 1
+

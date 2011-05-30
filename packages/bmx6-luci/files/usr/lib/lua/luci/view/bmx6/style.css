@@ -1,0 +1,9 @@
+#neighbour {
+	position:relative;
+}
+
+#nb_id {
+	background-color: #35ca2c;
+	float:left;
+	font: bold;
+}
