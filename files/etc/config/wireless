@@ -1,10 +1,10 @@
 config wifi-device  wifi0
 	option type     atheros
-	option channel  10
+	option channel  44
         option diversity 0 # 0:off, 1:on
         option txantenna 1 # 0:auto, 1:main, 2:aux
         option rxantenna 1 # 0:auto, 1:main, 2:aux
-	option country	276
+	option country	800
 	option outdoor	1
 #	option txpower  1 
 
