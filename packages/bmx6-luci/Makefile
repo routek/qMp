@@ -42,6 +42,7 @@ endef
 
 define Package/bmx6-luci/install
 	$(CP) ./files/* $(1)/
+	chmod 755 $(1)/www/cgi-bin/bmx6-info
 endef
 
 $(eval $(call BuildPackage,bmx6-luci))

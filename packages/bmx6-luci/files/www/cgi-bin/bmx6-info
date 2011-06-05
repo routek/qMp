@@ -1,0 +1,32 @@
+#!/bin/sh
+BMX6_DIR="/var/run/bmx6/json"
+#!/bin/sh
+BMX6_DIR="/var/run/bmx6/json"
+
+
+check_path() {
+        [ -d "$1" ] && path=$(cd $1; pwd)
+        [ -f "$1" ] && path=$(cd $1/..; pwd)
+        [ $(echo "$path" | grep -c "^$BMX6_DIR") -ne 1 ] && exit 1
+}
+
+echo "Content-type: text/html"
+echo ""
+
+check_path "$BMX6_DIR/$QUERY_STRING"
+
+[ -d "$BMX6_DIR/$QUERY_STRING" ] &&
+        {
+        ls -1F "$BMX6_DIR/$QUERY_STRING";
+        exit 0;
+        }
+
+[ -f "$BMX6_DIR/$QUERY_STRING" ] &&
+        {
+        cat "$BMX6_DIR/$QUERY_STRING";
+        exit 0;
+        }
+
+ls -1F "$BMX6_DIR"
+exit 0
+
