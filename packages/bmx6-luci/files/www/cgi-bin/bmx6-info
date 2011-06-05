@@ -1,7 +1,5 @@
 #!/bin/sh
 BMX6_DIR="/var/run/bmx6/json"
-#!/bin/sh
-BMX6_DIR="/var/run/bmx6/json"
 
 
 check_path() {
