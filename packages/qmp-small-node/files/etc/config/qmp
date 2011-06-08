@@ -35,16 +35,17 @@ config qmp networks
   option babel_mesh_prefix48   'fd03:0:0'
 
 #This is only a prototype, not implemented!
-config qmp wireless1                        
-        option  driver  madwifi                                                  
+config qmp wireless
+	option	driver	madwifi
+	option	country	8000
+
+config wireless
         option  channel 44                                                                               
-	option  country 800                                               
         option  mode    mesh             
-                                         
-config qmp wireless2                     
-        option  driver  athXk          
+        option	mac	AA:BB:CC:DD:EE:FF                                 
+
+config wireless                    
         option  channel 10                                                       
-        option  country 800
         option  mode    ap          
-                            
+	option	mac	00:11:22:33:44:55
  
