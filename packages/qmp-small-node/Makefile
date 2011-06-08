@@ -54,6 +54,10 @@ define Package/qmp-small-node/description
  Addons for small qmp nodes (4MByte flash)
 endef
 
+define Package/qmp-small-node/install
+	$(CP) ./files/* $(1)/
+	chmod 755 $(1)/etc/init.d/qmp_autoconf
+endef
 
 
 $(eval $(call BuildPackage,qmp-small-node))

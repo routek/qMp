@@ -1,0 +1,31 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2011 qmp.cat
+START=99
+CONTROL_FILE="/qmp_configured"
+QMP_PATH="/etc/qmp"
+
+configure() {
+	echo "Starting qmp configuration..."
+	. $QMP_PATH/qmp_functions.sh
+	qmp_configure
+	touch "$CONTROL_FILE"
+	echo "Done"
+}
+
+start() {
+	if [ ! -f "$CONTROL_FILE" ]; then
+		configure
+	else
+		echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
+	fi
+}
+
+stop() {
+	echo "Nothing to do"
+}
+
+restart() {
+	stop
+	start
+}
+
