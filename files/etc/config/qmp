@@ -8,41 +8,29 @@ config qmp interfaces
   option mesh_devices 'eth0 ath0'       # will be extended by vlan tag! alix: eth0 ath1 ath2, wgt634u: eth0 ath0,     ns5: eth0 ath0
 
 config qmp node
-#  if commented out then last byte of the MAC address is used (0x000-0x0FF):
-#  option community_node_id 901          # value between 0x0100 and 0xFFFF
-
+#  if commented out then last 16-bits of the MAC address is used to minimize collisions
+  option community_node_id 32          # decimal value between 0 and 4095 (more human-friendly)
+  option global_prefix48   '2a00:1508:0'    # I propouse only one ISP-global-prefix for whole nodes in the community
 
 config qmp networks
 
-  option niit_prefix96	       '0:0:0:0:0:ffff'    # omit trailing 32 ipv4 bits !
-  option mesh_protocol_vids    'olsr6:1 bmx6:2'    # or "olsr6:1 bmx6:2 babel:3", means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
-  option mesh_vid_offset       '10'
+  option niit_prefix96       '0:0:0:0:0:ffff'    # omit trailing 32 ipv4 bits !
+  option mesh_protocol_vids    'olsr6:3 bmx6:5'    # {protocol canonical name}:[VID]
+  option mesh_vid_offset       '10'    # will be used if none VID is supplied by user
 
-  option olsr6_mesh_prefix48   'fd01:0:0'
-  option olsr6_ripe_prefix48   '2011:0:0'
+  option olsr6_ula_prefix48   'fd01:0:0'    # The prefixes must not end with colon!
+#  option olsr6_global_prefix48   '2a00:1508:0'    # Axel supposes two diferents RIR/LIR global prefix per protocol
   option olsr6_ipv4_prefix24   '10.201'
 # option olsr6_ipv4_address    '10.201.9.01'
 # option olsr6_ipv4_netmask    '255.255.255.0'
 # option olsr6_6to4_netmask    '120'
 
-  option bmx6_mesh_prefix48    'fd02:0:0'
-  option bmx6_ripe_prefix48    '2012:0:0'
+  option bmx6_ula_prefix48    'fd02:0:0'    # The prefixes must not end with colon!
+#  option bmx6_global_prefix48    '2a00:1508:1'    # Axel supposes two diferents RIR/LIR global prefix per protocol
   option bmx6_ipv4_prefix24    '10.202'
 # option bmx6_ipv4_address     '10.202.9.01'
 # option bmx6_ipv4_netmask     '255.255.255.0'
 # option bmx6_6to4_netmask     '120'
 
-  option babel_mesh_prefix48   'fd03:0:0'
+#  option babel_ula_prefix48   'fd03:0:0'
 
-#This is only a prototype, not implemented!
-config qmp wireless1                        
-        option  driver  madwifi                                                  
-        option  channel 44                                                                               option  country 800                                               
-        option  mode    mesh             
-                                         
-config qmp wireless2                     
-        option  driver  athXk          
-        option  channel 10                                                       
-        option  country 800                                                                              option  mode    ap          
-                            
- 
