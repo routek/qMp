@@ -29,7 +29,7 @@ define Package/qmp-small-node
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
-	+wireless-tools +iw \
+	+wireless-tools +iw +hostapd \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-luci \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \

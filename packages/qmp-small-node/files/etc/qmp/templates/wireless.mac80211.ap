@@ -1,0 +1,17 @@
+config wifi-device #QMP_DEVICE
+	option type     mac80211
+	option macaddr	#QMP_MAC
+	option channel  #QMP_CHANNEL
+        option diversity 0 # 0:off, 1:on
+        option txantenna 0 # 0:auto, 1:main, 2:aux
+        option rxantenna 0 # 0:auto, 1:main, 2:aux
+	option country	#QMP_COUNTRY
+	option outdoor	1
+#	option txpower  1 
+
+config wifi-iface
+	option device	#QMP_DEVICE
+	option mode	ap
+	option ssid	#QMP_SSID
+	option encryption none
+

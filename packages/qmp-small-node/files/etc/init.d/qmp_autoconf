@@ -29,3 +29,15 @@ restart() {
 	start
 }
 
+enable()
+	{
+	rm "$CONTROL_FILE" 2>/dev/null
+	echo "Autoconfiguration enabled..."
+	}
+
+dissable()
+	{
+	touch "$CONTROL_FILE"
+	echo "Autoconfiguration dissabled..."
+	}
+

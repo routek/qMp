@@ -1,0 +1,20 @@
+config wifi-device #QMP_DEVICE
+	option type     mac80211
+	option macaddr	#QMP_MAC
+	option channel  #QMP_CHANNEL
+	option hwmode	11na
+	option htmode	HT40+
+	list ht_capab	SHORT-GI-40
+	list ht_capab	TX-STBC	
+	list ht_capab	RX-STBC1
+	list ht_capab	DSSS_CCK-40
+	option country	#QMP_COUNTRY
+	option outdoor	1
+
+config wifi-iface
+	option device	#QMP_DEVICE
+	option mode	adhoc
+	option ssid	#QMP_SSID
+	option bssid	#QMP_BSSID
+	option encryption none
+
