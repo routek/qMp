@@ -2,22 +2,30 @@
 # Copyright (C) 2011 qmp.cat
 START=99
 CONTROL_FILE="/qmp_configured"
-QMP_PATH="/etc/qmp"
+QMP_DIR="/etc/qmp"
 
 configure() {
 	echo "Starting qmp configuration..."
-	. $QMP_PATH/qmp_functions.sh
+
+	echo "[Configuring networking]"
+	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
+	
+	echo "[Configuring wireless]"
+	. $QMP_DIR/qmp_wireless.sh
+	qmp_configure_wifi_initial
+	qmp_configure_wifi
+	
 	touch "$CONTROL_FILE"
 	echo "Done"
 }
 
 start() {
-	if [ ! -f "$CONTROL_FILE" ]; then
-		configure
-	else
-		echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
-	fi
+if [ ! -f "$CONTROL_FILE" ]; then
+	configure
+else
+	echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
+fi
 }
 
 stop() {
@@ -28,16 +36,3 @@ restart() {
 	stop
 	start
 }
-
-enable()
-	{
-	rm "$CONTROL_FILE" 2>/dev/null
-	echo "Autoconfiguration enabled..."
-	}
-
-dissable()
-	{
-	touch "$CONTROL_FILE"
-	echo "Autoconfiguration dissabled..."
-	}
-

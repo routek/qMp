@@ -1,54 +1,37 @@
-## this config should work for fonera, alix, ...
 
+config 'qmp' 'interfaces'
+	option 'lan_devices' 'eth0'
+	option 'wan_device' 'eth1'
+	option 'mesh_devices' 'eth0 ath0'
 
-config qmp interfaces
-#  option configure_switch 'eth0'        # remove (comment line if not available)
-  option lan_devices  'eth0'          # will be used as is!           alix: eth0            wgt634u: eth0.1,        ns5: eth0 or remove
-  option wan_device   'eth1'          # will be used as is!           alix: eth1,           wgt634u: eth0.2,        ns5: eth0 or remove
-  option mesh_devices 'eth0 ath0'       # will be extended by vlan tag! alix: eth0 ath1 ath2, wgt634u: eth0 ath0,     ns5: eth0 ath0
+config 'qmp' 'node'
 
-config qmp node
-#  if commented out then last byte of the MAC address is used (0x000-0x0FF):
-#  option community_node_id 901          # value between 0x0100 and 0xFFFF
+config 'qmp' 'networks'
+	option 'niit_prefix96' '0:0:0:0:0:ffff'
+	option 'mesh_protocol_vids' 'olsr6:1 bmx6:2'
+	option 'mesh_vid_offset' '10'
+	option 'olsr6_mesh_prefix48' 'fd01:0:0'
+	option 'olsr6_ripe_prefix48' '2011:0:0'
+	option 'olsr6_ipv4_prefix24' '10.201'
+	option 'bmx6_mesh_prefix48' 'fd02:0:0'
+	option 'bmx6_ripe_prefix48' '2012:0:0'
+	option 'bmx6_ipv4_prefix24' '10.202'
+	option 'babel_mesh_prefix48' 'fd03:0:0'
 
+config 'qmp' 'wireless'
+	option 'driver' 'mac80211' # mac80211/madwifi
+	option 'country' 'UZ'
+#	option 'country' '800' # for madwifi
+	option 'bssid' '02:CA:FF:EE:BA:BE'
 
-config qmp networks
+config 'wireless'
+	option 'channel' '44'
+	option 'mode' 'adhoc'
+	option 'name' 'qmp'
 
-  option niit_prefix96	       '0:0:0:0:0:ffff'    # omit trailing 32 ipv4 bits !
-  option mesh_protocol_vids    'olsr6:1 bmx6:2'    # or "olsr6:1 bmx6:2 babel:3", means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
-  option mesh_vid_offset       '10'
+config 'wireless'
+	option 'channel' '10'
+	option 'mode' 'ap'
+	option 'name' 'qmp.cat'
 
-  option olsr6_mesh_prefix48   'fd01:0:0'
-  option olsr6_ripe_prefix48   '2011:0:0'
-  option olsr6_ipv4_prefix24   '10.201'
-# option olsr6_ipv4_address    '10.201.9.01'
-# option olsr6_ipv4_netmask    '255.255.255.0'
-# option olsr6_6to4_netmask    '120'
-
-  option bmx6_mesh_prefix48    'fd02:0:0'
-  option bmx6_ripe_prefix48    '2012:0:0'
-  option bmx6_ipv4_prefix24    '10.202'
-# option bmx6_ipv4_address     '10.202.9.01'
-# option bmx6_ipv4_netmask     '255.255.255.0'
-# option bmx6_6to4_netmask     '120'
-
-  option babel_mesh_prefix48   'fd03:0:0'
-
-config qmp wireless
-	option driver mac80211
-	option country 800
-	option bssid 02:CA:FF:EE:BA:BE
-
-config  wireless                     
-	option channel 10                                                       
-	option mode    ap
-	option mac 00:80:48:6B:25:b6
-	option name AP-qmp
-	
-config  wireless                        
-	option channel 44                                                                               
-	option mode adhoc
-	option mac 00:80:48:6b:25:b5
-	option name qmp
-               	                                                 
 
