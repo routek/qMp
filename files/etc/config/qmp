@@ -9,7 +9,7 @@ config qmp interfaces
 
 config qmp node
 #  if commented out then last 16-bits of the MAC address is used to minimize collisions
-  option community_node_id 32          # decimal value between 0 and 4095 (more human-friendly)
+#  option community_node_id 32          # decimal value between 0 and 4095 (more human-friendly)
   option global_prefix48   '2a00:1508:0'    # I propouse only one ISP-global-prefix for whole nodes in the community
 
 config qmp networks

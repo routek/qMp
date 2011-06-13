@@ -732,7 +732,6 @@ qmp_configure_network() {
 		fi
 	fi
 
-	#Here start serious things....
 	qmp_log_all "$SOURCE" "<<<< Loopback interface configuration >>>>" ""
 
 	qmp_set_option $BASE_CONFIG.loopback "interface" "$SOURCE"
@@ -760,7 +759,7 @@ qmp_configure_network() {
 	qmp_set_option $BASE_CONFIG.niit6to4.proto "none" "$SOURCE"
 	qmp_set_option $BASE_CONFIG.niit6to4.ifname "niit6to4" "$SOURCE"
 
-	#Setting the primary mesh device
+	#Get the primary mesh device
 	local PRIMARY_MESH_DEV="$(qmp_get_primary_dev $QMP_CONFIG $SOURCE)"
 
 	#Configuration of LAN devices defined in ${QMP_CONFIG} with default IPv4 static address
@@ -882,11 +881,17 @@ qmp_configure_bmx6() {
 	qmp_config_revert "$BMX6_CONFIG" "$SOURCE"
 
 	qmp_set_option "$BMX6_CONFIG.general" "$BMX6_CNAME" "$SOURCE"
-	qmp_set_option "$BMX6_CONFIG.general.ula_prefix" "$(uci get ${QMP_CONFIG}.networks.bmx6_ula_prefix48)::/48" "$SOURCE"
+	#qmp_set_option "$BMX6_CONFIG.general.ula_prefix" "$(uci get ${QMP_CONFIG}.networks.bmx6_ula_prefix48)::/48" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.general.globalPrefix" "$(uci get ${QMP_CONFIG}.networks.bmx6_ula_prefix48)::/48" "$SOURCE"
 
-	qmp_set_option "$BMX6_CONFIG.ip_version" "ip_version" "$SOURCE"
-	qmp_set_option "$BMX6_CONFIG.ip_version.ip_version" "6" "$SOURCE"
-	qmp_set_option "$BMX6_CONFIG.ip_version.throw_rules" "0" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.bmx6_config_plugin" "plugin" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.bmx6_config_plugin.plugin" "bmx6_config.so" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.bmx6_json_plugin" "plugin" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.bmx6_json_plugin.plugin" "bmx6_json.so" "$SOURCE"
+
+	qmp_set_option "$BMX6_CONFIG.ipVersion" "ipVersion" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.ipVersion.ipVersion" "6" "$SOURCE"
+	qmp_set_option "$BMX6_CONFIG.ipVersion.throwRules" "0" "$SOURCE"
 
 
 	local PRIMARY_MESH_DEV="$(qmp_get_primary_dev $QMP_CONFIG "$SOURCE")"
@@ -936,12 +941,12 @@ qmp_configure_bmx6() {
 
 					if qmp_config_check ${QMP_CONFIG}.networks.bmx6_ipv4_address
 					then
-						qmp_set_option "$BMX6_CONFIG.general.niit_source" "$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_address)" "$SOURCE"
+						qmp_set_option "$BMX6_CONFIG.general.niitSource" "$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_address)" "$SOURCE"
 						
 					elif qmp_config_check ${QMP_CONFIG}.networks.bmx6_ipv4_prefix24
 					then
 						local IP4_SUBNETID16="$(( 0x$NODE_PROJ / 0x100 )).$(( 0x$NODE_PROJ % 0x100 ))"
-						qmp_set_option "$BMX6_CONFIG.general.niit_source" "$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_prefix24).$IP4_SUBNETID16" "$SOURCE"
+						qmp_set_option "$BMX6_CONFIG.general.niitSource" "$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_prefix24).$IP4_SUBNETID16" "$SOURCE"
 						
 					fi
 					#End of interfaces configuration
@@ -958,8 +963,8 @@ qmp_configure_bmx6() {
 
 	if qmp_config_check ${QMP_CONFIG}.node.global_prefix48
 	then
-		qmp_set_option "$BMX6_CONFIG.ripe" "unicast_hna" "$SOURCE"
-		qmp_set_option "$BMX6_CONFIG.ripe.unicast_hna" "$(uci get ${QMP_CONFIG}.node.global_prefix48):$NODE_PROJ:0:0:0:0/64" "$SOURCE"
+		qmp_set_option "$BMX6_CONFIG.ripe" "hna" "$SOURCE"
+		qmp_set_option "$BMX6_CONFIG.ripe.hna" "$(uci get ${QMP_CONFIG}.node.global_prefix48):$NODE_PROJ:0:0:0:0/64" "$SOURCE"
 
 	fi
 
@@ -970,13 +975,13 @@ qmp_configure_bmx6() {
 		then
 			local NIIT6TO4_ADDR="$(qmp_get_ip6_fast $(uci get ${QMP_CONFIG}.networks.niit_prefix96):$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_address)/$(uci get ${QMP_CONFIG}.networks.bmx6_6to4_netmask))"
 			qmp_set_option "$BMX6_CONFIG.niit6to4" "unicast_hna" "$SOURCE"
-			qmp_set_option "$BMX6_CONFIG.niit6to4.unicast_hna" "$NIIT6TO4_ADDR/$(uci get ${QMP_CONFIG}.networks.bmx6_6to4_netmask)" "$SOURCE"
+			qmp_set_option "$BMX6_CONFIG.niit6to4.hna" "$NIIT6TO4_ADDR/$(uci get ${QMP_CONFIG}.networks.bmx6_6to4_netmask)" "$SOURCE"
 
 		elif qmp_config_check ${QMP_CONFIG}.networks.bmx6_ipv4_prefix24
 		then
 			local NIIT6TO4_ADDR="$(uci get ${QMP_CONFIG}.networks.niit_prefix96):$(uci get ${QMP_CONFIG}.networks.bmx6_ipv4_prefix24).$IP4_SUBNETID16"
 			qmp_set_option "$BMX6_CONFIG.niit6to4" "unicast_hna" "$SOURCE"
-			qmp_set_option "$BMX6_CONFIG.niit6to4.unicast_hna" "$NIIT6TO4_ADDR/128" "$SOURCE"
+			qmp_set_option "$BMX6_CONFIG.niit6to4.hna" "$NIIT6TO4_ADDR/128" "$SOURCE"
 
 		fi
 	fi
