@@ -8,6 +8,21 @@ WIFI_DEFAULT_CONFIG="$QMP_PATH/templates/wireless.default.config"
 #Importing files
 . $QMP_PATH/qmp_common.sh
 
+qmp_configure_wifi_driver() {
+	driver="$(qmp_uci_get wireless.driver)"
+	case $driver in
+	"madwifi")
+		mv /etc/modules.d/50-madwifi /etc/modules.d/22-madwifi 2>/dev/null
+		;;
+	"mac80211")
+		mv /etc/modules.d/22-madwifi /etc/modules.d/50-madwifi 2>/dev/null
+		;;
+	*)
+		qmp_error "Driver $driver not found"
+		;;
+	esac
+}
+
 qmp_configure_wifi_device() {
 #Configure a wifi device according qmp config file
 #Parameters are: 1-> qmp config id, 2-> device name
@@ -68,6 +83,8 @@ qmp_configure_wifi() {
 		done
 		i=$(( $i + 1 ))
 	done
+	echo "Configuring driver..."
+	qmp_configure_wifi_driver
 	echo "Done. All devices configured according qmp configuration"
 }
 
