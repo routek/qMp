@@ -213,19 +213,17 @@ qmp_log_stdout(){
 		SOURCE="qmp_log_stdout"
 	fi
 
-	local NODENAME="$(uname -n)"
-
 	if [ -z "$OUTCOME" ]
 	then
-		printf "%s: %s: %s\n" "$NODENAME" "$SOURCE" "$INSTANCE"
+		printf "%s: %s\n" "$SOURCE" "$INSTANCE"
 	else
-		printf "%s: %s: %s -> %s\n" "$NODENAME" "$SOURCE" "$INSTANCE" "[$OUTCOME]"
+		printf "%s: %s -> %s\n" "$SOURCE" "$INSTANCE" "[$OUTCOME]"
 
 	fi
 
 }
 
-# Send a formated logging message to logfile
+# Send a message to syslog
 qmp_log_file(){
 
 	local SOURCE=$1
@@ -250,7 +248,7 @@ qmp_log_file(){
 
 }
 
-#Sends the standard logging message to all the streams
+#Sends the standard logging message to all streams
 qmp_log_all() {
 
 	local SOURCE=$1
@@ -496,8 +494,6 @@ qmp_calculate_ula96() {
 
 	local SOURCE="qmp_calculate_ula96"
 
-	#Only file output stream is allowed in this function, otherwise its output inteferes with legal returned value
-
 	#Check whether doubled-colon is present in PREFIX
 	if echo $PREFIX |grep "::" &> /dev/null
 	then
@@ -548,13 +544,13 @@ qmp_node_id() {
 	if [ "$NODE_ID" -ge "0" ] && [ "$NODE_ID" -le "4095" ]
 	then
 		NODE_PRJ=$NODE_ID
-		qmp_log_file "$SOURCE" "Extracted node-id='$NODE_PRJ' from '${QMP_CONFIG}.node.community_node_id'" ""
+		qmp_log_file "$SOURCE" "Builded node-id='$NODE_PRJ' from '${QMP_CONFIG}.node.community_node_id'" ""
 	else
 		local MAC_ADDR=$(qmp_get_dev_mac $PRIMARY_DEV)
 		local MAC_ADDR5="$( echo $MAC_ADDR | awk -F':' '{print $5}' )"
 		local MAC_ADDR6="$( echo $MAC_ADDR | awk -F':' '{print $6}' )"
 		NODE_PRJ=$(( 0x$MAC_ADDR6 + ( 0x$MAC_ADDR5 & 0xf ) * 0x100  ))
-		qmp_log_file "$SOURCE" "Extracted node-id='$NODE_PRJ' from $PRIMARY_DEV MAC address" ""
+		qmp_log_file "$SOURCE" "Builded node-id='$NODE_PRJ' from $PRIMARY_DEV MAC address" ""
 	fi
 
 	echo $NODE_PRJ
@@ -771,7 +767,7 @@ qmp_configure_network() {
 		qmp_set_option $BASE_CONFIG.lan.ifname "$(uci get ${QMP_CONFIG}.interfaces.lan_devices)" "$SOURCE"
 #    qmp_set_option $BASE_CONFIG.lan.type="bridge"
 		qmp_set_option $BASE_CONFIG.lan.proto "static" "$SOURCE"
-		qmp_set_option $BASE_CONFIG.lan.ipaddr "192.168.1.1" "$SOURCE"
+		qmp_set_option $BASE_CONFIG.lan.ipaddr "192.168.31.6" "$SOURCE"
 		qmp_set_option $BASE_CONFIG.lan.netmask "255.255.255.0" "$SOURCE"
 
 		#Configure all the devices defined like mesh device and assign them unicast global adresses and IPv4 addreses

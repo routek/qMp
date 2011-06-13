@@ -46,11 +46,13 @@ cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
 cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
 patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
 
-## Compiling
+## Configuring kernel
 make kernel_menuconfig 
 (* General Setup -> Small Systems -> ELF Core dumps )
 (* Networking -> options -> IPv6 -> routing-tables  )
+(* File systems ->  * Dnotify support * Inotify file change notification support * Inotify support for userspace )
 
+## Compiling
 time make V=99
 
 #### INSTALL:
