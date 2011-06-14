@@ -55,9 +55,9 @@ qmp_set_option(){
 
 		if uci set $UCI_ARG="$VALUE" &> /dev/null
 		then
-			#qmp_log_all "$SOURCE" "Setting UCI '$UCI_ARG'" "Done"h
-			qmp_log_file "$SOURCE" "Setting UCI '$UCI_ARG'='$VALUE', uci get $UCI_ARG='$(uci get $UCI_ARG)'" "Done" 
-		else
+			#qmp_log_all "$SOURCE" "Setting UCI '$UCI_ARG'" "Done"
+			qmp_log_file "$SOURCE" "Setting UCI '$UCI_ARG'='$VALUE'" "Done" 
+		else 
 			#qmp_log_all "$SOURCE" "Setting UCI '$UCI_ARG'" "Failed"
 			qmp_log_file "$SOURCE" "Setting UCI '$UCI_ARG'='$VALUE', returned '$(uci set $UCI_ARG=$VALUE 2>&1)'" "Error"
 		fi
@@ -240,9 +240,9 @@ qmp_log_file(){
 
 	if [ -z "$OUTCOME" ]
 	then
-		printf "%s %s: %s: %s\n" "$DAYTIME" "$NODENAME" "$SOURCE" "$INSTANCE" >> $LOGFILE
+		printf "%s %s %s: %s\n" "$DAYTIME" "$NODENAME" "$SOURCE" "$INSTANCE" >> $LOGFILE
 	else
-		printf "%s %s: %s: %s -> %s\n" "$DAYTIME" "$NODENAME" "$SOURCE" "$INSTANCE" "[$OUTCOME]" >> $LOGFILE
+		printf "%s %s %s: %s -> %s\n" "$DAYTIME" "$NODENAME" "$SOURCE" "$INSTANCE" "[$OUTCOME]" >> $LOGFILE
 
 	fi
 
@@ -680,7 +680,7 @@ qmp_configure_network() {
 
 	local SOURCE="qmp_configure_network"
 
-	qmp_log_all "$SOURCE" "General network configuration started..." ""
+	qmp_log_all "$SOURCE" "General UCI network configuration started..." ""
 
 	qmp_config_revert "$BASE_CONFIG" "$SOURCE"
 
@@ -689,7 +689,7 @@ qmp_configure_network() {
 	if qmp_config_check ${QMP_CONFIG}.interfaces.configure_switch
 	then
 
-	qmp_log_all "$SOURCE" "<<<< Switch configuration >>>>" ""
+	qmp_log_all "$SOURCE" "Switch configuration" ""
 
 		local SWITCH_DEVICE="$(uci get ${QMP_CONFIG}.interfaces.configure_switch)"
 
@@ -728,7 +728,7 @@ qmp_configure_network() {
 		fi
 	fi
 
-	qmp_log_all "$SOURCE" "<<<< Loopback interface configuration >>>>" ""
+	qmp_log_all "$SOURCE" "Loopback interface configuration" ""
 
 	qmp_set_option $BASE_CONFIG.loopback "interface" "$SOURCE"
 	qmp_set_option $BASE_CONFIG.loopback.ifname "lo" "$SOURCE"
@@ -739,14 +739,14 @@ qmp_configure_network() {
 	#The declared wan device is configured with dhcp protocol
 	if qmp_config_check ${QMP_CONFIG}.interfaces.wan_device
 	then
-		qmp_log_all "$SOURCE" "<<<< Wan interface configuration >>>>" ""
+		qmp_log_all "$SOURCE" "Wan interface configuration" ""
 		qmp_set_option $BASE_CONFIG.wan "interface" "$SOURCE"
 		qmp_set_option $BASE_CONFIG.wan.ifname "$(uci get ${QMP_CONFIG}.interfaces.wan_device)" "$SOURCE"
 		qmp_set_option $BASE_CONFIG.wan.proto "dhcp" "$SOURCE"
 	fi
 
 	#Setting niit4to6 and niit6to4 tunnel interfaces configuration
-	qmp_log_all "$SOURCE" "<<<< niit6to4 tunnel interface configuration >>>>" ""
+	qmp_log_all "$SOURCE" "niit6to4 tunnel interface configuration" ""
 	qmp_set_option $BASE_CONFIG.niit4to6 "interface" "$SOURCE"
 	qmp_set_option $BASE_CONFIG.niit4to6.proto "none" "$SOURCE"
 	qmp_set_option $BASE_CONFIG.niit4to6.ifname "niit4to6" "$SOURCE"
@@ -761,7 +761,7 @@ qmp_configure_network() {
 	#Configuration of LAN devices defined in ${QMP_CONFIG} with default IPv4 static address
 	if qmp_config_check ${QMP_CONFIG}.interfaces.lan_devices
 	then
-		qmp_log_all "$SOURCE" "<<<< Lan interfaces configuration >>>>" ""
+		qmp_log_all "$SOURCE" "Lan interfaces configuration" ""
 		#ONLY ONE DEVICE IS CONSIDERED? Ali2D3 has 3 ethN...
 		qmp_set_option $BASE_CONFIG.lan "interface" "$SOURCE"
 		qmp_set_option $BASE_CONFIG.lan.ifname "$(uci get ${QMP_CONFIG}.interfaces.lan_devices)" "$SOURCE"
@@ -773,12 +773,13 @@ qmp_configure_network() {
 		#Configure all the devices defined like mesh device and assign them unicast global adresses and IPv4 addreses
 		if qmp_config_check ${QMP_CONFIG}.interfaces.mesh_devices && qmp_config_check ${QMP_CONFIG}.networks.mesh_protocol_vids
 		then
-			qmp_log_all "$SOURCE" "<<<< Mesh interfaces configuration >>>>" ""
 
 			for PROT_DESCR in $(uci get ${QMP_CONFIG}.networks.mesh_protocol_vids); do
 
 			local PROTOCOL_NAME="$(echo $PROT_DESCR | awk -F':' '{print $1}')"
 			local NIIT_DEV="niit4to6_${PROTOCOL_NAME}"
+
+			qmp_log_all "$SOURCE" "Building niit4to6_${PROTOCOL_NAME} interface with unicast global IPv6 address" ""
 
 			qmp_set_option $BASE_CONFIG.$NIIT_DEV "alias" "$SOURCE"
 			qmp_set_option $BASE_CONFIG.$NIIT_DEV.interface "niit4to6" "$SOURCE"
@@ -817,7 +818,7 @@ qmp_configure_network() {
 	local VID
 	local BASE_VID
 
-		qmp_log_all "$SOURCE" "<<<< VLAN interfaces configuration >>>>" ""
+		qmp_log_all "$SOURCE" "VLAN interfaces configuration" ""
 
 		if qmp_config_check ${QMP_CONFIG}.networks.mesh_vid_offset
 		then
@@ -873,7 +874,7 @@ qmp_configure_bmx6() {
 
 	local SOURCE="qmp_configure_bmx6"
 
-	qmp_log_all "$SOURCE" "<<<< bmx6 daemon configuration >>>>" ""
+	qmp_log_all "$SOURCE" "$BMX6_CNAME configuration started..." ""
 	qmp_config_revert "$BMX6_CONFIG" "$SOURCE"
 
 	qmp_set_option "$BMX6_CONFIG.general" "$BMX6_CNAME" "$SOURCE"
@@ -892,9 +893,10 @@ qmp_configure_bmx6() {
 
 	local PRIMARY_MESH_DEV="$(qmp_get_primary_dev $QMP_CONFIG "$SOURCE")"
 	local NODE_PROJ="$(qmp_node_proj $PRIMARY_MESH_DEV $BMX6_CNAME)"
+
 	qmp_log_all "$SOURCE" "Primary mesh devide='$PRIMARY_MESH_DEV'"
 
-	#Create new VLAN interfaces for bmx6
+	#Declare VLAN interfaces for bmx6
 	local COUNTER=1
 
 	if qmp_config_check ${QMP_CONFIG}.interfaces.mesh_devices && qmp_config_check ${QMP_CONFIG}.networks.mesh_protocol_vids
@@ -902,6 +904,8 @@ qmp_configure_bmx6() {
 
 	local VID
 	local BASE_VID
+
+		qmp_log_all "$SOURCE" "VLAN interfaces configuration" ""
 
 		if qmp_config_check ${QMP_CONFIG}.networks.mesh_vid_offset
 		then
@@ -990,14 +994,16 @@ qmp_configure_olsr6() {
 
 	local SOURCE="qmp_configure_olsr6"
 
-	qmp_log_all "$SOURCE" "<<<< olsr6 daemon configuration >>>>" ""
+	qmp_log_all "$SOURCE" "$OLSR6_CNAME configuration started..." ""
 
 	local CONF_FILE="/etc/olsrd.conf"
+
+	qmp_log_all "$SOURCE" "Creating $CONF_FILE olsr6 conf-file and setting UCI" ""
 
 	qmp_config_revert "$OLSR6_CONFIG" "$SOURCE"
 
 	qmp_add_option "$OLSR6_CONFIG" "olsrd" "$SOURCE"
-	qmp_set_option "$OLSR6_CONFIG.@olsrd[0].config_file" "$CONF_FILE" "$SOURCE"
+	qmp_set_option "${OLSR6_CONFIG}.@olsrd[0].config_file" "$CONF_FILE" "$SOURCE"
 
 	qmp_config_commit "$OLSR6_CONFIG" "$SOURCE"
 
@@ -1059,8 +1065,9 @@ EOF
 
 					local MODE="$(if echo $MESH_DEV | grep -v ath | grep -v wlan > /dev/null 2>&1; then echo ether; else echo mesh; fi)"
 					local MESH="mesh_${PROTOCOL_NAME}_${COUNTER}"
-					qmp_log_all "$SOURCE" "Selected mode '$MODE'"
+					qmp_log_all "$SOURCE" "Selected mode '$MODE' for $MESH_DEV"
 					local IP6_IFACEID32=":0:$NODE_PROJ"
+					#We don't check whether ${QMP_CONFIG}.networks.${PROTOCOL_NAME}_ula_prefix48 is defined.???
 					local IP6_ADDR="$( qmp_get_ip6_fast $(qmp_get_ula96 $(uci get ${QMP_CONFIG}.networks.${PROTOCOL_NAME}_ula_prefix48) $MESH_DEV $IP6_IFACEID32 128) )"
 
 cat <<EOF >> $CONF_FILE
@@ -1068,7 +1075,7 @@ cat <<EOF >> $CONF_FILE
 Interface "$IFNAME"
 {
     Mode                "$MODE"
-    IPv6Multicast       FF0E::1
+    IPv6Multicast       ff0e::1
     IPv6Src             $IP6_ADDR
 }
 
@@ -1201,7 +1208,7 @@ qmp_configure_system() {
 
 	local SOURCE="qmp_configure_system"
 
-	qmp_log_all "$SOURCE" "<<<< System configuration >>>>" ""
+	qmp_log_all "$SOURCE" "System configuration started..." ""
 	qmp_set_option "system.@system[0].hostname" "qmp$NODE_ID" "$SOURCE"
 	qmp_config_commit "system" "$SOURCE"
 
