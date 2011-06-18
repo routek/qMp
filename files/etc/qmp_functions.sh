@@ -12,7 +12,7 @@
 #VID assigment method is more flexible. We admit in UCI variable 'option mesh_protocol_vids' the notation: mesh_devN[:vid], where vid is optional. More convenient in switched environment based in cable
 #If none VID is supplied it is assumed 'option mesh_vid_offset' value, with incremental progression through the meshing network interfaces
 #Main idea:
-#Only one global and ULA prefix for community. Therefore a community is a node network with common global prefix.
+#Only one global prefix for community and N-ULA prefixes for each N present protocols
 #Each node have a community_node_id (12bits). The administrator have to check the unicity of this number inside the community. If none number os supplied, the last 12 bits of main MAC address wirl be used
 #Each protocol will have 4bits (from 0 to F)
 # [GLOBAL PREFIX 48]:[COMM-NUMBER 12 | PROTOCOL NUMBER 4]:1
@@ -544,13 +544,13 @@ qmp_node_id() {
 	if [ "$NODE_ID" -ge "0" ] && [ "$NODE_ID" -le "4095" ]
 	then
 		NODE_PRJ=$NODE_ID
-		qmp_log_file "$SOURCE" "Builded node-id='$NODE_PRJ' from '${QMP_CONFIG}.node.community_node_id'" ""
+		qmp_log_file "$SOURCE" "Obtained node-id='$NODE_PRJ' from '${QMP_CONFIG}.node.community_node_id'" ""
 	else
 		local MAC_ADDR=$(qmp_get_dev_mac $PRIMARY_DEV)
 		local MAC_ADDR5="$( echo $MAC_ADDR | awk -F':' '{print $5}' )"
 		local MAC_ADDR6="$( echo $MAC_ADDR | awk -F':' '{print $6}' )"
 		NODE_PRJ=$(( 0x$MAC_ADDR6 + ( 0x$MAC_ADDR5 & 0xf ) * 0x100  ))
-		qmp_log_file "$SOURCE" "Builded node-id='$NODE_PRJ' from $PRIMARY_DEV MAC address" ""
+		qmp_log_file "$SOURCE" "Obtained node-id='$NODE_PRJ' from $PRIMARY_DEV MAC address" ""
 	fi
 
 	echo $NODE_PRJ
