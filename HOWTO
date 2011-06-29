@@ -23,10 +23,6 @@ nano feeds.conf  # adapt path to .../13f/packages
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-## Only for HT40+ (MiMo) and ath9k
-mv ../qmp/files/etc/config/wireless ../qmp/files/etc/config/wireless_g
-mv ../qmp/files/etc/config/wireless_n ../qmp/files/etc/config/wireless
-
 ## Configuring system
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
@@ -45,11 +41,13 @@ make menuconfig
 cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
 cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
 patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
+rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
 
 ## Compiling
 make kernel_menuconfig 
 (* General Setup -> Small Systems -> ELF Core dumps )
 (* Networking -> options -> IPv6 -> routing-tables  )
+(* File systems -> Dnotify support && Inotify file change notification support && Inotify support for userspace )
 
 time make V=99
 

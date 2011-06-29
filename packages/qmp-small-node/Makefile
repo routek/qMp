@@ -10,10 +10,9 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
 PKG_RELEASE:=1
-PKG_SOURCE_URL:=@SF/qmp-small-node
-
-
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+#PKG_SOURCE_URL:=@SF/qmp-small-node
+#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -54,6 +53,20 @@ define Package/qmp-small-node/description
  Addons for small qmp nodes (4MByte flash)
 endef
 
+define Package/qmp-small-node/conffiles
+	/etc/config/qmp
+endef
+
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)
+endef
+
+define Build/Configure
+endef
+
+define Build/Compile
+endef
+
 define Package/qmp-small-node/install
 	$(CP) ./files/* $(1)/
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
@@ -61,3 +74,4 @@ endef
 
 
 $(eval $(call BuildPackage,qmp-small-node))
+
