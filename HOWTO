@@ -1,13 +1,9 @@
-
-######## HOWTO:
-
-
-#### BUILD:
+## Creating files and directories
 
 mkdir -p 13f # or however you want to name your working directory
 cd 13f
 
-git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/ipv6-routing-prototype; cd ..
+git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/autoconfig; cd ..
 svn co svn://svn.openwrt.org/openwrt/branches/backfire
 git clone git://gitorious.org/eigennet/packages.git eigennet/packages
 
@@ -32,26 +28,24 @@ make menuconfig
 * Base system ->
     qmp-big-node # for 8Mbyte flash devices  
     qmp-small-node # for 4MByte flash devices STILL TO BIG due to ipv6calc!!! Dont TEST
-		#(* LuCI -> Freifunk -> luci-mod-freifunk-community  ) 
 
 * remove for 4MByte-flash devices: network -> ppp
 * remove for 4MByte-flash devices: network -> ppad-mini
 
-## Patching files
+## Optional, to have HT40 in IBSS mode: Patching files
 cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
 cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
 patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
 rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
 
-## Compiling
+## Kernel configuration
 make kernel_menuconfig 
-(* General Setup -> Small Systems -> ELF Core dumps )
-(* Networking -> options -> IPv6 -> routing-tables  )
 (* File systems -> Dnotify support && Inotify file change notification support && Inotify support for userspace )
 
+## Compiling
 time make V=99
 
-#### INSTALL:
+#### INSTALL ####
 
 ## wgt634u: (tested)
 scp bin/brcm47xx/openwrt-brcm47xx-squashfs.trx root@192.168.1.1:/tmp/
@@ -64,33 +58,13 @@ ssh root@192.168.1.1
 mtd -e vmlinux.bin.l7 write /tmp/openwrt-atheros-vmlinux.lzma vmlinux.bin.l7
 mtd -r -e rootfs write /tmp/openwrt-atheros-root.squashfs rootfs
 
-
-
 ## alix: (untested)
 sudo dd if=bin/x86/openwrt-x86-generic-combined-squashfs.img of=/dev/sdX
 
+## routerstation:
+tftp 192.168.1.20
+ mode octet
+ trace on
+ put openwrt*ubnt*.bin
 
-## routerstation: (untested) 
 
-
-
-#### POSTCONFIGURE:
-
-ssh root@192.168.1.1
-
-vi /etc/config/qmp # adapt to your hardware (only tested for fonera, wgt634u yet!)
-
-. /etc/qmp_functions.sh
-
-qmp_configure
-# or configure individually:
-# qmp_configure_network
-# qmp_configure_olsr6
-# qmp_configure_bmx6
-# qmp_configure_system
-
-reboot 
-# or restart stuff manually:
-# /etc/init.d/network restart
-# /etc/init.d/olsrd restart
-# /etc/init.d/bmx6 restart
