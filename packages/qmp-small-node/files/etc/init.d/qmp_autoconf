@@ -15,7 +15,7 @@ configure() {
 	. $QMP_DIR/qmp_wireless.sh
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
-	
+	wifi	
 	touch "$CONTROL_FILE"
 	echo "Done"
 }
