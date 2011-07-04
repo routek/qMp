@@ -19,6 +19,10 @@
    vlan interfaces for ath9k are created as vlan12@wlan1 
    NO vlan interfaces for ath5k devices are created.
 
+-  Make sure firewall is really disabled !!!!!!!!!! ARGHHH!!!!!
+
+
+
 
 ## PAU ##
  - this is off the record...
