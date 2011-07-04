@@ -27,3 +27,7 @@ qmp_get_wifi_mac_devices() {
 	echo "$(ip link | grep -A1 -E ": (wifi|wlan).: " | grep link | cut -d' ' -f6)"
 }
 
+reverse_order() {
+	echo "$@" | awk '{for (i=NF; i>0; i--) printf("%s ",$i);print ""}'
+}
+

@@ -24,18 +24,17 @@ define Package/qmp-small-node
   DEPENDS:= \
 	+uhttpd +luci +luci-lib-nixio \
 	+luci-ssl \
-	+horst \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
-	+wireless-tools +iw +hostapd \
+	+wireless-tools +iw \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-luci \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
 	+olsrd-mod-arprefresh +olsrd-luci \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+babeld \
-	+ntpclient +ip \
+	+ip \
 	+ndisc6 +rdisc6 +rdnssd \
 	+6in4 +6to4 \
 	+ip6tables +ip6tables-utils \

@@ -7,15 +7,17 @@ QMP_DIR="/etc/qmp"
 configure() {
 	echo "Starting qmp configuration..."
 
-	echo "[Configuring networking]"
-	. $QMP_DIR/qmp_functions.sh
-	qmp_configure
-	
 	echo "[Configuring wireless]"
 	. $QMP_DIR/qmp_wireless.sh
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
-	wifi	
+	wifi
+
+	echo "[Configuring networking]"
+	. $QMP_DIR/qmp_functions.sh
+	qmp_configure
+	                       
+	
 	touch "$CONTROL_FILE"
 	echo "Done"
 }
