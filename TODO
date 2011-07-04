@@ -1,6 +1,24 @@
 ## AUTOCONF SYSTEM ##
+
  - change option "name" for "essid"
+
  - ESSID should depends on channel
 
-## AXEL ##
- - stop smoking weed
+ - after removing /qmp_configured and having changed driver 
+   to madwifi autoconf scripts system ignores that.
+   In fact the decision wheter it loads madwifi or mac80211 
+   depends on whether the qmp/network option mesh_devices 
+   has wlan* or ath* names in the list
+
+-  felix patches must be checked:
+   https://dev.openwrt.org/log/branches/backfire?rev=27441 and here:
+   https://dev.openwrt.org/log/branches/backfire/package/mac80211/files/lib/wifi
+   currently the patch instructions in the HOWTO fail!!!!!!
+
+-  The vlan problem with mac80211 drivers:
+   vlan interfaces for ath9k are created as vlan12@wlan1 
+   NO vlan interfaces for ath5k devices are created.
+
+
+## PAU ##
+ - this is off the record...
