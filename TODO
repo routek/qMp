@@ -15,17 +15,28 @@
    https://dev.openwrt.org/log/branches/backfire/package/mac80211/files/lib/wifi
    currently the patch instructions in the HOWTO fail!!!!!!
 
--  The vlan problem with mac80211 drivers:
-   vlan interfaces for ath9k are created as vlan12@wlan1 
-   NO vlan interfaces for ath5k devices are created.
 
 -  Make sure firewall is really disabled !!!!!!!!!! ARGHHH!!!!!
 
 
+DONE:
 
+-  The vlan problem with mac80211 drivers:
+   vlan interfaces for ath9k are created as vlan12@wlan1 
+   NO vlan interfaces for ath5k devices are created.
+
+
+
+
+Off the record:
 
 ## PAU ##
  - this is off the record...
 
 ## AGUSTI ##
 -  Configuration eth0 in ipv4. Change 192.168.1.1 by default?
+
+
+
+
+
