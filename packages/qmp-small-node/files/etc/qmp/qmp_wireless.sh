@@ -9,13 +9,35 @@ WIFI_DEFAULT_CONFIG="$QMP_PATH/templates/wireless.default.config"
 . $QMP_PATH/qmp_common.sh
 
 qmp_configure_wifi_driver() {
+	mac80211_modules="mac80211 ath ath5k ath9k_hw ath9k_common ath9k"
+	madwifi_modules="ath_hal ath_pci"
+
+	#Removing all modules
+	for m in $(reverse_order $mac80211_modules); do                   
+		rmmod -f $m                                            
+		echo "Removing module $m"
+	done   
+	for m in $(reverse_order $madwifi_modules); do                    
+		rmmod -f $m
+		echo "Removing module $m"                                            
+	done   	
+		
+	rmmod -a
+	
+	#Loading driver modules
 	driver="$(qmp_uci_get wireless.driver)"
 	case $driver in
 	"madwifi")
 		mv /etc/modules.d/50-madwifi /etc/modules.d/22-madwifi 2>/dev/null
+		for m in $madwifi_modules; do
+			insmod $m
+		done
 		;;
 	"mac80211")
 		mv /etc/modules.d/22-madwifi /etc/modules.d/50-madwifi 2>/dev/null
+		for m in $mac80211_modules; do
+			insmod $m
+		done
 		;;
 	*)
 		qmp_error "Driver $driver not found"
@@ -66,6 +88,9 @@ qmp_configure_wifi_device() {
 qmp_configure_wifi() {
 #This function search for all wifi devices and leave them configured according qmp config file
 
+	echo "Configuring driver..."
+	qmp_configure_wifi_driver
+
 	echo "Backuping wireless config file to: $OWRT_WIRELESS_CONFIG.qmp_backup"
 	cp $OWRT_WIRELESS_CONFIG $OWRT_WIRELESS_CONFIG.qmp_backup
 	echo "" > $OWRT_WIRELESS_CONFIG
@@ -83,8 +108,7 @@ qmp_configure_wifi() {
 		done
 		i=$(( $i + 1 ))
 	done
-	echo "Configuring driver..."
-	qmp_configure_wifi_driver
+
 	echo "Done. All devices configured according qmp configuration"
 }
 
