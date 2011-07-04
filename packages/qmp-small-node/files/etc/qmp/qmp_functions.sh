@@ -562,11 +562,11 @@ qmp_configure_bmx6() {
 
     if qmp_uci_test qmp.networks.bmx6_ipv4_address && qmp_uci_test qmp.networks.bmx6_ipv4_netmask && qmp_uci_test qmp.networks.bmx6_6to4_netmask; then
       local niit6to4_address="$(qmp_get_ip6_slow $(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_address)/$(uci get qmp.networks.bmx6_6to4_netmask))"
-      uci set $conf.niit6to4="unicast_hna"
+      uci set $conf.niit6to4="hna"
       uci set $conf.niit6to4.hna="$niit6to4_address/$(uci get qmp.networks.bmx6_6to4_netmask)"
     elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24; then
       local niit6to4_address="$(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_prefix24).$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-      uci set $conf.niit6to4="unicast_hna"
+      uci set $conf.niit6to4="hna"
       uci set $conf.niit6to4.hna="$niit6to4_address/128"
     fi
   fi
