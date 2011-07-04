@@ -14,7 +14,11 @@ ln -s ../../dl # wherever you already have some openwrt downloads...
 ln -s ../qmp/files
 cp ../qmp/feeds.conf . # to not conflict with example qmp/feeds.conf version which is managed by git
 
-nano feeds.conf  # adapt path to .../13f/packages
+#nano feeds.conf  # adapt path to .../13f/packages
+cd ..
+sed -i -e "s|/home/hitz/13f|`pwd`|" backfire/feeds.conf
+cd backfire
+
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
