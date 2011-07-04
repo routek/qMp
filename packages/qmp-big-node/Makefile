@@ -27,14 +27,17 @@ define Package/qmp-big-node
 	+openvpn \
 	+openssl-util \
         +tcptraceroute6 \
-	+iperf +mtr +netcat +netperf +tcpdump \
+	+iperf +mtr +netcat +netperf \
+	+tcpdump-mini \
 	+nmap +lsof \
 	+wget \
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
 
-    
 endef
+
+#fails compiling:
+#       +tcpdump \# fails compiling with backfire 27441
 
 # for qmp-big-node-testing:
 

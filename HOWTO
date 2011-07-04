@@ -12,7 +12,7 @@ cd backfire
 rm -rf feeds/
 ln -s ../../dl # wherever you already have some openwrt downloads...
 ln -s ../qmp/files
-ln -s ../qmp/feeds.conf
+cp ../qmp/feeds.conf . # to not conflict with example qmp/feeds.conf version which is managed by git
 
 nano feeds.conf  # adapt path to .../13f/packages
 
@@ -23,11 +23,11 @@ nano feeds.conf  # adapt path to .../13f/packages
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
 * Target Profile (WGT634u, wrap, alix, routerstation,...) 
-(* Global build-settings -> Compile teh kernel with profiling enabled )
+(* Global build-settings -> Compile the kernel with profiling enabled )
 (* Advanced configuration options for developers -> Toolchain options -> Build gdb )
 * Base system ->
     qmp-big-node # for 8Mbyte flash devices  
-    qmp-small-node # for 4MByte flash devices STILL TO BIG due to ipv6calc!!! Dont TEST
+    qmp-small-node # for 4MByte flash devices STILL TO BIG ?? Needs testing on 4MB flash devices !!!
 
 * remove for 4MByte-flash devices: network -> ppp
 * remove for 4MByte-flash devices: network -> ppad-mini
@@ -39,8 +39,10 @@ patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wi
 rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
 
 ## Kernel configuration
+# sometimes you have to run make (build backfire with default kernel) once before you can continue with make kernel_menuconfig
 make kernel_menuconfig 
 (* File systems -> Dnotify support && Inotify file change notification support && Inotify support for userspace )
+(* General setup -> Configure standard kernel features (for small systems) -> Enable ELF core dumps )
 
 ## Compiling
 time make V=99
@@ -66,5 +68,30 @@ tftp 192.168.1.20
  mode octet
  trace on
  put openwrt*ubnt*.bin
+
+
+## Routerstation PRO:
+http://wiki.openwrt.org/toh/ubiquiti/routerstation.pro
+apt-get install tftp-hpa
+# screen -S serial115200 /dev/ttyUSB0 115200 # connect with usb-serial + female-female adapter straight to rspro
+ifconfig eth2 192.168.1.1
+ping 192.168.1.20 # in another shell
+press rspro reset button (for some seconds) while connecting power! Once ping replies do:
+tftp 192.168.1.20 -m binary -c put openwrt-ar71xx-ubnt-rspro-squashfs-factory.bin
+
+
+
+
+
+#### POSTCONFIGURE: 
+
+after a second reboot (better wait a while) the system should be autoconfigured
+
+ssh root@192.168.1.1
+
+to enforce a reconfiguration remove /qmp_configured 
+
+TODO: Which further options exist here???
+
 
 

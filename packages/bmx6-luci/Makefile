@@ -18,7 +18,8 @@ define Package/bmx6-luci
   CATEGORY:=LuCI
   SUBMENU:=Applications
   TITLE:=bmx6 luci interface
-  DEPENDS:=+bmx6 +bmx6-uci-config +luci-lib-json +luci-mod-admin-core +luci-lib-httpclient
+# DEPENDS:=+bmx6 +bmx6-uci-config +luci-lib-json +luci-mod-admin-core +luci-lib-httpclient
+  DEPENDS:=+luci-lib-json +luci-mod-admin-core +luci-lib-httpclient
 endef
 
 define Package/bmx6-luci/description
