@@ -1,4 +1,59 @@
 <%+header%>
+
+    <style type="text/css">
+    table.int {
+        border-width: 2px;
+        border-spacing: ;
+        border-style: inset;
+        border-color: white;
+        border-collapse: collapse;
+        background-color: #dadbe6;
+        }
+    table.int tr {
+        border-width: 5px;
+        padding: 4px;
+        border-style: solid;
+        border-color: white;
+        background-color: #dadbe9;
+        }
+    table.int td {
+        border-width: 5px;
+        padding: 4px;
+        border-style: solid;
+        border-color: white;
+        background-color: #dadbe9;
+		text-align: center;
+        }
+    </style>
+
 <h2><a id="content" name="content"><%:Status%></a></h2>
+Status of bmx6
+<br />
+<br />
+<table class="int">
+<tr>
+	<td><strong>Version</strong></td>
+	<td><strong>Compatibility</strong></td>
+	<td><strong>CodeVersion</strong></td>
+	<td><strong>Global Id</strong></td>
+	<td><strong>Primary Ip</strong></td>
+	<td><strong>Local Id</strong></td>
+	<td><strong>Uptime</strong></td>
+	<td><strong>CPU</strong></td>
+	<td><strong>Nodes</strong></td>
+</tr>
+	<tr>
+		<td><%=data.version%></td>
+		<td><%=data.compatibility%></td>
+		<td><%=data.codeVersion%></td>
+		<td><%=data.globalId%>/<%=data.rateMax%></td>
+		<td><%=data.primaryIp%></td>
+		<td><%=data.myLocalId%></td>
+		<td><%=data.uptime%></td>
+		<td><%=data.cpu%></td>
+		<td><%=data.nodes%></td>
+	</tr>
+</table>
+
 <br />
 <%+footer%>

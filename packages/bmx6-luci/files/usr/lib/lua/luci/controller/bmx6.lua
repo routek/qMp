@@ -46,9 +46,9 @@ function index()
 end
  
 function action_status()
-        local data = get_bmx_data("interfaces")
+        local data = get_bmx_data("status")
         if data == nil then return nil end
-        luci.template.render("bmx6/status", {data=data.interfaces})
+        luci.template.render("bmx6/status", {data=data.status})
 end
  
  
@@ -78,15 +78,29 @@ end
 function get_bmx_data(field)
         require("luci.ltn12")
         require("luci.json")
+ 	require("luci.util")
         local uci = require "luci.model.uci"
         local url = uci.cursor():get("luci-bmx6","luci","json")
  
         if url == nil then
                 print_error("bmx6 json url not configured, cannot fetch bmx6 daemon data")
                 return nil
-                end
- 
-        local raw = luci.sys.httpget(url..field)
+        end
+ 	
+ 	local json_url = luci.util.split(url,":")
+	local raw = ""
+	
+ 	if json_url[1] == "http"  then
+ 		raw = luci.sys.httpget(url..field)
+ 	else 
+		if json_url[1] == "exec" then
+ 			raw = luci.sys.exec(json_url[2]..' '..field)
+ 		else
+			print_error("bmx6 json url not recognized, cannot fetch bmx6 daemon data. Use http: or exec:")
+			return nil
+ 	 	end
+ 	end
+ 		
         local data = nil
        
         if raw:len() > 10 then

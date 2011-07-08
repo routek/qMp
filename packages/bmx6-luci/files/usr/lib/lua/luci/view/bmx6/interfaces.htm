@@ -35,22 +35,22 @@ Interfaces where bmx6 is running
 	<td><strong>Name</strong></td>
 	<td><strong>State</strong></td>
 	<td><strong>Type</strong></td>
-	<td><strong>Rate</strong></td>
+	<td><strong>Rate (Min/Max)</strong></td>
 	<td><strong>Local IP</strong></td>
 	<td><strong>Global IP</strong></td>
-	<td><strong>Broadcast</strong></td>
-	<td><strong>Seq. Number</strong></td>
+	<td><strong>Multicast IP</strong></td>
+	<td><strong>Primary</strong></td>
 </tr>
 <% for i,v in ipairs(data) do %>
 	<tr>
-		<td><%=v.dev%></td>
+		<td><%=v.devName%></td>
 		<td><%=v.state%></td>
 		<td><%=v.type%></td>
-		<td><%=v.rate%></td>
-		<td><%=v.ipl%></td>
-		<td><%=v.ipg%></td>
-		<td><%=v.broadcast%></td>
-		<td><%=v.helloSqn%></td>
+		<td><%=v.rateMin%>/<%=v.rateMax%></td>
+		<td><%=v.llocalIp%></td>
+		<td><%=v.globalIp%></td>
+		<td><%=v.multicastIp%></td>
+		<td><%=v.primary%></td>
 	</tr>
 <%end%>
 </table>
