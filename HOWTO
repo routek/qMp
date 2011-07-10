@@ -36,11 +36,12 @@ make menuconfig
 * remove for 4MByte-flash devices: network -> ppp
 * remove for 4MByte-flash devices: network -> ppad-mini
 
-## Optional, to have HT40 in IBSS mode: Patching files
-cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
-cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
-patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
-rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
+HT40 is supported since backfire revision 27441
+#### Optional, to have HT40 in IBSS mode: Patching files
+## cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
+## cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
+## patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
+## rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
 
 ## Kernel configuration
 # sometimes you have to run make (build backfire with default kernel) once before you can continue with make kernel_menuconfig
@@ -64,6 +65,9 @@ ssh root@192.168.1.1
 mtd -e vmlinux.bin.l7 write /tmp/openwrt-atheros-vmlinux.lzma vmlinux.bin.l7
 mtd -r -e rootfs write /tmp/openwrt-atheros-root.squashfs rootfs
 
+## PC-Engines WRAP board: (tested backfire rev 27441)
+sudo dd if=bin/x86/openwrt-x86-generic-combined-squashfs.img of=/dev/sdX
+
 ## alix: (untested)
 sudo dd if=bin/x86/openwrt-x86-generic-combined-squashfs.img of=/dev/sdX
 
@@ -74,7 +78,7 @@ tftp 192.168.1.20
  put openwrt*ubnt*.bin
 
 
-## Routerstation PRO:
+## Routerstation PRO: (tested backfire rev 27441)
 http://wiki.openwrt.org/toh/ubiquiti/routerstation.pro
 apt-get install tftp-hpa
 # screen -S serial115200 /dev/ttyUSB0 115200 # connect with usb-serial + female-female adapter straight to rspro
