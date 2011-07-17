@@ -7,8 +7,10 @@ PID=/var/run/bmx6/pid
 
 
 start() {
-	#$BIN -f $CONF -d0 > /dev/null &
-	start-stop-daemon -b -x $BIN -S -- -f $CONF
+	cd /root/
+	ulimit -c 20000
+	$BIN -f $CONF -d0 > /dev/null &
+#	start-stop-daemon -b -x $BIN -S -- -f $CONF
 }
 
 stop() {

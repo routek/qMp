@@ -10,12 +10,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bmx6-qmp
 
-
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
-PKG_REV:=6ff54a7c32d02d2ff29e1e758aa24bcad9ece779
 
-PKG_VERSION:=r2011060401
+#Public Sources:
+PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
+PKG_REV:=ba3ef22f1d0521d593098fd8ae97e5ab2844e152
+
+#Private Sources:
+#PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
+#PKG_REV:=ba3ef22f1d0521d593098fd8ae97e5ab2844e152
+
+PKG_VERSION:=r2011071703
 
 #PKG_RELEASE:=1
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
