@@ -135,8 +135,9 @@ qmp_configure_wifi_initial() {
 				id_configured="$id_configured $j" 
 				echo "Found configured device: $m"
 				[ -z "$(qmp_uci_get @wireless[$j].channel)" ] && qmp_uci_set @wireless[$j].channel $(qmp_wifi_get_default channel)
-	        	[ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode)
-        		[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
+		        	[ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode)
+        			[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
+				qmp_uci_set @wireless[$j].device $(qmp_get_dev_from_mac $m)
 				break
 			fi
 			j=$(( $j + 1 ))
@@ -157,6 +158,7 @@ qmp_configure_wifi_initial() {
 		[ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode)
 		[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
 		qmp_uci_set @wireless[$j].mac $m
+		qmp_uci_set @wireless[$j].device $(qmp_get_dev_from_mac $m)
 		id_configured="$id_configured $j"
 	done
 
@@ -165,5 +167,4 @@ qmp_configure_wifi_initial() {
 	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)
 	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)
 	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)
-
 }                        

@@ -24,6 +24,11 @@ config 'qmp' 'wireless'
         option 'bssid' '02:CA:FF:EE:BA:BE'
 
 config 'wireless'
+        option 'channel' '44'
+        option 'mode' 'adhoc'
+        option 'name' 'qmp'
+         
+config 'wireless'
         option 'channel' '10'
         option 'mode' 'adhoc'
         option 'name' 'qmp'
