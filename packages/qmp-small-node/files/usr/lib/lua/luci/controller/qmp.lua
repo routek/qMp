@@ -1,7 +1,19 @@
-module("luci.controller.qmp.qmp", package.seeall)
+module("luci.controller.qmp", package.seeall)
 
 function index()
-	entry({"qmp"}, call("action_stauts"), "qMp", 1).dependent=false
+
+	-- Making qmp as default 	
+	local root = node()
+	root.target = alias("qmp")
+	root.index  = true
+
+	-- Main window with auth enabled
+	overview = entry({"qmp"}, template("qmp/overview"), "qMp", 1)
+	overview.dependent = false
+	overview.sysauth = "root"
+	overview.sysauth_authenticator = "htmlauth"
+	
+	-- Rest of entries
 	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
 end

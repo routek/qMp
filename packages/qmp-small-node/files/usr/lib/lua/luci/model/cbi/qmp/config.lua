@@ -5,11 +5,11 @@ m = Map("qmp", "Quick Mesh Project")
 ethernet_interfaces = { 'eth', 'ath', 'wlan' }
 wireless_interfaces = { 'ath', 'wlan' }
 
-eth_section = m:section(NamedSection, "interfaces", "qmp", "Ethernet interfaces", "Ethernet devices")
+eth_section = m:section(NamedSection, "interfaces", "qmp", "Interfaces", "Interfaces")
 eth_section.addremove = False
 
-wl_section = m:section(NamedSection, "interfaces", "qmp", "Wireless interfaces", "Wireless devices")
-wl_section.addremove = False
+--wl_section = m:section(NamedSection, "interfaces", "qmp", "Wireless interfaces", "Wireless devices")
+--wl_section.addremove = False
 
 
 -- Getting the physical (real) interfaces 

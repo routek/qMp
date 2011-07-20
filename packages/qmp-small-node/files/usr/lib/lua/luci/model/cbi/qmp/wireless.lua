@@ -2,12 +2,10 @@ require("luci.sys")
 
 m = Map("qmp", "Quick Mesh Project")
 
-
-
 ------------------
 -- Section MAIN
 ------------------
-s_wireless_main = m:section(NamedSection, "wireless", "qmp", "Wireless general options", "Wireless configuration")
+s_wireless_main = m:section(NamedSection, "wireless", "qmp", "Wireless general options", "")
 s_wireless_main.addremove = False
 
 -- Driver selection
@@ -24,11 +22,14 @@ bssid = s_wireless_main:option(Value,"bssid","BSSID")
 --------------------
 -- Section Wireless
 --------------------
-s_wireless = m:section(TypedSection, "wireless", "", "")
+s_wireless = m:section(TypedSection, "wireless", "Wireless devices", "")
 s_wireless.addremove = False
 
+-- Device
+dev = s_wireless:option(DummyValue,"device","Device")
+
 -- MAC
-mac = s_wireless:option(Value,"mac","MAC")
+mac = s_wireless:option(DummyValue,"mac","MAC")
 
 -- Mode
 mode = s_wireless:option(ListValue,"mode","Mode")
