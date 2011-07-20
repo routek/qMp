@@ -46,7 +46,15 @@ s_wireless:option(Value,"name","Wireless name")
 --local device = m:get(s_wireless, "channel")
 --device = m:get(s_wireless,"channel")
 
-channel = s_wireless:option(Value,"channel","Channel")
+channel = s_wireless:option(ListValue,"channel","Channel")
+
+function channel.cfgvalue(self, section)
+	local dev = m.uci:get("wireless", section, "device")
+	for _, ch in ipairs(luci.sys.wifi.channels(dev)) do
+		channel:value(ch.channel, ch.channel)
+	end
+	return ListValue.cfgvalue(self, section)
+end
 
 
 return m

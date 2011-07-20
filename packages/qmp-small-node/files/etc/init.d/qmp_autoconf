@@ -16,10 +16,11 @@ configure() {
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
-	/etc/init.d/network restart	                       
-	
+#	/etc/init.d/network restart	                       
+#	/etc/init.d/bmx6 restart	
 	touch "$CONTROL_FILE"
-	echo "Done"
+	echo "Done, rebooting system to complete configuration"
+	reboot
 }
 
 start() {
