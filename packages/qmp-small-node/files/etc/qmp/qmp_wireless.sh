@@ -4,27 +4,43 @@ QMP_PATH="/etc/qmp"
 OWRT_WIRELESS_CONFIG="/etc/config/wireless"
 TEMPLATE_BASE="$QMP_PATH/templates/wireless" # followed by .driver.mode (wireless.mac80211.adhoc)
 WIFI_DEFAULT_CONFIG="$QMP_PATH/templates/wireless.default.config"
+TMP="/tmp"
 
 #Importing files
 . $QMP_PATH/qmp_common.sh
+
+qmp_find_wireless_iface() {
+	# Returns the index from wifi-iface (config/wireless) associated to the device or first free if not found
+	device=$1
+	i=0
+	while true; do
+		d=$(qmp_uci_get_raw wireless.@wifi-iface[$i].device)
+		r=$?
+		[ "$d" == "$device" ] && break 
+		[ $r -ne 0 ] && { qmp_uci_add_raw wireless wifi-iface; break; }
+		i=$(( $i + 1 ))
+	done
+	echo $i
+}
+
 
 qmp_configure_wifi_driver() {
 	mac80211_modules="mac80211 ath ath5k ath9k_hw ath9k_common ath9k"
 	madwifi_modules="ath_hal ath_pci"
 
 	#Removing all modules
+	echo "Removing wifi modules..."
 	for m in $(reverse_order $mac80211_modules); do                   
-		rmmod -f $m                                            
-		echo "Removing module $m"
+		rmmod -f $m 2>/dev/null                                            
 	done   
 	for m in $(reverse_order $madwifi_modules); do                    
-		rmmod -f $m
-		echo "Removing module $m"                                            
+		rmmod -f $m 2>/dev/null
 	done   	
 		
 	rmmod -a
 	
 	#Loading driver modules
+	echo "Loading wifi modules..."
 	driver="$(qmp_uci_get wireless.driver)"
 	case $driver in
 	"madwifi")
@@ -46,17 +62,21 @@ qmp_configure_wifi_driver() {
 }
 
 qmp_configure_wifi_device() {
-#Configure a wifi device according qmp config file
-#Parameters are: 1-> qmp config id, 2-> device name
+	#Configure a wifi device according qmp config file
+	#Parameters are: 1-> qmp config id, 2-> device name
 
 	echo ""
 	echo "Configuring device $2"
 
 	id=$1
 	device=$2
+
+	#Checking if device is configured as "none"	
+	mode="$(qmp_uci_get @wireless[$id].mode)"
+	[ "$mode" == "none" ] && { echo "Interface $device disabled by qmp system"; return 0; }  
+	
 	mac="$(qmp_uci_get @wireless[$id].mac)"
 	channel="$(qmp_uci_get @wireless[$id].channel)"
-	mode="$(qmp_uci_get @wireless[$id].mode)"
 	name="$(qmp_uci_get @wireless[$id].name)"
 	driver="$(qmp_uci_get wireless.driver)"
 	country="$(qmp_uci_get wireless.country)"
@@ -75,6 +95,8 @@ qmp_configure_wifi_device() {
 
 	[ ! -f "$template" ] && qmp_error "Template $template not found"
 
+	index=$(qmp_find_wireless_iface $device)
+
 	cat $template | sed -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_TYPE"/"$driver"/ \
 	 -e s/"#QMP_MAC"/"$mac"/ \
@@ -82,7 +104,13 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_COUNTRY"/"$country"/ \
 	 -e s/"#QMP_SSID"/"$name"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
-	 -e s/"#QMP_MODE"/"$mode"/ >> $OWRT_WIRELESS_CONFIG 
+	 -e s/"#QMP_INDEX"/"$index"/ \
+	 -e s/"#QMP_MODE"/"$mode"/ > $TMP/qmp_wireless_temp
+
+	qmp_uci_import $TMP/qmp_wireless_temp
+	uci reorder wireless.@wifi-iface[$index]=16
+	uci commit
+	rm -f $TMP/qmp_wireless_temp
 }
 
 qmp_configure_wifi() {
@@ -92,7 +120,7 @@ qmp_configure_wifi() {
 	qmp_configure_wifi_driver
 
 	echo "Backuping wireless config file to: $OWRT_WIRELESS_CONFIG.qmp_backup"
-	cp $OWRT_WIRELESS_CONFIG $OWRT_WIRELESS_CONFIG.qmp_backup
+	cp $OWRT_WIRELESS_CONFIG $OWRT_WIRELESS_CONFIG.qmp_backup 2>/dev/null
 	echo "" > $OWRT_WIRELESS_CONFIG
 
 	devices="$(qmp_get_wifi_devices)"
@@ -108,7 +136,8 @@ qmp_configure_wifi() {
 		done
 		i=$(( $i + 1 ))
 	done
-
+	
+	echo ""
 	echo "Done. All devices configured according qmp configuration"
 }
 

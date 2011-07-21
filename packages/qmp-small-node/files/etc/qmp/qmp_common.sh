@@ -1,21 +1,67 @@
 #!/bin/sh
 
 qmp_uci_get() {
-	echo "$(uci get qmp.$1 2>/dev/null)"
+	u="$(uci -q get qmp.$1)"
+	r=$?
+	echo "$u"
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get qmp.$1)"
+	return $r
+}
+
+qmp_uci_get_raw() {
+	u="$(uci -q get $@)"
+	r=$?
+	echo "$u"
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get $@)"
+	return $r
 }
 
 qmp_uci_set() {
-	uci set qmp.$1=$2
+	uci -q set qmp.$1=$2 > /dev/null
+	r=$?
 	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set qmp.$1=$2)"
+	return $r
 }
 
+qmp_uci_set_raw() {                      
+	uci -q set $@ > /dev/null
+	r=$?                         
+	uci commit                   
+	r=$(( $r + $? ))  
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set $@)"
+        return $r                    
+}           
+
 qmp_uci_add() {
-	uci add qmp $1
+	uci -q add qmp $1 > /dev/null
+	r=$?
 	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add qmp $1)"
+	return $r
+}
+
+qmp_uci_add_raw() {
+	uci -q add $@ > /dev/null
+	r=$? 
+	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add $@)"
+	return $r 
+}
+
+qmp_uci_import() {
+	cat "$1" | while read v; do
+	[ ! -z "$v" ] && uci set $v
+	done
+	uci commit
+	return $?       
 }
 
 qmp_error() {
-	echo "Error: $1"
+	logger -s -t qMp "ERROR: $1"
 	exit 1
 }
 
