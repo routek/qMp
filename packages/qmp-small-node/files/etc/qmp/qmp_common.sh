@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#######################
+# UCI related commands 
+#######################
+
 qmp_uci_get() {
 	u="$(uci -q get qmp.$1)"
 	r=$?
@@ -60,23 +64,54 @@ qmp_uci_import() {
 	return $?       
 }
 
+##################################
+# Log and errors related commnads
+##################################
+
+# Exit from execution and shows an error
+# qmp_error The device is burning
 qmp_error() {
-	logger -s -t qMp "ERROR: $1"
+	logger -s -t qMp "ERROR: $@"
 	exit 1
 }
 
+# Send info to system log
+# qmp_log qMp is the best
+qmp_log() {
+	logger -s -t qMp "$@"
+}
+
+#######################################
+# Networking and Wifi related commands
+#######################################
+
+# Returns the names of the wifi devices from the system
 qmp_get_wifi_devices() {
 	echo "$(ip link | grep  -E ": (wifi|wlan).: "| cut -d: -f2)"
 }
 
+# Returns the MAC address of the wifi devices
 qmp_get_wifi_mac_devices() {
 	echo "$(ip link | grep -A1 -E ": (wifi|wlan).: " | grep link | cut -d' ' -f6)"
 }
 
+# Returns the device name that corresponds to the MAC address
+# qmp_get_dev_from_mac 00:22:11:33:44:55
 qmp_get_dev_from_mac() {
         ip l | grep $1 -i -B1 | grep -v \@ | grep -v ether | awk '{print $2}' | tr -d :            
 }          
+
+#########################
+# Other kind of commands
+#########################
+
+# Print the content of the parameters in reverse order (separed by spaces)
 reverse_order() {
 	echo "$@" | awk '{for (i=NF; i>0; i--) printf("%s ",$i);print ""}'
+}
+
+# Print the output of the command parameter in reverse order (separed by lines)
+qmp_tac() {
+	$@ | awk '{a[NR]=$0} END {for(i=NR;i>0;i--)print a[i]}'  
 }
 

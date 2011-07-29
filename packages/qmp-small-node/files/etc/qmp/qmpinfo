@@ -1,0 +1,56 @@
+#!/usr/bin/lua
+
+package.path = package.path .. ";/etc/qmp/?.lua"
+
+qmp = require "qmpinfo"
+
+function print_help()
+	print("qMpinfo -> a dummy lua script to get some information about the wireless devices")
+	print("Usage: qmpinfo <question> <device>")
+	print("Possible questions:")
+	print("		modes: supported modes by the wireless card")
+	print("		channels: supported channels and supported HT40 type (+/-) ")
+	print("")
+end
+
+function print_modes()
+	local data = qmp.get_modes(dev)
+	local output = ""
+    if data.b  then output = output .. "b " end
+    if data.g  then output = output .. "g " end
+    if data.a  then output = output .. "a " end
+    if data.n  then output = output .. "n " end
+	print(output)
+end
+
+function print_channels()
+	local partial
+	local output = ""
+	local data = qmp.get_channels(dev)
+	for _,d in ipairs(data) do
+		partial = d.channel
+		if d.ht40p then partial = partial .. " ht40+" end
+		if d.ht40m then partial = partial .. " ht40-" end
+		if d.adhoc then partial = partial .. " adhoc" end
+		output = output .. partial .. "\n"
+	end
+	print(output)
+end
+	
+if #arg ~= 2 then
+	print_help()
+	os.exit(1)
+end
+
+local question = arg[1]
+dev = arg[2]
+
+if question == "modes" then
+	print_modes()
+
+elseif question == "channels" then
+	print_channels()
+else
+	print_help()
+end
+
