@@ -20,6 +20,8 @@ function qmpinfo.get_channels(dev)
 	local pc = 0 -- previous channel
 	local clist = {} -- output channel list
 	local adhoc
+	local ht40_support = qmpinfo.get_modes(dev).n
+	
 
 	for i,f in ipairs(freqs) do
 		c = f.channel
@@ -67,7 +69,15 @@ function qmpinfo.get_channels(dev)
 				ch.adhoc = true
 			end
 		end
+
+		-- If the device does not support ht40, both vars (+/-) are false
+		if not ht40_support then
+			ch.ht40p = false
+			ch.ht40m = false
+		end
+
 		table.insert(clist,ch)
+
 	end	
 	return clist
 end

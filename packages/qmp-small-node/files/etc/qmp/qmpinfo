@@ -28,13 +28,12 @@ function print_channels()
 	local output = ""
 	local data = qmp.get_channels(dev)
 	for _,d in ipairs(data) do
-		partial = d.channel
-		if d.ht40p then partial = partial .. " ht40+" end
-		if d.ht40m then partial = partial .. " ht40-" end
-		if d.adhoc then partial = partial .. " adhoc" end
-		output = output .. partial .. "\n"
+		output = d.channel
+		if d.ht40p then output = output .. " ht40+" end
+		if d.ht40m then output = output .. " ht40-" end
+		if d.adhoc then output = output .. " adhoc" end
+		print(output)
 	end
-	print(output)
 end
 	
 if #arg ~= 2 then

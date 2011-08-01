@@ -8,6 +8,7 @@ qmp_uci_get() {
 	u="$(uci -q get qmp.$1)"
 	r=$?
 	echo "$u"
+	echo "$u" >> /tmp/uci_get
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get qmp.$1)"
 	return $r
 }
@@ -98,7 +99,7 @@ qmp_get_wifi_mac_devices() {
 # Returns the device name that corresponds to the MAC address
 # qmp_get_dev_from_mac 00:22:11:33:44:55
 qmp_get_dev_from_mac() {
-        ip l | grep $1 -i -B1 | grep -v \@ | grep -v ether | awk '{print $2}' | tr -d :            
+        ip l | grep $1 -i -B1 | grep -v \@ | grep -v ether | awk '{print $2}' | tr -d : | awk NR==1
 }          
 
 #########################
@@ -106,7 +107,7 @@ qmp_get_dev_from_mac() {
 #########################
 
 # Print the content of the parameters in reverse order (separed by spaces)
-reverse_order() {
+qmp_reverse_order() {
 	echo "$@" | awk '{for (i=NF; i>0; i--) printf("%s ",$i);print ""}'
 }
 

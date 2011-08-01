@@ -16,11 +16,13 @@ configure() {
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
+	/etc/init.d/qmp-fix-vlan start
 #	/etc/init.d/network restart	                       
-#	/etc/init.d/bmx6 restart	
+#	ifup -a
+	/etc/init.d/bmx6 restart	
 	touch "$CONTROL_FILE"
 	echo "Done, rebooting system to complete configuration"
-	reboot
+#	reboot
 }
 
 start() {
