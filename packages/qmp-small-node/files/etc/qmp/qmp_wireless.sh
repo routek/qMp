@@ -47,9 +47,9 @@ qmp_check_channel() {
 		dev="$1"
 		right_channel="$2"
 		channel="$(echo $2 | tr -d +-)"
-		ht40="$(echo $2 | tr -d [A-z])"
+		ht40="$(echo $2 | tr -d [0-9])"
 		mode="$3"
-		[ ! -z "$channel" ] && chaninfo="$($QMPINFO channels $1 | grep -q $channel)"
+		[ ! -z "$channel" ] && chaninfo="$($QMPINFO channels $1 | grep "^$channel ")"
 
 		# Checking if some thing related with channel is wrong
 		wrong=0
@@ -57,6 +57,8 @@ qmp_check_channel() {
 		[ "$mode" == "adhoc" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
 		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1 
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
+
+		qmp_log "Checking channel $chaninfo for $dev. Desicion=$wrong"
 		
 		# If something wrong, asking for default parameter
 		[ $wrong -ne 0 ] && right_channel="$(qmp_wifi_get_default channel $dev $mode)"
@@ -239,9 +241,8 @@ qmp_wifi_get_default() {
 		index=$(( $index * 2 ))
 
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
-		echo $mode >> /tmp/debug
 		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $QMPINFO channels $device | grep adhoc | awk NR==$index+1)"
-		[ "$mode" == "ap" ] && { channel_info="$($QMPINFO channels $device | awk NR==$index+1)"; echo "Debug: $channel_info" >> /tmp/debug; }
+		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$index+1)" 
 		
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
