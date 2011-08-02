@@ -87,7 +87,7 @@ ping 192.168.1.20 # in another shell
 press rspro reset button (for some seconds) while connecting power! Once ping replies do:
 tftp 192.168.1.20 -m binary -c put openwrt-ar71xx-ubnt-rspro-squashfs-factory.bin
 or flashing from inside:
-sysupgrade /tmp/openwrt-ar71xx-ubnt-rspro-squashfs-sysupgrade.bin
+sysupgrade -n /tmp/openwrt-ar71xx-ubnt-rspro-squashfs-sysupgrade.bin
 
 
 
