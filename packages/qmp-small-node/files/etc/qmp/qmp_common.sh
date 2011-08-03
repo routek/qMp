@@ -57,6 +57,15 @@ qmp_uci_add_raw() {
 	return $r 
 }
 
+qmp_uci_add_list_raw() {
+	uci -q add_list $@ > /dev/null
+	r=$?                                                              
+	uci commit                                                            
+	r=$(( $r + $? ))                                                      
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add_list $@)"    
+	return $r
+}
+
 qmp_uci_import() {
 	cat "$1" | while read v; do
 	[ ! -z "$v" ] && uci set $v

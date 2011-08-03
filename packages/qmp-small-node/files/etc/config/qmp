@@ -25,7 +25,6 @@ config 'qmp' 'wireless'
 
 config 'wireless'
         option 'mode' 'adhoc'
-		option 'channel' '44+'
 		option 'name'	'qMp'
  
 config 'wireless'
@@ -34,7 +33,4 @@ config 'wireless'
      
 config 'wireless'
         option 'mode' 'adhoc'
-
-
-
-
+		option 'name' 'qMp'

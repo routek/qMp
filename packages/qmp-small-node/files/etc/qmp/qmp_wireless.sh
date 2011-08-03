@@ -58,8 +58,6 @@ qmp_check_channel() {
 		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1 
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
 
-		qmp_log "Checking channel $chaninfo for $dev. Desicion=$wrong"
-		
 		# If something wrong, asking for default parameter
 		[ $wrong -ne 0 ] && right_channel="$(qmp_wifi_get_default channel $dev $mode)"
 
@@ -155,7 +153,8 @@ qmp_configure_wifi_device() {
 
 	index=$(qmp_find_wireless_iface $device)
 
-	cat $template | sed -e s/"#QMP_DEVICE"/"$device"/ \
+	# Non list arguments
+	cat $template | grep -v "^list " | sed -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_TYPE"/"$driver"/ \
 	 -e s/"#QMP_MAC"/"$mac"/ \
 	 -e s/"#QMP_CHANNEL"/"$channel"/ \
@@ -167,6 +166,13 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_MODE"/"$mode"/ > $TMP/qmp_wireless_temp
 
 	qmp_uci_import $TMP/qmp_wireless_temp
+
+	# List arguments
+	cat $template | grep "^list " | sed s/"^list "//g | sed -e s/"#QMP_DEVICE"/"$device"/ | \
+	while read l; do
+		qmp_uci_add_list_raw $l
+	done
+
 	uci reorder wireless.@wifi-iface[$index]=16
 	uci commit
 	rm -f $TMP/qmp_wireless_temp
