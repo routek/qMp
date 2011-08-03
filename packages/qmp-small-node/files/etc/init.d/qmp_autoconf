@@ -19,6 +19,7 @@ configure() {
 #	/etc/init.d/qmp-fix-vlan start
 	/etc/init.d/network restart	                       
 #	ifup -a
+	/etc/init.d/olsrd restart	
 	/etc/init.d/bmx6 restart	
 	touch "$CONTROL_FILE"
 	echo "Done, rebooting system to complete configuration"
