@@ -12,13 +12,24 @@ function qmpinfo.get_modes(dev)
 end
 
 function qmpinfo.get_channels(dev)
-	local iw = iwinfo[iwinfo.type(dev)]
-
+		local clist = {} -- output channel list      
+		local iw = iwinfo[iwinfo.type(dev)]            
+		local ch = {}                                            
+    
+		-- if there are not wireless cards, returning a dummy value                                                 
+		if iw == nil then                            
+                ch.channel=0                           
+                ch.adhoc=false                       
+                ch.ht40p=false                       
+                ch.ht40m=false                       
+                table.insert(clist,ch)                                                                                           
+                return clist                         
+        end                                          
+             
 	local freqs = iw.freqlist(dev) --freqs list
 	local c -- current channel
 	local nc = 0 -- next channel
 	local pc = 0 -- previous channel
-	local clist = {} -- output channel list
 	local adhoc
 	local ht40_support = qmpinfo.get_modes(dev).n
 	
