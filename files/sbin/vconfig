@@ -1,0 +1,6 @@
+#!/bin/sh
+set -x
+busybox vconfig set_name_type DEV_PLUS_VID_NO_PAD
+busybox vconfig $@
+set +x
+

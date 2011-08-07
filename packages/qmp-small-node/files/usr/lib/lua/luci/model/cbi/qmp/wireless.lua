@@ -1,10 +1,24 @@
 require("luci.sys")
+package.path = package.path .. ";/etc/qmp/?.lua"
+qmp = require "qmpinfo"
+
+device_names = {"wlan","ath"}
 
 m = Map("qmp", "Quick Mesh Project")
 
-------------------
--- Section MAIN
-------------------
+local uci = luci.model.uci.cursor()
+local wdevs = {}
+for k,v in pairs(uci:get_all("qmp")) do
+	for _,n in ipairs(device_names) do
+		if v.device ~= nil and string.find(v.device,n) then
+			table.insert(wdevs,k)
+		end
+	end
+end
+
+---------------------------
+-- Section Wireless Main --
+---------------------------
 s_wireless_main = m:section(NamedSection, "wireless", "qmp", "Wireless general options", "")
 s_wireless_main.addremove = False
 
@@ -19,35 +33,44 @@ country = s_wireless_main:option(Value,"country", "Country")
 -- BSSID
 bssid = s_wireless_main:option(Value,"bssid","BSSID")
 
---------------------
--- Section Wireless
---------------------
-s_wireless = m:section(TypedSection, "wireless", "Wireless devices", "")
-s_wireless.addremove = False
+-----------------------------
+-- Section Wireless Device --
+-----------------------------
+for _,wdev in ipairs(wdevs) do
 
--- Device
-dev = s_wireless:option(DummyValue,"device","Device")
+	mydev = uci:get("qmp",wdev,"device")
 
--- MAC
-mac = s_wireless:option(DummyValue,"mac","MAC")
+	s_wireless = m:section(NamedSection, wdev, "Wireless device", "Wi-Fi " .. mydev)
+	s_wireless.addremove = False
+	
+	-- Device
+	dev = s_wireless:option(DummyValue,"device","Device")
+	
+	-- MAC
+	mac = s_wireless:option(DummyValue,"mac","MAC")
+	
+	-- Mode
+	mode = s_wireless:option(ListValue,"mode","Mode")
+	mode:value("adhoc","Ad-Hoc")
+	mode:value("ap","Access Point")
+	
+	-- Name
+	s_wireless:option(Value,"name","Wireless name")
+	
+	-- Channel
 
--- Mode
-mode = s_wireless:option(ListValue,"mode","Mode")
-mode:value("adhoc","Ad-Hoc")
-mode:value("ap","Access Point")
+	channel = s_wireless:option(ListValue,"channel","Channel")
+	mymode = m.uci:get("qmp",wdev,"mode")
 
--- Name
-s_wireless:option(Value,"name","Wireless name")
+	for _,ch in ipairs(qmp.get_channels(mydev)) do
+		if mymode ~= "adhoc" or ch.adhoc then  
+			channel:value(ch.channel, ch.channel)
+			if ch.ht40p then channel:value(ch.channel .. '+', ch.channel .. '+') end
+			if ch.ht40m then channel:value(ch.channel .. '-', ch.channel .. '-') end
+		end
+	end
 
--- Channel
---local iw = luci.sys.exec("sh /etc/qmp/qmp_common.sh qmp_get_dev_from_mac " .. "00:80:48:6b:28:83")
---luci.sys.wifi.channels(iw)
-
---local device = m:get(s_wireless, "channel")
---device = m:get(s_wireless,"channel")
-
-channel = s_wireless:option(Value,"channel","Channel")
-
+end
 
 return m
 

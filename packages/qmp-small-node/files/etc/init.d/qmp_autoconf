@@ -6,6 +6,7 @@ QMP_DIR="/etc/qmp"
 
 configure() {
 	echo "Starting qmp configuration..."
+	echo "Starting qmp configuration..." > /dev/console
 
 	echo "[Configuring wireless]"
 	. $QMP_DIR/qmp_wireless.sh
@@ -16,10 +17,17 @@ configure() {
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
+#	/etc/init.d/qmp-fix-vlan start
 	/etc/init.d/network restart	                       
-	
+#	ifup -a
+	QMP_HOSTNAME=$(uci get system.@system[0].hostname)
+	echo "Update hostname for: '$QMP_HOSTNAME'"
+	echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
+	/etc/init.d/olsrd restart	
+	/etc/init.d/bmx6 restart	
 	touch "$CONTROL_FILE"
-	echo "Done"
+#	echo "Done, rebooting system to complete configuration"
+
 }
 
 start() {
