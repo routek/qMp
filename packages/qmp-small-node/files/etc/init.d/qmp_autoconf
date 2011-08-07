@@ -20,7 +20,7 @@ configure() {
 	
 	touch "$CONTROL_FILE"
 	echo "Done"
-} > /dev/console
+}
 
 start() {
 if [ ! -f "$CONTROL_FILE" ]; then
