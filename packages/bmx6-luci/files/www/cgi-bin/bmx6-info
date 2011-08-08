@@ -12,8 +12,13 @@
 BMX6_DIR="/var/run/bmx6/json"
 
 #Checking if shell mode or cgi-bin mode
-if [ "$1" == "-s" ]; then QUERY="$2"
-else QUERY="$QUERY_STRING"
+if [ "$1" == "-s" ]; then 
+	QUERY="$2"
+else 
+	QUERY="$QUERY_STRING"
+	echo "Content-type: text/plain"
+	echo ""
+
 fi
 
 check_path() {
@@ -21,6 +26,7 @@ check_path() {
         [ -f "$1" ] && path=$(cd $1/..; pwd)
         [ $(echo "$path" | grep -c "^$BMX6_DIR") -ne 1 ] && exit 1
 }
+
 
 check_path "$BMX6_DIR/$QUERY"
 
