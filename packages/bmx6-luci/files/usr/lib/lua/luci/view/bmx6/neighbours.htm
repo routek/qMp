@@ -11,10 +11,9 @@
 </style>
 
 <h2><a id="content" name="content"><%:Neighbours%></a></h2>
-Current neighbours 
-<% for i,v in ipairs(data) do %>
+<% for i,n in ipairs(neighbours) do %>
 	<div id="neighbour"> 
-		<div id="nb_id"><%=v.node.id%></div>
+		<div id="nb_id"><%=n.orig.globalId%></div>
 	</div>
 <%end%>
 

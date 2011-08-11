@@ -29,19 +29,14 @@ function index()
 	--- status (this is default one)
 	entry(place,call("action_status"),place[#place])	
 
-	--- interfaces
-	table.insert(place,"Interfaces")
-	entry(place,call("action_interfaces"),"Interfaces") 
-	table.remove(place)
- 
 	--- neighbours
 	table.insert(place,"Neighbours")
 	entry(place,call("action_neighbours"),"Neighbours") 
 	table.remove(place)
  
-	--- wireless links
-	table.insert(place,"Wireless")
-	entry(place,call("action_wireless"),"Wireless") 
+	--- links
+	table.insert(place,"Links")
+	entry(place,call("action_links"),"Links") 
 	table.remove(place)
 
 	--- configuration (CBI)
@@ -69,27 +64,42 @@ function index()
 end
  
 function action_status()
-        local data = bmx6json.get("status")
-        if data == nil then return nil end
-        luci.template.render("bmx6/status", {data=data.status})
-end
- 
- 
-function action_interfaces()
-        local data = bmx6json.get("interfaces")
-        if data == nil then return nil end
-        luci.template.render("bmx6/interfaces", {data=data.interfaces})
+		local status = bmx6json.get("status").status or nil
+		local interfaces = bmx6json.get("interfaces").interfaces or nil
+
+		if status == nil or interfaces == nil then
+			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})	
+		else
+        	luci.template.render("bmx6/status", {status=status,interfaces=interfaces})
+		end
 end
  
 function action_neighbours()
-        local data = bmx6json.get("neighbours")
-        if data == nil then return nil end
-        luci.template.render("bmx6/neighbours", {data=data.neighbours})
+        local orig = bmx6json.get("originators").originators or nil
+
+        if orig == nil then
+			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
+			return nil
+		end
+
+		local neighbours = {}
+		local nb = nil
+		local nd = nil
+		for _,o in ipairs(orig) do
+			nb = bmx6json.get("originators/"..o.name).originators or {}
+			nd = bmx6json.get("descriptions/"..o.name).descriptions or {}
+			table.insert(neighbours,{orig=nb,desc=nd})
+		end
+
+        luci.template.render("bmx6/neighbours", {neighbours=neighbours})
 end
  
-function action_wireless()
-        local data = bmx6json.get("wireless")
-        if data == nil then return nil end
-        luci.template.render("bmx6/wireless", {data=data.interfaces})
+function action_links()
+        local links = bmx6json.get("links").links or nil
+		if links == nil then
+			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
+		else
+        	luci.template.render("bmx6/links", {links=links}) 
+		end
 end
 
