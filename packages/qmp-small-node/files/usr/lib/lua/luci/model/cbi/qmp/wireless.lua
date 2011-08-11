@@ -2,7 +2,7 @@ require("luci.sys")
 package.path = package.path .. ";/etc/qmp/?.lua"
 qmp = require "qmpinfo"
 
-device_names = {"wlan","ath"}
+device_names = {"wlan","ath","wifi"}
 
 m = Map("qmp", "Quick Mesh Project")
 

@@ -72,7 +72,7 @@ qmp_check_channel() {
 
 qmp_configure_wifi_driver() {
 	mac80211_modules="mac80211 ath ath5k ath9k_hw ath9k_common ath9k"
-	madwifi_modules="ath_hal ath_pci"
+	madwifi_modules="ath_hal ath_ahb ath_pci"
 
 	#Removing all modules
 	echo "Removing wifi modules..."
