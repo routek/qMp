@@ -2,34 +2,35 @@
 
     <style type="text/css">
     table.int {
-        border-width: 2px;
-        border-spacing: ;
+        border-width: 0px;
+        border-spacing: 2px;
         border-style: inset;
-        border-color: white;
+        border-color: black;
         border-collapse: collapse;
         background-color: #dadbe6;
+		margin-left: 50px;
         }
     table.int tr {
-        border-width: 5px;
+        border-width: 1px;
         padding: 4px;
         border-style: solid;
-        border-color: white;
+        border-color: black;
         background-color: #dadbe9;
         }
     table.int td {
-        border-width: 5px;
+        border-width: 0px;
         padding: 4px;
         border-style: solid;
-        border-color: white;
+        border-color: black;
         background-color: #dadbe9;
 		text-align: center;
         }
     </style>
 
 <h2><a id="content" name="content"><%:Status%></a></h2>
-Status of bmx6
-<br />
-<br />
+
+<h3>Status of bmx6</h3>
+
 <table class="int">
 <tr>
 	<td><strong>Version</strong></td>
@@ -43,17 +44,47 @@ Status of bmx6
 	<td><strong>Nodes</strong></td>
 </tr>
 	<tr>
-		<td><%=data.version%></td>
-		<td><%=data.compatibility%></td>
-		<td><%=data.codeVersion%></td>
-		<td><%=data.globalId%>/<%=data.rateMax%></td>
-		<td><%=data.primaryIp%></td>
-		<td><%=data.myLocalId%></td>
-		<td><%=data.uptime%></td>
-		<td><%=data.cpu%></td>
-		<td><%=data.nodes%></td>
+		<td><%=status.version%></td>
+		<td><%=status.compatibility%></td>
+		<td><%=status.codeVersion%></td>
+		<td><%=status.globalId%>/<%=status.rateMax%></td>
+		<td><%=status.primaryIp%></td>
+		<td><%=status.myLocalId%></td>
+		<td><%=status.uptime%></td>
+		<td><%=status.cpu%></td>
+		<td><%=status.nodes%></td>
 	</tr>
 </table>
 
 <br />
+<br />
+
+<h3>Status of interfaces</h3>
+<table class="int">
+<tr>
+	<td><strong>Name</strong></td>
+	<td><strong>State</strong></td>
+	<td><strong>Type</strong></td>
+	<td><strong>Rate (Min/Max)</strong></td>
+	<td><strong>Local IP</strong></td>
+	<td><strong>Global IP</strong></td>
+	<td><strong>Multicast IP</strong></td>
+	<td><strong>Primary</strong></td>
+</tr>
+<% for i,v in ipairs(interfaces) do %>
+	<tr>
+		<td><%=v.devName%></td>
+		<td><%=v.state%></td>
+		<td><%=v.type%></td>
+		<td><%=v.rateMin%>/<%=v.rateMax%></td>
+		<td><%=v.llocalIp%></td>
+		<td><%=v.globalIp%></td>
+		<td><%=v.multicastIp%></td>
+		<td><%=v.primary%></td>
+	</tr>
+<%end%>
+</table>
+
+<br />
+
 <%+footer%>
