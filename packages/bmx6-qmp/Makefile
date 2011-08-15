@@ -14,7 +14,7 @@ PKG_SOURCE_PROTO:=git
 
 #Public Sources:
 PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
-PKG_REV:=ba3ef22f1d0521d593098fd8ae97e5ab2844e152
+PKG_REV:=2623264c17fc463d34f681c2cea32dddde7d30fb
 
 #Private Sources:
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
