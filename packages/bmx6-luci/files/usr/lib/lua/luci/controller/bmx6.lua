@@ -75,9 +75,9 @@ function action_status()
 end
  
 function action_neighbours()
-        local orig = bmx6json.get("originators").originators or nil
+		local orig = bmx6json.get("originators").originators or nil
 
-        if orig == nil then
+		if orig == nil then
 			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
 			return nil
 		end
@@ -95,11 +95,13 @@ function action_neighbours()
 end
  
 function action_links()
-        local links = bmx6json.get("links").links or nil
-		if links == nil then
-			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
-		else
-        	luci.template.render("bmx6/links", {links=links}) 
-		end
+	local links = bmx6json.get("links")
+	if links ~= nil then
+	--	luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
+		links = links.links
+	else
+		links = {}
+	end
+	luci.template.render("bmx6/links", {links=links}) 
 end
 

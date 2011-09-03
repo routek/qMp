@@ -41,9 +41,9 @@ function get(field)
 		local decoder = json.Decoder()
 		ltn12.pump.all(ltn12.source.string(raw), decoder:sink())
 		data = decoder:get()
-	else
-		print_error("Cannot get data from bmx6 daemon",true)
-		return nil     
+--	else
+--		print_error("Cannot get data from bmx6 daemon",true)
+--		return nil     
 	end
 
 	return data
