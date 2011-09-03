@@ -96,12 +96,18 @@ end
  
 function action_links()
 	local links = bmx6json.get("links")
+	local devlinks = {}
+	
 	if links ~= nil then
-	--	luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
 		links = links.links
-	else
-		links = {}
+		for _,l in ipairs(links) do
+			devlinks[l.viaDev] = {}
+		end
+		for _,l in ipairs(links) do
+			table.insert(devlinks[l.viaDev],l)	
+		end
 	end
-	luci.template.render("bmx6/links", {links=links}) 
+
+	luci.template.render("bmx6/links", {links=devlinks}) 
 end
 
