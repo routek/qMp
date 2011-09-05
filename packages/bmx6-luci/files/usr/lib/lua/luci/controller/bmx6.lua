@@ -39,6 +39,11 @@ function index()
 	entry(place,call("action_links"),"Links") 
 	table.remove(place)
 
+	--- chat
+	table.insert(place,"Chat")
+	entry(place,call("action_chat"),"Chat") 
+	table.remove(place)
+
 	--- configuration (CBI)
 	table.insert(place,"Configuration")
 	entry(place, cbi("bmx6/main"), "Configuration").dependent=false
@@ -109,5 +114,43 @@ function action_links()
 	end
 
 	luci.template.render("bmx6/links", {links=devlinks}) 
+end
+
+function action_chat()
+	local rcvd_dir = "/var/run/bmx6/json/rcvdSms"
+	local send_file = "/var/run/bmx6/json/sendSms/chat"
+	local sms_list = bmx6json.get("rcvdSms")
+	local data = ""
+	local chat = {}
+	local to_send = nil
+	local sent = ""
+	local fd = nil
+
+	if sms_list ~= nil then
+		sms_list = sms_list.rcvdSms
+	else
+		sms_list = {}
+	end		
+
+	for _,s in ipairs(sms_list) do
+		data = luci.util.split(s.name,':')
+		if #data == 2 and data[2] == "chat" then
+			fd = io.open(rcvd_dir.."/"..s.name,"r")
+			chat[data[1]] = fd:read()
+			fd:close()	
+		end
+	end
+
+	to_send = luci.http.formvalue("toSend")	
+	if to_send ~= nil and #to_send > 1  then
+		fd = io.open(send_file,"w")
+		fd:write(to_send)
+		fd:close()
+		sent = to_send
+	else
+		sent = luci.util.exec("cat "..send_file)
+	end
+
+	luci.template.render("bmx6/chat", {chat=chat,sent=sent})
 end
 
