@@ -20,7 +20,7 @@ PKG_REV:=2623264c17fc463d34f681c2cea32dddde7d30fb
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
 #PKG_REV:=ba3ef22f1d0521d593098fd8ae97e5ab2844e152
 
-PKG_VERSION:=r2011071703
+PKG_VERSION:=r2011090502
 
 #PKG_RELEASE:=1
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
@@ -78,6 +78,11 @@ define Package/bmx6-qmp-json
   TITLE:=josn plugin based on jsonc 
 endef
 
+define Package/bmx6-qmp-sms
+  $(call Package/bmx6-qmp/Default)
+  DEPENDS:=bmx6-qmp
+  TITLE:=sms plugin 
+endef
 
 
 define Build/Configure
@@ -112,7 +117,13 @@ define Package/bmx6-qmp-json/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/bmx6_json/bmx6_json.so $(1)/usr/lib/bmx6_json.so
 endef
 
+define Package/bmx6-qmp-sms/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/bmx6_sms/bmx6_sms.so $(1)/usr/lib/bmx6_sms.so
+endef
+
 $(eval $(call BuildPackage,bmx6-qmp))
 $(eval $(call BuildPackage,bmx6-qmp-uci-config))
 $(eval $(call BuildPackage,bmx6-qmp-json))
+$(eval $(call BuildPackage,bmx6-qmp-sms))
 
