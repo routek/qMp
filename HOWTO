@@ -16,7 +16,7 @@ cp ../qmp/feeds.conf . # to not conflict with example qmp/feeds.conf version whi
 
 #nano feeds.conf  # adapt path to .../13f/packages
 cd ..
-sed -i -e "s|/home/hitz/13f|`pwd`|" backfire/feeds.conf
+sed -i -e "s|PATH|`pwd`|" backfire/feeds.conf
 cd backfire
 
 
