@@ -1,36 +1,65 @@
 
+## this config should work for Routerstation(PRO), Alix, Fonera, ...
+
+
 config 'qmp' 'interfaces'
-        option 'lan_devices' 'eth0'
-        option 'wan_device' 'eth1'
-        option 'mesh_devices' 'eth0 wlan0 wlan1 wlan2'
+#       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
+        option 'lan_devices'      'eth0'                    # will be used as is!
+        option 'wan_device'       'eth1'                    # will be used as is!
+        option 'mesh_devices'     'eth0 wlan0 wlan1 wlan2'  # will be extended by vlan tag!
+
 
 config 'qmp' 'node'
+#       option community_node_id 901   # [0x0100..0xFFFF]  if commented out then community_node_id will be 
+                                       # autoconfigured based on last byte of MAC address, thus: [0x000..0x0FF]
+
 
 config 'qmp' 'networks'
-        option 'niit_prefix96' '0:0:0:0:0:ffff'
-        option 'mesh_protocol_vids' 'olsr6:1 bmx6:2'
+        option 'lan_address' '192.168.22.1'
+        option 'lan_netmask' '255.255.255.0'
+        option 'niit_prefix96' '0:0:0:0:0:ffff'        # omit trailing 32 ipv4 bits !
+        option 'mesh_protocol_vids' 'olsr6:1 bmx6:2'   # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
         option 'mesh_vid_offset' '10'
+
         option 'olsr6_mesh_prefix48' 'fd01:0:0'
         option 'olsr6_ripe_prefix48' '2011:0:0'
         option 'olsr6_ipv4_prefix24' '10.201'
-        option 'bmx6_mesh_prefix48' 'fd02:0:0'
-        option 'bmx6_ripe_prefix48' '2012:0:0'
-        option 'bmx6_ipv4_prefix24' '10.202'
+#       option 'olsr6_ipv4_address'  '10.201.9.01'
+#       option 'olsr6_ipv4_netmask'  '255.255.255.0'
+#       option 'olsr6_6to4_netmask'  '120'
+
+        option 'bmx6_mesh_prefix48'  'fd02:0:0'
+        option 'bmx6_ripe_prefix48'  '2012:0:0'        # suffix is autoconfigured based on community_node_id
+        option 'bmx6_ipv4_prefix24'  '10.202'
+#       option 'bmx6_ipv4_address'   '10.202.9.01/24'  # if commented out then option is autoconfigured based on
+                                                       # community_node_id and bmx6_ipv4_prefix
+
+
+
         option 'babel_mesh_prefix48' 'fd03:0:0'
 
+
+config 'qmp' 'tunnels'
+        option 'search_ipv4_tunnel'  '0.0.0.0/0'
+        option 'search_ipv6_tunnel'  '::/0'
+#       option 'offer_ipv4_tunnel'  '0.0.0.0/0'
+#       option 'offer_ipv6_tunnel'  '::/0'
+
+
 config 'qmp' 'wireless'
-        option 'driver' 'mac80211'
+        option 'driver'  'mac80211'
         option 'country' 'UZ'
-        option 'bssid' '02:CA:FF:EE:BA:BE'
+        option 'bssid'   '02:CA:FF:EE:BA:BE'
+
 
 config 'wireless'
         option 'mode' 'adhoc'
-		option 'name'	'qMp'
+	option 'name' 'qMp'
  
 config 'wireless'
         option 'mode' 'ap'
-		option 'name' 'qMp-AP'
+	option 'name' 'qMp-AP'
      
 config 'wireless'
         option 'mode' 'adhoc'
-		option 'name' 'qMp'
+	option 'name' 'qMp'

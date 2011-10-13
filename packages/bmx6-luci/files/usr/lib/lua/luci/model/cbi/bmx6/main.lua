@@ -20,7 +20,7 @@ general.addremove = false
 general:option(Value,"globalPrefix","Global ip prefix","Specify global prefix for interfaces: NETADDR/LENGTH")
 
 if m:get("ipVersion","ipVersion") == "6" then
-	general:option(Value,"niitSource","Ipv4 niit source","Specify niit4to6 source IP address (IP MUST be assigned to niit4to6 interface!)")
+	general:option(Value,"tun4Address","NIIT IPv4 tunnel address","specify default IPv4 tunnel address and announced range (IP SHOULD be assigned to niit4to6 interface!)")
 end
 
 -- IP section
