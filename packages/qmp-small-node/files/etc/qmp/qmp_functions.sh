@@ -425,6 +425,7 @@ qmp_configure_network() {
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr="$(uci get qmp.networks.lan_address)"
     uci set $conf.lan.netmask="$(uci get qmp.networks.lan_netmask)"
+    uci set $conf.lan.dns="(uci get qmp.networks.dns)"
 
 
     if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then

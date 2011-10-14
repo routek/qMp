@@ -15,11 +15,12 @@ config 'qmp' 'node'
 
 
 config 'qmp' 'networks'
-        option 'lan_address' '192.168.22.1'
-        option 'lan_netmask' '255.255.255.0'
-        option 'niit_prefix96' '0:0:0:0:0:ffff'        # omit trailing 32 ipv4 bits !
-        option 'mesh_protocol_vids' 'olsr6:1 bmx6:2'   # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
-        option 'mesh_vid_offset' '10'
+        option 'dns'                 '141.1.1.1'
+        option 'lan_address'         '192.168.22.1'
+        option 'lan_netmask'         '255.255.255.0'
+        option 'niit_prefix96'       '0:0:0:0:0:ffff'        # omit trailing 32 ipv4 bits !
+        option 'mesh_protocol_vids'  'olsr6:1 bmx6:2'   # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
+        option 'mesh_vid_offset'     '10'
 
         option 'olsr6_mesh_prefix48' 'fd01:0:0'
         option 'olsr6_ripe_prefix48' '2011:0:0'
@@ -34,9 +35,9 @@ config 'qmp' 'networks'
 #       option 'bmx6_ipv4_address'   '10.202.9.01/24'  # if commented out then option is autoconfigured based on
                                                        # community_node_id and bmx6_ipv4_prefix
 
-
-
         option 'babel_mesh_prefix48' 'fd03:0:0'
+
+
 
 
 config 'qmp' 'tunnels'

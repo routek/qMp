@@ -41,6 +41,7 @@ define Package/qmp-small-node
 	+ip6tables +ip6tables-utils \
 	+kmod-niit \
 	+kmod-ipip \
+	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \
 	+kmod-madwifi \
 	+kmod-ath9k \
