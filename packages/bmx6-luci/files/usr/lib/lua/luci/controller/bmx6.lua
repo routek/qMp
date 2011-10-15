@@ -117,14 +117,20 @@ function action_links()
 end
 
 function action_chat()
-	local rcvd_dir = "/var/run/bmx6/json/rcvdSms"
-	local send_file = "/var/run/bmx6/json/sendSms/chat"
+	local sms_dir = "/var/run/bmx6/sms"
+	local rcvd_dir = sms_dir .. "/rcvdSms"
+	local send_file = sms_dir .. "/sendSms/chat"
 	local sms_list = bmx6json.get("rcvdSms")
 	local data = ""
 	local chat = {}
 	local to_send = nil
 	local sent = ""
 	local fd = nil
+
+	if luci.sys.call("test -d " .. sms_dir) ~= 0 then
+		luci.template.render("bmx6/error", {txt="sms plugin disabled or some problem with directory " .. sms_dir})
+		return nil
+	end
 
 	if sms_list ~= nil then
 		sms_list = sms_list.rcvdSms
