@@ -80,23 +80,32 @@ function action_status()
 end
  
 function action_neighbours()
-		local orig = bmx6json.get("originators").originators or nil
+		local orig_list = bmx6json.get("originators").originators or nil
 
-		if orig == nil then
+		if orig_list == nil then
 			luci.template.render("bmx6/error", {txt="Cannot fetch data from bmx6 json"})
 			return nil
 		end
 
-		local neighbours = {}
-		local nb = nil
-		local nd = nil
-		for _,o in ipairs(orig) do
-			nb = bmx6json.get("originators/"..o.name).originators or {}
-			nd = bmx6json.get("descriptions/"..o.name).descriptions or {}
-			table.insert(neighbours,{orig=nb,desc=nd})
+		local originators = {}
+		local desc = nil
+		local orig = nil
+		local name = ""
+		
+		for _,o in ipairs(orig_list) do
+			orig = bmx6json.get("originators/"..o.name) or {}
+			desc = bmx6json.get("descriptions/"..o.name) or {}
+		
+			if string.find(o.name,'.') then
+				name = luci.util.split(o.name,'.')[1]
+			else
+				name = o.name
+			end
+			
+			table.insert(originators,{name=name,orig=orig,desc=desc})
 		end
 
-        luci.template.render("bmx6/neighbours", {neighbours=neighbours})
+        luci.template.render("bmx6/neighbours", {originators=originators})
 end
  
 function action_links()
@@ -121,7 +130,8 @@ function action_chat()
 	local rcvd_dir = sms_dir .. "/rcvdSms"
 	local send_file = sms_dir .. "/sendSms/chat"
 	local sms_list = bmx6json.get("rcvdSms")
-	local data = ""
+	local sender = ""
+	local sms_file = ""
 	local chat = {}
 	local to_send = nil
 	local sent = ""
@@ -132,19 +142,23 @@ function action_chat()
 		return nil
 	end
 
-	if sms_list ~= nil then
-		sms_list = sms_list.rcvdSms
-	else
-		sms_list = {}
-	end		
+	sms_list = luci.util.split(luci.util.exec("ls "..rcvd_dir.."/*:chat"))
 
-	for _,s in ipairs(sms_list) do
-		data = luci.util.split(s.name,':')
-		if #data == 2 and data[2] == "chat" then
-			fd = io.open(rcvd_dir.."/"..s.name,"r")
-			chat[data[1]] = fd:read()
-			fd:close()	
+	for _,sms_path in ipairs(sms_list) do
+	  if #sms_path > #rcvd_dir then
+		sms_file = luci.util.split(sms_path,'/')
+		sms_file = sms_file[#sms_file]
+		sender = luci.util.split(sms_file,':')[1]
+
+		-- Trying to clean the name
+		if string.find(sender,".") ~= nil then
+			sender = luci.util.split(sender,".")[1]
 		end
+
+		fd = io.open(sms_path,"r")
+		chat[sender] = fd:read()
+		fd:close()	
+	  end
 	end
 
 	to_send = luci.http.formvalue("toSend")	
