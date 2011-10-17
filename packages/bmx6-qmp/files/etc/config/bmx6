@@ -17,4 +17,3 @@ config 'dev' 'mesh_2'
 #config 'hna' 'my_global_prefix'
 #       option 'hna' '2012:0:0:74:0:0:0:0/64'
 
-

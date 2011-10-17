@@ -1,21 +1,69 @@
 <%+header%>
 <style type="text/css">
+
+    table {
+       width:90%;
+       border-top:1px solid #e5eaf8;
+       border-right:1px solid #e5eaf8;
+       margin:1em auto;
+       border-collapse:collapse;
+     }
+
+    td {
+       color:#678197;
+       border-bottom:1px solid #e6eff8;
+       border-left:1px solid #e6eff8;
+       padding:.3em 1em;
+       text-align:center;
+     }
+    th {
+       background:#f4f9fe;
+       text-align:center;
+       font:bold 1.2em/2em "Century Gothic","Trebuchet MS",Arial,Helvetica,sans-serif;
+       color:#66a3d3;
+     }
+                                                                                
+
 #neighbour {
 	position:relative;
+	margin:5px;
 }
 
-#nb_id {
-	background-color: #35ca2c;
-	font: bold;
+#orig_id {
+	background-color: black;
+	color: white;
+	text-ident:10px;
 }
 </style>
 
 <h2><a id="content" name="content"><%:Neighbours%></a></h2>
-<% for i,n in ipairs(neighbours) do %>
-	<div id="neighbour"> 
-		<div id="nb_id"><%=n.orig.globalId%></div>
-	</div>
+<table>
+ <tr>
+  <th scope="col">Name</th>
+  <th scope="col">IP</th>
+  <th scope="col">Via Dev</th>
+  <th scope="col">Via IP</th>
+  <th scope="col">Routes</th>
+  <th scope="col">Metric</th>
+  <th scope="col">Last Desc</th>
+  <th scope="col">Last Ref</th>
+ </tr>
+ 
+<% for i,o in ipairs(originators) do %>
+	<% if #o.orig.viaIp > 2 then %>
+		<tr>
+		<td><%=o.name%></td>
+		<td><%=o.orig.primaryIp%></td>
+		<td><%=o.orig.viaDev%></td> 
+		<td><%=o.orig.viaIp%></td> 
+		<td><%=o.orig.routes%></td>
+		<td><%=o.orig.metric%></td> 
+		<td><%=o.orig.lastDesc%></td> 
+		<td><%=o.orig.lastRef%></td> 
+		</tr>
+	<%end%>
 <%end%>
+</table>
 
 <br />
 <%+footer%>

@@ -1,47 +1,19 @@
 <%+header%>
+<link rel="stylesheet" type="text/css" href="/luci-static/resources/bmx6/style.css" />
 
-    <style type="text/css">
-    table.int {
-        border-width: 0px;
-        border-spacing: 2px;
-        border-style: inset;
-        border-color: black;
-        border-collapse: collapse;
-        background-color: #dadbe6;
-		margin-left: 50px;
-        }
-    table.int tr {
-        border-width: 1px;
-        padding: 4px;
-        border-style: solid;
-        border-color: black;
-        background-color: #dadbe9;
-        }
-    table.int td {
-        border-width: 0px;
-        padding: 4px;
-        border-style: solid;
-        border-color: black;
-        background-color: #dadbe9;
-		text-align: center;
-        }
-    </style>
+<h2>Status of bmx6</h2>
 
-<h2><a id="content" name="content"><%:Status%></a></h2>
-
-<h3>Status of bmx6</h3>
-
-<table class="int">
+<table>
 <tr>
-	<td><strong>Version</strong></td>
-	<td><strong>Compatibility</strong></td>
-	<td><strong>CodeVersion</strong></td>
-	<td><strong>Global Id</strong></td>
-	<td><strong>Primary Ip</strong></td>
-	<td><strong>Local Id</strong></td>
-	<td><strong>Uptime</strong></td>
-	<td><strong>CPU</strong></td>
-	<td><strong>Nodes</strong></td>
+	<th>Version</th>
+	<th>Compatibility</th>
+	<th>CodeVersion</th>
+	<th>Global Id</th>
+	<th>Primary Ip</th>
+	<th>Local Id</th>
+	<th>Uptime</th>
+	<th>CPU</th>
+	<th>Nodes</th>
 </tr>
 	<tr>
 		<td><%=status.version%></td>
@@ -59,17 +31,17 @@
 <br />
 <br />
 
-<h3>Status of interfaces</h3>
-<table class="int">
+<h2>Status of interfaces</h2>
+<table>
 <tr>
-	<td><strong>Name</strong></td>
-	<td><strong>State</strong></td>
-	<td><strong>Type</strong></td>
-	<td><strong>Rate (Min/Max)</strong></td>
-	<td><strong>Local IP</strong></td>
-	<td><strong>Global IP</strong></td>
-	<td><strong>Multicast IP</strong></td>
-	<td><strong>Primary</strong></td>
+	<th>Name</th>
+	<th>State</th>
+	<th>Type</th>
+	<th>Rate (Min/Max)</th>
+	<th>Local IP</th>
+	<th>Global IP</th>
+	<th>Multicast IP</th>
+	<th>Primary</th>
 </tr>
 <% for i,v in ipairs(interfaces) do %>
 	<tr>

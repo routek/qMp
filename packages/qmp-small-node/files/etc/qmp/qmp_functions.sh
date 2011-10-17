@@ -508,6 +508,15 @@ qmp_configure_bmx6() {
   uci set $conf.bmx6_json_plugin=plugin
   uci set $conf.bmx6_json_plugin.plugin=bmx6_json.so
 
+  uci set $conf.bmx6_sms_plugin=plugin
+  uci set $conf.bmx6_sms_plugin.plugin=bmx6_sms.so
+
+  # chat and map files must be syncronized using sms
+  cfg_sms=$(uci add $conf syncSms)
+  uci set $conf.${cfg_sms}.syncSms=chat
+  cfg_sms=$(uci add $conf syncSms)
+  uci set $conf.${cfg_sms}.syncSms=map
+  
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
   uci set $conf.ipVersion.throwRules="0"
