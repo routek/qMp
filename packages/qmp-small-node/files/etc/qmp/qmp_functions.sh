@@ -284,9 +284,12 @@ qmp_get_ula96() {
   local mac=$( qmp_get_mac_for_dev $dev_mac )
   local ula96=$( qmp_calculate_ula96 $prefix $mac $suffix )
 
-  echo "$ula96/$mask"
+  if [ -z "$mask" ] ; then
+      echo "$ula96"
+  else
+      echo "$ula96/$mask"
+  fi
 }
-
 
 
 
@@ -420,8 +423,9 @@ qmp_configure_network() {
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
 #    uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
-    uci set $conf.lan.ipaddr="192.168.1.1"
-    uci set $conf.lan.netmask="255.255.255.0"
+    uci set $conf.lan.ipaddr="$(uci get qmp.networks.lan_address)"
+    uci set $conf.lan.netmask="$(uci get qmp.networks.lan_netmask)"
+    uci set $conf.lan.dns="$(uci get qmp.networks.dns)"
 
 
     if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then
@@ -489,8 +493,6 @@ qmp_configure_network() {
 
 
 
-
-
 qmp_configure_bmx6() {
 #  set -x
   local conf="bmx6"
@@ -506,6 +508,15 @@ qmp_configure_bmx6() {
   uci set $conf.bmx6_json_plugin=plugin
   uci set $conf.bmx6_json_plugin.plugin=bmx6_json.so
 
+  uci set $conf.bmx6_sms_plugin=plugin
+  uci set $conf.bmx6_sms_plugin.plugin=bmx6_sms.so
+
+  # chat and map files must be syncronized using sms
+  cfg_sms=$(uci add $conf syncSms)
+  uci set $conf.${cfg_sms}.syncSms=chat
+  cfg_sms=$(uci add $conf syncSms)
+  uci set $conf.${cfg_sms}.syncSms=map
+  
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
   uci set $conf.ipVersion.throwRules="0"
@@ -538,10 +549,10 @@ qmp_configure_bmx6() {
 	    uci set $conf.mesh_$counter.dev="$ifname"
 
 	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
-	      uci set $conf.general.niitSource="$(uci get qmp.networks.bmx6_ipv4_address)"
+	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_address)"
 	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
 	      local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-	      uci set $conf.general.niitSource="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24"
+	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24/32"
 	    fi
 
 	    counter=$(( $counter + 1 ))
@@ -553,23 +564,34 @@ qmp_configure_bmx6() {
 
 
   if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
-    uci set $conf.ripe="hna"
-    uci set $conf.ripe.hna="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:0/64"
+    uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
   fi
 
 
-  if qmp_uci_test qmp.networks.niit_prefix96 ; then
-
-    if qmp_uci_test qmp.networks.bmx6_ipv4_address && qmp_uci_test qmp.networks.bmx6_ipv4_netmask && qmp_uci_test qmp.networks.bmx6_6to4_netmask; then
-      local niit6to4_address="$(qmp_get_ip6_slow $(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_address)/$(uci get qmp.networks.bmx6_6to4_netmask))"
-      uci set $conf.niit6to4="hna"
-      uci set $conf.niit6to4.hna="$niit6to4_address/$(uci get qmp.networks.bmx6_6to4_netmask)"
-    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24; then
-      local niit6to4_address="$(uci get qmp.networks.niit_prefix96):$(uci get qmp.networks.bmx6_ipv4_prefix24).$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-      uci set $conf.niit6to4="hna"
-      uci set $conf.niit6to4.hna="$niit6to4_address/128"
-    fi
+  if qmp_uci_test qmp.tunnels.search_ipv6_tunnel ; then
+    uci set $conf.tun6Out="tunOut"
+    uci set $conf.tun6Out.tunOut="tun6Out"
+    uci set $conf.tun6Out.network="$(uci get qmp.tunnels.search_ipv6_tunnel)"
   fi
+
+
+  if qmp_uci_test qmp.tunnels.search_ipv4_tunnel ; then
+    uci set $conf.tun4Out="tunOut"
+    uci set $conf.tun4Out.tunOut="tun4Out"
+    uci set $conf.tun4Out.network="$(uci get qmp.tunnels.search_ipv4_tunnel)"
+
+  elif qmp_uci_test qmp.tunnels.offer_ipv4_tunnel ; then
+    uci set $conf.tunInRemote="tunInRemote"
+    uci set $conf.tunInRemote.tunInRemote="$(qmp_get_ula96 $(uci get qmp.networks.bmx6_mesh_prefix48):: $primary_mesh_device 2002::ffff )"
+
+    uci set $conf.tun4InNet="tunInNet"
+    uci set $conf.tun4InNet.tunInNet="$(uci get qmp.tunnels.offer_ipv4_tunnel)"
+    uci set $conf.tun4InNet.bandwidth="1000000"
+  fi
+
+
+
+ 
 
   uci commit $conf
 #  /etc/init.d/$conf restart

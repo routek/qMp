@@ -2,7 +2,7 @@
 
 config 'bmx6' 'general'
 #       option 'runtimeDir' '/var/run/bmx6'
-#       option 'niitSource' '10.202.0.116'
+#       option 'tun4Address' '10.202.0.116/32'
 
 #config 'ipVersion' 'ipVersion'
 #       option 'ipVersion' '6'   # default is 4
@@ -16,8 +16,4 @@ config 'dev' 'mesh_2'
 
 #config 'hna' 'my_global_prefix'
 #       option 'hna' '2012:0:0:74:0:0:0:0/64'
-
-#config 'hna' 'niit6to4'
-#       option 'hna' '0:0:0:0:0:ffff:10.202.0.116/128'
-
 
