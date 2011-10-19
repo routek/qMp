@@ -1,0 +1,9 @@
+# This file is interpreted as shell script.
+# Put your custom iptables rules here, they will
+# be executed with each firewall (re-)start.
+
+iptables -t nat -F
+iptables -t nat -I POSTROUTING -o eth1 -j MASQUERADE
+iptables -t nat -I POSTROUTING -s 192.168.22.0/24  ! -o 192.168.22.0/24
+
+

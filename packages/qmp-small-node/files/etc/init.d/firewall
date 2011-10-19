@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2008-2010 OpenWrt.org
+
+START=45
+
+start() {
+  /etc/firewall.user
+}
+                        
+stop() {
+   iptables -t nat -F
+   iptables -F
+}
+                                
+restart() {
+     stop
+     start
+}
+
