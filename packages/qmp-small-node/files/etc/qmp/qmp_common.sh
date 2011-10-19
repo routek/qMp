@@ -1,4 +1,11 @@
 #!/bin/sh
+# 
+# Copyright (C) 2011 Fundació Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+# Mas l'Esperança, 08503 Gurb, Catalonia, Spain
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
 
 #######################
 # UCI related commands 
