@@ -17,6 +17,11 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+#    This script gives information about bmx6
+#    Can be executed from a linux shell: ./bmx6-info -s links
+#    Or from web interfae (with cgi enabled): http://host/cgi-bin/bmx6-info?links
+#    If you ask for a directory you wil get the directory contents in JSON forman
 
 BMX6_DIR="$(uci get bmx6.general.runtimeDir 2>/dev/null)" || BMX6_DIR="/var/run/bmx6/json"
 
