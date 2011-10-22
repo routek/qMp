@@ -440,7 +440,7 @@ qmp_configure_network() {
 
     uci set $conf.lan="interface"
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
-#    uci set $conf.lan.type="bridge"
+    uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr="$(uci get qmp.networks.lan_address)"
     uci set $conf.lan.netmask="$(uci get qmp.networks.lan_netmask)"
