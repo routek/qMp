@@ -13,6 +13,10 @@ config 'qmp' 'node'
 #       option community_node_id 901   # [0x0100..0xFFFF]  if commented out then community_node_id will be 
                                        # autoconfigured based on last byte of MAC address, thus: [0x000..0x0FF]
 
+config 'qmp' 'non_overlapping'
+        option 'ignore'              '0'  # Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
+        option 'dhcp_offset'         '2'
+        option 'qmp_leasetime'       '1h'
 
 config 'qmp' 'networks'
         option 'dns'                 '141.1.1.1'
@@ -36,8 +40,6 @@ config 'qmp' 'networks'
                                                        # community_node_id and bmx6_ipv4_prefix
 
         option 'babel_mesh_prefix48' 'fd03:0:0'
-
-
 
 
 config 'qmp' 'tunnels'

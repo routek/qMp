@@ -331,10 +331,6 @@ qmp_get_addr64() {
 
 
 
-
-
-
-
 qmp_configure_prepare() {
 
   local conf=$1
@@ -350,11 +346,6 @@ qmp_configure_prepare() {
   echo "" > /etc/config/$conf
 
 }
-
-
-
-
-
 
 
 
@@ -430,47 +421,80 @@ qmp_configure_network() {
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
+  local LSB_PRIM_MAC="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
+
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
   elif ! [ -z "$primary_mesh_device" ] ; then
-    community_node_id="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
+    community_node_id=$LSB_PRIM_MAC
   fi
 
   if qmp_uci_test qmp.interfaces.lan_devices ; then
+
+    # If it is enabled, apply the non-overlapping DHCP-range preset policy
+
+	LAN_MASK="$(uci get qmp.networks.lan_netmask)"
+	LAN_ADDR="$(uci get qmp.networks.lan_address)"
+
+    if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
+	LAN_MASK="255.255.0.0"
+	# Last byte of lan adress must be "1" to avoid overlappings
+	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/&.1:/1' | awk -F ":" '{print $1}')
+
+	OFFSET=2
+	NUM_GRP=256
+
+	UCI_OFFSET="$(uci get qmp.non_overlapping.dhcp_offset)"
+
+	if [ $UCI_OFFSET -gt 1 ]; then
+		OFFSET=$UCI_OFFSET
+	fi
+
+	START=$(( $(printf %d 0x$LSB_PRIM_MAC) * $NUM_GRP + $OFFSET ))
+	LIMIT=$(( $NUM_GRP - $OFFSET - 2))
+
+	uci set dhcp.lan.start=$START
+	uci set dhcp.lan.limit=$LIMIT
+	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
+	uci commit dhcp
+    fi
 
     uci set $conf.lan="interface"
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
     uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
-    uci set $conf.lan.ipaddr="$(uci get qmp.networks.lan_address)"
-    uci set $conf.lan.netmask="$(uci get qmp.networks.lan_netmask)"
+    uci set $conf.lan.ipaddr=$LAN_ADDR
+    uci set $conf.lan.netmask=$LAN_MASK
     uci set $conf.lan.dns="$(uci get qmp.networks.dns)"
 
 
+
+
+# Configuration of 4to6 tunnel interface per protocol
     if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then
 
       for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
         local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-        local lan="niit4to6_${protocol_name}"
+        local TUNDEV="niit4to6_${protocol_name}"
 
-	uci set $conf.$lan="alias"
-	uci set $conf.$lan.interface="niit4to6"
-	uci set $conf.$lan.proto="static"
+	uci set $conf.$TUNDEV="alias"
+	uci set $conf.$TUNDEV.interface="niit4to6"
+	uci set $conf.$TUNDEV.proto="static"
 
         if qmp_uci_test qmp.networks.${protocol_name}_ripe_prefix48 ; then
 
           local ripe_prefix48="$(uci get qmp.networks.${protocol_name}_ripe_prefix48)"
-          uci set $conf.$lan.ip6addr="$(qmp_get_addr64 $ripe_prefix48:: $community_node_id ::1 64)"
+          uci set $conf.$TUNDEV.ip6addr="$(qmp_get_addr64 $ripe_prefix48:: $community_node_id ::1 64)"
         fi
 
         if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address && qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask ; then
-          uci set $conf.$lan.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-          uci set $conf.$lan.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
+          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
+          uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
         elif qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 && ! [ -z "$community_node_id" ] ; then
 	  local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-          uci set $conf.$lan.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).$ipv4_suffix24"
-          uci set $conf.$lan.netmask="255.255.255.255"
+          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).$ipv4_suffix24"
+          uci set $conf.$TUNDEV.netmask="255.255.255.255"
         fi
 
       done
