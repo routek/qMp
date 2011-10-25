@@ -74,6 +74,7 @@ for _,wdev in ipairs(wdevs) do
 	mode = s_wireless:option(ListValue,"mode","Mode")
 	mode:value("adhoc","Ad-Hoc")
 	mode:value("ap","Access Point")
+	mode:value("none","Not used")
 	
 	-- Name
 	s_wireless:option(Value,"name","Wireless name")
