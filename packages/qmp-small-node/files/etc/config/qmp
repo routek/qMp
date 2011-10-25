@@ -4,9 +4,9 @@
 
 config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
-        option 'lan_devices'      'eth0'                    # will be used as is!
+        option 'lan_devices'      'eth0 wlan1'              # will be used as is!
         option 'wan_device'       'eth1'                    # will be used as is!
-        option 'mesh_devices'     'eth0 wlan0 wlan1 wlan2'  # will be extended by vlan tag!
+        option 'mesh_devices'     'eth0 wlan0 wlan2'  	    # will be extended by vlan tag!
 
 
 config 'qmp' 'node'
