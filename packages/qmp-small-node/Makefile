@@ -46,6 +46,7 @@ define Package/qmp-small-node
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
 	+olsrd-mod-arprefresh +olsrd-luci \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
+	+firewall \
 	+babeld \
 	+ip \
 	+ndisc6 +rdisc6 +rdnssd \
