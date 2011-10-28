@@ -57,12 +57,50 @@ qmp_uci_set_raw() {
         return $r                    
 }           
 
+qmp_uci_del() {
+	uci -q del qmp.$1
+	r=$?
+	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci del qmp.$1)"
+	return $r
+}
+
+qmp_uci_del_raw() {
+        uci -q del $@
+	r=$?
+	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci del $@)"
+	return $r
+}
+
 qmp_uci_add() {
 	uci -q add qmp $1 > /dev/null
 	r=$?
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add qmp $1)"
+	return $r
+}
+
+qmp_uci_add_raw_get_cfg() {
+	cfg=$(uci -q add $@)
+	r=$?
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add $@)"
+	echo "$cfg"
+	return $r
+}
+
+qmp_uci_set_cfg() {
+	uci -q set $@ >/dev/null
+	return $?
+}
+
+qmp_uci_commit() {
+	uci commit $1
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci commit $1)"
 	return $r
 }
 
