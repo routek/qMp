@@ -19,9 +19,10 @@
 #    the file called "COPYING".
 
 QMP_PATH="/etc/qmp"
+SOURCE_GW=1
 
-. $QMP_PATH/qmp_common.sh
-. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
+[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
 
 qmp_gw_search_default() {
 	qmp_uci_set tunnels qmp

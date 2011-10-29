@@ -1,4 +1,5 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh 
+#/etc/rc.common
 #    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,11 +19,12 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 
-#START=91
+QMP_PATH="/etc/qmp"
+SOURCE_NETWORK=1
 
+[ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
 
 # requires ip ipv6calc awk sed grep
-
 
 qmp_uci_test() {
 
@@ -848,16 +850,17 @@ qmp_configure_system() {
 }
 
 
-
+qmp_check_force_internet() {
+	[ "$(uci get qmp.interfaces.force_internet)" == "1" ] && qmp_gw_offer_default
+	[ "$(uci get qmp.interfaces.force_internet)" == "0" ] && qmp_gw_search_default
+}
 
 qmp_configure() {
-
+  qmp_check_force_internet
   qmp_configure_network
   qmp_configure_bmx6
   qmp_configure_olsr6
   qmp_configure_system
 
 }
-
-
 

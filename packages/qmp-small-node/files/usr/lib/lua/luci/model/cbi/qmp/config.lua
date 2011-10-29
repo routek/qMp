@@ -77,19 +77,16 @@ for i,l in ipairs(eth_int) do
         mesh:value(l,l)
 end
 
+-- Option force_internet
+fint = eth_section:option(ListValue, "force_internet", "Force internet")
+fint:value("","disabled")
+fint:value("1","yes")
+fint:value("0","no")
 
 
--- Wireless devices
---for i,v in ipairs(wl_int) do
---	mode = wl_section:option(ListValue, ""
--- end	
-
-
-
-
---int:option(Value, "lan_devices", "LAN devices", "LAN devices")
---int:option(Value, "wan_device", "WAN device", "WAN devices")
---int:option(Value, "mesh_devices", "Mesh devices", "MESH devices")
+function m.on_commit(self,map)
+        luci.sys.call('/etc/qmp/qmp_control.sh apply_network > /tmp/qmp_control_network.log')
+end
 
 
 return m

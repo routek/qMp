@@ -22,7 +22,7 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_common.sh
 . $QMP_PATH/qmp_functions.sh
 . $QMP_PATH/qmp_gw.sh
-
+. $QMP_PATH/qmp_wireless.sh
 
 offer_default_gw() {
 	qmp_gw_offer_default
@@ -34,6 +34,20 @@ search_default_gw() {
 	qmp_gw_apply
 }
 
+apply_wifi() {
+	qmp_configure_wifi >/dev/null
+	wifi
+
+}
+
+apply_network() {
+	qmp_configure
+	/etc/init.d/network restart
+	/etc/init.d/olsrd restart
+	/etc/init.d/bmx6 restart
+	ifup -a
+
+}
 
 help() {
 	echo "Use: $0 <function> [params]"
@@ -41,6 +55,8 @@ help() {
 	echo "Available functions:"
 	echo "  offer_default_gw  : Offers default gw to the network"
 	echo "  search_default_gw : Search for a default gw in the network" 
+	echo "  apply_wifi        : Apply current wifi configuration"
+	echo "  apply_network     : Apply current network configuration"
 	echo ""
 }
 

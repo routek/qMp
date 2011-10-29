@@ -32,6 +32,7 @@ QMPINFO="/etc/qmp/qmpinfo"
 #######################
 # Importing files
 ######################
+SOURCE_WIRELESS=1
 
 . $QMP_PATH/qmp_common.sh
 

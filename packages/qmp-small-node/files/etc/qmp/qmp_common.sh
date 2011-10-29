@@ -17,6 +17,7 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+SOURCE_COMMON=1
 
 #######################
 # UCI related commands 
