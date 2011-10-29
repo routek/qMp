@@ -131,6 +131,14 @@ qmp_uci_import() {
 	return $?       
 }
 
+qmp_uci_test() {
+  option=$1
+  if uci get $option > /dev/null 2>&1 ; then
+    return 0
+  fi
+  return 1
+}
+
 ##################################
 # Log and errors related commnads
 ##################################
@@ -182,3 +190,20 @@ qmp_tac() {
 	$@ | awk '{a[NR]=$0} END {for(i=NR;i>0;i--)print a[i]}'  
 }
 
+qmp_get_mac_for_dev() {
+  dev=$1
+  ip addr show dev $dev | grep -m 1 "link/ether" | awk '{print $2}'
+}
+
+qmp_get_dec_node_id() {
+  PRIMARY_MESH_DEVICE="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  LSB_PRIM_MAC="$( qmp_get_mac_for_dev $PRIMARY_MESH_DEVICE | awk -F':' '{print $6}' )"
+
+  if qmp_uci_test qmp.node.community_node_id; then
+    COMMUNITY_NODE_ID="$(uci get qmp.node.community_node_id)"
+  elif ! [ -z "$PRIMARY_MESH_DEVICE" ] ; then
+    COMMUNITY_NODE_ID=$LSB_PRIM_MAC
+  fi
+  echo $(printf %d 0x$COMMUNITY_NODE_ID)
+
+}

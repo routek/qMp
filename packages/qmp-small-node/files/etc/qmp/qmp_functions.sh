@@ -19,28 +19,17 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 
+
 QMP_PATH="/etc/qmp"
 SOURCE_NETWORK=1
 
+#######################
+# Importing files
+######################
+. $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
 
 # requires ip ipv6calc awk sed grep
-
-qmp_uci_test() {
-
-  option=$1
-
-  if uci get $option > /dev/null 2>&1 ; then
-    return 0
-  fi
-
-  return 1
-}
-
-qmp_get_mac_for_dev() {
-  local dev=$1
-  ip addr show dev $dev | grep -m 1 "link/ether" | awk '{print $2}'
-}
 
 qmp_get_llocal_for_dev() {
   local dev=$1
@@ -452,7 +441,7 @@ qmp_configure_network() {
 		OFFSET=$UCI_OFFSET
 	fi
 
-	START=$(( $(printf %d 0x$LSB_PRIM_MAC) * $NUM_GRP + $OFFSET ))
+	START=$(( $(printf %d 0x$community_node_id) * $NUM_GRP + $OFFSET ))
 	LIMIT=$(( $NUM_GRP - $OFFSET - 2))
 
 	uci set dhcp.lan.start=$START

@@ -267,7 +267,7 @@ qmp_wifi_get_default() {
 
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
 		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $QMPINFO channels $device | grep adhoc | awk NR==$index+1)"
-		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$index+1)" 
+		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$(qmp_get_dec_node_id)%10+$index+1)" 
 		
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
