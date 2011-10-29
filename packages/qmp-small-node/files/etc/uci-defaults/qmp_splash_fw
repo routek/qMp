@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cat << QMP >> /etc/firewall.user
+IPLOCAL="\$(uci get qmp.networks.lan_address)"
+/usr/sbin/iptables -t nat -N captive-portal
+/usr/sbin/iptables -t nat -I PREROUTING -i br-lan ! -d \${IPLOCAL} -j captive-portal
+/usr/sbin/iptables -t nat -A captive-portal -p tcp --destination-port 80 -j DNAT --to-destination \${IPLOCAL}:8888
+QMP
