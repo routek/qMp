@@ -24,8 +24,6 @@ define Package/qmp-tinyproxy
   CATEGORY:=Base system
   TITLE:=Tinyproxy is a lightweight HTTP and HTTPS proxy with support splash
   URL:=http://tinyproxy.sourceforge.net/
-  DEPENDS:= \
-        +qmp-small-node 
 endef
 
 define Package/qmp-tinyproxy/conffiles
