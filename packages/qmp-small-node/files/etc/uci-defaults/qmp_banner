@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat /etc/qmp/qmp.banner >> /etc/banner
+echo "Versio XXXX" >> /etc/banner
+echo "----------------------------------------------------" >> /etc/banner
+
+
