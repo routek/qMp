@@ -1,6 +1,8 @@
 #!/bin/sh
 
-echo "/usr/sbin/iptables -t nat -N captive-portal" >> /etc/firewall.user
-echo "/usr/sbin/iptables -t nat -A PREROUTING -i br-lan -j captive-portal" >> /etc/firewall.user
-echo "/usr/sbin/iptables -t nat -A captive-portal -p tcp --destination-port 80 -j DNAT --to-destination $(uci get network.lan.ipaddr):8888" >> /etc/firewall.user
-
+cat << QMP >> /etc/firewall
+IPLOCAL="$(uci get qmp.networks.lan_address)"
+/usr/sbin/iptables -t nat -N captive-portal
+/usr/sbin/iptables -t nat -A PREROUTING -i br-lan ! -d $IPLOCAL -j captive-portal
+/usr/sbin/iptables -t nat -A captive-portal -p tcp --destination-port 80 -j DNAT --to-destination ${IPLOCAL}:8888
+QMP
