@@ -1,0 +1,858 @@
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 0b6d45d..3377af0 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -44,7 +44,9 @@ tinyproxy_SOURCES = \
+ 	utils.c utils.h \
+ 	vector.c vector.h \
+ 	upstream.c upstream.h \
+-	connect-ports.c connect-ports.h
++	connect-ports.c connect-ports.h \
++	splash.c splash.h \
++	acllist.c acllist.h
+ 
+ EXTRA_tinyproxy_SOURCES = filter.c filter.h \
+ 	reverse-proxy.c reverse-proxy.h \
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 1bd5750..53d431d 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -73,7 +73,8 @@ am_tinyproxy_OBJECTS = acl.$(OBJEXT) anonymous.$(OBJEXT) \
+ 	heap.$(OBJEXT) html-error.$(OBJEXT) http-message.$(OBJEXT) \
+ 	log.$(OBJEXT) network.$(OBJEXT) reqs.$(OBJEXT) sock.$(OBJEXT) \
+ 	stats.$(OBJEXT) text.$(OBJEXT) main.$(OBJEXT) utils.$(OBJEXT) \
+-	vector.$(OBJEXT) upstream.$(OBJEXT) connect-ports.$(OBJEXT)
++	vector.$(OBJEXT) upstream.$(OBJEXT) connect-ports.$(OBJEXT) \
++	splash.$(OBJEXT) acllist.$(OBJEXT)
+ tinyproxy_OBJECTS = $(am_tinyproxy_OBJECTS)
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+@@ -235,7 +236,9 @@ tinyproxy_SOURCES = \
+ 	utils.c utils.h \
+ 	vector.c vector.h \
+ 	upstream.c upstream.h \
+-	connect-ports.c connect-ports.h
++	connect-ports.c connect-ports.h \
++	splash.c splash.h \
++	acllist.c acllist.h
+ 
+ EXTRA_tinyproxy_SOURCES = filter.c filter.h \
+ 	reverse-proxy.c reverse-proxy.h \
+@@ -325,6 +328,7 @@ distclean-compile:
+ 	-rm -f *.tab.c
+ 
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acl.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/acllist.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/anonymous.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/child.Po@am__quote@
+@@ -343,6 +347,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reqs.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reverse-proxy.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sock.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/splash.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stats.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transparent-proxy.Po@am__quote@
+diff --git a/src/acl.c b/src/acl.c
+index 9ee6747..a097b2f 100644
+--- a/src/acl.c
++++ b/src/acl.c
+@@ -29,6 +29,10 @@
+ #include "network.h"
+ #include "sock.h"
+ #include "vector.h"
++#include "conf.h"
++#include "splash.h"
++#include "acllist.h"
++
+ 
+ #include <limits.h>
+ 
+@@ -113,7 +117,7 @@ fill_netmask_array (char *bitmask_string, int v6,
+  */
+ static int init_access_list(vector_t *access_list)
+ {
+-        if (!*access_list) {
++        if (!*access_list) {	
+                 *access_list = vector_create ();
+                 if (!*access_list) {
+                         log_message (LOG_ERR,
+@@ -335,9 +339,13 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+         /*
+          * If there is no access list allow everything.
+          */
++
++	if (TRUE) {
++		return acllist(config.splashtimeout, ip);
++	} else {
+         if (!access_list)
+                 return 1;
+-
++	
+         for (i = 0; i != (size_t) vector_length (access_list); ++i) {
+                 acl = (struct acl_s *) vector_getentry (access_list, i, NULL);
+                 switch (acl->type) {
+@@ -368,6 +376,7 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+         log_message (LOG_NOTICE, "Unauthorized connection from \"%s\" [%s].",
+                      host, ip);
+         return 0;
++	}
+ }
+ 
+ void flush_access_list (vector_t access_list)
+diff --git a/src/acllist.c b/src/acllist.c
+new file mode 100644
+index 0000000..561144a
+--- /dev/null
++++ b/src/acllist.c
+@@ -0,0 +1,107 @@
++/* tinyproxy - A fast light-weight HTTP proxy
++ * Copyright (C) 2011
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++/* This system handles Access Control for use of this daemon. A list of
++ * domains, or IP addresses (including IP blocks) are stored in a list
++ * which is then used to compare incoming connections.
++ */
++
++#define _BSD_SOURCE
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/types.h>
++#include <dirent.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <time.h>
++#include "main.h"
++#include "log.h"
++#include "utils.h"
++#include "conf.h"
++#include "acl.h"
++#include "vector.h"
++#include "acllist.h"
++
++/* Check and actualize 
++ * 
++ * Returns:
++ *     1 if allowed
++ *     0 if denied
++ ************************/
++int acllist (time_t timeout, const char *ip) {
++	struct stat metaFile;
++	time_t result;
++	char *iplocal;
++
++	iplocal = (char *) malloc (strlen(ip)+1);
++	strcpy(iplocal, ip);
++	result = time(NULL);
++	if (!(lstat(path_cat(config.splashnodesdir, iplocal), &metaFile))) {		
++		if ((metaFile.st_mtime + timeout) > result) {
++			free(iplocal);
++			return(1);
++		} else {
++			remove_node(iplocal);
++		}
++	}
++	free(iplocal);	
++        return 0;
++}
++
++int compare_ips(const char *ipaddr, char *namefile) {
++
++	if (strlen(ipaddr) == strlen(namefile) && !strcmp(ipaddr,namefile)) return 1;
++	return 0;
++}
++
++int insert_node(char *ip) {
++	FILE *f;
++
++	log_message (LOG_NOTICE, "acllist->insert_node, from: %s", ip);	
++	if ((f = fopen(path_cat(config.splashnodesdir, ip),"w")) == NULL) {
++		log_message (LOG_ERR, "Doesn't exist whitelist directory: %s ", config.splashnodesdir);
++	} else {
++		fclose(f);
++	}
++	return 0;
++}
++
++int remove_node(char *ip) {
++	log_message (LOG_NOTICE, "acllist->remove_node, from: %s", ip);	
++	return remove (path_cat(config.splashnodesdir, ip));
++}
++
++char *path_cat (const char *str1, char *str2) {
++	size_t str1_len;
++	size_t str2_len;
++	char *result;
++	unsigned int i,j;
++
++	str1_len =  strlen(str1);
++	str2_len = strlen(str2);
++	result = (char *) malloc((str1_len+str2_len+1)*sizeof *result);
++	strcpy (result,str1);
++	for(i=str1_len, j=0; ((i<(str1_len+str2_len)) && (j<str2_len));i++, j++) {
++		result[i]=str2[j];
++	}
++	result[str1_len+str2_len]='\0';
++	return result;
++}	
++
+diff --git a/src/acllist.h b/src/acllist.h
+new file mode 100644
+index 0000000..dabd729
+--- /dev/null
++++ b/src/acllist.h
+@@ -0,0 +1,31 @@
++/* tinyproxy - A fast light-weight HTTP proxy
++ * Copyright (C)
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++/* See 'acllist.c' for detailed information. */
++#ifndef TINYPROXY_ACLLIST_H
++#define TINYPROXY_ACLLIST_H
++
++#define PATHNODES "/tmp/splash/whitelist/"
++
++extern int acllist(time_t,const char *);
++int compare_ips(const char *, char *);
++extern char *path_cat (const char *, char *);
++extern int insert_node(char *);
++extern int remove_node(char *);
++
++#endif
+diff --git a/src/child.c b/src/child.c
+index 34e20e0..56a9df9 100644
+--- a/src/child.c
++++ b/src/child.c
+@@ -233,7 +233,6 @@ static void child_main (struct child_s *ptr)
+                 ptr->status = T_CONNECTED;
+ 
+                 SERVER_DEC ();
+-
+                 handle_connection (connfd);
+                 ptr->connects++;
+ 
+diff --git a/src/conf.c b/src/conf.c
+index 59630a2..c7c5d34 100644
+--- a/src/conf.c
++++ b/src/conf.c
+@@ -124,6 +124,13 @@ static HANDLE_FUNC (handle_defaulterrorfile);
+ static HANDLE_FUNC (handle_deny);
+ static HANDLE_FUNC (handle_errorfile);
+ static HANDLE_FUNC (handle_addheader);
++
++static HANDLE_FUNC (handle_splashhost);
++static HANDLE_FUNC (handle_splashdir);
++static HANDLE_FUNC (handle_splashcontinue);
++static HANDLE_FUNC (handle_splashtimeout);
++static HANDLE_FUNC (handle_splashindex);
++static HANDLE_FUNC (handle_splashnodesdir);
+ #ifdef FILTER_ENABLE
+ static HANDLE_FUNC (handle_filter);
+ static HANDLE_FUNC (handle_filtercasesensitive);
+@@ -206,6 +213,12 @@ struct {
+         STDCONF ("statfile", STR, handle_statfile),
+         STDCONF ("stathost", STR, handle_stathost),
+         STDCONF ("xtinyproxy",  BOOL, handle_xtinyproxy),
++        STDCONF ("splashhost", STR, handle_splashhost),
++        STDCONF ("splashdir", STR, handle_splashdir),
++        STDCONF ("splashcontinue", STR, handle_splashcontinue),
++        STDCONF ("splashtimeout", INT, handle_splashtimeout),
++        STDCONF ("splashindex", STR, handle_splashindex),
++        STDCONF ("splashnodesdir", STR, handle_splashnodesdir),
+         /* boolean arguments */
+         STDCONF ("syslog", BOOL, handle_syslog),
+         STDCONF ("bindsame", BOOL, handle_bindsame),
+@@ -289,6 +302,10 @@ static void free_config (struct config_s *conf)
+         safefree (conf->user);
+         safefree (conf->group);
+         safefree (conf->ipAddr);
++        safefree (conf->splashhost);
++        safefree (conf->splashdir);
++        safefree (conf->splashcontinue);
++        safefree (conf->splashindex);
+ #ifdef FILTER_ENABLE
+         safefree (conf->filter);
+ #endif                          /* FILTER_ENABLE */
+@@ -469,6 +486,28 @@ static void initialize_with_defaults (struct config_s *conf,
+                 conf->ipAddr = safestrdup (defaults->ipAddr);
+         }
+ 
++        if (defaults->splashhost) {
++                conf->splashhost = safestrdup (defaults->splashhost);
++        }
++
++        if (defaults->splashdir) {
++                conf->splashdir = safestrdup (defaults->splashdir);
++        }
++
++        if (defaults->splashcontinue) {
++                conf->splashcontinue = safestrdup (defaults->splashcontinue);
++        }
++
++        conf->splashtimeout = defaults->splashtimeout;
++
++        if (defaults->splashindex) {
++                conf->splashindex = safestrdup (defaults->splashindex);
++        }
++
++        if (defaults->splashnodesdir) {
++                conf->splashnodesdir = safestrdup (defaults->splashnodesdir);
++        }
++
+ #ifdef FILTER_ENABLE
+         if (defaults->filter) {
+                 conf->filter = safestrdup (defaults->filter);
+@@ -746,6 +785,38 @@ static HANDLE_FUNC (handle_stathost)
+         return 0;
+ }
+ 
++static HANDLE_FUNC (handle_splashhost)
++{
++        return set_string_arg (&conf->splashhost, line, &match[2]);
++}
++
++static HANDLE_FUNC (handle_splashdir)
++{
++        return set_string_arg (&conf->splashdir, line, &match[2]);
++}
++
++static HANDLE_FUNC (handle_splashcontinue)
++{
++        return set_string_arg (&conf->splashcontinue, line, &match[2]);
++}
++
++static HANDLE_FUNC (handle_splashtimeout)
++{
++        set_int_arg (&conf->splashtimeout, line, &match[2]);
++	return 0;
++}
++
++static HANDLE_FUNC (handle_splashindex)
++{
++        return set_string_arg (&conf->splashindex, line, &match[2]);
++}
++
++static HANDLE_FUNC (handle_splashnodesdir)
++{
++        return set_string_arg (&conf->splashnodesdir, line, &match[2]);
++}
++
++
+ static HANDLE_FUNC (handle_xtinyproxy)
+ {
+ #ifdef XTINYPROXY_ENABLE
+@@ -865,7 +936,6 @@ static HANDLE_FUNC (handle_deny)
+ 
+ static HANDLE_FUNC (handle_bind)
+ {
+-#ifndef TRANSPARENT_PROXY
+         int r = set_string_arg (&conf->bind_address, line, &match[2]);
+ 
+         if (r)
+@@ -873,11 +943,6 @@ static HANDLE_FUNC (handle_bind)
+         log_message (LOG_INFO,
+                      "Outgoing connections bound to IP %s", conf->bind_address);
+         return 0;
+-#else
+-        fprintf (stderr,
+-                 "\"Bind\" cannot be used with transparent support enabled.\n");
+-        return 1;
+-#endif
+ }
+ 
+ static HANDLE_FUNC (handle_listen)
+diff --git a/src/conf.h b/src/conf.h
+index f62a854..dfcd18b 100644
+--- a/src/conf.h
++++ b/src/conf.h
+@@ -47,6 +47,14 @@ struct config_s {
+         char *user;
+         char *group;
+         char *ipAddr;
++	
++	char *splashhost;
++	char *splashdir;
++	char *splashcontinue;
++	unsigned int splashtimeout;
++	char *splashindex;
++	char *splashnodesdir;
++
+ #ifdef FILTER_ENABLE
+         char *filter;
+         unsigned int filter_url;        /* boolean */
+diff --git a/src/conns.c b/src/conns.c
+index 94faeea..e497920 100644
+--- a/src/conns.c
++++ b/src/conns.c
+@@ -70,6 +70,7 @@ struct conn_s *initialize_conn (int client_fd, const char *ipaddr,
+ 
+         connptr->connect_method = FALSE;
+         connptr->show_stats = FALSE;
++        connptr->show_splash = FALSE;
+ 
+         connptr->protocol.major = connptr->protocol.minor = 0;
+ 
+diff --git a/src/conns.h b/src/conns.h
+index b63d026..947a90a 100644
+--- a/src/conns.h
++++ b/src/conns.h
+@@ -40,6 +40,7 @@ struct conn_s {
+         /* Booleans */
+         unsigned int connect_method;
+         unsigned int show_stats;
++	unsigned int show_splash;
+ 
+         /*
+          * This structure stores key -> value mappings for substitution
+diff --git a/src/html-error.c b/src/html-error.c
+index a70fbf4..0e01187 100644
+--- a/src/html-error.c
++++ b/src/html-error.c
+@@ -30,6 +30,7 @@
+ #include "network.h"
+ #include "utils.h"
+ #include "conf.h"
++#include "log.h"
+ 
+ /*
+  * Add an error number -> filename mapping to the errorpages list.
+@@ -174,16 +175,42 @@ send_html_file (FILE *infile, struct conn_s *connptr)
+ 
+         return r;
+ }
++/*
++ * Send an raw file.
++ */
++int
++send_raw_file (FILE *infile, struct conn_s *connptr)
++{
++        char *inbuf;
++	int num;
++        inbuf = (char *) safemalloc (4096);
++
++	while ((num = fread(inbuf, 1, 4096, infile)) > 0) {
++		safe_write(connptr->client_fd, inbuf, num);
++	}
++        safefree (inbuf);
++
++        return 0;
++}
+ 
+ int send_http_headers (struct conn_s *connptr, int code, const char *message)
+ {
++	char *tipus;
++
++	tipus = (char *) malloc(strlen("html")+1);
++	strcpy(tipus, "html");
++	return (send_http_headers_mimetype( connptr, code, message, "text", tipus));
++}
++
++int send_http_headers_mimetype (struct conn_s *connptr, int code, const char *message, const char *mimetype, char *extension)
++{
+         const char *headers =
+             "HTTP/1.0 %d %s\r\n"
+             "Server: %s/%s\r\n"
+-            "Content-Type: text/html\r\n" "Connection: close\r\n" "\r\n";
++            "Content-Type: %s/%s\r\n" "Connection: close\r\n" "\r\n";
+ 
+         return (write_message (connptr->client_fd, headers,
+-                               code, message, PACKAGE, VERSION));
++                               code, message, PACKAGE, VERSION, mimetype, extension));
+ }
+ 
+ /*
+@@ -315,3 +342,38 @@ indicate_http_error (struct conn_s *connptr, int number,
+ 
+         return (add_standard_vars (connptr));
+ }
++
++int send_redirect (struct conn_s *connptr, const char *location)
++{
++        const char *headers =
++            "HTTP/1.0 %d %s\r\n"
++            "Location: %s\r\n" "\r\n";
++
++        return (write_message (connptr->client_fd, headers,
++                               302, "Found", location));
++}
++int send_http_file (FILE * infile, struct conn_s *connptr, char *filename) {
++
++	char extension[256] = "";
++	char *pointer;
++
++	
++	pointer = strrchr(filename, '.');
++
++	if ((pointer != NULL) && (strlen(pointer) < 256)) {
++		strcpy(extension,++pointer);
++	} else {
++		strcpy(extension,"html");
++	}
++	if ((strcmp(extension,"png") == 0) || (strcmp(extension,"gif") == 0) || (strcmp(extension,"jpg") == 0)) {
++		send_http_headers_mimetype (connptr, 200, "Statistic requested", "image",extension);
++		send_raw_file (infile, connptr);
++	} else {
++		send_http_headers_mimetype (connptr, 200, "Statistic requested", "text", extension);
++		send_html_file (infile, connptr);
++	}
++	
++
++	
++	return 0;
++}
+diff --git a/src/html-error.h b/src/html-error.h
+index 03cec98..2c84bef 100644
+--- a/src/html-error.h
++++ b/src/html-error.h
+@@ -31,8 +31,11 @@ extern int indicate_http_error (struct conn_s *connptr, int number,
+ extern int add_error_variable (struct conn_s *connptr, const char *key,
+                                const char *val);
+ extern int send_html_file (FILE * infile, struct conn_s *connptr);
++extern int send_raw_file (FILE * infile, struct conn_s *connptr);
+ extern int send_http_headers (struct conn_s *connptr, int code,
+                               const char *message);
++extern int send_http_headers_mimetype (struct conn_s *connptr, int code, const char *message, const char *mimetype, char *extension);
+ extern int add_standard_vars (struct conn_s *connptr);
+-
++extern int send_redirect (struct conn_s *connptr, const char *location);
++extern int send_http_file (FILE * infile, struct conn_s *connptr, char *filename);
+ #endif /* !TINYPROXY_HTML_ERROR_H */
+diff --git a/src/main.c b/src/main.c
+index 20d5aef..d3df494 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -43,6 +43,8 @@
+ #include "sock.h"
+ #include "stats.h"
+ #include "utils.h"
++#include "splash.h"
++#include "acllist.h"
+ 
+ /*
+  * Global Structures
+@@ -326,8 +328,15 @@ static void initialize_config_defaults (struct config_s *conf)
+         conf->errorpages = NULL;
+         conf->stathost = safestrdup (TINYPROXY_STATHOST);
+         conf->idletimeout = MAX_IDLE_TIME;
+-        conf->logf_name = safestrdup (LOCALSTATEDIR "/log/tinyproxy/tinyproxy.log");
+-        conf->pidpath = safestrdup (LOCALSTATEDIR "/run/tinyproxy/tinyproxy.pid");
++        conf->logf_name = safestrdup (LOCALSTATEDIR "/log/tinyproxy.log");
++        conf->pidpath = safestrdup (LOCALSTATEDIR "/tinyproxy.pid");
++	conf->splashhost = safestrdup (SPLASHHOST);
++	conf->splashdir = safestrdup (SPLASHDIR);
++	conf->splashcontinue = safestrdup (SPLASHCONTINUE);
++	conf->splashtimeout = SPLASHTIMEOUT;
++	conf->splashindex = safestrdup (SPLASHINDEX);
++	conf->splashnodesdir = safestrdup (PATHNODES);
++
+ }
+ 
+ /**
+diff --git a/src/reqs.c b/src/reqs.c
+index 2de43a8..37c8a82 100644
+--- a/src/reqs.c
++++ b/src/reqs.c
+@@ -48,6 +48,8 @@
+ #include "upstream.h"
+ #include "connect-ports.h"
+ #include "conf.h"
++#include "splash.h"
++
+ 
+ /*
+  * Maximum length of a HTTP line
+@@ -497,6 +499,10 @@ BAD_REQUEST_ERROR:
+                 connptr->show_stats = TRUE;
+                 goto fail;
+         }
++	if (strcmp(SPLASHHOST, request->host) == 0) {
++		connptr->show_splash = TRUE;
++                return request;	
++	}
+ 
+         safefree (url);
+ 
+@@ -1395,15 +1401,6 @@ void handle_connection (int fd)
+                 return;
+         }
+ 
+-        if (check_acl (peer_ipaddr, peer_string, config.access_list) <= 0) {
+-                update_stats (STAT_DENIED);
+-                indicate_http_error (connptr, 403, "Access denied",
+-                                     "detail",
+-                                     "The administrator of this proxy has not configured "
+-                                     "it to service requests from your host.",
+-                                     NULL);
+-                goto fail;
+-        }
+ 
+         if (read_request_line (connptr) < 0) {
+                 update_stats (STAT_BADCONN);
+@@ -1462,6 +1459,26 @@ void handle_connection (int fd)
+                 }
+                 goto fail;
+         }
++	if (connptr->show_splash) {
++		goto fail;
++	}
++
++	/* Que ja hagui passat el parseig de la url */
++        if (check_acl (peer_ipaddr, peer_string, config.access_list) <= 0) {
++		if (TRUE) {
++			showsplash (connptr, peer_ipaddr, request);
++	                goto done;
++		} else {
++		        update_stats (STAT_DENIED);
++		        indicate_http_error (connptr, 403, "Access denied",
++		                             "detail",
++		                             "The administrator of this proxy has not configured "
++		                             "it to service requests from your host.",
++		                             NULL);
++			goto fail;
++		}
++        }
++
+ 
+         connptr->upstream_proxy = UPSTREAM_HOST (request->host);
+         if (connptr->upstream_proxy != NULL) {
+@@ -1525,6 +1542,7 @@ fail:
+          * it is still marked for reading and we won't be able
+          * to send our data properly.
+          */
++
+         if (get_request_entity (connptr) < 0) {
+                 log_message (LOG_WARNING,
+                              "Could not retrieve request entity");
+@@ -1539,7 +1557,9 @@ fail:
+                 send_http_error_message (connptr);
+         } else if (connptr->show_stats) {
+                 showstats (connptr);
+-        }
++        } else 	if (connptr->show_splash) {
++                showsplash (connptr, peer_ipaddr, request);
++        }  
+ 
+ done:
+         free_request_struct (request);
+diff --git a/src/splash.c b/src/splash.c
+new file mode 100644
+index 0000000..e0a3355
+--- /dev/null
++++ b/src/splash.c
+@@ -0,0 +1,139 @@
++/* tinyproxy - A fast light-weight HTTP proxy
++ * Copyright (C) 		
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++/* This module handles the statistics for tinyproxy. There are only two
++ * public API functions. The reason for the functions, rather than just a
++ * external structure is that tinyproxy is now multi-threaded and we can
++ * not allow more than one child to access the statistics at the same
++ * time. This is prevented by a mutex. If there is a need for more
++ * statistics in the future, just add to the structure, enum (in the header),
++ * and the switch statement in update_stats().
++ */
++
++#include "main.h"
++
++#include "log.h"
++#include "heap.h"
++#include "html-error.h"
++#include "splash.h"
++#include "utils.h"
++#include "conf.h"
++#include "acllist.h"
++
++/*
++ * When showsplash.
++ */
++int
++showsplash (struct conn_s *connptr, char *ipaddr, struct request_s *request)
++{
++	FILE *splashdefaultfile;
++        char *message_buffer;
++	char *defaultfilename;
++	char *continuelink;
++	char *requestpath;
++
++
++	if (request->path != NULL){
++		requestpath = (char *) safemalloc(strlen(request->path)+1);
++		strcpy(requestpath, request->path);
++	} else {
++		requestpath = (char *) safemalloc(2);
++		strcpy(requestpath, "/");
++	}
++	log_message (LOG_NOTICE, "request->host: %s request->path: %s",request->host, requestpath);
++	
++	if ((strcmp(config.splashhost, request->host) == 0) && (strcmp(requestpath, "/") != 0)) {
++		if (strncmp(requestpath, config.splashcontinue, strlen(config.splashcontinue)) == 0) {
++			/* Movem la nova url */
++			message_buffer = (char *) safemalloc (MAXBUFFSIZE);
++			strncpy(message_buffer, requestpath+strlen(config.splashcontinue), (strlen(requestpath)-strlen(config.splashcontinue))+1);
++			/* Ok, segueix endevant, ja pots navegar */
++			if (check_acl(ipaddr, ipaddr, config.access_list) == 0) {
++				insert_node (ipaddr);
++			}
++			log_message(LOG_NOTICE, "Redirect to %s.", message_buffer);
++			send_redirect(connptr, message_buffer);
++
++		} else {
++			log_message (LOG_NOTICE, "Load file: %s", path_cat(config.splashdir,requestpath));
++			/* COMPTE!!! Aquí s'hauria de controlar no poder posar ../ ni res per l'estil */
++			return get_file(connptr, requestpath) ;
++		}
++	
++	}
++
++	defaultfilename = (char *) safemalloc(strlen(config.splashindex)+1);
++	strcpy(defaultfilename, config.splashindex);
++	continuelink = (char *) safemalloc(strlen(config.splashhost)+strlen(config.splashcontinue)+strlen(request->host)+strlen(requestpath)+7+7+1+5+1);
++	sprintf(continuelink, "http://%s%shttp://%s:%d%s", config.splashhost, config.splashcontinue, request->host, request->port, requestpath);
++
++	log_message (LOG_NOTICE, "Try read default filename: %s%s",config.splashdir,defaultfilename);
++	if ((splashdefaultfile = fopen (path_cat(config.splashdir,defaultfilename), "r"))) {
++		log_message (LOG_NOTICE, "Read default filename: %s%s",config.splashdir,defaultfilename);
++		add_error_variable (connptr, "splashhost", config.splashhost);
++		add_error_variable (connptr, "splashcontinue", config.splashcontinue);
++		add_error_variable (connptr, "continuelink", continuelink);
++		add_standard_vars (connptr);
++		send_http_file (splashdefaultfile, connptr, defaultfilename);
++		fclose (splashdefaultfile);
++	} else {
++		log_message (LOG_NOTICE, "Read hardcode splash.");
++		message_buffer = (char *) safemalloc (MAXBUFFSIZE);
++		if (!message_buffer)
++		        return -1;
++
++		snprintf
++		  (message_buffer, MAXBUFFSIZE,
++		   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
++		   "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" "
++		   "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n"
++		   "<html>\n"
++		   "<head><title>splash page</title></head>\n"
++		   "<body>\n"
++		   "<h1>Splash Page.</h1>\n"
++		   "<p>\n"
++		   "Continue click here: <a href='http://%s%shttp://%s:%d%s'>here</a>"
++		   "</p>\n"
++		   "<hr />\n"
++		   "<p><em>Generated by %s version %s.</em></p>\n" "</body>\n"
++		   "</html>\n",
++		    config.splashhost, config.splashcontinue, request->host, request->port, requestpath, PACKAGE, VERSION);
++
++		if (send_http_message (connptr, 200, "OK",
++		                       message_buffer) < 0) {
++		        safefree (message_buffer);
++		        return -1;
++		}
++	}	
++        return 0;
++}
++int get_file(struct conn_s *connptr, char *filename) {
++	
++        FILE *splashfile;
++
++	if ((splashfile = fopen (path_cat(config.splashdir,filename), "r"))) {
++		add_standard_vars (connptr);
++		send_http_file (splashfile, connptr, filename);
++		fclose (splashfile);
++	} else {
++		send_http_message (connptr, 404, "Not Found","File doesn't exist." );
++	}	
++        return 0;
++}
++
++
+diff --git a/src/splash.h b/src/splash.h
+new file mode 100644
+index 0000000..9dcd7cd
+--- /dev/null
++++ b/src/splash.h
+@@ -0,0 +1,39 @@
++/* tinyproxy - A fast light-weight HTTP proxy
++ * Copyright (C)
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++/* See 'splash.c' for detailed information. */
++
++#ifndef _TINYPROXY_SPLASH_H_
++#define _TINYPROXY_SPLASH_H_
++
++#include "conns.h"
++#include "reqs.h"
++#include "acl.h"
++
++#define SPLASHACTIVE 1
++#define SPLASHHOST "splash"
++#define SPLASHDIR "/usr/share/tinyproxy/splash/public"
++#define SPLASHCONTINUE "/continue/"
++#define SPLASHTIMEOUT 60
++#define SPLASHINDEX "/index.html"
++
++extern void init_splash (void);
++extern int showsplash (struct conn_s *, char *, struct request_s *);
++int get_file(struct conn_s *, char *);
++
++#endif
