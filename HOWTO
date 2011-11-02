@@ -6,6 +6,10 @@ cd 13f
 git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/autoconfig; cd ..
 svn co -r 27617 svn://svn.openwrt.org/openwrt/branches/backfire
 git clone git://gitorious.org/eigennet/packages.git eigennet/packages
+git clone http://109.69.8.126/git/b6m.git \
+&& cd b6m \
+&& git checkout --track origin/openwrt \
+&& cd ..
 
 
 cd backfire
