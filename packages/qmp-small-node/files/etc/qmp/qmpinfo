@@ -55,6 +55,13 @@ function print_channels()
 		print(output)
 	end
 end
+
+function print_txpower()
+	local data = qmp.get_txpower(dev)
+	for _,v in ipairs(data) do
+		print(v)
+	end
+end
 	
 if #arg ~= 2 then
 	print_help()
@@ -69,6 +76,8 @@ if question == "modes" then
 
 elseif question == "channels" then
 	print_channels()
+elseif question == "txpower" then
+	print_txpower()
 else
 	print_help()
 end

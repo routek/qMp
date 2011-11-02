@@ -35,9 +35,9 @@ search_default_gw() {
 }
 
 apply_wifi() {
-	qmp_configure_wifi >/dev/null
+	qmp_configure_wifi_initial 
+	qmp_configure_wifi
 	wifi
-
 }
 
 apply_network() {
@@ -46,7 +46,8 @@ apply_network() {
 	/etc/init.d/olsrd restart
 	/etc/init.d/bmx6 restart
 	ifup -a
-
+	/etc/init.d/dnsmasq restart
+	/etc/init.d/firewall restart
 }
 
 help() {

@@ -12,3 +12,4 @@ wireless.#QMP_DEVICE.txantenna=0
 wireless.#QMP_DEVICE.rxantenna=0
 wireless.#QMP_DEVICE.country=#QMP_COUNTRY
 wireless.#QMP_DEVICE.outdoor=1
+wireless.#QMP_DEVICE.txpower=#QMP_TXPOWER
