@@ -349,6 +349,7 @@ qmp_configure_wifi_initial() {
 		[ -z "$(qmp_uci_get @wireless[$j])" ] && qmp_uci_add wireless
 		[ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
 		[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
+		[ -z "$(qmp_uci_get @wireless[$j].txpower)" ] && qmp_uci_set @wireless[$j].txpower $(qmp_wifi_get_default txpower)
 		sleep 1 && mode="$(qmp_uci_get @wireless[$j].mode)"
 		[ -z "$(qmp_uci_get @wireless[$j].channel)" ] && qmp_uci_set @wireless[$j].channel $(qmp_wifi_get_default channel $device $mode)
 		qmp_uci_set @wireless[$j].mac $m
