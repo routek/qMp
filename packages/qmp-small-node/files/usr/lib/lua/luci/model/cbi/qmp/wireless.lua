@@ -80,7 +80,6 @@ for _,wdev in ipairs(wdevs) do
 	s_wireless:option(Value,"name","Wireless name")
 	
 	-- Channel
-
 	channel = s_wireless:option(ListValue,"channel","Channel")
 	mymode = m.uci:get("qmp",wdev,"mode")
 
@@ -92,6 +91,11 @@ for _,wdev in ipairs(wdevs) do
 		end
 	end
 
+	-- Txpower
+	txpower = s_wireless:option(ListValue,"txpower","Power")	
+	for _,t in ipairs(qmp.get_txpower(mydev)) do
+		txpower:value(t,t)
+	end
 end
 
 function m.on_commit(self,map)

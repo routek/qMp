@@ -156,6 +156,7 @@ qmp_configure_wifi_device() {
 	driver="$(qmp_uci_get wireless.driver)"
 	country="$(qmp_uci_get wireless.country)"
 	bssid="$(qmp_uci_get wireless.bssid)"
+	txpower="$(qmp_uci_get @wireless[$id].txpower)"
 	
 	echo "------------------------"
 	echo "Mac: $mac"
@@ -181,6 +182,7 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_SSID"/"$name"/ \
 	 -e s/"#QMP_HTMODE"/"$htmode"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
+	 -e s/"#QMP_TXPOWER"/"$txpower"/ \
 	 -e s/"#QMP_INDEX"/"$index"/ \
 	 -e s/"#QMP_MODE"/"$mode"/ > $TMP/qmp_wireless_temp
 
@@ -203,9 +205,6 @@ qmp_configure_wifi_device() {
 #This function search for all wifi devices and leave them configured according qmp config file
 
 qmp_configure_wifi() {
-
-	echo "Configuring driver..."
-	qmp_configure_wifi_driver
 
 	echo "Backuping wireless config file to: $OWRT_WIRELESS_CONFIG.qmp_backup"
 	cp $OWRT_WIRELESS_CONFIG $OWRT_WIRELESS_CONFIG.qmp_backup 2>/dev/null
@@ -311,9 +310,10 @@ qmp_configure_wifi_initial() {
 				device="$(qmp_get_dev_from_mac $m)"
 				id_configured="$id_configured $j" 
 				echo "Found configured device: $m"
-		        [ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
-        		[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
-	
+			        [ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
+        			[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
+				[ -z "$(qmp_uci_get @wireless[$j].txpower)" ] && qmp_uci_set @wireless[$j].txpower $(qmp_wifi_get_default txpower)
+
 				# If channel is configured, we are going to check it
 				# if not, using default one
 				sleep 1 && mode="$(qmp_uci_get @wireless[$j].mode)"
@@ -349,6 +349,7 @@ qmp_configure_wifi_initial() {
 		[ -z "$(qmp_uci_get @wireless[$j])" ] && qmp_uci_add wireless
 		[ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
 		[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
+		[ -z "$(qmp_uci_get @wireless[$j].txpower)" ] && qmp_uci_set @wireless[$j].txpower $(qmp_wifi_get_default txpower)
 		sleep 1 && mode="$(qmp_uci_get @wireless[$j].mode)"
 		[ -z "$(qmp_uci_get @wireless[$j].channel)" ] && qmp_uci_set @wireless[$j].channel $(qmp_wifi_get_default channel $device $mode)
 		qmp_uci_set @wireless[$j].mac $m

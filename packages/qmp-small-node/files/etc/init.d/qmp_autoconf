@@ -28,6 +28,7 @@ configure() {
 
 	echo "[Configuring wireless]"
 	. $QMP_DIR/qmp_wireless.sh
+	qmp_configure_wifi_driver
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	wifi
@@ -43,6 +44,7 @@ configure() {
 	/etc/init.d/olsrd restart	
 	/etc/init.d/bmx6 restart	
 	ifup -a
+	/etc/init.d/dnsmasq restart
 	touch "$CONTROL_FILE"
 #	echo "Done, rebooting system to complete configuration"
 #	reboot

@@ -31,20 +31,32 @@ function qmpinfo.get_modes(dev)
 	
 end
 
+
+function qmpinfo.get_txpower(dev)
+	local iw = iwinfo[iwinfo.type(dev)]
+	local txp = iw.txpwrlist(dev)
+	local txpower_supported = {}
+	for _,v in ipairs(txp) do
+		table.insert(txpower_supported,v.dbm)
+	end
+	return txpower_supported
+	
+end
+
 function qmpinfo.get_channels(dev)
-		local clist = {} -- output channel list      
-		local iw = iwinfo[iwinfo.type(dev)]            
-		local ch = {}                                            
-    
-		-- if there are not wireless cards, returning a dummy value                                                 
-		if iw == nil then                            
-                ch.channel=0                           
-                ch.adhoc=false                       
-                ch.ht40p=false                       
-                ch.ht40m=false                       
-                table.insert(clist,ch)                                                                                           
-                return clist                         
-        end                                          
+	local clist = {} -- output channel list      
+	local iw = iwinfo[iwinfo.type(dev)]            
+	local ch = {}                                            
+
+	-- if there are not wireless cards, returning a dummy value                                                 
+	if iw == nil then                            
+		ch.channel=0                           
+		ch.adhoc=false                       
+		ch.ht40p=false                       
+		ch.ht40m=false                       
+		table.insert(clist,ch)                                                                                           
+		return clist                         
+	end                                          
              
 	local freqs = iw.freqlist(dev) --freqs list
 	local c -- current channel

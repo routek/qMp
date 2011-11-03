@@ -18,6 +18,8 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 SOURCE_COMMON=1
+#DEBUG="/tmp/qmp_common.debug"
+DEBUG=""
 
 #######################
 # UCI related commands 
@@ -29,6 +31,7 @@ qmp_uci_get() {
 	echo "$u"
 	echo "$u" >> /tmp/uci_get
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get qmp.$1)"
+	qmp_debug "qmp_uci_get: uci -q get qmp.$1"
 	return $r
 }
 
@@ -37,6 +40,7 @@ qmp_uci_get_raw() {
 	r=$?
 	echo "$u"
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get $@)"
+	qmp_debug "qmp_uci_get_raw: uci -q get $@"
 	return $r
 }
 
@@ -46,6 +50,7 @@ qmp_uci_set() {
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set qmp.$1=$2)"
+	qmp_debug "qmp_uci_set: uci -q set qmp.$1=$2"
 	return $r
 }
 
@@ -55,6 +60,7 @@ qmp_uci_set_raw() {
 	uci commit                   
 	r=$(( $r + $? ))  
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set $@)"
+	qmp_debug "qmp_uci_set_raw: uci -q set $@"
         return $r                    
 }           
 
@@ -64,6 +70,7 @@ qmp_uci_del() {
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci del qmp.$1)"
+	qmp_debug "qmp_uci_del: uci -q del qmp.$1"
 	return $r
 }
 
@@ -73,6 +80,7 @@ qmp_uci_del_raw() {
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci del $@)"
+	qmp_debug "qmp_uci_del_raw uci -q del $@"
 	return $r
 }
 
@@ -82,6 +90,7 @@ qmp_uci_add() {
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add qmp $1)"
+	qmp_debug "qmp_uci_add: uci -q add qmp $1"
 	return $r
 }
 
@@ -90,11 +99,13 @@ qmp_uci_add_raw_get_cfg() {
 	r=$?
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add $@)"
 	echo "$cfg"
+	qmp_debug "qmp_uci_add_raw_get_cfg: uci -q add $@"
 	return $r
 }
 
 qmp_uci_set_cfg() {
 	uci -q set $@ >/dev/null
+	qmp_debug "qmp_uci_set_cfg: uci -q set $@"
 	return $?
 }
 
@@ -102,6 +113,7 @@ qmp_uci_commit() {
 	uci commit $1
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci commit $1)"
+	qmp_debug "qmp_uci_commit: uci commit $1"
 	return $r
 }
 
@@ -111,6 +123,7 @@ qmp_uci_add_raw() {
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add $@)"
+	qmp_debug "qmp_uci_add_raw: uci -q add $@"
 	return $r 
 }
 
@@ -120,23 +133,23 @@ qmp_uci_add_list_raw() {
 	uci commit                                                            
 	r=$(( $r + $? ))                                                      
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add_list $@)"    
+	qmp_debug "qmp_uci_add_list_raw: uci -q add_list $@"
 	return $r
 }
 
 qmp_uci_import() {
 	cat "$1" | while read v; do
-	[ ! -z "$v" ] && uci set $v
+	[ ! -z "$v" ] && { uci set $v; qmp_debug "qmp_uci_import: uci set $v"; }
 	done
 	uci commit
 	return $?       
 }
 
 qmp_uci_test() {
-  option=$1
-  if uci get $option > /dev/null 2>&1 ; then
-    return 0
-  fi
-  return 1
+	option=$1
+	u="$(uci get $option > /dev/null 2>&1)"
+	r=$?
+	return $r
 }
 
 ##################################
@@ -154,6 +167,10 @@ qmp_error() {
 # qmp_log qMp is the best
 qmp_log() {
 	logger -s -t qMp "$@"
+}
+
+qmp_debug() {
+	[ ! -z "$DEBUG" ] &&  echo "$@" >> $DEBUG
 }
 
 #######################################
@@ -176,6 +193,10 @@ qmp_get_dev_from_mac() {
         ip l | grep $1 -i -B1 | grep -v \@ | grep -v ether | awk '{print $2}' | tr -d : | awk NR==1
 }          
 
+qmp_get_mac_for_dev() {
+	ip addr show dev $1 | grep -m 1 "link/ether" | awk '{print $2}'
+}
+
 #########################
 # Other kind of commands
 #########################
@@ -190,11 +211,6 @@ qmp_tac() {
 	$@ | awk '{a[NR]=$0} END {for(i=NR;i>0;i--)print a[i]}'  
 }
 
-qmp_get_mac_for_dev() {
-  dev=$1
-  ip addr show dev $dev | grep -m 1 "link/ether" | awk '{print $2}'
-}
-
 qmp_get_dec_node_id() {
   PRIMARY_MESH_DEVICE="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   LSB_PRIM_MAC="$( qmp_get_mac_for_dev $PRIMARY_MESH_DEVICE | awk -F':' '{print $6}' )"
@@ -205,5 +221,5 @@ qmp_get_dec_node_id() {
     COMMUNITY_NODE_ID=$LSB_PRIM_MAC
   fi
   echo $(printf %d 0x$COMMUNITY_NODE_ID)
-
 }
+
