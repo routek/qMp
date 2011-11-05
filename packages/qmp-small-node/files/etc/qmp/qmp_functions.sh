@@ -606,6 +606,7 @@ qmp_configure_bmx6() {
     uci set $conf.tun6Out="tunOut"
     uci set $conf.tun6Out.tunOut="tun6Out"
     uci set $conf.tun6Out.network="$(uci get qmp.tunnels.search_ipv6_tunnel)"
+    uci set $conf.tun6Out.mtu=1400
   fi
 
 
@@ -613,6 +614,7 @@ qmp_configure_bmx6() {
     uci set $conf.tun4Out="tunOut"
     uci set $conf.tun4Out.tunOut="tun4Out"
     uci set $conf.tun4Out.network="$(uci get qmp.tunnels.search_ipv4_tunnel)"
+    uci set $conf.tun4Out.mtu=1400
 
   elif qmp_uci_test qmp.tunnels.offer_ipv4_tunnel ; then
     uci set $conf.tunInRemote="tunInRemote"
