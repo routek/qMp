@@ -25,7 +25,6 @@ PKG_SOURCE_PROTO:=git
 
 PKG_SOURCE_URL:=git://qmp.cat/gwck.git
 PKG_REV:=9133f42ffc40d34e04a48c2a7fa07a024cff5b36
-
 PKG_VERSION:=r2011110701
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -46,23 +45,13 @@ define Package/gwck-qmp
   DEPENDS:=+fping +bmx6-qmp
 endef
 
-
-
 define Package/gwck-qmp/description
 gwck is a tool to check gateway connectivity and perform actions in consequence.
 This package runs gwck to control bmx6 tunnels.
 endef
 
-define Build/Prepare
-        mkdir -p $(PKG_BUILD_DIR)
-endef
-
-define Build/Configure
-endef
-
 define Build/Compile
 endef
-
 
 define Package/gwck-qmp/install
 	$(INSTALL_DIR) $(1)/etc/init.d
