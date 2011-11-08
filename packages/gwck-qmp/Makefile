@@ -1,5 +1,3 @@
-#!/bin/sh
-#
 # gwck-qmp openwrt package
 #
 # Copyright (C) 2011 Simó Albert i Beltran
@@ -37,7 +35,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/gwck-qmp/Default
+define Package/gwck-qmp
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Routing and Redirection
@@ -48,13 +46,18 @@ define Package/gwck-qmp/Default
   DEPENDS:=+fping +bmx6-qmp
 endef
 
+
+
 define Package/gwck-qmp/description
 gwck is a tool to check gateway connectivity and perform actions in consequence.
 This package runs gwck to control bmx6 tunnels.
 endef
 
+define Build/Prepare
+        mkdir -p $(PKG_BUILD_DIR)
+endef
+
 define Build/Configure
-	mkdir -p $(PKG_INSTALL_DIR)
 endef
 
 define Build/Compile
@@ -83,4 +86,4 @@ define Package/gwck-qmp/conffiles
 /etc/gwck/gwck_conf_qmp_ipv6
 endef
 
-$(eval $(call BuildPackage,b6m))
+$(eval $(call BuildPackage,gwck-qmp))
