@@ -112,6 +112,7 @@ function action_neighbours()
 		local desc = nil
 		local orig = nil
 		local name = ""
+		local ipv4 = ""
 		
 		for _,o in ipairs(orig_list) do
 			orig = bmx6json.get("originators/"..o.name) or {}
@@ -123,7 +124,15 @@ function action_neighbours()
 				name = o.name
 			end
 			
-			table.insert(originators,{name=name,orig=orig,desc=desc})
+			for _,h in ipairs(desc.DESC_ADV.extensions[2].HNA6_EXTENSION) do
+				
+				if h ~= nil and  string.find(h.address,"::ffff:") then
+					ipv4=string.gsub(h.address,"::ffff:","")
+				end
+				
+			end
+						
+			table.insert(originators,{name=name,ipv4=ipv4,orig=orig,desc=desc})
 		end
 
         luci.template.render("bmx6/neighbours", {originators=originators})
