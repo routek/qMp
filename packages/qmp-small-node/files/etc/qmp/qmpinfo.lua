@@ -21,6 +21,8 @@
 --]]
 
 iwinfo = require "iwinfo"
+util = require "luci.util"
+sys = require "luci.sys"
 
 qmpinfo = {}
 
@@ -123,6 +125,28 @@ function qmpinfo.get_channels(dev)
 
 	end	
 	return clist
+end
+
+
+function qmpinfo.get_ipv4()
+	local ipv4 = {}
+	local ipv4_raw = util.exec("ip -4 a | grep inet | awk '{print $2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1")
+	for _,v in ipairs(util.split(ipv4_raw)) do
+		if #util.trim(v) > 1 then 
+			table.insert(ipv4,util.trim(v))
+		end
+	end
+	return ipv4
+end
+
+function qmpinfo.get_hostname()
+	local hostname = util.exec("cat /proc/sys/kernel/hostname")
+	return hostname
+end
+
+function qmpinfo.get_uname()
+	local uname = util.exec("uname -a")
+	return uname
 end
 
 return qmpinfo

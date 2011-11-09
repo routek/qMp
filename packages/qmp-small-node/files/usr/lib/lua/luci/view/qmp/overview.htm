@@ -14,4 +14,22 @@
 <br />
 <p>Visit our web page for more information: <a href="http://qmp.cat" target="_blank">qmp.cat</a> </p>
 
+<h2>About this device</h2>
+<p>
+<strong>Hostname:</strong> <%=hostname%>
+</p>
+
+<p>
+<strong>System:</strong> <%=uname%>
+</p>
+
+<p>
+<strong>IPv4 addresses</strong>
+<ul>
+	<% for i,v in ipairs(ipv4) do %>
+	<li><%=v%></li>
+	<% end %>
+</ul>
+</p>
+
 <%+footer%>
