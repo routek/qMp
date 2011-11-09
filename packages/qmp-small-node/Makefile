@@ -84,6 +84,8 @@ endef
 define Package/qmp-small-node/install
 	$(CP) ./files/* $(1)/
 	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
+	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
 endef
 
