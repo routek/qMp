@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tinyproxy
 PKG_VERSION:=1.8.3
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.banu.com/pub/tinyproxy/1.8/
@@ -45,13 +45,14 @@ define Package/qmp-tinyproxy/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/tinyproxy.init $(1)/etc/init.d/tinyproxy
 	$(INSTALL_DIR) $(1)/usr/share/tinyproxy/splash/public
-	$(INSTALL_BIN) ./files/gsf.png $(1)/usr/share/tinyproxy/splash/public/gsf.png
-	$(INSTALL_BIN) ./files/guifinet.jpg $(1)/usr/share/tinyproxy/splash/public/guifinet.jpg
 	$(INSTALL_BIN) ./files/index.html $(1)/usr/share/tinyproxy/splash/public/index.html
-	$(INSTALL_BIN) ./files/puntcat.png $(1)/usr/share/tinyproxy/splash/public/puntcat.png
-	$(INSTALL_BIN) ./files/qmp_big.png $(1)/usr/share/tinyproxy/splash/public/qmp_big.png
-	$(INSTALL_BIN) ./files/qmp.png $(1)/usr/share/tinyproxy/splash/public/qmp.png
+	$(INSTALL_BIN) ./files/index.html.orig $(1)/usr/share/tinyproxy/splash/public/index.html.orig
 	$(INSTALL_DIR) $(1)/tmp/splash/whitelist	
+	$(INSTALL_DIR) $(1)/www/cgi-bin
+	$(INSTALL_BIN) ./files/tpse $(1)/www/cgi-bin/tpse
+	$(INSTALL_DIR) $(1)/www/tiny_mce
+	$(INSTALL_DATA) ./files/continue_link.png $(1)/www/tiny_mce/continue_link.png
+	$(CP) ./files/tiny_mce/* $(1)/www/tiny_mce/
 endef
 
 $(eval $(call BuildPackage,qmp-tinyproxy))
