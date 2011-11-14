@@ -19,7 +19,11 @@
 #
 # Version 0.1.20111111.1.0
 
-URL_SPLASH_CONTINUE="http://{splashhost}{splashcontinue}"
+URL_SPLASH_CONTINUE_URL="http://{splashhost}{splashcontinue}"
+
+URL_SPLASH_CONTINUE_LINK="{continuelink}"
+
+TEXT_SPLASH_CONTINUE_LINK="continue browsing"
 
 HTML_FILE_NAME="$(uci -q get tinyproxy.@tinyproxy[0].SplashIndex)"
 
@@ -237,9 +241,9 @@ function myCustomURLConverter(url, node, on_save)
 			{
 				url = "http://" + url;
 			}
-			if(url.search("'"$URL_SPLASH_CONTINUE"'") != 0)
+			if(url.search("'"$URL_SPLASH_CONTINUE_URL"'") != 0)
 			{
-				url = "'"$URL_SPLASH_CONTINUE"'" + url;
+				url = "'"$URL_SPLASH_CONTINUE_URL"'" + url;
 			}
 		}
 	}
@@ -255,12 +259,12 @@ function myCustomExecCommandHandler(editor_id, elm, command, user_interface, val
 		elm.dataset.mceHref
 	)
 	{
-		if(elm.dataset.mceHref.search("'"$URL_SPLASH_CONTINUE"'") == 0)
+		if(elm.dataset.mceHref.search("'"$URL_SPLASH_CONTINUE_URL"'") == 0)
 		{
-			elm.dataset.mceHref = elm.dataset.mceHref.substr("'"$URL_SPLASH_CONTINUE"'".length);
+			elm.dataset.mceHref = elm.dataset.mceHref.substr("'"$URL_SPLASH_CONTINUE_URL"'".length);
 		}
 	}
-	return false;	
+	return false;
 }
 
 function addContinueButton(ed) {
@@ -273,12 +277,12 @@ function addContinueButton(ed) {
 			{
 				// Add you own code to execute something on click
 				ed.focus();
-				var content = ed.selection.getContent();
-				if(!content)
+				var selection = ed.selection.getContent();
+				if(!selection)
 				{
-					content = "continue browsing";
+					selection = "'"$TEXT_SPLASH_CONTINUE_LINK"'";
 				}
-				ed.selection.setContent('\''<a href="{continuelink}">'\'' + content + '\''</a>'\'');
+				ed.execCommand("mceInsertContent",false,'\''<a href="'"$URL_SPLASH_CONTINUE_LINK"'">'\'' + selection + '\''</a>'\'');
 			}
 		}
 	);
@@ -317,7 +321,7 @@ tinyMCE.init(
 
 		setup : "addContinueButton",
 		
-		oninit: "init",
+		oninit: "init"
 	}
 );
 
