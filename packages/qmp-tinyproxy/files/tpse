@@ -1,0 +1,356 @@
+#!/bin/sh
+#
+# tpse
+#
+# Copyright (C) 2008-2011 Simó Albert i Beltran
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Version 0.1.20111111.1.0
+
+URL_SPLASH_CONTINUE_URL="http://{splashhost}{splashcontinue}"
+
+URL_SPLASH_CONTINUE_LINK="{continuelink}"
+
+TEXT_SPLASH_CONTINUE_LINK="continue browsing"
+
+HTML_FILE_NAME="$(uci -q get tinyproxy.@tinyproxy[0].SplashIndex)"
+
+HTML_DIR_NAME="$(uci -q get tinyproxy.@tinyproxy[0].SplashDir)"
+
+HTML_FILE_NAME_DEFAULT="$HTML_FILE_NAME.orig"
+
+SPLASH_TIMEOUT_DEFAULT="690"
+
+get_splash_timeout()
+{
+	uci -q get tinyproxy.@tinyproxy[0].SplashTimeout
+}
+
+set_splash_timeout()
+{
+	 uci -q set tinyproxy.@tinyproxy[0].SplashTimeout="$(cat)"
+	 uci -q commit tinyproxy
+}
+
+get_splash_content_default()
+{
+	cat "$HTML_DIR_NAME/$HTML_FILE_NAME_DEFAULT" | tr -d "\n\r" | sed -e 's/"/\\"/g'
+}
+
+get_splash_content()
+{
+	cat "$HTML_DIR_NAME/$HTML_FILE_NAME"
+}
+
+set_splash_content()
+{
+	cat > "$HTML_DIR_NAME/$HTML_FILE_NAME"
+}
+
+decode()
+{
+	printf "$(cat | sed -e 's/+/ /g' -e 's/%/\\x/g')"
+}
+
+get_query_value()
+{
+	#echo "&$QUERY_STRING&" | sed -n -e 's/.*&'"$1"'=\([^&]*\)&.*/\1/p' | decode
+	local query_string="$(echo "$QUERY_STRING" | sed -e 's/ /+/g')"
+	query_string="$(echo "$query_string" | sed -e 's/&/ /g')"
+	for item in $query_string
+	do
+		#local key=${item%%=*}
+		local key="$(echo "$item" | cut -d"=" -f1)"
+		if [ "$key" = "$1" ]
+		then
+			#local value=${item#*=}
+			local value="$(echo "$item" | cut -d"=" -f2)"
+			echo "$value" | decode
+		fi
+	done
+} 
+
+is_secure()
+{
+	local line="$(echo $0| sed -e 's:^/www/:/:'):root:\$p\$root"
+	if [ -f /etc/init.d/uhttpd ] && ! grep -q "^$line$" /etc/httpd.conf ; then
+		echo $line >> /etc/httpd.conf
+		echo 'Pragma: no-cache
+Refresh: 2;url='$REQUEST_URI'
+Content-type: text/html
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="-1">
+		<title>tinyproxy splash editor</title>
+		<meta http-equiv="Refresh" content="2; url='$REQUEST_URI'">
+	</head>
+	<body>
+		<p>Please follow <a href="'$REQUEST_URI'">link</a>!</p>
+	</body>
+</html>'
+		/etc/init.d/uhttpd reload
+		exit
+	fi
+}
+
+is_secure
+
+
+if [ -z "$QUERY_STRING" ] && [ "$REQUEST_METHOD" = "POST" ]
+then
+	QUERY_STRING="$(cat)"
+fi
+
+message=''
+
+if [ -n "$QUERY_STRING" ]
+then
+
+	splash_content="$(get_query_value splash_content)"
+	if [ -n "$splash_content" ]
+	then
+		if [ "$splash_content" != "$(get_splash_content)" ]
+		then
+			if echo "$splash_content" | set_splash_content
+			then
+				message="$message"'<div>New content <strong>saved</strong>. <a href="#actual">View</a>.<div>'
+			else
+				message="$message"'<div>Error saving new content. Sorry.</div>'
+			fi
+		else
+			message="$message"'<div>Content not changed.</div>'
+		fi
+	fi
+
+	splash_timeout="$(get_query_value splash_timeout)"
+	if [ -n "$splash_timeout" ]
+	then
+		if [ "$splash_timeout" != "$(get_splash_timeout)" ]
+		then
+			if echo "$splash_timeout" | set_splash_timeout
+			then
+				message="$message"'<div>New interval '"$(get_splash_timeout)"' <strong>saved</strong>.</div>'
+			else
+				message="$message"'<div>Error saving new interval '"$splash_timeout"' . Sorry.</div>'
+			fi
+		else
+			message="$message"'<div>Interval not changed.</div>'
+		fi
+	fi
+
+fi
+
+echo 'Pragma: no-cache
+Content-type: text/html
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="-1">
+		<title>tinyproxy splash editor</title>
+		<style>
+
+#config > form > div
+{
+	margin: 1em;
+}
+
+#actual_iframe
+{
+	height: 500px;
+	width: 100%;
+}
+
+		</style>
+		<script type="text/javascript" src="/tiny_mce/tiny_mce.js"></script>
+		<script type="text/javascript">
+
+function handleDefaults(event)
+{
+	document.getElementById("splash_timeout").value="'"$SPLASH_TIMEOUT_DEFAULT"'";
+	tinyMCE.editors["splash_content"].setContent("'"$(get_splash_content_default)"'");
+}
+
+function handleFileSelect(event, fieldName, win)
+{
+	// Get file from FileList object
+	var file = event.target.files[0];
+	
+	var reader = new FileReader();
+
+	// Closure to capture the file information.
+	reader.onload = (function(theFile) {
+		return function(e) {
+			win.document.forms[0].elements[fieldName].type = "text";
+			win.document.forms[0].elements[fieldName].value = e.target.result;
+			win.document.getElementById("insert").disabled=false;
+		};
+	})(file);
+		// Read in the image file as a data URL.
+	reader.readAsDataURL(file);
+}
+
+function myCustomFileBrowser(fieldName, url, type, win)
+{
+	// Do custom browser logic
+
+	// Check for the various File API support.
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		// Great success! All the File APIs are supported.
+		var field = win.document.forms[0].elements[fieldName];
+		field.type = "file";
+		win.document.getElementById("insert").disabled=true;
+		field.addEventListener("change", function(event){
+			handleFileSelect(event,fieldName,win);
+		}, false);
+	} else {
+		alert("The File APIs are not fully supported in this browser, update it.");
+	}
+}
+
+function myCustomURLConverter(url, node, on_save)
+{
+	// Do some custom URL convertion
+	if(
+		node.dataset
+		&&
+		node.dataset.mceHref
+	)
+	{
+		if(url.search("data:") != 0)
+		{
+			if(url.search("http://") != 0)
+			{
+				url = "http://" + url;
+			}
+			if(url.search("'"$URL_SPLASH_CONTINUE_URL"'") != 0)
+			{
+				url = "'"$URL_SPLASH_CONTINUE_URL"'" + url;
+			}
+		}
+	}
+	
+	// Return new URL
+	return url;
+}
+
+function myCustomExecCommandHandler(editor_id, elm, command, user_interface, value) {
+	if(
+		elm.dataset
+		&&
+		elm.dataset.mceHref
+	)
+	{
+		if(elm.dataset.mceHref.search("'"$URL_SPLASH_CONTINUE_URL"'") == 0)
+		{
+			elm.dataset.mceHref = elm.dataset.mceHref.substr("'"$URL_SPLASH_CONTINUE_URL"'".length);
+		}
+	}
+	return false;
+}
+
+function addContinueButton(ed) {
+	// Add a custom button
+	ed.addButton("mybutton",
+		{
+			title : "Insert continue link",
+			image : "/tiny_mce/continue_link.png",
+			onclick : function()
+			{
+				// Add you own code to execute something on click
+				ed.focus();
+				var selection = ed.selection.getContent();
+				if(!selection)
+				{
+					selection = "'"$TEXT_SPLASH_CONTINUE_LINK"'";
+				}
+				ed.execCommand("mceInsertContent",false,'\''<a href="'"$URL_SPLASH_CONTINUE_LINK"'">'\'' + selection + '\''</a>'\'');
+			}
+		}
+	);
+}
+
+function init()
+{
+	document.getElementById("defaults").addEventListener("click", handleDefaults, false);
+	document.getElementById("actual_iframe").contentWindow.document.open();
+	document.getElementById("actual_iframe").contentWindow.document.write("'"$(get_splash_content | tr -d "\n\r" | sed -e 's/"/\\"/g')"'");
+	document.getElementById("actual_iframe").contentWindow.document.close();
+}
+
+tinyMCE.init(
+	{
+		// General options
+		mode : "textareas",
+		theme : "advanced",
+		width: "100%",
+		height: "500",
+		plugins : "fullpage,autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount,advlist,autosave",
+		
+		// Theme options
+		theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
+		theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+		theme_advanced_buttons3 : "fullpage,|,tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+		theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,pagebreak,restoredraft,mybutton",
+		theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_statusbar_location : "bottom",
+		theme_advanced_resizing : true,
+			
+		file_browser_callback : "myCustomFileBrowser",
+		urlconverter_callback : "myCustomURLConverter",
+		//execcommand_callback : "myCustomExecCommandHandler",
+
+		setup : "addContinueButton",
+		
+		oninit: "init"
+	}
+);
+
+		</script>
+	</head>
+	<body>
+	'"$message"'
+		<div id="config">
+			<form method="post">
+				<div>
+					<label for="splash_content">Splash page (do not forget to add <em>continue link</em>, use <img alt="green arrow" src="/tiny_mce/continue_link.png"/> to do so):</label><br/>
+					<textarea id="splash_content" name="splash_content">'"$(get_splash_content)"'</textarea>
+				</div>
+				<div>
+					<label for="splash_timeout">Splash interval (seconds):</label>
+					<input id="splash_timeout" type="text" name="splash_timeout" value="'"$(get_splash_timeout)"'"/>
+				</div>
+
+				<div>
+					<input type="submit"/>
+					<input type="reset"/>
+					<input id="defaults" type="button" value="Load default values"/>
+				</div>
+			</form>
+		</div>
+		<div id="actual">
+			<br />
+			<h3>Current splash</h3>
+			<iframe id="actual_iframe"></iframe>
+	</body>
+</html>
+'
