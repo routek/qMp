@@ -134,7 +134,7 @@ then
 				message="$message"'<div>Error saving new content. Sorry.</div>'
 			fi
 		else
-			message="$message"'<div>The content don'\''t changed.</div>'
+			message="$message"'<div>Content not changed.</div>'
 		fi
 	fi
 
@@ -150,7 +150,7 @@ then
 				message="$message"'<div>Error saving new interval '"$splash_timeout"' . Sorry.</div>'
 			fi
 		else
-			message="$message"'<div>The interval don'\''t changed.</div>'
+			message="$message"'<div>Interval not changed.</div>'
 		fi
 	fi
 
@@ -328,12 +328,11 @@ tinyMCE.init(
 		</script>
 	</head>
 	<body>
-	<h1>tinyproxy splash editor</h1>
 	'"$message"'
 		<div id="config">
 			<form method="post">
 				<div>
-					<label for="splash_content">Splash page (don'\''t forget to add a <em>continue link</em>, use <img alt="green arrow" src="/tiny_mce/continue_link.png"/> button to do it):</label><br/>
+					<label for="splash_content">Splash page (do not forget to add <em>continue link</em>, use <img alt="green arrow" src="/tiny_mce/continue_link.png"/> to do so):</label><br/>
 					<textarea id="splash_content" name="splash_content">'"$(get_splash_content)"'</textarea>
 				</div>
 				<div>
@@ -349,7 +348,8 @@ tinyMCE.init(
 			</form>
 		</div>
 		<div id="actual">
-			<h2>Actual splash</h2>
+			<br />
+			<h3>Current splash</h3>
 			<iframe id="actual_iframe"></iframe>
 	</body>
 </html>
