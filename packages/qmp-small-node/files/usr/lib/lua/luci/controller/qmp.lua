@@ -29,17 +29,23 @@ function index()
 	root.index  = true
 
 	-- Main window with auth enabled
-	overview = entry({"qmp"}, template("qmp/overview"), "qMp", 1)
+	overview = entry({"qmp"}, call("action_status"), "qMp", 1)
 	overview.dependent = false
 	overview.sysauth = "root"
 	overview.sysauth_authenticator = "htmlauth"
 	
 	-- Rest of entries
+	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
 	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
 end
      
 function action_status()
-	luci.http.prepare_content("text/plain")
-	luci.http.write("Quick Mesh Project [qMp]")
+	package.path = package.path .. ";/etc/qmp/?.lua"
+	local qmp = require "qmpinfo"
+	local ipv4 = qmp.get_ipv4()
+	local hostname = qmp.get_hostname()
+	local uname = qmp.get_uname()
+		
+	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
 end

@@ -30,6 +30,7 @@ function print_help()
 	print("Possible questions:")
 	print("		modes: supported modes by the wireless card")
 	print("		channels: supported channels and supported HT40 type (+/-) ")
+	print("		ipv4: print all ipv4 from this computer (excluding localhost)")
 	print("")
 end
 
@@ -62,22 +63,30 @@ function print_txpower()
 		print(v)
 	end
 end
+
+function print_ipv4()
+	local ipv4 = qmp.get_ipv4()
+	for _,v in pairs(ipv4) do
+		print(v)
+	end
+end
 	
-if #arg ~= 2 then
+if #arg ~= 1 then
 	print_help()
 	os.exit(1)
 end
 
 local question = arg[1]
-dev = arg[2]
+dev = arg[2] 
 
 if question == "modes" then
 	print_modes()
-
 elseif question == "channels" then
 	print_channels()
 elseif question == "txpower" then
 	print_txpower()
+elseif question == "ipv4" then
+	print_ipv4()
 else
 	print_help()
 end

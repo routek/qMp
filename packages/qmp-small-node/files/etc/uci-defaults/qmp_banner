@@ -3,6 +3,8 @@
 cat /etc/qmp/qmp.banner >> /etc/banner
 echo "Versio ratafia 1.0 (Sat Oct 29 2011) ---------------" >> /etc/banner
 echo "Ratafia Recipe: http://en.wikipedia.org/wiki/Ratafia" >> /etc/banner
+[ $BRANCH ] && [ $REV ] && echo "Version: http://qmp.cat/projects/qmp/repository/show?branch=$BRANCH&rev=$REV" >> /etc/banner
 echo "----------------------------------------------------" >> /etc/banner
+
 
 
