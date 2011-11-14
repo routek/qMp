@@ -38,6 +38,7 @@ function index()
 	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
 	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
+	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
 end
      
 function action_status()
@@ -48,4 +49,8 @@ function action_status()
 	local uname = qmp.get_uname()
 		
 	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
+end
+
+function action_splash()
+	luci.template.render("qmp/splash")
 end
