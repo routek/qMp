@@ -173,6 +173,16 @@ Content-type: text/html
 	margin: 1em;
 }
 
+label[for=splash_content]
+{
+	display: block;
+}
+
+#actual
+{
+	padding-top: 1em;
+}
+
 #actual_iframe
 {
 	height: 500px;
@@ -332,7 +342,7 @@ tinyMCE.init(
 		<div id="config">
 			<form method="post">
 				<div>
-					<label for="splash_content">Splash page (do not forget to add <em>continue link</em>, use <img alt="green arrow" src="/tiny_mce/continue_link.png"/> to do so):</label><br/>
+					<label for="splash_content">Splash page (do not forget to add <em>continue link</em>, use <img alt="green arrow" src="/tiny_mce/continue_link.png"/> to do so):</label>
 					<textarea id="splash_content" name="splash_content">'"$(get_splash_content)"'</textarea>
 				</div>
 				<div>
@@ -348,7 +358,6 @@ tinyMCE.init(
 			</form>
 		</div>
 		<div id="actual">
-			<br />
 			<h3>Current splash</h3>
 			<iframe id="actual_iframe"></iframe>
 	</body>
