@@ -74,7 +74,7 @@
 <% for i,o in ipairs(originators) do %>
 	<tr>
 	 <td><%=o.name%></td>
-	 <td>
+	 <td style="text-align:left;">
 	<% if o.desc.DESC_ADV ~= nil then %>
 	<% for j,h in ipairs(o.desc.DESC_ADV.extensions[2].HNA6_EXTENSION) do %>
 	  <%=h.address%>&nbsp;&nbsp;&nbsp;&nbsp;

@@ -39,6 +39,7 @@ function index()
 	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
 	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
+	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
 end
      
 function action_status()
@@ -49,6 +50,13 @@ function action_status()
 	local uname = qmp.get_uname()
 		
 	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
+end
+
+function action_tools()
+	package.path = package.path .. ";/etc/qmp/?.lua"
+	local qmp = require "qmpinfo"
+	local nodes = qmp.nodes()
+	luci.template.render("qmp/tools",{nodes=nodes})	
 end
 
 function action_splash()

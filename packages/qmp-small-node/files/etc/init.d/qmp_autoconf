@@ -46,16 +46,20 @@ configure() {
 	ifup -a
 	/etc/init.d/dnsmasq restart
 	touch "$CONTROL_FILE"
-#	echo "Done, rebooting system to complete configuration"
-#	reboot
+}
+
+#This function is executed in each boot
+startup() {
+	$QMP_DIR/qmp_control.sh apply_netserver
 }
 
 start() {
-if [ ! -f "$CONTROL_FILE" ]; then
-	configure
-else
-	echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
-fi
+	startup
+	if [ ! -f "$CONTROL_FILE" ]; then
+		configure
+	else
+		echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
+	fi
 }
 
 stop() {

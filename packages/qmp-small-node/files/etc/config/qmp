@@ -41,6 +41,7 @@ config 'qmp' 'networks'
 
         option 'babel_mesh_prefix48' 'fd03:0:0'
 
+	option 'netserver' '1'
 
 config 'qmp' 'tunnels'
         option 'search_ipv4_tunnel'  '0.0.0.0/0'

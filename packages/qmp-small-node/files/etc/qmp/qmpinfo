@@ -32,6 +32,8 @@ function print_help()
 	print("		channels <dev> : supported channels and supported HT40 type (+/-) ")
 	print("		ipv4 : print all ipv4 from this computer (excluding localhost)")
 	print("		hostname : print device hostname")
+	print("		bwtest <ipv6> : perform a bandwidth test")
+	print("		nodes : list all nodes on MESH network")
 	print("")
 end
 
@@ -48,7 +50,7 @@ end
 function print_channels()
 	local partial
 	local output = ""
-	local data = qmp.get_channels(dev)
+	local data = qmp.get_channels(op1)
 	for _,d in ipairs(data) do
 		output = d.channel
 		if d.ht40p then output = output .. " ht40+" end
@@ -59,7 +61,7 @@ function print_channels()
 end
 
 function print_txpower()
-	local data = qmp.get_txpower(dev)
+	local data = qmp.get_txpower(op1)
 	for _,v in ipairs(data) do
 		print(v)
 	end
@@ -76,13 +78,35 @@ function print_hostname()
 	print(qmp.get_hostname())
 end
 
+function bw_test()                                             
+        if #op1 < 5 then
+                print_help()                                               
+                os.exit(1)    
+        end
+
+        local bwt = qmpinfo.bandwidth_test(op1) 
+        if bwt == nil then
+                print("Cannot connecto to "..op1.." netserver")
+        else
+                print ("Bandwidth: "..bwt.." Mbit/s")                                               
+        end                                        
+end                            
+
+function nodes()
+	for _,n in ipairs(qmpinfo.nodes()) do
+		if #n == 2 then
+			print(n[1].." "..n[2])
+		end
+	end
+end
+
 if #arg < 1 then
 	print_help()
 	os.exit(1)
 end
 
 local question = arg[1]
-dev = arg[2] 
+op1 = arg[2] 
 
 if question == "modes" then
 	print_modes()
@@ -94,6 +118,10 @@ elseif question == "ipv4" then
 	print_ipv4()
 elseif question == "hostname" then
         print_hostname()
+elseif question == "bwtest" then
+        bw_test() 
+elseif question == "nodes" then
+        nodes()   
 else
 	print_help()
 end
