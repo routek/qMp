@@ -173,6 +173,11 @@ Content-type: text/html
 	margin: 1em;
 }
 
+#actual
+{
+	padding-top: 1em;
+}
+
 #actual_iframe
 {
 	height: 500px;
@@ -348,7 +353,6 @@ tinyMCE.init(
 			</form>
 		</div>
 		<div id="actual">
-			<br />
 			<h3>Current splash</h3>
 			<iframe id="actual_iframe"></iframe>
 	</body>
