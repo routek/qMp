@@ -40,6 +40,7 @@ function index()
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
 	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
+	entry({"qmp","map"}, call("action_map"), "Map", 8).dependent=false
 end
      
 function action_status()
@@ -62,3 +63,8 @@ end
 function action_splash()
 	luci.template.render("qmp/splash")
 end
+
+function action_map()
+	luci.template.render("qmp/b6m")
+end
+
