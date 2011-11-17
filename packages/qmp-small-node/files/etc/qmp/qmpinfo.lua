@@ -149,4 +149,28 @@ function qmpinfo.get_uname()
 	return uname
 end
 
+function qmpinfo.bandwidth_test(ip)                 
+        local bwtest = util.trim(util.exec("netperf -6 -p 12865 -H "..ip.." -fm -v0 -P0"))
+        local result = nil                           
+        if #bwtest < 10 then                   
+                result = bwtest                     
+        end                
+   
+        return result                                  
+end   
+
+function qmpinfo.nodes()
+	local nodes = util.split(util.exec('bmx6 -c --originators | awk \'{print $1 "|" $3}\' | grep -e ".*:.*:"'))
+	local ni
+	result = {}
+	for _,n in ipairs(nodes) do
+		if n ~= "" then
+		 ni = util.split(n,"|")
+		 ni[1] = util.split(ni[1],".")[1]
+		 table.insert(result,ni)
+		end
+	end
+	return result
+end
+
 return qmpinfo

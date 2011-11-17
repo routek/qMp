@@ -23,6 +23,7 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_functions.sh
 . $QMP_PATH/qmp_gw.sh
 . $QMP_PATH/qmp_wireless.sh
+. $QMP_PATH/qmp_network.sh
 
 offer_default_gw() {
 	qmp_gw_offer_default
@@ -50,6 +51,10 @@ apply_network() {
 	/etc/init.d/firewall restart
 }
 
+apply_netserver() {
+	[ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
+}
+
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
@@ -58,6 +63,7 @@ help() {
 	echo "  search_default_gw : Search for a default gw in the network" 
 	echo "  apply_wifi        : Apply current wifi configuration"
 	echo "  apply_network     : Apply current network configuration"
+	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo ""
 }
 
