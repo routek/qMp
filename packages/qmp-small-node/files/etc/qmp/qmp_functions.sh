@@ -535,7 +535,7 @@ qmp_configure_bmx6() {
 
   uci set $conf.general="bmx6"
   uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
-  uci set $conf.general.udpDataSize=1000
+#  uci set $conf.general.udpDataSize=1000
 
   uci set $conf.bmx6_config_plugin=plugin
   uci set $conf.bmx6_config_plugin.plugin=bmx6_config.so
