@@ -41,18 +41,19 @@ apply_wifi() {
 	wifi
 }
 
+apply_netserver() {                                                                                    
+        [ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
+}  
+
 apply_network() {
 	qmp_configure
 	/etc/init.d/network restart
+	ifup -a
 	/etc/init.d/olsrd restart
 	/etc/init.d/bmx6 restart
-	ifup -a
 	/etc/init.d/dnsmasq restart
 	/etc/init.d/firewall restart
-}
-
-apply_netserver() {
-	[ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
+	apply_netserver
 }
 
 help() {

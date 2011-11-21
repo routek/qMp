@@ -36,7 +36,8 @@ function index()
 	
 	-- Rest of entries
 	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
-	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
+	entry({"qmp","network"}, cbi("qmp/network"), "Network", 5).dependent=false
+	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
 	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
@@ -57,7 +58,8 @@ function action_tools()
 	package.path = package.path .. ";/etc/qmp/?.lua"
 	local qmp = require "qmpinfo"
 	local nodes = qmp.nodes()
-	luci.template.render("qmp/tools",{nodes=nodes})	
+	local key = qmp.get_key()
+	luci.template.render("qmp/tools",{nodes=nodes,key=key})	
 end
 
 function action_splash()

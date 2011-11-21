@@ -99,7 +99,7 @@ for _,wdev in ipairs(wdevs) do
 end
 
 function m.on_commit(self,map)
-	luci.sys.call('/etc/qmp/qmp_control.sh apply_wifi > /tmp/qmp_control_wifi.log')
+	luci.sys.call('/etc/qmp/qmp_control.sh apply_wifi > /tmp/qmp_control_wifi.log &')
 end
 
 
