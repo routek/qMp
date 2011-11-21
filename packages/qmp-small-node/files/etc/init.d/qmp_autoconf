@@ -21,6 +21,7 @@
 START=99
 CONTROL_FILE="/qmp_configured"
 QMP_DIR="/etc/qmp"
+QMP_KEY="/tmp/qmp_key"
 
 configure() {
 	echo "Starting qmp configuration..."
@@ -51,6 +52,7 @@ configure() {
 #This function is executed in each boot
 startup() {
 	$QMP_DIR/qmp_control.sh apply_netserver
+	logread | md5sum | awk '{print $1}' > $QMP_KEY
 }
 
 start() {
