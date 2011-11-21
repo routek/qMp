@@ -41,7 +41,6 @@ config 'qmp' 'networks'
                                                        # community_node_id and bmx6_ipv4_prefix
 
         option 'babel_mesh_prefix48' 'fd03:0:0'
-
 	option 'netserver' '1'
 
 config 'qmp' 'tunnels'
@@ -53,7 +52,7 @@ config 'qmp' 'tunnels'
 
 config 'qmp' 'wireless'
         option 'driver'  'mac80211'
-        option 'country' 'ES'
+        option 'country' 'UZ'
         option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 
