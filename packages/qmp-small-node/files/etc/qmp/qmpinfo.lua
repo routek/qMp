@@ -173,4 +173,13 @@ function qmpinfo.nodes()
 	return result
 end
 
+function qmpinfo.get_key()
+	local keyf = util.exec("uci get qmp.node.key")
+	if #keyf < 2 then
+		keyf = "/tmp/qmp_key"
+	end
+	local key = util.split(util.exec("cat "..keyf))[1]
+	return key
+end
+
 return qmpinfo
