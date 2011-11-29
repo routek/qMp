@@ -292,6 +292,15 @@ qmp_wifi_get_default() {
 }
 
 qmp_configure_wifi_initial() {
+	
+	#First we are going to configure default parameters if they are not present                                                           
+	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp                                                                            
+	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)                                   
+	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)                                
+	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)  
+
+	#Changing to configured countrycode
+	iw reg set $(qmp_uci_get wireless.country)
 
 	macs="$(qmp_get_wifi_mac_devices)"
 

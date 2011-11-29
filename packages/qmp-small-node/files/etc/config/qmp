@@ -58,12 +58,13 @@ config 'qmp' 'wireless'
 
 config 'wireless'
         option 'mode' 'adhoc'
-	option 'name' 'qMp'
+	option 'name' 'qMp.cat'
  
 config 'wireless'
         option 'mode' 'ap'
 	option 'name' 'qMp-AP'
-     
+	option 'txpower' '20'
+
 config 'wireless'
         option 'mode' 'adhoc'
-	option 'name' 'qMp'
+	option 'name' 'qMp.cat'

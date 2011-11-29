@@ -39,7 +39,7 @@ define Package/qmp-big-node
 	+openvpn \
 	+openssl-util \
         +tcptraceroute6 \
-	+iperf +mtr +netcat +netperf \
+	+iperf +mtr +netcat \
 	+tcpdump-mini \
 	+nmap +lsof \
 	+wget +horst \

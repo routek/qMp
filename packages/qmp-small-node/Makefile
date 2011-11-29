@@ -40,7 +40,7 @@ define Package/qmp-small-node
 	+ahcpd \
 	+radvd \
 	+hostapd \
-	+wireless-tools +iw \
+	+wireless-tools +iw +netperf \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci +qmp-tinyproxy\
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
