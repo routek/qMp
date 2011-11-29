@@ -56,6 +56,12 @@ apply_network() {
 	apply_netserver
 }
 
+enable_ns_ppt() {
+	echo 8 > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio8/direction
+	echo 1 > /sys/class/gpio/gpio8/value
+}
+
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
@@ -65,6 +71,7 @@ help() {
 	echo "  apply_wifi        : Apply current wifi configuration"
 	echo "  apply_network     : Apply current network configuration"
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
+	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
 	echo ""
 }
 
