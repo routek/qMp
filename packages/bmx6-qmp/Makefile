@@ -24,7 +24,9 @@ PKG_NAME:=bmx6-qmp
 PKG_SOURCE_PROTO:=git
 
 Public Sources:
-PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
+#PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
+PKG_SOURCE_URL:=git://github.com/axn/bmx6.git
+
 PKG_REV:=3434d7fddf8de71d3d4829cb6d5adcefbbf7fe4f
 
 Private Sources:
