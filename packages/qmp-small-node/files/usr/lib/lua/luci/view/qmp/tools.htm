@@ -33,7 +33,7 @@ function parse_result(txt) {
 <p><strong><u>Nodes found in the network:</u></strong></p>
 <form>
 <% for i,n in ipairs(nodes) do %>
-	<div style="clear:both;height:30px;width:550px;float:left">
+	<div style="clear:both;height:30px;width:800px;float:left">
 	<strong><%=n[1]%></strong> <%=n[2]%> &nbsp;&nbsp; &nbsp;&nbsp;
 	<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
 	<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
