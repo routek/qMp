@@ -28,27 +28,35 @@ configure() {
 	echo "Starting qmp configuration..." > /dev/console
 
 	echo "[Configuring wireless]"
+
+	#Generating default wifi configuration
+	iw reg set $(uci get qmp.wireless.country) || iw reg set 00
+	sleep 1
+	mv /etc/config/wireless /tmp/wireless.old
 	wifi detect | grep -v disabled > /etc/config/wireless
 	wifi
+
+	#Configuring wifi using QMP
 	. $QMP_DIR/qmp_wireless.sh
-#	qmp_configure_wifi_driver
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	wifi
-
+	
+	#Configuring networking
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
-	/etc/init.d/network restart	                       
-	sleep 3
-	QMP_HOSTNAME=$(uci get system.@system[0].hostname)
-	echo "Update hostname for: '$QMP_HOSTNAME'"
-	echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
-	/etc/init.d/olsrd restart	
-	/etc/init.d/bmx6 restart	
-	ifup -a
-	/etc/init.d/dnsmasq restart
+	#/etc/init.d/network restart	                       
+	#sleep 3
+	#QMP_HOSTNAME=$(uci get system.@system[0].hostname)
+	#echo "Update hostname for: '$QMP_HOSTNAME'"
+	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
+	#/etc/init.d/olsrd restart	
+	#/etc/init.d/bmx6 restart	
+	#ifup -a
+	#/etc/init.d/dnsmasq restart
 	touch "$CONTROL_FILE"
+	reboot
 }
 
 #This function is executed in each boot
