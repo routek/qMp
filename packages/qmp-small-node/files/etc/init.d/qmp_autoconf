@@ -28,6 +28,8 @@ configure() {
 	echo "Starting qmp configuration..." > /dev/console
 
 	echo "[Configuring wireless]"
+	wifi detect | grep -v disabled > /etc/config/wireless
+	wifi
 	. $QMP_DIR/qmp_wireless.sh
 #	qmp_configure_wifi_driver
 	qmp_configure_wifi_initial
