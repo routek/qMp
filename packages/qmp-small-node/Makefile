@@ -35,7 +35,7 @@ define Package/qmp-small-node
   URL:=http://qmp.cat
   DEPENDS:= \
 	+uhttpd +luci +luci-lib-nixio \
-	+luci-ssl \
+	+luci-ssl +iwinfo \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
