@@ -39,7 +39,7 @@ function print_help()
 end
 
 function print_modes()
-	local data = qmp.get_modes(dev)
+	local data = qmp.get_modes(op1)
 	local output = ""
 	if data.b  then output = output .. "b " end
 	if data.g  then output = output .. "g " end
