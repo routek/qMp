@@ -43,7 +43,7 @@ define Package/qmp-small-node
 	+wireless-tools +iw +netperf \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
-	+gwck-qmp
+	+gwck-qmp \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
 	+olsrd-mod-arprefresh +olsrd-luci \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
