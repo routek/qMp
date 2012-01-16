@@ -44,6 +44,7 @@ define Package/qmp-big-node
 	+iperf +mtr +netcat \
 	+tcpdump \
 	+lsof \
+	+hostapd \
 	+wget +horst \
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
