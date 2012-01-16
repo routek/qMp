@@ -35,7 +35,7 @@ search_default_gw() {
 	qmp_gw_apply
 }
 
-apply_wifi() {
+configure_wifi() {
 	qmp_configure_wifi_initial 
 	qmp_configure_wifi
 	wifi
@@ -45,7 +45,7 @@ apply_netserver() {
         [ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
 }  
 
-apply_network() {
+configure_network() {
 	qmp_configure
 	/etc/init.d/network restart
 	ifup -a
@@ -68,8 +68,8 @@ help() {
 	echo "Available functions:"
 	echo "  offer_default_gw  : Offers default gw to the network"
 	echo "  search_default_gw : Search for a default gw in the network" 
-	echo "  apply_wifi        : Apply current wifi configuration"
-	echo "  apply_network     : Apply current network configuration"
+	echo "  configure_wifi    : Configure and apply current wifi settings"
+	echo "  configure_network : Configure and apply current network settings"
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
 	echo ""

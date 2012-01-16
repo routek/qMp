@@ -27,19 +27,24 @@ sys = require "luci.sys"
 qmpinfo = {}
 
 function qmpinfo.get_modes(dev)
+	local modes = {}
 	local iw = iwinfo[iwinfo.type(dev)]
-	return iw.hwmodelist(dev)
+	if iw ~= nil then modes = iw.hwmodelist(dev) end
+	return modes
 	
 end
 
 
 function qmpinfo.get_txpower(dev)
 	local iw = iwinfo[iwinfo.type(dev)]
-	local txp = iw.txpwrlist(dev)
 	local txpower_supported = {}
-	for _,v in ipairs(txp) do
-		table.insert(txpower_supported,v.dbm)
+	if iw ~= nil then
+		local txp = iw.txpwrlist(dev)
+		for _,v in ipairs(txp) do
+			table.insert(txpower_supported,v.dbm)
+		end
 	end
+	
 	return txpower_supported
 	
 end
