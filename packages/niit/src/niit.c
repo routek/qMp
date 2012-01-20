@@ -86,8 +86,15 @@ static int niit_xmit(struct sk_buff *skb, struct net_device *dev) {
 			goto tx_error_icmp;
 		}
 
-		tdev = rt6->dst.dev;
-		dst_release(&rt6->dst);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37)
+                tdev = rt6->u.dst.dev;
+                dst_release(&rt6->u.dst);
+
+#else
+                tdev = rt6->dst.dev;
+                dst_release(&rt6->dst);
+
+#endif
 		if (tdev == dev) {
 			PDEBUG("niit: recursion detected todev = dev \n");
 			stats->collisions++;
