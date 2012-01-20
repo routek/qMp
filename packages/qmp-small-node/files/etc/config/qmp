@@ -52,7 +52,7 @@ config 'qmp' 'tunnels'
 
 config 'qmp' 'wireless'
         option 'driver'  'mac80211'
-        option 'country' 'ES'
+        option 'country' 'CT'
         option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 
