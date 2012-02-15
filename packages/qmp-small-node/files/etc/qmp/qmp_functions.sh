@@ -398,6 +398,7 @@ qmp_configure_network() {
   if qmp_uci_test qmp.interfaces.wan_device ; then
     uci set $conf.wan="interface"
     uci set $conf.wan.ifname="$(uci get qmp.interfaces.wan_device)"
+    uci set $conf.wan.type="bridge"
     uci set $conf.wan.proto="dhcp"
   fi
 
@@ -634,17 +635,6 @@ qmp_configure_bmx6() {
 #  /etc/init.d/$conf restart
 }
 
-
-
-
-
-
-
-
-
-
-
-
 qmp_configure_olsr6() {
 
   local conf="olsrd"
@@ -753,11 +743,6 @@ EOF
 }
 
 
-
-
-
-
-
 qmp_configure_olsr6_uci_unused() {
 
   local conf="olsrd_uci"
@@ -823,15 +808,20 @@ qmp_configure_olsr6_uci_unused() {
 
 qmp_configure_system() {
 
-  local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  local primary_device="$(uci get qmp.node.primary_device)"
+  [ -z "$primary_device" ] && primary_device="eth0"
+
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
-  elif ! [ -z "$primary_mesh_device" ] ; then
-    community_node_id="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
+  else
+    community_node_id="$(qmp_get_mac_for_dev $primary_device | awk -F':' '{print $6}' )"
   fi
 
-  uci set system.@system[0].hostname=qmp${community_node_id}
+  local community_id="$(uci get qmp.node.community_id)"
+  [ -z "$community_id" ] && community_id="qmp"
+
+  uci set system.@system[0].hostname=${community_id}${community_node_id}
   uci commit system
 
   # enable IPv6 in httpd:

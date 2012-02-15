@@ -56,6 +56,10 @@ configure_network() {
 	apply_netserver
 }
 
+configure_system() {
+	qmp_configure_system
+}
+
 enable_ns_ppt() {
 	echo 8 > /sys/class/gpio/export
 	echo out > /sys/class/gpio/gpio8/direction
@@ -70,6 +74,7 @@ help() {
 	echo "  search_default_gw : Search for a default gw in the network" 
 	echo "  configure_wifi    : Configure and apply current wifi settings"
 	echo "  configure_network : Configure and apply current network settings"
+	echo "  configure_system  : Configure and apply current system settings (qmp.node section and so on)"
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
 	echo ""

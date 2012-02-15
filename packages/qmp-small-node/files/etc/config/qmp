@@ -1,17 +1,16 @@
 
 ## this config should work for Routerstation(PRO), Alix, Fonera, ...
 
-
 config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
         option 'lan_devices'      'eth0 wlan1'              # will be used as is!
-        option 'wan_device'       'eth1'                    # will be used as is!
+        option 'wan_devices'      'eth1'                    # will be used as is!
         option 'mesh_devices'     'wlan0 wlan2'  	    # will be extended by vlan tag!
 
-
 config 'qmp' 'node'
-#       option community_node_id 901   # [0x0100..0xFFFF]  if commented out then community_node_id will be 
-                                       # autoconfigured based on last byte of MAC address, thus: [0x000..0x0FF]
+	option 'primary_device' 'eth0'
+	option 'community_id' 'qmp'
+	option 'community_node_id' ''
 	option 'key' '/tmp/qmp_key'
 
 config 'qmp' 'non_overlapping'
@@ -68,3 +67,4 @@ config 'wireless'
 config 'wireless'
         option 'mode' 'adhoc'
 	option 'name' 'qMp.cat'
+
