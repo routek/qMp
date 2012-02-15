@@ -39,7 +39,7 @@ define Package/qmp-small-node
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
-	+hostapd-mini \
+	+hostapd-mini +wpa-supplicant-mini \
 	+wireless-tools +iw +netperf \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \

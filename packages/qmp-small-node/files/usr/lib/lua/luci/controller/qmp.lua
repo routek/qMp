@@ -35,13 +35,14 @@ function index()
 	overview.sysauth_authenticator = "htmlauth"
 	
 	-- Rest of entries
-	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
-	entry({"qmp","network"}, cbi("qmp/network"), "Network", 5).dependent=false
-	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
-	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
-	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
-	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
-	entry({"qmp","map"}, call("action_map"), "Map", 8).dependent=false
+	entry({"qmp","info"}, call("action_status"), translate("Info"), 1).dependent=false
+	entry({"qmp","node"}, cbi("qmp/node"), translate("Node"), 4).dependent=false
+	entry({"qmp","network"}, cbi("qmp/network"), translate("Network"), 5).dependent=false
+	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), translate("Advanced networking"), 1).dependent=false
+	entry({"qmp","wireless"}, cbi("qmp/wireless"), translate("Wireless"), 6).dependent=false
+	entry({"qmp","splash"}, call("action_splash"), translate("Splash"), 7).dependent=false
+	entry({"qmp","tools"}, call("action_tools"), translate("Tools"), 8).dependent=false
+	entry({"qmp","map"}, call("action_map"), translate("Map"), 8).dependent=false
 end
      
 function action_status()
