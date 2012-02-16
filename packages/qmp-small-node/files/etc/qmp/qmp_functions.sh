@@ -395,12 +395,13 @@ qmp_configure_network() {
   uci set $conf.loopback.ipaddr="127.0.0.1"
   uci set $conf.loopback.netmask="255.0.0.0"
 
-  if qmp_uci_test qmp.interfaces.wan_device ; then
-    uci set $conf.wan="interface"
-    uci set $conf.wan.ifname="$(uci get qmp.interfaces.wan_device)"
-    uci set $conf.wan.type="bridge"
-    uci set $conf.wan.proto="dhcp"
-  fi
+  wan_offset=0
+  for i in $(uci get  qmp.interfaces.wan_devices) ; do
+    uci set $conf.wan${wan_offset}="interface"
+    uci set $conf.wan${wan_offset}.ifname="$i"
+    uci set $conf.wan${wan_offset}.proto="dhcp"
+    let wan_offset=${wan_offset}+1
+  done
 
 
   uci set $conf.niit4to6="interface"
