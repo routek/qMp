@@ -63,7 +63,7 @@ fint:value("0","no")
 
 
 function m.on_commit(self,map)
-        luci.sys.call('/etc/qmp/qmp_control.sh apply_network > /tmp/qmp_control_network.log &')
+        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
 end
 
 
