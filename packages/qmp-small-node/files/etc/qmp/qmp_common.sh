@@ -29,7 +29,6 @@ qmp_uci_get() {
 	u="$(uci -q get qmp.$1)"
 	r=$?
 	echo "$u"
-	echo "$u" >> /tmp/uci_get
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get qmp.$1)"
 	qmp_debug "qmp_uci_get: uci -q get qmp.$1"
 	return $r

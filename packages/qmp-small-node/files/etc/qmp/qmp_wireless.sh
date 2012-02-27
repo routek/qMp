@@ -262,11 +262,10 @@ qmp_wifi_get_default() {
 
 		# we are using index var to put devices in different channels
 		index=$(echo $device | tr -d [A-z])
-		index=$(( $index * 2 ))
 
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
-		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $QMPINFO channels $device | grep adhoc | awk NR==$index+1)"
-		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$(qmp_get_dec_node_id)%10+$index+1)" 
+		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $QMPINFO channels $device | grep adhoc | awk NR==${index}+1)"
+		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$(qmp_get_dec_node_id)%10+${index}*2+1)" 
 		
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
@@ -293,6 +292,15 @@ qmp_wifi_get_default() {
 }
 
 qmp_configure_wifi_initial() {
+	
+	#First we are going to configure default parameters if they are not present                                                           
+	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp                                                                            
+	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)                                   
+	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)                                
+	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)  
+
+	#Changing to configured countrycode
+	iw reg set $(qmp_uci_get wireless.country)
 
 	macs="$(qmp_get_wifi_mac_devices)"
 

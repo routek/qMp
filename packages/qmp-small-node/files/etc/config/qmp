@@ -6,12 +6,13 @@ config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
         option 'lan_devices'      'eth0 wlan1'              # will be used as is!
         option 'wan_device'       'eth1'                    # will be used as is!
-        option 'mesh_devices'     'eth0 wlan0 wlan2'  	    # will be extended by vlan tag!
+        option 'mesh_devices'     'wlan0 wlan2'  	    # will be extended by vlan tag!
 
 
 config 'qmp' 'node'
 #       option community_node_id 901   # [0x0100..0xFFFF]  if commented out then community_node_id will be 
                                        # autoconfigured based on last byte of MAC address, thus: [0x000..0x0FF]
+	option 'key' '/tmp/qmp_key'
 
 config 'qmp' 'non_overlapping'
         option 'ignore'              '0'  # Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
@@ -40,7 +41,7 @@ config 'qmp' 'networks'
                                                        # community_node_id and bmx6_ipv4_prefix
 
         option 'babel_mesh_prefix48' 'fd03:0:0'
-
+	option 'netserver' '1'
 
 config 'qmp' 'tunnels'
         option 'search_ipv4_tunnel'  '0.0.0.0/0'
@@ -51,18 +52,19 @@ config 'qmp' 'tunnels'
 
 config 'qmp' 'wireless'
         option 'driver'  'mac80211'
-        option 'country' 'UZ'
+        option 'country' 'CT'
         option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 
 config 'wireless'
         option 'mode' 'adhoc'
-	option 'name' 'qMp'
+	option 'name' 'qMp.cat'
  
 config 'wireless'
         option 'mode' 'ap'
 	option 'name' 'qMp-AP'
-     
+	option 'txpower' '20'
+
 config 'wireless'
         option 'mode' 'adhoc'
-	option 'name' 'qMp'
+	option 'name' 'qMp.cat'

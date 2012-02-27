@@ -24,14 +24,16 @@ PKG_NAME:=bmx6-qmp
 PKG_SOURCE_PROTO:=git
 
 Public Sources:
-PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
-PKG_REV:=2d3f49dd318d05b46ccd12f8990867334ddd5373
+#PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
+PKG_SOURCE_URL:=git://github.com/axn/bmx6.git
+
+#PKG_REV:=3434d7fddf8de71d3d4829cb6d5adcefbbf7fe4f
+PKG_REV:=caacacd1a64c1b76bc9628bf949fac19d5b20256
 
 Private Sources:
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
-#PKG_REV:=873eed6c331476bbdcbe2e7766907aa2a54371f3
 
-PKG_VERSION:=r2011111101
+PKG_VERSION:=r2012010901
 
 #PKG_RELEASE:=1
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6

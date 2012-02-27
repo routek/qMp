@@ -535,6 +535,7 @@ qmp_configure_bmx6() {
 
   uci set $conf.general="bmx6"
   uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
+#  uci set $conf.general.udpDataSize=1000
 
   uci set $conf.bmx6_config_plugin=plugin
   uci set $conf.bmx6_config_plugin.plugin=bmx6_config.so
@@ -842,8 +843,8 @@ qmp_configure_system() {
 
 
 qmp_check_force_internet() {
-	[ "$(uci get qmp.interfaces.force_internet)" == "1" ] && qmp_gw_offer_default
-	[ "$(uci get qmp.interfaces.force_internet)" == "0" ] && qmp_gw_search_default
+	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
+	[ "$(uci get qmp.networks.force_internet)" == "0" ] && qmp_gw_search_default
 }
 
 qmp_configure() {

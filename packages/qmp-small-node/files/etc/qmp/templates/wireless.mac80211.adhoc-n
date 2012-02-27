@@ -10,6 +10,7 @@ wireless.#QMP_DEVICE.outdoor=1
 wireless.#QMP_DEVICE.hwmode=auto
 wireless.#QMP_DEVICE.htmode=#QMP_HTMODE
 wireless.#QMP_DEVICE.txpower=#QMP_TXPOWER
+wireless.#QMP_DEVICE.noscan=1
 list wireless.#QMP_DEVICE.ht_capab=SHORT-GI-40
 list wireless.#QMP_DEVICE.ht_capab=TX-STBC
 list wireless.#QMP_DEVICE.ht_capab=RX-STBC1

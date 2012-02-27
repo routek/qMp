@@ -124,14 +124,21 @@ function action_neighbours()
 				name = o.name
 			end
 			
-			for _,h in ipairs(desc.DESC_ADV.extensions[2].HNA6_EXTENSION) do
+			--Not sure about that, but trying to find main ipv4 from HNA6 published by each node	
+			if desc.DESC_ADV ~= nil then
+				for _,h in ipairs(desc.DESC_ADV.extensions[2].HNA6_EXTENSION) do
 				
-				if h ~= nil and  string.find(h.address,"::ffff:") then
-					ipv4=string.gsub(h.address,"::ffff:","")
-				end
-				
+					if h ~= nil and  string.find(h.address,"::ffff:") then
+						ipv4=string.gsub(h.address,"::ffff:","")
+						break
+					end
+				end	
 			end
-						
+			
+			if ipv4 == "" then 
+				ipv4="0.0.0.0"
+			end
+		
 			table.insert(originators,{name=name,ipv4=ipv4,orig=orig,desc=desc})
 		end
 
