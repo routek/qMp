@@ -1,7 +1,7 @@
 <%+header%>
 
 <script type="text/javascript">
-function do_bwtest(ip,index) {
+function do_test(ip,index,key,tool) {
 	var output = document.getElementById('output_'+index);
 
 	if (output) {
@@ -9,7 +9,7 @@ function do_bwtest(ip,index) {
                 output.style.display = 'inline';
 
 		var result = new XMLHttpRequest();
-		result.open("GET", "/cgi-bin/bwtest?"+ip, true);
+		result.open("GET", "/cgi-bin/tools?" + key + "&amp;" + tool + "&amp;" + ip, true);
                 result.onreadystatechange = function() {
                 	if (result.readyState == 4) {
                 	    output.innerHTML= parse_result(result.responseText);
@@ -29,22 +29,26 @@ function parse_result(txt) {
 
 </script>
 
-<h2>Bandwidth test</h2>
-<p><strong>Nodes found in the network:</strong></p>
+<h2>Tools</h2>
+<p><strong><u>Nodes found in the network:</u></strong></p>
 <form>
 <% for i,n in ipairs(nodes) do %>
-	<div style="height:30px;width:550px;float:left">
-	<input type="button" value="<%=n[1]%>" onclick="do_bwtest('<%=n[2]%>',<%=i%>)" />&nbsp;&nbsp; <%=n[2]%>
+	<div style="clear:both;height:30px;width:800px;float:left">
+	<strong><%=n[1]%></strong> <%=n[2]%> &nbsp;&nbsp; &nbsp;&nbsp;
+	<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
+	<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
 	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_<%=i%>"></span>	
 	</div>
 <% end %>
 	<div style="clear:both;height:30px;float:left">
 	<strong>Specify Custom ip:</strong>
 	<input type="text" name="custom" />
-	<input type="button" value="Start" onclick='do_bwtest(this.form.custom.value,"custom")' />&nbsp;&nbsp; <%=n%>
+	<input type="button" value="bandwidth" onclick="do_test(this.form.custom.value,'custom','<%=key%>','bwtest')" />
+	<input type="button" value="ping" onclick="do_test(this.form.custom.value,'custom','<%=key%>','ping')"  />
 	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_custom"></span>
 	</div>
 </form>
+
 
 <%+footer%>
 

@@ -843,8 +843,8 @@ qmp_configure_system() {
 
 
 qmp_check_force_internet() {
-	[ "$(uci get qmp.interfaces.force_internet)" == "1" ] && qmp_gw_offer_default
-	[ "$(uci get qmp.interfaces.force_internet)" == "0" ] && qmp_gw_search_default
+	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
+	[ "$(uci get qmp.networks.force_internet)" == "0" ] && qmp_gw_search_default
 }
 
 qmp_configure() {

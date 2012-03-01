@@ -59,33 +59,26 @@ for i,d in ipairs(luci.sys.net.devices()) do
 end
 
 -- Option: lan_devices
-lan = eth_section:option(MultiValue, "lan_devices", "LAN devices")
+lan = eth_section:option(MultiValue, "lan_devices", "LAN devices","These devices will be used for user end connection")
 for i,l in ipairs(eth_int) do
 	lan:value(l,l)
 end
 
 -- Option wan_device
-wan = eth_section:option(ListValue, "wan_device", "WAN device")
+wan = eth_section:option(ListValue, "wan_device", "WAN device","This device will be used for internet or any other gateway connection")
 for i,w in ipairs(eth_int) do
 	wan:value(w,w)
 end
 wan:value(" "," ")
 
 -- Option mesh_devices
-mesh = eth_section:option(MultiValue, "mesh_devices", "MESH devices")
+mesh = eth_section:option(MultiValue, "mesh_devices", "MESH devices","These devices will be used for Mesh network")
 for i,l in ipairs(eth_int) do
         mesh:value(l,l)
 end
 
--- Option force_internet
-fint = eth_section:option(ListValue, "force_internet", "Force internet")
-fint:value("","disabled")
-fint:value("1","yes")
-fint:value("0","no")
-
-
 function m.on_commit(self,map)
-        luci.sys.call('/etc/qmp/qmp_control.sh apply_network > /tmp/qmp_control_network.log')
+        luci.sys.call('/etc/qmp/qmp_control.sh apply_network > /tmp/qmp_control_network.log &')
 end
 
 

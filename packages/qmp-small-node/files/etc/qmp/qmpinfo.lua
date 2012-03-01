@@ -27,20 +27,24 @@ sys = require "luci.sys"
 qmpinfo = {}
 
 function qmpinfo.get_modes(dev)
+	local modes = {}
 	local iw = iwinfo[iwinfo.type(dev)]
-	local ma = "" -- modes avaiable
-	return iw.hwmodelist(dev)
+	if iw ~= nil then modes = iw.hwmodelist(dev) end
+	return modes
 	
 end
 
 
 function qmpinfo.get_txpower(dev)
 	local iw = iwinfo[iwinfo.type(dev)]
-	local txp = iw.txpwrlist(dev)
 	local txpower_supported = {}
-	for _,v in ipairs(txp) do
-		table.insert(txpower_supported,v.dbm)
+	if iw ~= nil then
+		local txp = iw.txpwrlist(dev)
+		for _,v in ipairs(txp) do
+			table.insert(txpower_supported,v.dbm)
+		end
 	end
+	
 	return txpower_supported
 	
 end
@@ -74,23 +78,25 @@ function qmpinfo.get_channels(dev)
 		ch.channel = c
 		ch.ht40p = false
 		ch.ht40m = false
-		ch.adhoc = false
+
+		if not f.restricted then
+			ch.adhoc = true
+		else
+			ch.adhoc = false
+		end
 
 		-- 2.4Ghz band
 		if c < 15 then
 			if c < 4 then 
 				ch.ht40p = true
-				ch.adhoc = true 
 			
 			elseif c < 10 then 
 				ch.ht40m = true  
 				ch.ht40p = true
-				ch.adhoc = true
 			else 
 				ch.ht40m = true
-				ch.adhoc = true
 			end
-		  
+
 		-- 5Ghz band
 		elseif c > 14 then
 			if #freqs == i then nc = nil
@@ -109,10 +115,6 @@ function qmpinfo.get_channels(dev)
 				ch.ht40m = true
 			end
 
-			adhoc = os.execute("iw list | grep \"no IBSS\" | grep -v disabled | grep -q " .. f.mhz .. " 2>/dev/null")
-			if adhoc ~= 0 then
-				ch.adhoc = true
-			end
 		end
 
 		-- If the device does not support ht40, both vars (+/-) are false
@@ -171,6 +173,15 @@ function qmpinfo.nodes()
 		end
 	end
 	return result
+end
+
+function qmpinfo.get_key()
+	local keyf = util.exec("uci get qmp.node.key")
+	if #keyf < 2 then
+		keyf = "/tmp/qmp_key"
+	end
+	local key = util.split(util.exec("cat "..keyf))[1]
+	return key
 end
 
 return qmpinfo

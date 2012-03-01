@@ -39,7 +39,7 @@ qmp_enable_netserver() {
 
 qmp_disable_netserver() {
 	qmp_uci_set networks.netserver 0
-	killall -9 netserver
+	killall -9 netserver || true
 }
 
 

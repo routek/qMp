@@ -34,11 +34,12 @@ function print_help()
 	print("		hostname : print device hostname")
 	print("		bwtest <ipv6> : perform a bandwidth test")
 	print("		nodes : list all nodes on MESH network")
+	print("		key : print qmp key")
 	print("")
 end
 
 function print_modes()
-	local data = qmp.get_modes(dev)
+	local data = qmp.get_modes(op1)
 	local output = ""
 	if data.b  then output = output .. "b " end
 	if data.g  then output = output .. "g " end
@@ -100,6 +101,10 @@ function nodes()
 	end
 end
 
+function key()
+	print(qmpinfo.get_key())
+end
+
 if #arg < 1 then
 	print_help()
 	os.exit(1)
@@ -122,6 +127,8 @@ elseif question == "bwtest" then
         bw_test() 
 elseif question == "nodes" then
         nodes()   
+elseif question == "key" then
+	key()
 else
 	print_help()
 end
