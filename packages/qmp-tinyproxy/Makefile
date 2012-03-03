@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tinyproxy
 PKG_VERSION:=1.8.3
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.banu.com/pub/tinyproxy/1.8/
@@ -24,6 +24,7 @@ define Package/qmp-tinyproxy
   CATEGORY:=Base system
   TITLE:=Tinyproxy is a lightweight HTTP and HTTPS proxy with support splash
   URL:=http://tinyproxy.sourceforge.net/
+  DEPENDS:=+tinymce
 endef
 
 define Package/qmp-tinyproxy/conffiles
@@ -52,7 +53,6 @@ define Package/qmp-tinyproxy/install
 	$(INSTALL_BIN) ./files/tpse $(1)/www/cgi-bin/tpse
 	$(INSTALL_DIR) $(1)/www/tiny_mce
 	$(INSTALL_DATA) ./files/continue_link.png $(1)/www/tiny_mce/continue_link.png
-	$(CP) ./files/tiny_mce/* $(1)/www/tiny_mce/
 endef
 
 $(eval $(call BuildPackage,qmp-tinyproxy))
