@@ -10,6 +10,7 @@ svn co -r 27617 svn://svn.openwrt.org/openwrt/packages packages
 
 cd backfire
 rm -rf feeds/
+[ ! -d ../../dl ] && mkdir ../../dl # Create download directory if it don't exists.
 ln -s ../../dl # wherever you already have some openwrt downloads...
 ln -s ../qmp/files
 cp ../qmp/feeds.conf . # to not conflict with example qmp/feeds.conf version which is managed by git

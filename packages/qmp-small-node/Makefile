@@ -59,6 +59,8 @@ define Package/qmp-small-node
 	+kmod-madwifi \
 	+kmod-ath9k \
 	+kmod-ath5k \
+	+gwck-qmp \
+	+b6m-spread
 
 endef
 
