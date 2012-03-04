@@ -608,7 +608,7 @@ index 2de43a8..37c8a82 100644
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1459,26 @@ void handle_connection (int fd)
+@@ -1462,6 +1459,29 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
@@ -619,8 +619,11 @@ index 2de43a8..37c8a82 100644
 +        /* Que ja hagui passat el parseig de la url */
 +        if (check_acl (peer_ipaddr, peer_string, config.access_list) <= 0) {
 +                if (TRUE) {
-+                        showsplash (connptr, peer_ipaddr, request);
-+                        goto done;
++                        log_message (LOG_NOTICE, "request->host: %s request->method: %s", request->host, request->method);
++                        if (strcmp("GET", request->method) == 0) {
++                                showsplash (connptr, peer_ipaddr, request);
++                                goto done;
++                        }
 +                } else {
 +                        update_stats (STAT_DENIED);
 +                        indicate_http_error (connptr, 403, "Access denied",
@@ -635,7 +638,7 @@ index 2de43a8..37c8a82 100644
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1539,7 +1556,9 @@ fail:
+@@ -1539,7 +1559,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
