@@ -58,27 +58,17 @@ diff --git a/src/acl.c b/src/acl.c
 index 9ee6747..a097b2f 100644
 --- a/src/acl.c
 +++ b/src/acl.c
-@@ -29,6 +29,10 @@
+@@ -29,6 +29,9 @@
  #include "network.h"
  #include "sock.h"
  #include "vector.h"
 +#include "conf.h"
 +#include "splash.h"
 +#include "acllist.h"
-+
  
  #include <limits.h>
  
-@@ -113,7 +117,7 @@ fill_netmask_array (char *bitmask_string, int v6,
-  */
- static int init_access_list(vector_t *access_list)
- {
--        if (!*access_list) {
-+        if (!*access_list) {	
-                 *access_list = vector_create ();
-                 if (!*access_list) {
-                         log_message (LOG_ERR,
-@@ -335,9 +339,13 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+@@ -335,9 +338,13 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
          /*
           * If there is no access list allow everything.
           */
@@ -88,12 +78,11 @@ index 9ee6747..a097b2f 100644
 +	} else {
          if (!access_list)
                  return 1;
--
-+	
+ 
          for (i = 0; i != (size_t) vector_length (access_list); ++i) {
                  acl = (struct acl_s *) vector_getentry (access_list, i, NULL);
                  switch (acl->type) {
-@@ -368,6 +376,7 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+@@ -368,6 +375,7 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
          log_message (LOG_NOTICE, "Unauthorized connection from \"%s\" [%s].",
                       host, ip);
          return 0;
@@ -401,13 +390,13 @@ index f62a854..dfcd18b 100644
          char *user;
          char *group;
          char *ipAddr;
-+	
-+	char *splashhost;
-+	char *splashdir;
-+	char *splashcontinue;
-+	unsigned int splashtimeout;
-+	char *splashindex;
-+	char *splashnodesdir;
++
++        char *splashhost;
++        char *splashdir;
++        char *splashcontinue;
++        unsigned int splashtimeout;
++        char *splashindex;
++        char *splashnodesdir;
 +
  #ifdef FILTER_ENABLE
          char *filter;
@@ -432,7 +421,7 @@ index b63d026..947a90a 100644
          /* Booleans */
          unsigned int connect_method;
          unsigned int show_stats;
-+	unsigned int show_splash;
++        unsigned int show_splash;
  
          /*
           * This structure stores key -> value mappings for substitution
@@ -448,15 +437,14 @@ index a70fbf4..0e01187 100644
  
  /*
   * Add an error number -> filename mapping to the errorpages list.
-@@ -174,16 +175,42 @@ send_html_file (FILE *infile, struct conn_s *connptr)
+@@ -174,16 +175,41 @@ send_html_file (FILE *infile, struct conn_s *connptr)
  
          return r;
  }
 +/*
 + * Send an raw file.
 + */
-+int
-+send_raw_file (FILE *infile, struct conn_s *connptr)
++int send_raw_file (FILE *infile, struct conn_s *connptr)
 +{
 +        char *inbuf;
 +	int num;
@@ -493,7 +481,7 @@ index a70fbf4..0e01187 100644
  }
  
  /*
-@@ -315,3 +342,38 @@ indicate_http_error (struct conn_s *connptr, int number,
+@@ -315,3 +341,38 @@ indicate_http_error (struct conn_s *connptr, int number,
  
          return (add_standard_vars (connptr));
  }
@@ -536,7 +524,7 @@ diff --git a/src/html-error.h b/src/html-error.h
 index 03cec98..2c84bef 100644
 --- a/src/html-error.h
 +++ b/src/html-error.h
-@@ -31,8 +31,11 @@ extern int indicate_http_error (struct conn_s *connptr, int number,
+@@ -31,8 +31,12 @@ extern int indicate_http_error (struct conn_s *connptr, int number,
  extern int add_error_variable (struct conn_s *connptr, const char *key,
                                 const char *val);
  extern int send_html_file (FILE * infile, struct conn_s *connptr);
@@ -545,7 +533,7 @@ index 03cec98..2c84bef 100644
                                const char *message);
 +extern int send_http_headers_mimetype (struct conn_s *connptr, int code, const char *message, const char *mimetype, char *extension);
  extern int add_standard_vars (struct conn_s *connptr);
--
+ 
 +extern int send_redirect (struct conn_s *connptr, const char *location);
 +extern int send_http_file (FILE * infile, struct conn_s *connptr, char *filename);
  #endif /* !TINYPROXY_HTML_ERROR_H */
@@ -570,12 +558,12 @@ index 20d5aef..d3df494 100644
 -        conf->pidpath = safestrdup (LOCALSTATEDIR "/run/tinyproxy/tinyproxy.pid");
 +        conf->logf_name = safestrdup (LOCALSTATEDIR "/log/tinyproxy.log");
 +        conf->pidpath = safestrdup (LOCALSTATEDIR "/tinyproxy.pid");
-+	conf->splashhost = safestrdup (SPLASHHOST);
-+	conf->splashdir = safestrdup (SPLASHDIR);
-+	conf->splashcontinue = safestrdup (SPLASHCONTINUE);
-+	conf->splashtimeout = SPLASHTIMEOUT;
-+	conf->splashindex = safestrdup (SPLASHINDEX);
-+	conf->splashnodesdir = safestrdup (PATHNODES);
++        conf->splashhost = safestrdup (SPLASHHOST);
++        conf->splashdir = safestrdup (SPLASHDIR);
++        conf->splashcontinue = safestrdup (SPLASHCONTINUE);
++        conf->splashtimeout = SPLASHTIMEOUT;
++        conf->splashindex = safestrdup (SPLASHINDEX);
++        conf->splashnodesdir = safestrdup (PATHNODES);
 +
  }
  
@@ -597,10 +585,10 @@ index 2de43a8..37c8a82 100644
                  connptr->show_stats = TRUE;
                  goto fail;
          }
-+	if (strcmp(SPLASHHOST, request->host) == 0) {
-+		connptr->show_splash = TRUE;
-+                return request;	
-+	}
++        if (strcmp(SPLASHHOST, request->host) == 0) {
++                connptr->show_splash = TRUE;
++                return request;
++        }
  
          safefree (url);
  
@@ -624,38 +612,30 @@ index 2de43a8..37c8a82 100644
                  }
                  goto fail;
          }
-+	if (connptr->show_splash) {
-+		goto fail;
-+	}
++        if (connptr->show_splash) {
++                goto fail;
++        }
 +
-+	/* Que ja hagui passat el parseig de la url */
++        /* Que ja hagui passat el parseig de la url */
 +        if (check_acl (peer_ipaddr, peer_string, config.access_list) <= 0) {
-+		if (TRUE) {
-+			showsplash (connptr, peer_ipaddr, request);
-+	                goto done;
-+		} else {
-+		        update_stats (STAT_DENIED);
-+		        indicate_http_error (connptr, 403, "Access denied",
++                if (TRUE) {
++                        showsplash (connptr, peer_ipaddr, request);
++                        goto done;
++                } else {
++                        update_stats (STAT_DENIED);
++                        indicate_http_error (connptr, 403, "Access denied",
 +		                             "detail",
 +		                             "The administrator of this proxy has not configured "
 +		                             "it to service requests from your host.",
 +		                             NULL);
-+			goto fail;
-+		}
++                        goto fail;
++                }
 +        }
 +
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1525,6 +1542,7 @@ fail:
-          * it is still marked for reading and we won't be able
-          * to send our data properly.
-          */
-+
-         if (get_request_entity (connptr) < 0) {
-                 log_message (LOG_WARNING,
-                              "Could not retrieve request entity");
-@@ -1539,7 +1557,9 @@ fail:
+@@ -1539,7 +1556,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
