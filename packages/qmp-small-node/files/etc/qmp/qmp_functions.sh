@@ -586,7 +586,11 @@ qmp_configure_bmx6() {
 	    uci set $conf.mesh_$counter.dev="$ifname"
 
 	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
-	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_address)"
+	      local bmx6_ipv4_netmask="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -s -d / -f2)"
+	      local bmx6_ipv4_address="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -d / -f1)"
+	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
+	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+
 	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
 	      local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
 	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24/32"
