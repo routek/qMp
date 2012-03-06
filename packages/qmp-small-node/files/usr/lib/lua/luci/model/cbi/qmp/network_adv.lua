@@ -38,22 +38,34 @@ eth_section:option(Value, "lan_address", "LAN address","IPv4 address for LAN int
 -- Option: lan addresses                                          
 eth_section:option(Value, "lan_netmask", "LAN netmask","IPv4 netmask for LAN interfaces")
 
+-- Option bmx6_ipv4_address
+eth_section:option(Value, "bmx6_ipv4_address", "IPv4 address for BMX6","IPv4 address used for BMX6 (main address)")
+
+-- Option olsr6_ipv4_address
+eth_section:option(Value, "olsr6_ipv4_address", "IPv4 address for OLSR","IPv4 address used for BMX6 (main address)")
+
+-- Option: olsr6_ipv4_prefix24
+eth_section:option(Value, "olsr6_ipv4_prefix24", "IPv4 prefix for OLSR","IPv4 prefix used for OLSR network (used if olsr6_ipv4_address not defined)")
+
+-- Option: bmx6_ipv4_prefix24
+eth_section:option(Value, "bmx6_ipv4_prefix24", "IPv4 prefix for BMX6","IPv4 prefix used for BMX6 network (used if bmx6_ipv4_address not defined)")
+
 -- Option: olsr6_ripe_prefix48
 eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 prefix used for OLSR network")
 
 -- Option: bmx6_ripe_prefix48                 
 eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
 
--- Option: olsr6_ipv4_prefix24
-eth_section:option(Value, "olsr6_ipv4_prefix24", "IPv4 prefix for OLSR","IPv4 prefix used for OLSR network")  
+-- Option: olsr6_ripe_prefix48
+eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 prefix used for OLSR network")
 
--- Option: bmx6_ipv4_prefix24                                                   
-eth_section:option(Value, "bmx6_ipv4_prefix24", "IPv4 prefix for BMX6","IPv4 prefix used for BMX6 network") 
+-- Option: bmx6_ripe_prefix48
+eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
 
 -- Option: netserver
 nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test","If enabled the rest of nodes will be able to do bandwidth tests with your node")
-nts:value("1","yes")
-nts:value("0","no")
+nts:value("1","no")
+nts:value("0","yes")
 
 -- Option force_internet
 fint = eth_section:option(ListValue, "force_internet", "Force internet","Just use it if you want force the system to share/unshare internet")
@@ -61,6 +73,28 @@ fint:value("","disabled")
 fint:value("1","yes")
 fint:value("0","no")
 
+----------------------------
+-- Non overlapping
+---------------------------
+
+overlapping_section = m:section(NamedSection, "non_overlapping", "qmp", "DHCP overlapping configuration", "DHCP overlapping configuration")
+overlapping_section.addremove = False
+
+ignore = overlapping_section:option(ListValue, "ignore", "Overlapping dhcp","If enabled each node will give a different DHCP range")
+ignore:value("1","no")
+ignore:value("0","yes")
+
+-- Option: dhcp_offset
+overlapping_section:option(Value, "dhcp_offset", "DHCP offset","DHCP offset to calculate the first IP to give")
+
+-- Option: Leassetime
+overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime","Leassetime for DHCP")
+
+
+
+--------------------------
+-- Commit
+-------------------------
 
 function m.on_commit(self,map)
         luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
