@@ -50,17 +50,12 @@ eth_section:option(Value, "olsr6_ipv4_prefix24", "IPv4 prefix for OLSR","IPv4 pr
 -- Option: bmx6_ipv4_prefix24
 eth_section:option(Value, "bmx6_ipv4_prefix24", "IPv4 prefix for BMX6","IPv4 prefix used for BMX6 network (used if bmx6_ipv4_address not defined)")
 
--- Option: olsr6_ripe_prefix48
-eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 prefix used for OLSR network")
-
 -- Option: bmx6_ripe_prefix48                 
 eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
 
 -- Option: olsr6_ripe_prefix48
 eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 prefix used for OLSR network")
 
--- Option: bmx6_ripe_prefix48
-eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
 
 -- Option: netserver
 nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test","If enabled the rest of nodes will be able to do bandwidth tests with your node")
@@ -89,7 +84,6 @@ overlapping_section:option(Value, "dhcp_offset", "DHCP offset","DHCP offset to c
 
 -- Option: Leassetime
 overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime","Leassetime for DHCP")
-
 
 
 --------------------------
