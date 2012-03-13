@@ -38,6 +38,9 @@ eth_section:option(Value, "lan_address", "LAN address","IPv4 address for LAN int
 -- Option: lan addresses                                          
 eth_section:option(Value, "lan_netmask", "LAN netmask","IPv4 netmask for LAN interfaces")
 
+-- Option: publish lan 
+eth_section:option(Flag, "publish_lan", "Publish LAN", "Publish LAN network through the mesh")
+
 -- Option bmx6_ipv4_address
 eth_section:option(Value, "bmx6_ipv4_address", "IPv4 address for BMX6","IPv4 address used for BMX6 (main address)")
 

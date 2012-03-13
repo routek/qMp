@@ -53,6 +53,7 @@ configure_network() {
 	/etc/init.d/bmx6 restart
 	/etc/init.d/dnsmasq restart
 	/etc/init.d/firewall restart
+	qmp_publish_lan
 	apply_netserver
 }
 
@@ -66,6 +67,16 @@ enable_ns_ppt() {
 	echo 1 > /sys/class/gpio/gpio8/value
 }
 
+publish_hna() {
+	[ -z "$1" ] && help
+	qmp_publish_hna_bmx6 $1 $2
+}
+
+unpublish_hna() {
+	[ -z "$1" ] && help
+	qmp_unpublish_hna_bmx6 $1
+}
+
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
@@ -75,13 +86,16 @@ help() {
 	echo "  configure_wifi    : Configure and apply current wifi settings"
 	echo "  configure_network : Configure and apply current network settings"
 	echo "  configure_system  : Configure and apply current system settings (qmp.node section and so on)"
+	echo "  publish_hna       : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
+	echo "  unpublish_hna     : Unpublish a current HNA: unpublish_hna <ID>"
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
 	echo ""
+	exit 1
 }
 
 
-[ -z "$1" ] && { help; exit 0; }
+[ -z "$1" ] && help
 
 echo "executing function $1"
 $@

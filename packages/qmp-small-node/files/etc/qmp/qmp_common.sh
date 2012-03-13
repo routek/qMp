@@ -222,3 +222,13 @@ qmp_get_dec_node_id() {
   echo $(printf %d 0x$COMMUNITY_NODE_ID)
 }
 
+# Returns the prefix /XX from netmask
+qmp_get_prefix_from_netmask() {
+ echo "$(ipcalc.sh 1.1.1.1 $1| grep PREFIX | cut -d= -f2)"
+}
+
+# Returns the netid from IP NETMASK
+qmp_get_netid_from_network() {
+ echo "$(ipcalc.sh $1 $2 | grep NETWORK | cut -d= -f2)"
+}
+
