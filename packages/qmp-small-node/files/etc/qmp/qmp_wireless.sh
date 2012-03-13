@@ -241,16 +241,45 @@ qmp_wifi_get_default() {
 	device="$2"
 
 	# MODE
-	# default mode for the second card (index=1) is AP
-	# the rest are ad-hoc
+	# default mode depens on several things:
+	#  if only 1 device = adhoc
+	#  if only 1 bg device = ap
+	#  else depending on index
+
 	if [ "$what" == "mode" ]; then
+
+		devices=0
+		bg_devices=0
+		for wd in $(qmp_get_wifi_devices); do
+			devices=$(( $devices + 1 ))
+			bg_devices=$(( $bg_devices + $($QMPINFO modes $wd | egrep "b|g" -c) ))
+		done
+
 		index=$(echo $device | tr -d [A-z])
+
+		#If only one device, using adhoc
+		if [ $devices -eq 1 ]; then
+			echo "adhoc"
+		else
+
+		#If only one B/G device (2.4GHz) available, using it as AP
+		bg_this_device=$($QMPINFO modes $device | egrep "b|g" -c)
+		if [ $bg_this_device -eq 1 -a $bg_devices -eq 1 ]; then
+			echo "ap"
+		else
+	
+		#If only one B/G device and only two devices, using the non B/G one as adhoc
+		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
+			echo "adhoc"
+		else
+
+		#Else depending on index
 		if [ $index -eq 1 ]; then 
 			echo "ap"
 		else
 			echo "adhoc"
-		fi
-	
+		fi;fi;fi;fi
+
 	# CHANNEL
 	# Default channel depends on the card and on configured mode
 	#  Highest channel -> adhoc or not-configured
@@ -264,9 +293,12 @@ qmp_wifi_get_default() {
 		index=$(echo $device | tr -d [A-z])
 
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
-		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $QMPINFO channels $device | grep adhoc | awk NR==${index}+1)"
-		[ "$mode" == "ap" ] && channel_info="$($QMPINFO channels $device | awk NR==$(qmp_get_dec_node_id)%10+${index}*2+1)" 
-		
+		channels_cmd="$QMPINFO channels $device"
+		num_channels=$($channels_cmd | wc -l)
+
+		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${index})"
+		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\($(qmp_get_dec_node_id)+$index*3\)%$num_channels)" 
+			
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
 			qmp_log "Warning, not usable channels found in device $device "
@@ -292,7 +324,7 @@ qmp_wifi_get_default() {
 }
 
 qmp_configure_wifi_initial() {
-	
+
 	#First we are going to configure default parameters if they are not present                                                           
 	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp                                                                            
 	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)                                   
