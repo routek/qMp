@@ -56,9 +56,6 @@ define Package/qmp-small-node
 	+kmod-ipip \
 	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \
-	+kmod-madwifi \
-	+kmod-ath9k \
-	+kmod-ath5k \
 	+gwck-qmp \
 	+b6m-spread
 
