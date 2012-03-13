@@ -428,29 +428,30 @@ qmp_configure_network() {
 
 	LAN_MASK="$(uci get qmp.networks.lan_netmask)"
 	LAN_ADDR="$(uci get qmp.networks.lan_address)"
+	START=2
+	LIMIT=253
 
     if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
 	LAN_MASK="255.255.0.0"
 	# Last byte of lan adress must be "1" to avoid overlappings
 	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/&.1:/1' | awk -F ":" '{print $1}')
 
-	OFFSET=2
+	OFFSET=0
 	NUM_GRP=256
 
 	UCI_OFFSET="$(uci get qmp.non_overlapping.dhcp_offset)"
 
-	if [ $UCI_OFFSET -gt 1 ]; then
-		OFFSET=$UCI_OFFSET
-	fi
+	[ $UCI_OFFSET -lt $NUM_GRP ] && OFFSET=$UCI_OFFSET
 
 	START=$(( $(printf %d 0x$community_node_id) * $NUM_GRP + $OFFSET ))
-	LIMIT=$(( $NUM_GRP - $OFFSET - 2))
+	LIMIT=$(( $NUM_GRP - $OFFSET ))
 
-	uci set dhcp.lan.start=$START
-	uci set dhcp.lan.limit=$LIMIT
 	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
-	uci commit dhcp
     fi
+
+    uci set dhcp.lan.start=$START
+    uci set dhcp.lan.limit=$LIMIT
+    uci commit dhcp
 
     uci set $conf.lan="interface"
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
