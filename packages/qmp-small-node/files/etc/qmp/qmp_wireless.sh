@@ -301,11 +301,11 @@ qmp_wifi_get_default() {
 		num_channels_ap=$num_channels
 		[ $num_channels_ap -gt 10 ] && num_channels_ap=10
 
-		# channel AdHoc is the last available (qmp_tac = inverse order) plus index*2 mod num_channels  
-		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==\(${index}+${index}*2\)%$num_channels)"
-
-		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) 
-		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap)" 
+		# channel AdHoc is the last available (qmp_tac = inverse order) plus index*2+1 (1 3 5 ...)
+		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${index}+${index}*2+1)"
+		
+		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
+		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\(\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap\)+1)" 
 			
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
