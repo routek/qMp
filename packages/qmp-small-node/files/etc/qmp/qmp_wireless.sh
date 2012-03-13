@@ -293,11 +293,19 @@ qmp_wifi_get_default() {
 		index=$(echo $device | tr -d [A-z])
 
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
+		# this is the command line used to get available channels from a device
 		channels_cmd="$QMPINFO channels $device"
 		num_channels=$($channels_cmd | wc -l)
 
-		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${index})"
-		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\($(qmp_get_dec_node_id)+$index*3\)%$num_channels)" 
+		# number of channels for AP is 10 or the number of channels available if less
+		num_channels_ap=$num_channels
+		[ $num_channels_ap -gt 10 ] && num_channels_ap=10
+
+		# channel AdHoc is the last available (qmp_tac = inverse order) plus index*2 mod num_channels  
+		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==\(${index}+${index}*2\)%$num_channels)"
+
+		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) 
+		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap)" 
 			
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
