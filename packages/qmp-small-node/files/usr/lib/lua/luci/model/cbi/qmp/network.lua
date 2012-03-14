@@ -65,11 +65,10 @@ for i,l in ipairs(eth_int) do
 end
 
 -- Option wan_device
-wan = eth_section:option(ListValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection")
+wan = eth_section:option(MultiValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection")
 for i,w in ipairs(eth_int) do
 	wan:value(w,w)
 end
-wan:value(" "," ")
 
 -- Option mesh_devices
 mesh = eth_section:option(MultiValue, "mesh_devices", "MESH devices","These devices will be used for Mesh network")
