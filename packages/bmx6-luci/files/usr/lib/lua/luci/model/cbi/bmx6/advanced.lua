@@ -41,7 +41,7 @@ local help = ""
 local value = nil
 
 for _,o in ipairs(options) do 
-	if o.name ~= nil and o.CHILD_OPTIONS == nil then
+	if o.name ~= nil and o.CHILD_OPTIONS == nil o.configurable == 1 then
 		help = ""
 		name = o.name
 
