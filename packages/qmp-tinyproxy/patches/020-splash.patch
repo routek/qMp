@@ -552,7 +552,7 @@
                  connptr->show_stats = TRUE;
                  goto fail;
          }
-+        if (strcmp(SPLASHHOST, request->host) == 0) {
++        if (strcmp(config.splashhost, request->host) == 0) {
 +                connptr->show_splash = TRUE;
 +                return request;
 +        }
