@@ -559,7 +559,124 @@
  
          safefree (url);
  
-@@ -1395,15 +1401,6 @@ void handle_connection (int fd)
+@@ -1357,6 +1363,116 @@ get_request_entity(struct conn_s *connpt
+         return ret;
+ }
+ 
++/*
++ * Check if mime-type of the response of a request is text/html.
++ */
++
++static int is_html (struct conn_s *connptr, struct request_s *request)
++{
++        char *response_line;
++
++        hashmap_t hashofheaders;
++        char *data;
++        ssize_t len;
++        char *method;
++
++        connptr->server_fd = opensock (request->host, request->port,
++                                       connptr->server_ip_addr);
++        if (connptr->server_fd < 0) {
++                indicate_http_error (connptr, 500, "Unable to connect",
++                                     "detail",
++                                     PACKAGE_NAME " "
++                                     "was unable to connect to the remote web server.",
++                                     "error", strerror (errno), NULL);
++                return -1;
++        }
++
++        log_message (LOG_CONN,
++                     "Established connection to host \"%s\" using "
++                     "file descriptor %d to get mime-type from content-type header.",
++                     request->host, connptr->server_fd);
++
++        method = (char *) safemalloc(strlen(request->method)+1);
++        strcpy(method,request->method);
++        safefree(request->method);
++        request->method = (char *) safemalloc(5);
++        strcpy(request->method,"HEAD");
++
++        log_message (LOG_NOTICE, "request->host: %s request->method: %s", request->host, request->method);
++
++        if (!connptr->connect_method) {
++                establish_http_connection (connptr, request);
++                write_message (connptr->server_fd, "\r\n");
++        }
++
++        safefree (request->method);
++        request->method = (char *) safemalloc(strlen(method)+1);
++        strcpy(request->method,method);
++        safefree (method);
++
++        /* Get the response line from the remote server. */
++retry:
++        len = readline (connptr->server_fd, &response_line);
++        log_message (LOG_NOTICE, "len: %d line: %s", len, response_line);
++        if (len <= 0)
++                return -1;
++        /*
++         * Strip the new line and character return from the string.
++         */
++        if (chomp (response_line, len) == len) {
++                /*
++                 * If the number of characters removed is the same as the
++                 * length then it was a blank line. Free the buffer and
++                 * try again (since we're looking for a request line.)
++                 */
++                safefree (response_line);
++                goto retry;
++        }
++
++        hashofheaders = hashmap_create (HEADER_BUCKETS);
++        if (!hashofheaders) {
++                safefree (response_line);
++                return -1;
++        }
++
++        /*
++         * Get all the headers from the remote server in a big hash
++         */
++        if (get_all_headers (connptr->server_fd, hashofheaders) < 0) {
++                log_message (LOG_WARNING,
++                             "Could not retrieve all the headers from the remote server.");
++                hashmap_delete (hashofheaders);
++                safefree (response_line);
++
++                indicate_http_error (connptr, 503,
++                                     "Could not retrieve all the headers",
++                                     "detail",
++                                     PACKAGE_NAME " "
++                                     "was unable to retrieve and process headers from "
++                                     "the remote web server.", NULL);
++                return -1;
++        }
++
++        safefree (response_line);
++
++        len =
++            hashmap_entry_by_key (hashofheaders, "content-type",
++                                  (void **) &data);
++
++        if(len <= 0) {
++                hashmap_delete (hashofheaders);
++                return -1;
++        }
++
++        log_message (LOG_NOTICE, "content-type: %s", data);
++        if (strncmp(data,"text/html",strlen("text/html")) == 0) {
++                hashmap_delete (hashofheaders);
++                return 1;
++        }
++
++        hashmap_delete (hashofheaders);
++        return 0;
++}
+ 
+ /*
+  * This is the main drive for each connection. As you can tell, for the
+@@ -1395,15 +1511,6 @@ void handle_connection (int fd)
                  return;
          }
  
@@ -575,7 +692,7 @@
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1459,29 @@ void handle_connection (int fd)
+@@ -1462,6 +1569,30 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
@@ -588,8 +705,10 @@
 +                if (TRUE) {
 +                        log_message (LOG_NOTICE, "request->host: %s request->method: %s", request->host, request->method);
 +                        if (strcmp("GET", request->method) == 0) {
-+                                showsplash (connptr, peer_ipaddr, request);
-+                                goto done;
++                                if (is_html(connptr, request) > 0) {
++                                        showsplash (connptr, peer_ipaddr, request);
++                                        goto done;
++                                }
 +                        }
 +                } else {
 +                        update_stats (STAT_DENIED);
@@ -601,11 +720,10 @@
 +                        goto fail;
 +                }
 +        }
-+
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1539,7 +1559,9 @@ fail:
+@@ -1539,7 +1670,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
