@@ -1,5 +1,3 @@
-diff --git a/Makefile.am b/Makefile.am
-index 313ed15..51209ca 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -2,9 +2,7 @@ SUBDIRS = \
@@ -13,8 +11,6 @@ index 313ed15..51209ca 100644
  
  # tools want this on a single line
  ACLOCAL_AMFLAGS = -I m4macros
-diff --git a/Makefile.in b/Makefile.in
-index 860e30a..0bb33e8 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -222,9 +222,7 @@ SUBDIRS = \
@@ -28,8 +24,6 @@ index 860e30a..0bb33e8 100644
  
  
  # tools want this on a single line
-diff --git a/configure b/configure
-index 88c06a5..1e49500 100755
 --- a/configure
 +++ b/configure
 @@ -6815,59 +6815,8 @@ fi
