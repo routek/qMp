@@ -1,3 +1,5 @@
+Author: Agustí Moll Garcia, Simó Albert i Beltran
+Description: Add a splash system (a captive portal without authentication).
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -44,7 +44,9 @@ tinyproxy_SOURCES = \
