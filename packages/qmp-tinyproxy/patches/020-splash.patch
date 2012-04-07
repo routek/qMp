@@ -539,7 +539,17 @@
  /**
 --- a/src/reqs.c
 +++ b/src/reqs.c
-@@ -48,6 +48,8 @@
+@@ -17,6 +17,9 @@
+  * You should have received a copy of the GNU General Public License along
+  * with this program; if not, write to the Free Software Foundation, Inc.,
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * Contributors:
++ *  Simó Albert i Beltran
+  */
+ 
+ /* This is where all the work in tinyproxy is actually done. Incoming
+@@ -48,6 +51,8 @@
  #include "upstream.h"
  #include "connect-ports.h"
  #include "conf.h"
@@ -548,7 +558,7 @@
  
  /*
   * Maximum length of a HTTP line
-@@ -497,6 +499,10 @@ BAD_REQUEST_ERROR:
+@@ -497,6 +502,10 @@ BAD_REQUEST_ERROR:
                  connptr->show_stats = TRUE;
                  goto fail;
          }
@@ -559,7 +569,7 @@
  
          safefree (url);
  
-@@ -1357,6 +1363,116 @@ get_request_entity(struct conn_s *connpt
+@@ -1357,6 +1366,116 @@ get_request_entity(struct conn_s *connpt
          return ret;
  }
  
@@ -676,7 +686,7 @@
  
  /*
   * This is the main drive for each connection. As you can tell, for the
-@@ -1395,15 +1511,6 @@ void handle_connection (int fd)
+@@ -1395,15 +1514,6 @@ void handle_connection (int fd)
                  return;
          }
  
@@ -692,7 +702,7 @@
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1569,30 @@ void handle_connection (int fd)
+@@ -1462,6 +1572,30 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
@@ -723,7 +733,7 @@
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1539,7 +1670,9 @@ fail:
+@@ -1539,7 +1673,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
