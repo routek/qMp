@@ -571,7 +571,7 @@ Description: Add a splash system (a captive portal without authentication).
  
          safefree (url);
  
-@@ -1357,6 +1366,116 @@ get_request_entity(struct conn_s *connpt
+@@ -1357,6 +1366,120 @@ get_request_entity(struct conn_s *connpt
          return ret;
  }
  
@@ -665,6 +665,10 @@ Description: Add a splash system (a captive portal without authentication).
 +                return -1;
 +        }
 +
++	if(strstr(response_line," 200 OK") == NULL) {
++		return -1;
++	}
++
 +        safefree (response_line);
 +
 +        len =
@@ -688,7 +692,7 @@ Description: Add a splash system (a captive portal without authentication).
  
  /*
   * This is the main drive for each connection. As you can tell, for the
-@@ -1395,15 +1514,6 @@ void handle_connection (int fd)
+@@ -1395,15 +1518,6 @@ void handle_connection (int fd)
                  return;
          }
  
@@ -704,7 +708,7 @@ Description: Add a splash system (a captive portal without authentication).
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1572,30 @@ void handle_connection (int fd)
+@@ -1462,6 +1576,30 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
@@ -735,7 +739,7 @@ Description: Add a splash system (a captive portal without authentication).
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1539,7 +1673,9 @@ fail:
+@@ -1539,7 +1677,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
