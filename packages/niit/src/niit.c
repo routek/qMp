@@ -385,7 +385,7 @@ static int __init niit_init(void) {
 	tunnel4_dev->mtu = 1400;
 	tunnel6_dev->mtu = 1500;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
+#if !defined(HAVE_NET_DEVICE_OPS) && LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31)
 	niit_regxmit(tunnel4_dev);
 	niit_regxmit(tunnel6_dev);
 #endif
