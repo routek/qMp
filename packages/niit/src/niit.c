@@ -5,6 +5,9 @@
  *	  Author: lynxis
  *  TODO: device Hoplimit is max device ttl ?!
  *  TODO: ipv4 route check
+ *
+ *  Contributors:
+ *   Simó Albert i Beltran
  */
 
 #include <linux/etherdevice.h>
