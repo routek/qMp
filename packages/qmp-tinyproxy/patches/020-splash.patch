@@ -127,8 +127,8 @@ Description: Add a splash system (a captive portal without authentication).
 +#include "vector.h"
 +#include "acllist.h"
 +
-+/* Check and actualize 
-+ * 
++/* Check and actualize
++ *
 + * Returns:
 + *     1 if allowed
 + *     0 if denied
@@ -141,7 +141,7 @@ Description: Add a splash system (a captive portal without authentication).
 +	iplocal = (char *) malloc (strlen(ip)+1);
 +	strcpy(iplocal, ip);
 +	result = time(NULL);
-+	if (!(lstat(path_cat(config.splashnodesdir, iplocal), &metaFile))) {		
++	if (!(lstat(path_cat(config.splashnodesdir, iplocal), &metaFile))) {	
 +		if ((metaFile.st_mtime + timeout) > result) {
 +			free(iplocal);
 +			return(1);
@@ -149,7 +149,7 @@ Description: Add a splash system (a captive portal without authentication).
 +			remove_node(iplocal);
 +		}
 +	}
-+	free(iplocal);	
++	free(iplocal);
 +        return 0;
 +}
 +
@@ -162,7 +162,7 @@ Description: Add a splash system (a captive portal without authentication).
 +int insert_node(char *ip) {
 +	FILE *f;
 +
-+	log_message (LOG_NOTICE, "acllist->insert_node, from: %s", ip);	
++	log_message (LOG_NOTICE, "acllist->insert_node, from: %s", ip);
 +	if ((f = fopen(path_cat(config.splashnodesdir, ip),"w")) == NULL) {
 +		log_message (LOG_ERR, "Doesn't exist whitelist directory: %s ", config.splashnodesdir);
 +	} else {
@@ -172,7 +172,7 @@ Description: Add a splash system (a captive portal without authentication).
 +}
 +
 +int remove_node(char *ip) {
-+	log_message (LOG_NOTICE, "acllist->remove_node, from: %s", ip);	
++	log_message (LOG_NOTICE, "acllist->remove_node, from: %s", ip);
 +	return remove (path_cat(config.splashnodesdir, ip));
 +}
 +
@@ -191,7 +191,7 @@ Description: Add a splash system (a captive portal without authentication).
 +	}
 +	result[str1_len+str2_len]='\0';
 +	return result;
-+}	
++}
 +
 --- /dev/null
 +++ b/src/acllist.h
@@ -475,7 +475,7 @@ Description: Add a splash system (a captive portal without authentication).
 +	char extension[256] = "";
 +	char *pointer;
 +
-+	
++
 +	pointer = strrchr(filename, '.');
 +
 +	if ((pointer != NULL) && (strlen(pointer) < 256)) {
@@ -490,9 +490,9 @@ Description: Add a splash system (a captive portal without authentication).
 +		send_http_headers_mimetype (connptr, 200, "Statistic requested", "text", extension);
 +		send_html_file (infile, connptr);
 +	}
-+	
 +
-+	
++
++
 +	return 0;
 +}
 --- a/src/html-error.h
@@ -571,7 +571,7 @@ Description: Add a splash system (a captive portal without authentication).
  
          safefree (url);
  
-@@ -1357,6 +1366,116 @@ get_request_entity(struct conn_s *connpt
+@@ -1357,6 +1366,120 @@ get_request_entity(struct conn_s *connpt
          return ret;
  }
  
@@ -665,6 +665,10 @@ Description: Add a splash system (a captive portal without authentication).
 +                return -1;
 +        }
 +
++	if(strstr(response_line," 200 OK") == NULL) {
++		return -1;
++	}
++
 +        safefree (response_line);
 +
 +        len =
@@ -688,7 +692,7 @@ Description: Add a splash system (a captive portal without authentication).
  
  /*
   * This is the main drive for each connection. As you can tell, for the
-@@ -1395,15 +1514,6 @@ void handle_connection (int fd)
+@@ -1395,15 +1518,6 @@ void handle_connection (int fd)
                  return;
          }
  
@@ -704,7 +708,7 @@ Description: Add a splash system (a captive portal without authentication).
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1572,30 @@ void handle_connection (int fd)
+@@ -1462,6 +1576,30 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
@@ -735,14 +739,14 @@ Description: Add a splash system (a captive portal without authentication).
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1539,7 +1673,9 @@ fail:
+@@ -1539,7 +1677,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
 -        }
 +        } else 	if (connptr->show_splash) {
 +                showsplash (connptr, peer_ipaddr, request);
-+        }  
++        } 
  
  done:
          free_request_struct (request);
@@ -750,7 +754,7 @@ Description: Add a splash system (a captive portal without authentication).
 +++ b/src/splash.c
 @@ -0,0 +1,139 @@
 +/* tinyproxy - A fast light-weight HTTP proxy
-+ * Copyright (C) 		
++ * Copyright (C) 	
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -807,7 +811,7 @@ Description: Add a splash system (a captive portal without authentication).
 +		strcpy(requestpath, "/");
 +	}
 +	log_message (LOG_NOTICE, "request->host: %s request->path: %s",request->host, requestpath);
-+	
++
 +	if ((strcmp(config.splashhost, request->host) == 0) && (strcmp(requestpath, "/") != 0)) {
 +		if (strncmp(requestpath, config.splashcontinue, strlen(config.splashcontinue)) == 0) {
 +			/* Movem la nova url */
@@ -825,7 +829,7 @@ Description: Add a splash system (a captive portal without authentication).
 +			/* COMPTE!!! Aquí s'hauria de controlar no poder posar ../ ni res per l'estil */
 +			return get_file(connptr, requestpath) ;
 +		}
-+	
++
 +	}
 +
 +	defaultfilename = (char *) safemalloc(strlen(config.splashindex)+1);
@@ -870,11 +874,11 @@ Description: Add a splash system (a captive portal without authentication).
 +		        safefree (message_buffer);
 +		        return -1;
 +		}
-+	}	
++	}
 +        return 0;
 +}
 +int get_file(struct conn_s *connptr, char *filename) {
-+	
++
 +        FILE *splashfile;
 +
 +	if ((splashfile = fopen (path_cat(config.splashdir,filename), "r"))) {
@@ -883,7 +887,7 @@ Description: Add a splash system (a captive portal without authentication).
 +		fclose (splashfile);
 +	} else {
 +		send_http_message (connptr, 404, "Not Found","File doesn't exist." );
-+	}	
++	}
 +        return 0;
 +}
 +
