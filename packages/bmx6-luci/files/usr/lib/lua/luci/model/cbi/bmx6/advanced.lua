@@ -39,9 +39,10 @@ local general = m:section(NamedSection,"general","general","General Options")
 local name = ""
 local help = ""
 local value = nil
+local _,o
 
 for _,o in ipairs(options) do 
-	if o.name ~= nil and o.CHILD_OPTIONS == nil o.configurable == 1 then
+	if o.name ~= nil and o.CHILD_OPTIONS == nil and o.configurable == 1 then
 		help = ""
 		name = o.name
 
