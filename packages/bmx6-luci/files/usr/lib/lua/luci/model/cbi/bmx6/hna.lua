@@ -36,5 +36,12 @@ function hna_option:validate(value)
 	return value 
 end
 
+function m.on_commit(self,map)
+        local err = sys.call('bmx6 -c --configReload > /tmp/bmx6-luci.err.tmp')
+	if err ~= 0 then
+		m.message = sys.exec("cat /tmp/bmx6-luci.err.tmp")
+        end
+end
+
 return m
 
