@@ -86,6 +86,7 @@ define Package/qmp-small-node/install
 	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
+	date +%Y%m%d > $(1)/etc/qmp/qmp.version
 endef
 
 

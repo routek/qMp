@@ -19,7 +19,6 @@
 #    the file called "COPYING".
 SOURCE_COMMON=1
 #DEBUG="/tmp/qmp_common.debug"
-DEBUG=""
 
 #######################
 # UCI related commands 

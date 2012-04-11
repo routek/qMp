@@ -1,0 +1,158 @@
+#!/bin/sh
+#    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along
+#    with this program; if not, write to the Free Software Foundation, Inc.,
+#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+#    The full GNU General Public License is included in this distribution in
+#    the file called "COPYING".
+
+QMP_PATH="/etc/qmp"
+
+[ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
+[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
+
+QMP_VERSION="$QMP_PATH/qmp.version"
+
+qmp_update_get_local_hash() {
+	cat /proc/cpuinfo | egrep  "^vendor_id|^model name|^machine" | md5sum | awk '{print $1}'
+	qmp_debug "My local device hash is $device_hash"
+}
+
+qmp_update_get_current_timestamp() {
+	cat $QMP_VERSION
+}
+
+qmp_update_get_url() {
+	qmp_debug "Fetching $1"
+	wget $1 -q --no-check-certificate -O-
+	[ $? -ne 0 ] && qmp_error "Cannot fetch $url/$1"
+}
+
+qmp_update_get_my_device() {
+	devices_url="$1"
+	device_hash="$2"
+	qmp_update_get_url $devices_url | grep "^$device_hash" | awk '{print $2}'
+}
+
+qmp_update_get_last_image_name() {
+	images_url=$1
+	filter=$2
+	qmp_update_get_url $images_url | grep $filter | grep $my_device | awk '{print $2}' | sort -n -r | awk NR==1
+}
+
+qmp_update_get_checksum_from_image() {
+	images_url=$1
+	image_name=$2
+	qmp_update_get_url $images_url | grep $image_name | awk '{print $1}'
+}
+
+qmp_update_extract_timestamp() {
+	image_name="$1"
+	echo "$image_name" | awk -F\- '{print $3}' | awk -F_ '{print $1}' | sed s/"\..*"//
+}
+
+qmp_update_get_config() {
+        url="$(qmp_uci_get update.url)"
+        [ -z "$url" ] && url="http://fw.qmp.cat"
+
+        images="$(qmp_uci_get update.images)"
+        [ -z "$images" ] && images="IMAGES"
+
+        devices="$(qmp_uci_get update.devices)"
+        [ -z "$devices" ] && devices="DEVICES"
+
+	filter="$(qmp_uci_get update.filter)"
+	[ -z "$filter" ] && filter="sysupgrade"
+}
+
+qmp_update_check() {
+	qmp_update_get_config
+
+	device_hash="$(qmp_update_get_local_hash)"
+	
+	my_device="$(qmp_update_get_my_device $url/$devices $device_hash $filter)"
+	qmp_debug "My device is $my_device"
+
+	last_image="$(qmp_update_get_last_image_name $url/$images $filter)"
+	qmp_debug "The last image name is $last_image"
+
+	[ -z "$last_image" ] && qmp_error "I cannot found an image for your device $my_device in $url"
+
+	last_timestamp="$(qmp_update_extract_timestamp $last_image)"
+	current_timestamp="$(qmp_update_get_current_timestamp)"
+	
+	if [ $current_timestamp -lt $last_timestamp ]; then 
+		checksum="$(qmp_update_get_checksum_from_image $url/$images $last_image)"
+		echo "$url/$last_image $checksum"
+	fi
+}
+
+qmp_update_save_config() {
+	cd /  
+	tar czf /tmp/qmp_saved_config.tar.gz $@
+	[ $? -ne 0 ] && qmp_error "Cannot save config: $@"
+	echo "/tmp/qmp_saved_config.tar.gz"
+}
+
+
+# If first parameter is an URL, get the image from this URL. If not uses the qMp upgrade system
+qmp_update_upgrade_system() {
+	image_url="$1"
+
+	if [ -z "$image_url" ]; then 
+		last_update_info="$(qmp_update_check)"
+		image_url="$(echo $last_update_info | awk '{print $1}')"
+		checksum="$(echo $last_update_info | awk '{print $2}')"
+		qmp_log "Found new system version $image_url $checksum"
+		[ -z "$image_url" -o -z "$checksum" ] && return 1
+	fi
+
+	# Getting image from HTTP/FTP or from filesystem
+	if [ -n "$(echo $image_url | egrep 'http|ftp')" ]; then
+		# Downloading image
+		output_image="/tmp/qmp_upgrade_image.bin"
+		rm -f /tmp/qmp_upgrade_image.bin 2>/dev/null
+		echo ""
+		wget --no-check-certificate $image_url -O $output_image
+		echo ""
+	else
+		output_image=$image_url
+	fi
+	
+	# Checking checksum
+	if [ -n "$checksum" ]; then
+		checksum_local="$(md5sum /tmp/qmp_upgrade_image.bin | awk '{print $1}')"
+		[ "$checksum_local" != "$checksum" ] && qmp_error "Upgrade not possible, checksum missmatch. Try again!"
+		qmp_log "Checksum correct!"
+	fi
+		
+	# Saving configuration
+	preserve="$(qmp_uci_get update.preserve)"
+	if [ -z "$preserve" ]; then
+		qmp_log "qmp.update.preserve is empy. For security I will preserve /etc/config/qmp. Specify \"none\" if you want to preserve nothing"
+		preserve="/etc/config/qmp"
+	fi
+
+	if [ "$preserve" != "none" ]; then
+		config="$(qmp_update_save_config $preserve)"
+	fi
+
+	read -p "Do you want to upgrade system using image $image_url? [N,y]" a
+	if [ "$a" == "y" ]; then
+		[ -n "$config" ] && echo "sysupgrade -f $config $output_image"
+		[ -z "$config" ] && echo "sysupgrade -n $output_image"
+	fi
+
+}

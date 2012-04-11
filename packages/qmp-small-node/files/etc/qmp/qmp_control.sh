@@ -24,6 +24,7 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_gw.sh
 . $QMP_PATH/qmp_wireless.sh
 . $QMP_PATH/qmp_network.sh
+. $QMP_PATH/qmp_update.sh
 
 offer_default_gw() {
 	qmp_gw_offer_default
@@ -77,6 +78,12 @@ unpublish_hna() {
 	qmp_unpublish_hna_bmx6 $1
 }
 
+upgrade() {
+	qmp_update_upgrade_system $1
+}
+
+
+
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
@@ -90,6 +97,7 @@ help() {
 	echo "  unpublish_hna     : Unpublish a current HNA: unpublish_hna <ID>"
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
+	echo "  upgrade [URL]	  : Upgrade system. By default to the last version, but image url can be provided to force"
 	echo ""
 	exit 1
 }
