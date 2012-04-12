@@ -115,8 +115,9 @@ qmp_update_upgrade_system() {
 		last_update_info="$(qmp_update_check)"
 		image_url="$(echo $last_update_info | awk '{print $1}')"
 		checksum="$(echo $last_update_info | awk '{print $2}')"
-		qmp_log "Found new system version $image_url $checksum"
-		[ -z "$image_url" -o -z "$checksum" ] && return 1
+		[ -z "$image_url" -o -z "$checksum" ] && { qmp_log "No new system image found"; return 1; }
+		[ -z "$checksum" ] && { qmp_error "Checksum not found!"; return 1; }
+		qmp_log "Found new system image at $image_url"
 	fi
 
 	# Getting image from HTTP/FTP or from filesystem
@@ -124,9 +125,8 @@ qmp_update_upgrade_system() {
 		# Downloading image
 		output_image="/tmp/qmp_upgrade_image.bin"
 		rm -f /tmp/qmp_upgrade_image.bin 2>/dev/null
-		echo ""
-		wget --no-check-certificate $image_url -O $output_image
-		echo ""
+		qmp_log "Downloading image $image_url"
+		wget -q --no-check-certificate $image_url -O $output_image
 	else
 		output_image=$image_url
 	fi
@@ -149,10 +149,10 @@ qmp_update_upgrade_system() {
 		config="$(qmp_update_save_config $preserve)"
 	fi
 
-	read -p "Do you want to upgrade system using image $image_url? [N,y]" a
+	read -p "Do you want to upgrade system using image $image_url? [N,y] " a
 	if [ "$a" == "y" ]; then
-		[ -n "$config" ] && echo "sysupgrade -f $config $output_image"
-		[ -z "$config" ] && echo "sysupgrade -n $output_image"
+		[ -n "$config" ] && sysupgrade -f $config $output_image
+		[ -z "$config" ] && sysupgrade -n $output_image
 	fi
 
 }
