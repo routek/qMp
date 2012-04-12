@@ -26,8 +26,9 @@ QMP_PATH="/etc/qmp"
 QMP_VERSION="$QMP_PATH/qmp.version"
 
 qmp_update_get_local_hash() {
-	cat /proc/cpuinfo | egrep  "^vendor_id|^model name|^machine" | md5sum | awk '{print $1}'
+	device_hash="$(cat /proc/cpuinfo | egrep  "^vendor_id|^model name|^machine" | md5sum | awk '{print $1}')"
 	qmp_debug "My local device hash is $device_hash"
+	echo "$device_hash"
 }
 
 qmp_update_get_current_timestamp() {
@@ -36,8 +37,8 @@ qmp_update_get_current_timestamp() {
 
 qmp_update_get_url() {
 	qmp_debug "Fetching $1"
-	wget $1 -q --no-check-certificate -O-
-	[ $? -ne 0 ] && qmp_error "Cannot fetch $url/$1"
+	wget -q $1 -O- 2>/dev/null
+	[ $? -ne 0 ] && qmp_error "Cannot fetch $1"
 }
 
 qmp_update_get_my_device() {
@@ -49,13 +50,13 @@ qmp_update_get_my_device() {
 qmp_update_get_last_image_name() {
 	images_url=$1
 	filter=$2
-	qmp_update_get_url $images_url | grep $filter | grep $my_device | awk '{print $2}' | sort -n -r | awk NR==1
+	qmp_update_get_url $images_url | grep "$filter" | grep "$my_device" | awk '{print $2}' | sort -n -r | awk NR==1
 }
 
 qmp_update_get_checksum_from_image() {
 	images_url=$1
 	image_name=$2
-	qmp_update_get_url $images_url | grep $image_name | awk '{print $1}'
+	qmp_update_get_url $images_url | grep "$image_name" | awk '{print $1}'
 }
 
 qmp_update_extract_timestamp() {
@@ -126,7 +127,7 @@ qmp_update_upgrade_system() {
 		output_image="/tmp/qmp_upgrade_image.bin"
 		rm -f /tmp/qmp_upgrade_image.bin 2>/dev/null
 		qmp_log "Downloading image $image_url"
-		wget -q --no-check-certificate $image_url -O $output_image
+		wget -q $image_url -O $output_image 2>/dev/null
 	else
 		output_image=$image_url
 	fi
