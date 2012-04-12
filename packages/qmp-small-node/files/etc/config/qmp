@@ -13,6 +13,13 @@ config 'qmp' 'node'
 	option 'community_node_id' ''
 	option 'key' '/tmp/qmp_key'
 
+config 'qmp' 'update'
+	option 'url' 'http://fw.qmp.cat/testing'
+	option 'images' 'IMAGES'
+	option 'devices' 'DEVICES'
+	option 'filter' 'sysupgrade'
+	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear/*'
+
 config 'qmp' 'non_overlapping'
         option 'ignore'              '0'  # Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
         option 'dhcp_offset'         '2'
