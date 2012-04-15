@@ -25,6 +25,38 @@ util = require "luci.util"
 sys = require "luci.sys"
 
 qmpinfo = {}
+local i,d
+
+function qmpinfo.get_devices()
+
+	ethernet_interfaces = { 'eth' }
+	wireless_interfaces = { 'ath', 'wlan' }
+
+	local eth_int = {}
+	for i,d in ipairs(sys.net.devices()) do
+		for i,r in ipairs(ethernet_interfaces) do
+			if string.find(d,r) ~= nil then
+				if string.find(d,"%.") == nil  then
+					table.insert(eth_int,d)
+				end
+			end
+		end
+	end
+
+	local wl_int = {}
+	for i,d in ipairs(luci.sys.net.devices()) do
+		for i,r in ipairs(wireless_interfaces) do
+			if string.find(d,r) ~= nil then
+				if string.find(d,"%.") == nil  then
+					table.insert(wl_int,d)
+				end
+			end
+		end
+	end
+
+	return {eth_int,wl_int}
+
+end
 
 function qmpinfo.get_modes(dev)
 	local modes = {}
