@@ -37,6 +37,7 @@ function index()
 	-- Rest of entries
 	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
+	entry({"qmp","wizard"}, cbi("qmp/wizard"), "Wizard", 3).dependent=false
 	entry({"qmp","node"}, cbi("qmp/node"), "Node", 4).dependent=false
 	entry({"qmp","network"}, cbi("qmp/network"), "Network", 5).dependent=false
 	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
