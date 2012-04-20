@@ -1,5 +1,5 @@
-diff --git a/src/Makefile.am b/src/Makefile.am
-index 0b6d45d..3377af0 100644
+Author: Agustí Moll Garcia, Simó Albert i Beltran
+Description: Add a splash system (a captive portal without authentication).
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -44,7 +44,9 @@ tinyproxy_SOURCES = \
@@ -13,11 +13,9 @@ index 0b6d45d..3377af0 100644
  
  EXTRA_tinyproxy_SOURCES = filter.c filter.h \
  	reverse-proxy.c reverse-proxy.h \
-diff --git a/src/Makefile.in b/src/Makefile.in
-index 1bd5750..53d431d 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -73,7 +73,8 @@ am_tinyproxy_OBJECTS = acl.$(OBJEXT) anonymous.$(OBJEXT) \
+@@ -73,7 +73,8 @@ am_tinyproxy_OBJECTS = acl.$(OBJEXT) ano
  	heap.$(OBJEXT) html-error.$(OBJEXT) http-message.$(OBJEXT) \
  	log.$(OBJEXT) network.$(OBJEXT) reqs.$(OBJEXT) sock.$(OBJEXT) \
  	stats.$(OBJEXT) text.$(OBJEXT) main.$(OBJEXT) utils.$(OBJEXT) \
@@ -54,31 +52,19 @@ index 1bd5750..53d431d 100644
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stats.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transparent-proxy.Po@am__quote@
-diff --git a/src/acl.c b/src/acl.c
-index 9ee6747..a097b2f 100644
 --- a/src/acl.c
 +++ b/src/acl.c
-@@ -29,6 +29,10 @@
+@@ -29,6 +29,9 @@
  #include "network.h"
  #include "sock.h"
  #include "vector.h"
 +#include "conf.h"
 +#include "splash.h"
 +#include "acllist.h"
-+
  
  #include <limits.h>
  
-@@ -113,7 +117,7 @@ fill_netmask_array (char *bitmask_string, int v6,
-  */
- static int init_access_list(vector_t *access_list)
- {
--        if (!*access_list) {
-+        if (!*access_list) {	
-                 *access_list = vector_create ();
-                 if (!*access_list) {
-                         log_message (LOG_ERR,
-@@ -335,9 +339,13 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+@@ -335,6 +338,10 @@ int check_acl (const char *ip, const cha
          /*
           * If there is no access list allow everything.
           */
@@ -88,12 +74,8 @@ index 9ee6747..a097b2f 100644
 +	} else {
          if (!access_list)
                  return 1;
--
-+	
-         for (i = 0; i != (size_t) vector_length (access_list); ++i) {
-                 acl = (struct acl_s *) vector_getentry (access_list, i, NULL);
-                 switch (acl->type) {
-@@ -368,6 +376,7 @@ int check_acl (const char *ip, const char *host, vector_t access_list)
+ 
+@@ -368,6 +375,7 @@ int check_acl (const char *ip, const cha
          log_message (LOG_NOTICE, "Unauthorized connection from \"%s\" [%s].",
                       host, ip);
          return 0;
@@ -101,9 +83,6 @@ index 9ee6747..a097b2f 100644
  }
  
  void flush_access_list (vector_t access_list)
-diff --git a/src/acllist.c b/src/acllist.c
-new file mode 100644
-index 0000000..561144a
 --- /dev/null
 +++ b/src/acllist.c
 @@ -0,0 +1,107 @@
@@ -148,8 +127,8 @@ index 0000000..561144a
 +#include "vector.h"
 +#include "acllist.h"
 +
-+/* Check and actualize 
-+ * 
++/* Check and actualize
++ *
 + * Returns:
 + *     1 if allowed
 + *     0 if denied
@@ -162,7 +141,7 @@ index 0000000..561144a
 +	iplocal = (char *) malloc (strlen(ip)+1);
 +	strcpy(iplocal, ip);
 +	result = time(NULL);
-+	if (!(lstat(path_cat(config.splashnodesdir, iplocal), &metaFile))) {		
++	if (!(lstat(path_cat(config.splashnodesdir, iplocal), &metaFile))) {	
 +		if ((metaFile.st_mtime + timeout) > result) {
 +			free(iplocal);
 +			return(1);
@@ -170,7 +149,7 @@ index 0000000..561144a
 +			remove_node(iplocal);
 +		}
 +	}
-+	free(iplocal);	
++	free(iplocal);
 +        return 0;
 +}
 +
@@ -183,7 +162,7 @@ index 0000000..561144a
 +int insert_node(char *ip) {
 +	FILE *f;
 +
-+	log_message (LOG_NOTICE, "acllist->insert_node, from: %s", ip);	
++	log_message (LOG_NOTICE, "acllist->insert_node, from: %s", ip);
 +	if ((f = fopen(path_cat(config.splashnodesdir, ip),"w")) == NULL) {
 +		log_message (LOG_ERR, "Doesn't exist whitelist directory: %s ", config.splashnodesdir);
 +	} else {
@@ -193,7 +172,7 @@ index 0000000..561144a
 +}
 +
 +int remove_node(char *ip) {
-+	log_message (LOG_NOTICE, "acllist->remove_node, from: %s", ip);	
++	log_message (LOG_NOTICE, "acllist->remove_node, from: %s", ip);
 +	return remove (path_cat(config.splashnodesdir, ip));
 +}
 +
@@ -212,11 +191,8 @@ index 0000000..561144a
 +	}
 +	result[str1_len+str2_len]='\0';
 +	return result;
-+}	
++}
 +
-diff --git a/src/acllist.h b/src/acllist.h
-new file mode 100644
-index 0000000..dabd729
 --- /dev/null
 +++ b/src/acllist.h
 @@ -0,0 +1,31 @@
@@ -251,11 +227,9 @@ index 0000000..dabd729
 +extern int remove_node(char *);
 +
 +#endif
-diff --git a/src/child.c b/src/child.c
-index 34e20e0..56a9df9 100644
 --- a/src/child.c
 +++ b/src/child.c
-@@ -233,7 +233,6 @@ static void child_main (struct child_s *ptr)
+@@ -233,7 +233,6 @@ static void child_main (struct child_s *
                  ptr->status = T_CONNECTED;
  
                  SERVER_DEC ();
@@ -263,11 +237,9 @@ index 34e20e0..56a9df9 100644
                  handle_connection (connfd);
                  ptr->connects++;
  
-diff --git a/src/conf.c b/src/conf.c
-index 59630a2..c7c5d34 100644
 --- a/src/conf.c
 +++ b/src/conf.c
-@@ -124,6 +124,13 @@ static HANDLE_FUNC (handle_defaulterrorfile);
+@@ -124,6 +124,13 @@ static HANDLE_FUNC (handle_defaulterrorf
  static HANDLE_FUNC (handle_deny);
  static HANDLE_FUNC (handle_errorfile);
  static HANDLE_FUNC (handle_addheader);
@@ -294,7 +266,7 @@ index 59630a2..c7c5d34 100644
          /* boolean arguments */
          STDCONF ("syslog", BOOL, handle_syslog),
          STDCONF ("bindsame", BOOL, handle_bindsame),
-@@ -289,6 +302,10 @@ static void free_config (struct config_s *conf)
+@@ -289,6 +302,10 @@ static void free_config (struct config_s
          safefree (conf->user);
          safefree (conf->group);
          safefree (conf->ipAddr);
@@ -305,7 +277,7 @@ index 59630a2..c7c5d34 100644
  #ifdef FILTER_ENABLE
          safefree (conf->filter);
  #endif                          /* FILTER_ENABLE */
-@@ -469,6 +486,28 @@ static void initialize_with_defaults (struct config_s *conf,
+@@ -469,6 +486,28 @@ static void initialize_with_defaults (st
                  conf->ipAddr = safestrdup (defaults->ipAddr);
          }
  
@@ -393,30 +365,26 @@ index 59630a2..c7c5d34 100644
  }
  
  static HANDLE_FUNC (handle_listen)
-diff --git a/src/conf.h b/src/conf.h
-index f62a854..dfcd18b 100644
 --- a/src/conf.h
 +++ b/src/conf.h
 @@ -47,6 +47,14 @@ struct config_s {
          char *user;
          char *group;
          char *ipAddr;
-+	
-+	char *splashhost;
-+	char *splashdir;
-+	char *splashcontinue;
-+	unsigned int splashtimeout;
-+	char *splashindex;
-+	char *splashnodesdir;
++
++        char *splashhost;
++        char *splashdir;
++        char *splashcontinue;
++        unsigned int splashtimeout;
++        char *splashindex;
++        char *splashnodesdir;
 +
  #ifdef FILTER_ENABLE
          char *filter;
          unsigned int filter_url;        /* boolean */
-diff --git a/src/conns.c b/src/conns.c
-index 94faeea..e497920 100644
 --- a/src/conns.c
 +++ b/src/conns.c
-@@ -70,6 +70,7 @@ struct conn_s *initialize_conn (int client_fd, const char *ipaddr,
+@@ -70,6 +70,7 @@ struct conn_s *initialize_conn (int clie
  
          connptr->connect_method = FALSE;
          connptr->show_stats = FALSE;
@@ -424,20 +392,16 @@ index 94faeea..e497920 100644
  
          connptr->protocol.major = connptr->protocol.minor = 0;
  
-diff --git a/src/conns.h b/src/conns.h
-index b63d026..947a90a 100644
 --- a/src/conns.h
 +++ b/src/conns.h
 @@ -40,6 +40,7 @@ struct conn_s {
          /* Booleans */
          unsigned int connect_method;
          unsigned int show_stats;
-+	unsigned int show_splash;
++        unsigned int show_splash;
  
          /*
           * This structure stores key -> value mappings for substitution
-diff --git a/src/html-error.c b/src/html-error.c
-index a70fbf4..0e01187 100644
 --- a/src/html-error.c
 +++ b/src/html-error.c
 @@ -30,6 +30,7 @@
@@ -448,15 +412,14 @@ index a70fbf4..0e01187 100644
  
  /*
   * Add an error number -> filename mapping to the errorpages list.
-@@ -174,16 +175,42 @@ send_html_file (FILE *infile, struct conn_s *connptr)
+@@ -174,16 +175,41 @@ send_html_file (FILE *infile, struct con
  
          return r;
  }
 +/*
 + * Send an raw file.
 + */
-+int
-+send_raw_file (FILE *infile, struct conn_s *connptr)
++int send_raw_file (FILE *infile, struct conn_s *connptr)
 +{
 +        char *inbuf;
 +	int num;
@@ -493,7 +456,7 @@ index a70fbf4..0e01187 100644
  }
  
  /*
-@@ -315,3 +342,38 @@ indicate_http_error (struct conn_s *connptr, int number,
+@@ -315,3 +341,38 @@ indicate_http_error (struct conn_s *conn
  
          return (add_standard_vars (connptr));
  }
@@ -512,7 +475,7 @@ index a70fbf4..0e01187 100644
 +	char extension[256] = "";
 +	char *pointer;
 +
-+	
++
 +	pointer = strrchr(filename, '.');
 +
 +	if ((pointer != NULL) && (strlen(pointer) < 256)) {
@@ -527,16 +490,14 @@ index a70fbf4..0e01187 100644
 +		send_http_headers_mimetype (connptr, 200, "Statistic requested", "text", extension);
 +		send_html_file (infile, connptr);
 +	}
-+	
 +
-+	
++
++
 +	return 0;
 +}
-diff --git a/src/html-error.h b/src/html-error.h
-index 03cec98..2c84bef 100644
 --- a/src/html-error.h
 +++ b/src/html-error.h
-@@ -31,8 +31,11 @@ extern int indicate_http_error (struct conn_s *connptr, int number,
+@@ -31,8 +31,12 @@ extern int indicate_http_error (struct c
  extern int add_error_variable (struct conn_s *connptr, const char *key,
                                 const char *val);
  extern int send_html_file (FILE * infile, struct conn_s *connptr);
@@ -545,12 +506,10 @@ index 03cec98..2c84bef 100644
                                const char *message);
 +extern int send_http_headers_mimetype (struct conn_s *connptr, int code, const char *message, const char *mimetype, char *extension);
  extern int add_standard_vars (struct conn_s *connptr);
--
+ 
 +extern int send_redirect (struct conn_s *connptr, const char *location);
 +extern int send_http_file (FILE * infile, struct conn_s *connptr, char *filename);
  #endif /* !TINYPROXY_HTML_ERROR_H */
-diff --git a/src/main.c b/src/main.c
-index 20d5aef..d3df494 100644
 --- a/src/main.c
 +++ b/src/main.c
 @@ -43,6 +43,8 @@
@@ -562,7 +521,7 @@ index 20d5aef..d3df494 100644
  
  /*
   * Global Structures
-@@ -326,8 +328,15 @@ static void initialize_config_defaults (struct config_s *conf)
+@@ -326,8 +328,15 @@ static void initialize_config_defaults (
          conf->errorpages = NULL;
          conf->stathost = safestrdup (TINYPROXY_STATHOST);
          conf->idletimeout = MAX_IDLE_TIME;
@@ -570,21 +529,29 @@ index 20d5aef..d3df494 100644
 -        conf->pidpath = safestrdup (LOCALSTATEDIR "/run/tinyproxy/tinyproxy.pid");
 +        conf->logf_name = safestrdup (LOCALSTATEDIR "/log/tinyproxy.log");
 +        conf->pidpath = safestrdup (LOCALSTATEDIR "/tinyproxy.pid");
-+	conf->splashhost = safestrdup (SPLASHHOST);
-+	conf->splashdir = safestrdup (SPLASHDIR);
-+	conf->splashcontinue = safestrdup (SPLASHCONTINUE);
-+	conf->splashtimeout = SPLASHTIMEOUT;
-+	conf->splashindex = safestrdup (SPLASHINDEX);
-+	conf->splashnodesdir = safestrdup (PATHNODES);
++        conf->splashhost = safestrdup (SPLASHHOST);
++        conf->splashdir = safestrdup (SPLASHDIR);
++        conf->splashcontinue = safestrdup (SPLASHCONTINUE);
++        conf->splashtimeout = SPLASHTIMEOUT;
++        conf->splashindex = safestrdup (SPLASHINDEX);
++        conf->splashnodesdir = safestrdup (PATHNODES);
 +
  }
  
  /**
-diff --git a/src/reqs.c b/src/reqs.c
-index 2de43a8..37c8a82 100644
 --- a/src/reqs.c
 +++ b/src/reqs.c
-@@ -48,6 +48,8 @@
+@@ -17,6 +17,9 @@
+  * You should have received a copy of the GNU General Public License along
+  * with this program; if not, write to the Free Software Foundation, Inc.,
+  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * Contributors:
++ *  Simó Albert i Beltran
+  */
+ 
+ /* This is where all the work in tinyproxy is actually done. Incoming
+@@ -48,6 +51,8 @@
  #include "upstream.h"
  #include "connect-ports.h"
  #include "conf.h"
@@ -593,18 +560,139 @@ index 2de43a8..37c8a82 100644
  
  /*
   * Maximum length of a HTTP line
-@@ -497,6 +499,10 @@ BAD_REQUEST_ERROR:
+@@ -497,6 +502,10 @@ BAD_REQUEST_ERROR:
                  connptr->show_stats = TRUE;
                  goto fail;
          }
-+	if (strcmp(SPLASHHOST, request->host) == 0) {
-+		connptr->show_splash = TRUE;
-+                return request;	
-+	}
++        if (strcmp(config.splashhost, request->host) == 0) {
++                connptr->show_splash = TRUE;
++                return request;
++        }
  
          safefree (url);
  
-@@ -1395,15 +1401,6 @@ void handle_connection (int fd)
+@@ -1357,6 +1366,120 @@ get_request_entity(struct conn_s *connpt
+         return ret;
+ }
+ 
++/*
++ * Check if mime-type of the response of a request is text/html.
++ */
++
++static int is_html (struct conn_s *connptr, struct request_s *request)
++{
++        char *response_line;
++
++        hashmap_t hashofheaders;
++        char *data;
++        ssize_t len;
++        char *method;
++
++        connptr->server_fd = opensock (request->host, request->port,
++                                       connptr->server_ip_addr);
++        if (connptr->server_fd < 0) {
++                indicate_http_error (connptr, 500, "Unable to connect",
++                                     "detail",
++                                     PACKAGE_NAME " "
++                                     "was unable to connect to the remote web server.",
++                                     "error", strerror (errno), NULL);
++                return -1;
++        }
++
++        log_message (LOG_CONN,
++                     "Established connection to host \"%s\" using "
++                     "file descriptor %d to get mime-type from content-type header.",
++                     request->host, connptr->server_fd);
++
++        method = (char *) safemalloc(strlen(request->method)+1);
++        strcpy(method,request->method);
++        safefree(request->method);
++        request->method = (char *) safemalloc(5);
++        strcpy(request->method,"HEAD");
++
++        log_message (LOG_NOTICE, "request->host: %s request->method: %s", request->host, request->method);
++
++        if (!connptr->connect_method) {
++                establish_http_connection (connptr, request);
++                write_message (connptr->server_fd, "\r\n");
++        }
++
++        safefree (request->method);
++        request->method = (char *) safemalloc(strlen(method)+1);
++        strcpy(request->method,method);
++        safefree (method);
++
++        /* Get the response line from the remote server. */
++retry:
++        len = readline (connptr->server_fd, &response_line);
++        log_message (LOG_NOTICE, "len: %d line: %s", len, response_line);
++        if (len <= 0)
++                return -1;
++        /*
++         * Strip the new line and character return from the string.
++         */
++        if (chomp (response_line, len) == len) {
++                /*
++                 * If the number of characters removed is the same as the
++                 * length then it was a blank line. Free the buffer and
++                 * try again (since we're looking for a request line.)
++                 */
++                safefree (response_line);
++                goto retry;
++        }
++
++        hashofheaders = hashmap_create (HEADER_BUCKETS);
++        if (!hashofheaders) {
++                safefree (response_line);
++                return -1;
++        }
++
++        /*
++         * Get all the headers from the remote server in a big hash
++         */
++        if (get_all_headers (connptr->server_fd, hashofheaders) < 0) {
++                log_message (LOG_WARNING,
++                             "Could not retrieve all the headers from the remote server.");
++                hashmap_delete (hashofheaders);
++                safefree (response_line);
++
++                indicate_http_error (connptr, 503,
++                                     "Could not retrieve all the headers",
++                                     "detail",
++                                     PACKAGE_NAME " "
++                                     "was unable to retrieve and process headers from "
++                                     "the remote web server.", NULL);
++                return -1;
++        }
++
++	if(strstr(response_line," 200 OK") == NULL) {
++		return -1;
++	}
++
++        safefree (response_line);
++
++        len =
++            hashmap_entry_by_key (hashofheaders, "content-type",
++                                  (void **) &data);
++
++        if(len <= 0) {
++                hashmap_delete (hashofheaders);
++                return -1;
++        }
++
++        log_message (LOG_NOTICE, "content-type: %s", data);
++        if (strncmp(data,"text/html",strlen("text/html")) == 0) {
++                hashmap_delete (hashofheaders);
++                return 1;
++        }
++
++        hashmap_delete (hashofheaders);
++        return 0;
++}
+ 
+ /*
+  * This is the main drive for each connection. As you can tell, for the
+@@ -1395,15 +1518,6 @@ void handle_connection (int fd)
                  return;
          }
  
@@ -620,60 +708,53 @@ index 2de43a8..37c8a82 100644
  
          if (read_request_line (connptr) < 0) {
                  update_stats (STAT_BADCONN);
-@@ -1462,6 +1459,26 @@ void handle_connection (int fd)
+@@ -1462,6 +1576,30 @@ void handle_connection (int fd)
                  }
                  goto fail;
          }
-+	if (connptr->show_splash) {
-+		goto fail;
-+	}
++        if (connptr->show_splash) {
++                goto fail;
++        }
 +
-+	/* Que ja hagui passat el parseig de la url */
++        /* Que ja hagui passat el parseig de la url */
 +        if (check_acl (peer_ipaddr, peer_string, config.access_list) <= 0) {
-+		if (TRUE) {
-+			showsplash (connptr, peer_ipaddr, request);
-+	                goto done;
-+		} else {
-+		        update_stats (STAT_DENIED);
-+		        indicate_http_error (connptr, 403, "Access denied",
++                if (TRUE) {
++                        log_message (LOG_NOTICE, "request->host: %s request->method: %s", request->host, request->method);
++                        if (strcmp("GET", request->method) == 0) {
++                                if (is_html(connptr, request) > 0) {
++                                        showsplash (connptr, peer_ipaddr, request);
++                                        goto done;
++                                }
++                        }
++                } else {
++                        update_stats (STAT_DENIED);
++                        indicate_http_error (connptr, 403, "Access denied",
 +		                             "detail",
 +		                             "The administrator of this proxy has not configured "
 +		                             "it to service requests from your host.",
 +		                             NULL);
-+			goto fail;
-+		}
++                        goto fail;
++                }
 +        }
-+
  
          connptr->upstream_proxy = UPSTREAM_HOST (request->host);
          if (connptr->upstream_proxy != NULL) {
-@@ -1525,6 +1542,7 @@ fail:
-          * it is still marked for reading and we won't be able
-          * to send our data properly.
-          */
-+
-         if (get_request_entity (connptr) < 0) {
-                 log_message (LOG_WARNING,
-                              "Could not retrieve request entity");
-@@ -1539,7 +1557,9 @@ fail:
+@@ -1539,7 +1677,9 @@ fail:
                  send_http_error_message (connptr);
          } else if (connptr->show_stats) {
                  showstats (connptr);
 -        }
 +        } else 	if (connptr->show_splash) {
 +                showsplash (connptr, peer_ipaddr, request);
-+        }  
++        } 
  
  done:
          free_request_struct (request);
-diff --git a/src/splash.c b/src/splash.c
-new file mode 100644
-index 0000000..e0a3355
 --- /dev/null
 +++ b/src/splash.c
 @@ -0,0 +1,139 @@
 +/* tinyproxy - A fast light-weight HTTP proxy
-+ * Copyright (C) 		
++ * Copyright (C) 	
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -730,7 +811,7 @@ index 0000000..e0a3355
 +		strcpy(requestpath, "/");
 +	}
 +	log_message (LOG_NOTICE, "request->host: %s request->path: %s",request->host, requestpath);
-+	
++
 +	if ((strcmp(config.splashhost, request->host) == 0) && (strcmp(requestpath, "/") != 0)) {
 +		if (strncmp(requestpath, config.splashcontinue, strlen(config.splashcontinue)) == 0) {
 +			/* Movem la nova url */
@@ -748,7 +829,7 @@ index 0000000..e0a3355
 +			/* COMPTE!!! Aquí s'hauria de controlar no poder posar ../ ni res per l'estil */
 +			return get_file(connptr, requestpath) ;
 +		}
-+	
++
 +	}
 +
 +	defaultfilename = (char *) safemalloc(strlen(config.splashindex)+1);
@@ -793,11 +874,11 @@ index 0000000..e0a3355
 +		        safefree (message_buffer);
 +		        return -1;
 +		}
-+	}	
++	}
 +        return 0;
 +}
 +int get_file(struct conn_s *connptr, char *filename) {
-+	
++
 +        FILE *splashfile;
 +
 +	if ((splashfile = fopen (path_cat(config.splashdir,filename), "r"))) {
@@ -806,14 +887,11 @@ index 0000000..e0a3355
 +		fclose (splashfile);
 +	} else {
 +		send_http_message (connptr, 404, "Not Found","File doesn't exist." );
-+	}	
++	}
 +        return 0;
 +}
 +
 +
-diff --git a/src/splash.h b/src/splash.h
-new file mode 100644
-index 0000000..9dcd7cd
 --- /dev/null
 +++ b/src/splash.h
 @@ -0,0 +1,39 @@

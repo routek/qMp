@@ -36,8 +36,14 @@ function index()
 	
 	-- Rest of entries
 	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
-	entry({"qmp","network"}, cbi("qmp/config"), "Network", 5).dependent=false
+	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
+	entry({"qmp","node"}, cbi("qmp/node"), "Node", 4).dependent=false
+	entry({"qmp","network"}, cbi("qmp/network"), "Network", 5).dependent=false
+	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
 	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
+	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
+	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
+	entry({"qmp","map"}, call("action_map"), "Map", 8).dependent=false
 end
      
 function action_status()
@@ -49,3 +55,20 @@ function action_status()
 		
 	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
 end
+
+function action_tools()
+	package.path = package.path .. ";/etc/qmp/?.lua"
+	local qmp = require "qmpinfo"
+	local nodes = qmp.nodes()
+	local key = qmp.get_key()
+	luci.template.render("qmp/tools",{nodes=nodes,key=key})	
+end
+
+function action_splash()
+	luci.template.render("qmp/splash")
+end
+
+function action_map()
+	luci.template.render("qmp/b6m")
+end
+

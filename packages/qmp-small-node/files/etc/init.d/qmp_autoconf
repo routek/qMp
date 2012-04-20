@@ -21,41 +21,57 @@
 START=99
 CONTROL_FILE="/qmp_configured"
 QMP_DIR="/etc/qmp"
+QMP_KEY="/tmp/qmp_key"
 
 configure() {
 	echo "Starting qmp configuration..."
 	echo "Starting qmp configuration..." > /dev/console
 
 	echo "[Configuring wireless]"
+
+	#Generating default wifi configuration
+	iw reg set $(uci get qmp.wireless.country) || iw reg set 00
+	sleep 1
+	mv /etc/config/wireless /tmp/wireless.old
+	wifi detect | grep -v disabled > /etc/config/wireless
+	wifi
+
+	#Configuring wifi using QMP
 	. $QMP_DIR/qmp_wireless.sh
-	qmp_configure_wifi_driver
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	wifi
-
+	
+	#Configuring networking
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
-	/etc/init.d/network restart	                       
-	sleep 5
-	QMP_HOSTNAME=$(uci get system.@system[0].hostname)
-	echo "Update hostname for: '$QMP_HOSTNAME'"
-	echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
-	/etc/init.d/olsrd restart	
-	/etc/init.d/bmx6 restart	
-	ifup -a
-	/etc/init.d/dnsmasq restart
+	#/etc/init.d/network restart	                       
+	#sleep 3
+	#QMP_HOSTNAME=$(uci get system.@system[0].hostname)
+	#echo "Update hostname for: '$QMP_HOSTNAME'"
+	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
+	#/etc/init.d/olsrd restart	
+	#/etc/init.d/bmx6 restart	
+	#ifup -a
+	#/etc/init.d/dnsmasq restart
 	touch "$CONTROL_FILE"
-#	echo "Done, rebooting system to complete configuration"
-#	reboot
+	reboot
+}
+
+#This function is executed in each boot
+startup() {
+	$QMP_DIR/qmp_control.sh apply_netserver
+	logread | md5sum | awk '{print $1}' > $QMP_KEY
 }
 
 start() {
-if [ ! -f "$CONTROL_FILE" ]; then
-	configure
-else
-	echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
-fi
+	startup
+	if [ ! -f "$CONTROL_FILE" ]; then
+		configure
+	else
+		echo "QMP configured. Remove $CONTROL_FILE to force reconfiguration"
+	fi
 }
 
 stop() {

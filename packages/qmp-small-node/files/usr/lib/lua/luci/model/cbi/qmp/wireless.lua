@@ -40,19 +40,27 @@ end
 ---------------------------
 -- Section Wireless Main --
 ---------------------------
-s_wireless_main = m:section(NamedSection, "wireless", "qmp", "Wireless general options", "")
+s_wireless_main = m:section(NamedSection, "wireless", "qmp", translate("Wireless general options"), "")
 s_wireless_main.addremove = False
 
 -- Driver selection
-driver = s_wireless_main:option(ListValue, "driver", "Driver")
+driver = s_wireless_main:option(ListValue, "driver", translate("Driver"))
 driver:value("mac80211","mac80211")
 driver:value("madwifi","madwifi")
 
 -- Country selection
-country = s_wireless_main:option(Value,"country", "Country")
+country = s_wireless_main:option(Value,"country", translate("Country"))
 
 -- BSSID
 bssid = s_wireless_main:option(Value,"bssid","BSSID")
+
+-- Button Rescan Wifi devices
+confwifi = s_wireless_main:option(Button, "_confwifi", translate("Rescan and configure devices"))
+
+function confwifi.write(self, section)
+	luci.sys.call("qmpcontrol configure_wifi > /tmp/qmp_rescan_wifi_devices.output")
+end
+
 
 -----------------------------
 -- Section Wireless Device --
@@ -74,6 +82,7 @@ for _,wdev in ipairs(wdevs) do
 	mode = s_wireless:option(ListValue,"mode","Mode")
 	mode:value("adhoc","Ad-Hoc")
 	mode:value("ap","Access Point")
+	mode:value("client","Client")
 	mode:value("none","Not used")
 	
 	-- Name
@@ -98,8 +107,9 @@ for _,wdev in ipairs(wdevs) do
 	end
 end
 
+
 function m.on_commit(self,map)
-	luci.sys.call('/etc/qmp/qmp_control.sh apply_wifi > /tmp/qmp_control_wifi.log')
+	luci.sys.call('/etc/qmp/qmp_control.sh configure_wifi > /tmp/qmp_control_wifi.log &')
 end
 
 

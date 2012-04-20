@@ -1,0 +1,54 @@
+<%+header%>
+
+<script type="text/javascript">
+function do_test(ip,index,key,tool) {
+	var output = document.getElementById('output_'+index);
+
+	if (output) {
+		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:middle"/&gt; ';
+                output.style.display = 'inline';
+
+		var result = new XMLHttpRequest();
+		result.open("GET", "/cgi-bin/tools?" + key + "&amp;" + tool + "&amp;" + ip, true);
+                result.onreadystatechange = function() {
+                	if (result.readyState == 4) {
+                	    output.innerHTML= parse_result(result.responseText);
+                        }
+                }  
+                result.send(null);
+	}
+}
+function parse_result(txt) {
+	var t = new String(txt);
+	
+	if (t.indexOf("Cannot") >= 0) 
+		return("&lt;font color='#f00'&gt;<%:Cannot connecto to netserver%>&lt;/font&gt;");
+	else 
+		return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");	
+}
+
+</script>
+
+<h2>Tools</h2>
+<p><strong><u>Nodes found in the network:</u></strong></p>
+<form>
+<% for i,n in ipairs(nodes) do %>
+	<div style="clear:both;height:30px;width:800px;float:left">
+	<strong><%=n[1]%></strong> <%=n[2]%> &nbsp;&nbsp; &nbsp;&nbsp;
+	<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
+	<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
+	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_<%=i%>"></span>	
+	</div>
+<% end %>
+	<div style="clear:both;height:30px;float:left">
+	<strong>Specify Custom ip:</strong>
+	<input type="text" name="custom" />
+	<input type="button" value="bandwidth" onclick="do_test(this.form.custom.value,'custom','<%=key%>','bwtest')" />
+	<input type="button" value="ping" onclick="do_test(this.form.custom.value,'custom','<%=key%>','ping')"  />
+	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_custom"></span>
+	</div>
+</form>
+
+
+<%+footer%>
+

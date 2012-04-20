@@ -29,7 +29,6 @@ qmp_uci_get() {
 	u="$(uci -q get qmp.$1)"
 	r=$?
 	echo "$u"
-	echo "$u" >> /tmp/uci_get
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci get qmp.$1)"
 	qmp_debug "qmp_uci_get: uci -q get qmp.$1"
 	return $r
@@ -221,5 +220,15 @@ qmp_get_dec_node_id() {
     COMMUNITY_NODE_ID=$LSB_PRIM_MAC
   fi
   echo $(printf %d 0x$COMMUNITY_NODE_ID)
+}
+
+# Returns the prefix /XX from netmask
+qmp_get_prefix_from_netmask() {
+ echo "$(ipcalc.sh 1.1.1.1 $1| grep PREFIX | cut -d= -f2)"
+}
+
+# Returns the netid from IP NETMASK
+qmp_get_netid_from_network() {
+ echo "$(ipcalc.sh $1 $2 | grep NETWORK | cut -d= -f2)"
 }
 

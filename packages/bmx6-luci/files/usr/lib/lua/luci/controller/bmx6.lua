@@ -130,6 +130,7 @@ function action_neighbours()
 				
 					if h ~= nil and  string.find(h.address,"::ffff:") then
 						ipv4=string.gsub(h.address,"::ffff:","")
+						break
 					end
 				end	
 			end

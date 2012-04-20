@@ -8,9 +8,11 @@ CFGFILE=/var/etc/tinyproxy.conf
 start() {
 	config_load tinyproxy
 	config_foreach start_proxy tinyproxy
+	iptables_rules start
 }
 
 stop() {
+	iptables_rules stop
 	start-stop-daemon -q -x "$DAEMON" -K
 	rm -f $CFGFILE
 }
@@ -148,13 +150,26 @@ proxy_list() {
 	}
 }
 
-make_dir() {
-	local SECTION=$1
-	local OPTION=$2
-	local DEFAULT=$3
+iptables_rules() {
 
-	config_get _value "$SECTION" "$OPTION"
-	[ -z "$_value" ] && _value="$DEFAULT"
-	
+IPLOCAL="$(uci get qmp.networks.lan_address)"
+PRIVATE_NETWORKS="$IPLOCAL 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
 
+	case $1 in
+		stop)
+			iptables -t nat -D PREROUTING -i br-lan -j captive-portal	
+			iptables -t nat -F captive-portal
+			iptables -t nat -X cpative-portal
+		;;
+		start)	
+
+			iptables -t nat -N captive-portal
+			iptables -t nat -I PREROUTING -i br-lan -j captive-portal
+			for i in $PRIVATE_NETWORKS 
+			do 
+				iptables -t nat -I captive-portal -d ${i} -j RETURN
+			done
+			iptables -t nat -A captive-portal -p tcp --destination-port 80 -j DNAT --to-destination ${IPLOCAL}:8888
+		;;
+	esac
 }

@@ -36,15 +36,19 @@ define Package/qmp-big-node
   URL:=http://qmp.cat
   DEPENDS:= \
 	+qmp-small-node \
+	+qmp-tinyproxy \
+	+babeld \
 	+openvpn \
 	+openssl-util \
         +tcptraceroute6 \
-	+iperf +mtr +netcat +netperf \
-	+tcpdump-mini \
-	+nmap +lsof \
+	+iperf +mtr +netcat \
+	+tcpdump \
+	+lsof \
+	+hostapd \
 	+wget +horst \
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
+	+b6m
 
 endef
 

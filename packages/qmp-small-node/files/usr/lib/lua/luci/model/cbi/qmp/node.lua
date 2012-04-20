@@ -19,29 +19,22 @@
     the file called "COPYING".
 --]]
 
-local sys = require("luci.sys")
+require("luci.sys")
 
-m = Map("bmx6", "bmx6")
+m = Map("qmp", "Quick Mesh Project")
 
-local hna = m:section(TypedSection,"hna","HNA")
-hna.addremove = true
-hna.anonymous = false
-local hna_option = hna:option(Value,"hna", "Host Network Announcement")
+node_section = m:section(NamedSection, "node", "qmp", translate("Node"), translate("Node configuration options"))
+node_section.addremove = False
 
-function hna_option:validate(value)
-	local err = sys.call('bmx6 -c --test -a ' .. value)
-	if err ~= 0 then
-		return nil
-	end	
-	return value 
-end
+community_id = node_section:option(Value,"community_id", translate("Community id"), translate("Community identifier for node name (alphanumeric, no spaces)"))
+community_node_id = node_section:option(Value,"community_node_id", translate("Node id"), translate("Node identifier, leave blank for randomize (alphanumeric, no spaces)"))
+primary_device = node_section:option(Value,"primary_device", translate("Primary device"), translate("Network primary device which never will change"))
+
 
 function m.on_commit(self,map)
-        local err = sys.call('bmx6 -c --configReload > /tmp/bmx6-luci.err.tmp')
-	if err ~= 0 then
-		m.message = sys.exec("cat /tmp/bmx6-luci.err.tmp")
-        end
+        luci.sys.call('/etc/qmp/qmp_control.sh configure_system > /tmp/qmp_control_system.log &')
 end
+
 
 return m
 

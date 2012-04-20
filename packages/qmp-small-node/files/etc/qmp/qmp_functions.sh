@@ -395,11 +395,13 @@ qmp_configure_network() {
   uci set $conf.loopback.ipaddr="127.0.0.1"
   uci set $conf.loopback.netmask="255.0.0.0"
 
-  if qmp_uci_test qmp.interfaces.wan_device ; then
-    uci set $conf.wan="interface"
-    uci set $conf.wan.ifname="$(uci get qmp.interfaces.wan_device)"
-    uci set $conf.wan.proto="dhcp"
-  fi
+  wan_offset=0
+  for i in $(uci get  qmp.interfaces.wan_devices) ; do
+    uci set $conf.wan${wan_offset}="interface"
+    uci set $conf.wan${wan_offset}.ifname="$i"
+    uci set $conf.wan${wan_offset}.proto="dhcp"
+    let wan_offset=${wan_offset}+1
+  done
 
 
   uci set $conf.niit4to6="interface"
@@ -426,29 +428,30 @@ qmp_configure_network() {
 
 	LAN_MASK="$(uci get qmp.networks.lan_netmask)"
 	LAN_ADDR="$(uci get qmp.networks.lan_address)"
+	START=2
+	LIMIT=253
 
     if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
 	LAN_MASK="255.255.0.0"
 	# Last byte of lan adress must be "1" to avoid overlappings
 	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/&.1:/1' | awk -F ":" '{print $1}')
 
-	OFFSET=2
+	OFFSET=0
 	NUM_GRP=256
 
 	UCI_OFFSET="$(uci get qmp.non_overlapping.dhcp_offset)"
 
-	if [ $UCI_OFFSET -gt 1 ]; then
-		OFFSET=$UCI_OFFSET
-	fi
+	[ $UCI_OFFSET -lt $NUM_GRP ] && OFFSET=$UCI_OFFSET
 
 	START=$(( $(printf %d 0x$community_node_id) * $NUM_GRP + $OFFSET ))
-	LIMIT=$(( $NUM_GRP - $OFFSET - 2))
+	LIMIT=$(( $NUM_GRP - $OFFSET ))
 
-	uci set dhcp.lan.start=$START
-	uci set dhcp.lan.limit=$LIMIT
 	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
-	uci commit dhcp
     fi
+
+    uci set dhcp.lan.start=$START
+    uci set dhcp.lan.limit=$LIMIT
+    uci commit dhcp
 
     uci set $conf.lan="interface"
     uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
@@ -535,6 +538,7 @@ qmp_configure_bmx6() {
 
   uci set $conf.general="bmx6"
   uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
+#  uci set $conf.general.udpDataSize=1000
 
   uci set $conf.bmx6_config_plugin=plugin
   uci set $conf.bmx6_config_plugin.plugin=bmx6_config.so
@@ -583,7 +587,11 @@ qmp_configure_bmx6() {
 	    uci set $conf.mesh_$counter.dev="$ifname"
 
 	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
-	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_address)"
+	      local bmx6_ipv4_netmask="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -s -d / -f2)"
+	      local bmx6_ipv4_address="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -d / -f1)"
+	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
+	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+
 	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
 	      local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
 	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24/32"
@@ -632,17 +640,6 @@ qmp_configure_bmx6() {
   uci commit $conf
 #  /etc/init.d/$conf restart
 }
-
-
-
-
-
-
-
-
-
-
-
 
 qmp_configure_olsr6() {
 
@@ -752,11 +749,6 @@ EOF
 }
 
 
-
-
-
-
-
 qmp_configure_olsr6_uci_unused() {
 
   local conf="olsrd_uci"
@@ -822,15 +814,20 @@ qmp_configure_olsr6_uci_unused() {
 
 qmp_configure_system() {
 
-  local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  local primary_device="$(uci get qmp.node.primary_device)"
+  [ -z "$primary_device" ] && primary_device="eth0"
+
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
-  elif ! [ -z "$primary_mesh_device" ] ; then
-    community_node_id="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
+  else
+    community_node_id="$(qmp_get_mac_for_dev $primary_device | awk -F':' '{print $6}' )"
   fi
 
-  uci set system.@system[0].hostname=qmp${community_node_id}
+  local community_id="$(uci get qmp.node.community_id)"
+  [ -z "$community_id" ] && community_id="qmp"
+
+  uci set system.@system[0].hostname=${community_id}${community_node_id}
   uci commit system
 
   # enable IPv6 in httpd:
@@ -842,8 +839,8 @@ qmp_configure_system() {
 
 
 qmp_check_force_internet() {
-	[ "$(uci get qmp.interfaces.force_internet)" == "1" ] && qmp_gw_offer_default
-	[ "$(uci get qmp.interfaces.force_internet)" == "0" ] && qmp_gw_search_default
+	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
+	[ "$(uci get qmp.networks.force_internet)" == "0" ] && qmp_gw_search_default
 }
 
 qmp_configure() {

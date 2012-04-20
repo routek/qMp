@@ -1,0 +1,32 @@
+#!/bin/sh
+
+echo "content-type: text/plain"
+echo ""
+
+QUERY_KEY="$(echo $QUERY_STRING | cut -d'&' -f1)"
+QUERY_TYPE="$(echo $QUERY_STRING | cut -d'&' -f2)"
+QUERY_DATA="$(echo $QUERY_STRING | cut -d'&' -f3)"
+
+KEY_F="$(uci get qmp.node.key)"
+[ -z "$KEY_F" ] && KEY_F="/tmp/qmp_key"
+KEY="$(cat $KEY_F)"
+[ "$KEY" != "$QUERY_KEY" ] && { echo "Invalid key"; exit 1; }
+
+
+tools_bwtest() {
+	[ ! -z "$QUERY_DATA" ] && /etc/qmp/qmpinfo bwtest $QUERY_DATA
+}
+
+tools_trace() {
+	[ ! -z "$QUERY_DATA" ] && traceroute $QUERY_DATA
+}
+
+tools_ping() {
+	[ ! -z "$QUERY_DATA" ] && ping -c4 $QUERY_DATA -q | grep avg
+}
+
+[ "$QUERY_TYPE" == "bwtest" ] && tools_bwtest
+[ "$QUERY_TYPE" == "traceroute" ] && tools_trace
+[ "$QUERY_TYPE" == "ping" ] && tools_ping
+
+exit 0
