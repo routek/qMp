@@ -45,11 +45,18 @@ nodemask.default = "255.255.255.0"
 nodemask:depends("_netmode","community")
 
 
+--local htmlraw
+--htmlraw = m:option(DummyValue)
+--htmlraw.rawhtml = true
+--htmlraw.default = "<h3>Network devices</h3>"
+
 -- Get list of devices {{ethernet}{wireless}}
 devices = qmpinfo.get_devices()
 
 -- Ethernet devices
-for _,v in ipairs(devices[1]) do
+nodedevs_eth = {}
+
+for i,v in ipairs(devices[1]) do
         tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("Lan")
@@ -59,10 +66,13 @@ for _,v in ipairs(devices[1]) do
 	else
 		tmp.default = "Wan"
 	end
+	nodedevs_eth[i] = {v,tmp}
 end
 
 -- Wireless devices
-for _,v in ipairs(devices[2]) do
+nodedevs_wifi = {}
+
+for i,v in ipairs(devices[2]) do
 	tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("AP")
@@ -71,6 +81,7 @@ for _,v in ipairs(devices[2]) do
 	else
 		tmp.default = "Mesh"
 	end
+	nodedevs_wifi[i] = {v,tmp}
 end
 
 function netmode.write(self, section, value)
@@ -91,7 +102,47 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","lan_address","172.30.22.1")
 		uciout:set("qmp","networks","lan_netmask","255.255.0.0")
 	end
+
+	local i,v,devmode,devname
+	local lan_devices = ""
+	local wan_devices = ""
+	local mesh_devices = ""
+
+	for i,v in ipairs(nodedevs_eth) do
+		devmode = v[2]:formvalue(section)
+		devname = v[1]
+
+		if devmode == "Lan" then
+			lan_devices = lan_devices..devname.." "
+		elseif devmode == "Wan" then
+			wan_devices = wan_devices..devname.." "
+		elseif devmode == "Mesh" then
+			mesh_devices = mesh_devices..devname.." "
+		end	
+	end
+
+	for i,v in ipairs(nodedevs_wifi) do
+		devmode = v[2]:formvalue(section)
+		devname = v[1]
+		
+		if devmode == "AP" then
+			lan_devices = lan_devices..devname.." "
+		elseif devmode == "Mesh" then
+			mesh_devices = mesh_devices..devname.." "
+		end
+	end
+	
+	uciout:set("qmp","interfaces","lan_devices",lan_devices)
+	uciout:set("qmp","interfaces","wan_devices",wan_devices)
+	uciout:set("qmp","interfaces","mesh_devices",mesh_devices)
+
 	uciout:commit("qmp")
 end
+
+function m.on_commit(self,map)
+        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/log/qmp_control_network.log &')
+        luci.sys.call('/etc/qmp/qmp_control.sh configure_wifi > /tmp/log/qmp_control_wifi.log &')
+end
+
 
 return m
