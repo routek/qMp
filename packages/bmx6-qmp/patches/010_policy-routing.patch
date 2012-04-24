@@ -1,0 +1,13 @@
+Author: Simó Albert i Beltran
+Description: Fix tablePrefTuns and tableTuns options.
+--- a/ip.c
++++ b/ip.c
+@@ -2938,7 +2938,7 @@ int32_t opt_ip_version(uint8_t cmd, uint
+ 
+                         if (val) {
+ 
+-                                if (is_policy_rt_supported() != val) {
++                                if (!is_policy_rt_supported()) {
+ 
+                                         dbgf_sys(DBGT_ERR, "Kernel policy-routing support required for %s=%d %c%s=%d",
+                                                 ARG_IP, ip_tmp, LONG_OPT_ARG_DELIMITER_CHAR, c->opt->name, val);

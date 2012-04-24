@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Version 0.1.20111107.1.0
+# Version 0.1.20111107.1.1
 
 include $(TOPDIR)/rules.mk
 
@@ -25,7 +25,7 @@ PKG_SOURCE_PROTO:=git
 
 PKG_SOURCE_URL:=git://qmp.cat/gwck.git
 PKG_REV:=dd85dca18e3ea7047e06277a1f64224bee6df287
-PKG_VERSION:=r2011111401
+PKG_VERSION:=r2011111402
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
