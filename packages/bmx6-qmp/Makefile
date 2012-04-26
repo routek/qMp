@@ -16,6 +16,11 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contibutors:
+#	Simó Albert i Beltran
+#
+
 
 include $(TOPDIR)/rules.mk
 
