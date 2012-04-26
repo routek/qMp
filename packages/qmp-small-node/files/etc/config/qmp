@@ -1,5 +1,9 @@
 
 ## this config should work for Routerstation(PRO), Alix, Fonera, ...
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
