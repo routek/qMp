@@ -39,6 +39,9 @@ config 'qmp' 'networks'
         option 'bmx6_ipv4_prefix24'  '10.202'
 #       option 'bmx6_ipv4_address'   '10.202.9.01/24'  # if commented out then option is autoconfigured based on
                                                        # community_node_id and bmx6_ipv4_prefix
+	option 'bmx6_tablePrefTuns'  '7000'
+	option 'bmx6_tableTuns'      '70'
+	option 'bmx6_throwRules'     '1'
 
         option 'babel_mesh_prefix48' 'fd03:0:0'
 	option 'netserver' '1'

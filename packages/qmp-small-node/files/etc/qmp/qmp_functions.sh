@@ -557,7 +557,15 @@ qmp_configure_bmx6() {
  
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
-  uci set $conf.ipVersion.throwRules="0"
+  if value="$(uci get qmp.networks.bmx6_throwRules)" ; then
+    uci set $conf.ipVersion.throwRules="$value"
+  fi
+  if value="$(uci get qmp.networks.bmx6_tablePrefTuns)"; then
+    uci set $conf.ipVersion.tablePrefTuns="$value"
+  fi
+  if value=$(uci get qmp.networks.bmx6_tableTuns); then
+    uci set $conf.ipVersion.tableTuns="$value"
+  fi
 
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
