@@ -16,6 +16,11 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contibutors:
+#	Simó Albert i Beltran
+#
+
 
 include $(TOPDIR)/rules.mk
 
@@ -35,7 +40,7 @@ Private Sources:
 
 PKG_VERSION:=r2012042401
 
-#PKG_RELEASE:=1
+PKG_RELEASE:=2
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
 
 PKG_SOURCE_VERSION:=$(PKG_REV)

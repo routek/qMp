@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 #/etc/rc.common
 #    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
 #
@@ -18,7 +18,10 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
-
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 QMP_PATH="/etc/qmp"
 SOURCE_NETWORK=1
@@ -138,7 +141,7 @@ qmp_get_ip6_slow() {
         echo "Invalid 3 IPv6 address $addr_prefix" 1>&2
         return 1
       fi
-      
+     
       addr_in=$( printf "%X" $(( $(( $ip3 * 0x100 )) + $ip4 )) )$addr_in
 
 
@@ -231,7 +234,7 @@ qmp_get_ip6_fast() {
 
 qmp_calculate_ula96() {
 
-  local prefix=$1 
+  local prefix=$1
   local mac=$2
   local suffix=$3
 
@@ -262,7 +265,7 @@ qmp_calculate_ula96() {
 
 qmp_calculate_addr64() {
 
-  local prefix=$1 
+  local prefix=$1
   local node=$2
   local suffix=$3
 
@@ -314,7 +317,7 @@ qmp_get_addr64() {
   local mask=$4
 
   local addr64=$( qmp_calculate_addr64 $prefix $node $suffix )
-  
+ 
   echo "$addr64/$mask"
 }
 
@@ -407,7 +410,7 @@ qmp_configure_network() {
   uci set $conf.niit4to6="interface"
   uci set $conf.niit4to6.proto="none"
   uci set $conf.niit4to6.ifname="niit4to6"
-  
+ 
   uci set $conf.niit6to4="interface"
   uci set $conf.niit6to4.proto="none"
   uci set $conf.niit6to4.ifname="niit6to4"
@@ -500,7 +503,7 @@ qmp_configure_network() {
 
   if uci get qmp.interfaces.mesh_devices && uci get qmp.networks.mesh_protocol_vids && uci get qmp.networks.mesh_vid_offset; then
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do 
+    for dev in $(uci get qmp.interfaces.mesh_devices); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -554,10 +557,18 @@ qmp_configure_bmx6() {
   uci set $conf.${cfg_sms}.syncSms=chat
   cfg_sms=$(uci add $conf syncSms)
   uci set $conf.${cfg_sms}.syncSms=map
-  
+ 
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
-  uci set $conf.ipVersion.throwRules="0"
+  if value="$(uci get qmp.networks.bmx6_throwRules)" ; then
+    uci set $conf.ipVersion.throwRules="$value"
+  fi
+  if value="$(uci get qmp.networks.bmx6_tablePrefTuns)"; then
+    uci set $conf.ipVersion.tablePrefTuns="$value"
+  fi
+  if value=$(uci get qmp.networks.bmx6_tableTuns); then
+    uci set $conf.ipVersion.tableTuns="$value"
+  fi
 
 
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
@@ -572,7 +583,7 @@ qmp_configure_bmx6() {
 
     local counter=1
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do 
+    for dev in $(uci get qmp.interfaces.mesh_devices); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -635,7 +646,7 @@ qmp_configure_bmx6() {
 
 
 
- 
+
 
   uci commit $conf
 #  /etc/init.d/$conf restart
@@ -680,7 +691,7 @@ EOF
 
     local counter=1
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do 
+    for dev in $(uci get qmp.interfaces.mesh_devices); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -779,7 +790,7 @@ qmp_configure_olsr6_uci_unused() {
     local counter=1
     local interface_list=""
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do 
+    for dev in $(uci get qmp.interfaces.mesh_devices); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -801,12 +812,12 @@ qmp_configure_olsr6_uci_unused() {
 
        done
     done
- 
+
     uci set $conf.interface="Interface"
     uci add_list $conf.interface.interface="$interface_list"
 
   fi
-  
+ 
   uci commit $conf
 #  /etc/init.d/$conf restart
 }
