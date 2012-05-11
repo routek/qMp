@@ -63,6 +63,7 @@ configure() {
 startup() {
 	$QMP_DIR/qmp_control.sh apply_netserver
 	logread | md5sum | awk '{print $1}' > $QMP_KEY
+	wifi
 }
 
 start() {
