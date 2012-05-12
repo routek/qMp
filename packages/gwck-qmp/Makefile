@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Version 0.1.20120427.0.0
+# Version 0.1.20120427.1.0
 
 include $(TOPDIR)/rules.mk
 
@@ -24,8 +24,8 @@ PKG_NAME:=gwck-qmp
 PKG_SOURCE_PROTO:=git
 
 PKG_SOURCE_URL:=git://qmp.cat/gwck.git
-PKG_REV:=5bd0b7bb39931c51bba0d729a059172ba96c9c77
-PKG_VERSION:=r2012042700
+PKG_REV:=7fca5a6c86163ae877a31ef32ca033311af1c984
+PKG_VERSION:=r2012051200
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
