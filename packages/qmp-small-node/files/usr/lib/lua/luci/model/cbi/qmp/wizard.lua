@@ -95,14 +95,21 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","non_overlapping","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
 		uciout:set("qmp","networks","lan_address",nodeip)
+		uciout:set("qmp","networks","bmx6_ipv4_address",nodeip)
 		uciout:set("qmp","networks","lan_netmask",nodemask)
+
 	else
 		uciout:set("qmp","non_overlapping","ignore","0")
 		uciout:set("qmp","networks","publish_lan","0")
 		uciout:set("qmp","networks","lan_address","172.30.22.1")
 		uciout:set("qmp","networks","lan_netmask","255.255.0.0")
-	end
+		uciout:set("qmp","networks","bmx6_ipv4_prefix24","10.202")
+		uciout:set("qmp","networks","bmx6_ipv4_address","")
+		uciout:set("qmp","networks","olsr6_ipv4_address","")
+		uciout:set("qmp","networks","olsr6_ipv4_prefix24","10.201")
 
+	end
+	
 	local i,v,devmode,devname
 	local lan_devices = ""
 	local wan_devices = ""
@@ -124,12 +131,20 @@ function netmode.write(self, section, value)
 	for i,v in ipairs(nodedevs_wifi) do
 		devmode = v[2]:formvalue(section)
 		devname = v[1]
-		
+			
 		if devmode == "AP" then
 			lan_devices = lan_devices..devname.." "
 		elseif devmode == "Mesh" then
 			mesh_devices = mesh_devices..devname.." "
 		end
+
+		function setmode(s)
+			if s.device == devname then
+				if devmode == "AP" then uciout:set("qmp",s['.name'],"mode","ap") end
+				if devmode == "Mesh" then uciout:set("qmp",s['.name'],"mode","adhoc") end
+			end
+		end
+		uciout:foreach("qmp","wireless",setmode)
 	end
 	
 	uciout:set("qmp","interfaces","lan_devices",lan_devices)
@@ -137,11 +152,13 @@ function netmode.write(self, section, value)
 	uciout:set("qmp","interfaces","mesh_devices",mesh_devices)
 
 	uciout:commit("qmp")
+	apply()
 end
 
-function m.on_commit(self,map)
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/log/qmp_control_network.log &')
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_wifi > /tmp/log/qmp_control_wifi.log &')
+function apply(self)
+	http.redirect("/luci-static/resources/qmp/wait.html")
+        luci.sys.call('qmpcontrol configure_network >> /tmp/log/qmp_control_network.log &')
+        luci.sys.call('qmpcontrol configure_wifi >> /tmp/log/qmp_control_wifi.log &')
 end
 
 
