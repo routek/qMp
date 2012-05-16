@@ -22,7 +22,7 @@ config 'qmp' 'update'
 	option 'images' 'IMAGES'
 	option 'devices' 'DEVICES'
 	option 'filter' 'sysupgrade'
-	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear/*'
+	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear/* /etc/config/b6m-spread'
 
 config 'qmp' 'non_overlapping'
         option 'ignore'              '0'  # Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
