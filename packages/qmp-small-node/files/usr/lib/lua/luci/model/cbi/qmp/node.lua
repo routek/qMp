@@ -20,6 +20,7 @@
 --]]
 
 require("luci.sys")
+local http = require "luci.http"
 
 m = Map("qmp", "Quick Mesh Project")
 
@@ -32,6 +33,7 @@ primary_device = node_section:option(Value,"primary_device", translate("Primary 
 
 
 function m.on_commit(self,map)
+	http.redirect("/luci-static/resources/qmp/wait_short.html")
         luci.sys.call('/etc/qmp/qmp_control.sh configure_system > /tmp/qmp_control_system.log &')
 end
 

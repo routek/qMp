@@ -20,7 +20,7 @@
 --]]
 
 require("luci.sys")
-
+local http = require "luci.http"
 m = Map("qmp", "Quick Mesh Project")
 
 ethernet_interfaces = { 'eth', 'ath', 'wlan' }
@@ -94,6 +94,7 @@ overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime","Leassetime
 -------------------------
 
 function m.on_commit(self,map)
+	http.redirect("/luci-static/resources/qmp/wait_long.html")
         luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
 end
 

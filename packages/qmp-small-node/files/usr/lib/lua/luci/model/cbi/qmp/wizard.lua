@@ -28,7 +28,7 @@ qmpinfo = require "qmpinfo"
 
 m = SimpleForm("qmp_tmp", translate("qMp Wizard"))
 
-netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming for quick deployments.<br/>Community for network communities"))
+netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming is used for quick deployments.<br/>Community for network communities"))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
 netmode.default="roaming"
@@ -156,7 +156,7 @@ function netmode.write(self, section, value)
 end
 
 function apply(self)
-	http.redirect("/luci-static/resources/qmp/wait.html")
+	http.redirect("/luci-static/resources/qmp/wait_long.html")
         luci.sys.call('qmpcontrol configure_network >> /tmp/log/qmp_control_network.log &')
         luci.sys.call('qmpcontrol configure_wifi >> /tmp/log/qmp_control_wifi.log &')
 end

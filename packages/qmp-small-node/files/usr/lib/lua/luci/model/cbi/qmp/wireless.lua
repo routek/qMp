@@ -20,6 +20,7 @@
 --]]
 
 require("luci.sys")
+local http = require "luci.http"
 package.path = package.path .. ";/etc/qmp/?.lua"
 qmp = require "qmpinfo"
 
@@ -109,6 +110,7 @@ end
 
 
 function m.on_commit(self,map)
+	http.redirect("/luci-static/resources/qmp/wait_short.html")
 	luci.sys.call('/etc/qmp/qmp_control.sh configure_wifi > /tmp/qmp_control_wifi.log &')
 end
 
