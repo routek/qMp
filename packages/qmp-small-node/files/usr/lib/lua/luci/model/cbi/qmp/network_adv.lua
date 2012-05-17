@@ -61,9 +61,9 @@ eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 pr
 
 
 -- Option: netserver
-nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test","If enabled the rest of nodes will be able to do bandwidth tests with your node")
-nts:value("1","no")
-nts:value("0","yes")
+nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test","If enabled all nodes will be able to perform bandwidth tests with your node")
+nts:value("0","no")
+nts:value("1","yes")
 
 -- Option force_internet
 fint = eth_section:option(ListValue, "force_internet", "Force internet","Just use it if you want force the system to share/unshare internet")

@@ -97,6 +97,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","lan_address",nodeip)
 		uciout:set("qmp","networks","bmx6_ipv4_address",nodeip)
 		uciout:set("qmp","networks","lan_netmask",nodemask)
+		uciout:set("qmp","node","community_id",name)
 
 	else
 		uciout:set("qmp","non_overlapping","ignore","0")
