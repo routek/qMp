@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>
+		Please wait...
+	</title>
+
+	<style type="text/css">
+
+		body{
+			background-color: #83B6EA;
+		}
+
+		div#progress_screen{
+			margin: 0 auto;
+			width: 500px;
+			border-radius: 4px;
+			background-color: rgba(255,255,255,0.4);
+			padding: 10px;
+		}
+
+		div#progress_screen p{
+			text-align: center;
+			font-size: 1.0em;
+		}
+
+		div#progress_wrapper{
+			position: relative;
+			width: 500px;
+			height: 25px;
+			background-color: #45A2FF;
+		}
+
+		div#progress_wrapper div#progress{
+			width: 0%;
+			height: 100%;
+			background-color: #0074FF;
+		}
+
+		.align-center { float:center; margin: 20px 0px 25px 45px; }
+
+	</style>
+	<script type="text/javascript">
+		var timer;
+		var tick = 1000;
+		var timeout = 20 * 1000;
+		var time = 0;
+		var progressElement; 
+
+		var onLoad = function(){
+			progressElement = document.getElementById('progress');
+			timer = setInterval(function(){
+				time += tick;
+				progressElement.style.width = time*100.0/timeout+'%';
+				if (time >= timeout){
+					clearInterval(timer);
+					history.back();
+				}
+			}, tick);
+		}
+	</script>
+</head>
+<body onload="onLoad();">
+	<div id="progress_screen">
+		<img src="logo.png" class="align-center" />
+		<p>The configuration is being applied, please wait a moment...</p>
+		<div id="progress_wrapper"><div id="progress"></div></div>
+	</div>
+</body>
+</html>
