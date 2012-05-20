@@ -1,0 +1,6 @@
+#!/bin/sh
+
+[ $(grep qmp_stats.sh /etc/crontabs/root -c) -eq 0 ] && echo "*/5 * * * * /etc/qmp/qmp_stats.sh" >> /etc/crontabs/root
+
+/etc/init.d/cron start
+
