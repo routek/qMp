@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Temporal script to re-enable wifi after the boot
+# this is to fix a temporaly issue when you are using non-standard wifi chanels
+
+sed -i -e "/^exit 0/d" /etc/rc.local
+echo "wifi" >> /etc/rc.local
+
