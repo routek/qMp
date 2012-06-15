@@ -26,7 +26,7 @@ plugins_dir = {"/usr/lib/","/var/lib","/lib"}
 plugin = m:section(TypedSection,"plugin","Plugin")
 plugin.addremove = true
 plugin.anonymous = false
-plv = plugin:option(ListValue,"plugin", "Plugin") 
+plv = plugin:option(ListValue,"plugin", "Plugin")
 
 for _,d in ipairs(plugins_dir) do
 	pl = luci.sys.exec("cd "..d..";ls bmx6_*")
