@@ -51,7 +51,7 @@ define Package/qmp-tinyproxy/install
 	$(INSTALL_DIR) $(1)/usr/share/tinyproxy/splash/public
 	$(INSTALL_BIN) ./files/index.html $(1)/usr/share/tinyproxy/splash/public/index.html
 	$(INSTALL_BIN) ./files/index.html.orig $(1)/usr/share/tinyproxy/splash/public/index.html.orig
-	$(INSTALL_DIR) $(1)/tmp/splash/whitelist	
+	$(INSTALL_DIR) $(1)/tmp/splash/whitelist
 	$(INSTALL_DIR) $(1)/www/cgi-bin
 	$(INSTALL_BIN) ./files/tpse $(1)/www/cgi-bin/tpse
 	$(INSTALL_DIR) $(1)/www/tiny_mce
