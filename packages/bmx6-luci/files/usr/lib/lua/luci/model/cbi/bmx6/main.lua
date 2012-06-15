@@ -60,7 +60,7 @@ for _,o in ipairs(options) do
 		ipoptions = o.CHILD_OPTIONS
 		break
 	end
-end 
+end
 
 local help = ""
 local name = ""
