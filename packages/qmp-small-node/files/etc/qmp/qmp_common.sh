@@ -21,7 +21,7 @@ SOURCE_COMMON=1
 #DEBUG="/tmp/qmp_common.debug"
 
 #######################
-# UCI related commands 
+# UCI related commands
 #######################
 
 qmp_uci_get() {
@@ -52,15 +52,15 @@ qmp_uci_set() {
 	return $r
 }
 
-qmp_uci_set_raw() {                      
+qmp_uci_set_raw() {
 	uci -q set $@ > /dev/null
-	r=$?                         
-	uci commit                   
-	r=$(( $r + $? ))  
+	r=$?
+	uci commit
+	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set $@)"
 	qmp_debug "qmp_uci_set_raw: uci -q set $@"
-        return $r                    
-}           
+        return $r
+}
 
 qmp_uci_del() {
 	uci -q del qmp.$1
@@ -117,20 +117,20 @@ qmp_uci_commit() {
 
 qmp_uci_add_raw() {
 	uci -q add $@ > /dev/null
-	r=$? 
+	r=$?
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add $@)"
 	qmp_debug "qmp_uci_add_raw: uci -q add $@"
-	return $r 
+	return $r
 }
 
 qmp_uci_add_list_raw() {
 	uci -q add_list $@ > /dev/null
-	r=$?                                                              
-	uci commit                                                            
-	r=$(( $r + $? ))                                                      
-	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add_list $@)"    
+	r=$?
+	uci commit
+	r=$(( $r + $? ))
+	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci add_list $@)"
 	qmp_debug "qmp_uci_add_list_raw: uci -q add_list $@"
 	return $r
 }
@@ -140,7 +140,7 @@ qmp_uci_import() {
 	[ ! -z "$v" ] && { uci set $v; qmp_debug "qmp_uci_import: uci set $v"; }
 	done
 	uci commit
-	return $?       
+	return $?
 }
 
 qmp_uci_test() {
@@ -190,7 +190,7 @@ qmp_get_wifi_mac_devices() {
 qmp_get_dev_from_mac() {
         ip link | grep $1 -i -B1 | grep -v \@ | egrep -v "ether|br|mon" | grep mtu | awk '{print $2}' | tr -d : | awk NR==1
 
-}          
+}
 
 qmp_get_mac_for_dev() {
 	ip addr show dev $1 | grep -m 1 "link/ether" | awk '{print $2}'
@@ -207,7 +207,7 @@ qmp_reverse_order() {
 
 # Print the output of the command parameter in reverse order (separed by lines)
 qmp_tac() {
-	$@ | awk '{a[NR]=$0} END {for(i=NR;i>0;i--)print a[i]}'  
+	$@ | awk '{a[NR]=$0} END {for(i=NR;i>0;i--)print a[i]}'
 }
 
 qmp_get_dec_node_id() {
