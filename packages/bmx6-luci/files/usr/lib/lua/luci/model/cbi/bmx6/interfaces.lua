@@ -37,7 +37,7 @@ end
 -- Getting json and looking for device section
 local json = bmx6json.get("options")
 
-if json == nil or json.OPTIONS == nil then 
+if json == nil or json.OPTIONS == nil then
 	m.message = "bmx6-json plugin is not running or some mistake in luci-bmx6 configuration, check /etc/config/luci-bmx6"
 	json = {}
 else
