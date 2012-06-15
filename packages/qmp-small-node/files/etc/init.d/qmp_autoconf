@@ -41,18 +41,18 @@ configure() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	wifi
-	
+
 	#Configuring networking
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
 	qmp_configure
-	#/etc/init.d/network restart	                       
+	#/etc/init.d/network restart
 	#sleep 3
 	#QMP_HOSTNAME=$(uci get system.@system[0].hostname)
 	#echo "Update hostname for: '$QMP_HOSTNAME'"
 	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
-	#/etc/init.d/olsrd restart	
-	#/etc/init.d/bmx6 restart	
+	#/etc/init.d/olsrd restart
+	#/etc/init.d/bmx6 restart
 	#ifup -a
 	#/etc/init.d/dnsmasq restart
 	touch "$CONTROL_FILE"
