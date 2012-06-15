@@ -157,16 +157,16 @@ PRIVATE_NETWORKS="$IPLOCAL 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
 
 	case $1 in
 		stop)
-			iptables -t nat -D PREROUTING -i br-lan -j captive-portal	
+			iptables -t nat -D PREROUTING -i br-lan -j captive-portal
 			iptables -t nat -F captive-portal
 			iptables -t nat -X cpative-portal
 		;;
-		start)	
+		start)
 
 			iptables -t nat -N captive-portal
 			iptables -t nat -I PREROUTING -i br-lan -j captive-portal
-			for i in $PRIVATE_NETWORKS 
-			do 
+			for i in $PRIVATE_NETWORKS
+			do
 				iptables -t nat -I captive-portal -d ${i} -j RETURN
 			done
 			iptables -t nat -A captive-portal -p tcp --destination-port 80 -j DNAT --to-destination ${IPLOCAL}:8888
