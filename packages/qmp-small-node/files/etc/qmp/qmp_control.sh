@@ -37,14 +37,14 @@ search_default_gw() {
 }
 
 configure_wifi() {
-	qmp_configure_wifi_initial 
+	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	wifi
 }
 
-apply_netserver() {                                                                                    
+apply_netserver() {
         [ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
-}  
+}
 
 configure_network() {
 	qmp_configure
@@ -89,7 +89,7 @@ help() {
 	echo ""
 	echo "Available functions:"
 	echo "  offer_default_gw  : Offers default gw to the network"
-	echo "  search_default_gw : Search for a default gw in the network" 
+	echo "  search_default_gw : Search for a default gw in the network"
 	echo "  configure_wifi    : Configure and apply current wifi settings"
 	echo "  configure_network : Configure and apply current network settings"
 	echo "  configure_system  : Configure and apply current system settings (qmp.node section and so on)"
