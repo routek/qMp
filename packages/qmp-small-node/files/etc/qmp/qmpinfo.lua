@@ -63,7 +63,7 @@ function qmpinfo.get_modes(dev)
 	local iw = iwinfo[iwinfo.type(dev)]
 	if iw ~= nil then modes = iw.hwmodelist(dev) end
 	return modes
-	
+
 end
 
 
@@ -76,33 +76,33 @@ function qmpinfo.get_txpower(dev)
 			table.insert(txpower_supported,v.dbm)
 		end
 	end
-	
+
 	return txpower_supported
-	
+
 end
 
 function qmpinfo.get_channels(dev)
-	local clist = {} -- output channel list      
-	local iw = iwinfo[iwinfo.type(dev)]            
-	local ch = {}                                            
+	local clist = {} -- output channel list
+	local iw = iwinfo[iwinfo.type(dev)]
+	local ch = {}
 
-	-- if there are not wireless cards, returning a dummy value                                                 
-	if iw == nil then                            
-		ch.channel=0                           
-		ch.adhoc=false                       
-		ch.ht40p=false                       
-		ch.ht40m=false                       
-		table.insert(clist,ch)                                                                                           
-		return clist                         
-	end                                          
-             
+	-- if there are not wireless cards, returning a dummy value
+	if iw == nil then
+		ch.channel=0
+		ch.adhoc=false
+		ch.ht40p=false
+		ch.ht40m=false
+		table.insert(clist,ch)
+		return clist
+	end
+
 	local freqs = iw.freqlist(dev) --freqs list
 	local c -- current channel
 	local nc = 0 -- next channel
 	local pc = 0 -- previous channel
 	local adhoc
 	local ht40_support = qmpinfo.get_modes(dev).n
-	
+
 
 	for i,f in ipairs(freqs) do
 		c = f.channel
@@ -119,13 +119,13 @@ function qmpinfo.get_channels(dev)
 
 		-- 2.4Ghz band
 		if c < 15 then
-			if c < 4 then 
+			if c < 4 then
 				ch.ht40p = true
-			
-			elseif c < 10 then 
-				ch.ht40m = true  
+
+			elseif c < 10 then
+				ch.ht40m = true
 				ch.ht40p = true
-			else 
+			else
 				ch.ht40m = true
 			end
 
@@ -139,10 +139,10 @@ function qmpinfo.get_channels(dev)
 			else pc = freqs[i-1].channel
 			end
 
-			if nc ~= nil and nc-c == 4 then 
-				ch.ht40p = true 
+			if nc ~= nil and nc-c == 4 then
+				ch.ht40p = true
 			end
-	
+
 			if pc ~= nil and c-pc == 4 then
 				ch.ht40m = true
 			end
@@ -157,7 +157,7 @@ function qmpinfo.get_channels(dev)
 
 		table.insert(clist,ch)
 
-	end	
+	end
 	return clist
 end
 
@@ -166,7 +166,7 @@ function qmpinfo.get_ipv4()
 	local ipv4 = {}
 	local ipv4_raw = util.exec("ip -4 a | grep inet | awk '{print $2}' | awk -F/ '{print $1}' | grep -v 127.0.0.1")
 	for _,v in ipairs(util.split(ipv4_raw)) do
-		if #util.trim(v) > 1 then 
+		if #util.trim(v) > 1 then
 			table.insert(ipv4,util.trim(v))
 		end
 	end
@@ -183,15 +183,15 @@ function qmpinfo.get_uname()
 	return uname
 end
 
-function qmpinfo.bandwidth_test(ip)                 
+function qmpinfo.bandwidth_test(ip)
         local bwtest = util.trim(util.exec("netperf -6 -p 12865 -H "..ip.." -fm -v0 -P0"))
-        local result = nil                           
-        if #bwtest < 10 then                   
-                result = bwtest                     
-        end                
-   
-        return result                                  
-end   
+        local result = nil
+        if #bwtest < 10 then
+                result = bwtest
+        end
+
+        return result
+end
 
 function qmpinfo.nodes()
 	local nodes = util.split(util.exec('bmx6 -c --originators | awk \'{print $1 "|" $3}\' | grep -e ".*:.*:"'))
