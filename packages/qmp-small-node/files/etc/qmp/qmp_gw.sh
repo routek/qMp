@@ -52,11 +52,11 @@ qmp_gw_masq_wan() {
 	#Looking for a firewall zone with name wan
 	while [ ! -z "$v" ]; do
 		v=$(qmp_uci_get_raw firewall.@zone[$j].name)
-		[ "$v" == "wan" ] && { wan=$j; break; } 
+		[ "$v" == "wan" ] && { wan=$j; break; }
 		j=$(( $j +1 ))
 	done
 
-	if [ -z "$wan" ]; then 
+	if [ -z "$wan" ]; then
 	#if not found, we are going to create it
 		cfg="$(qmp_uci_add_raw_get_cfg firewall zone)"
 		qmp_uci_set_cfg firewall.$cfg.input=ACCEPT
@@ -66,7 +66,7 @@ qmp_gw_masq_wan() {
 		qmp_uci_set_cfg firewall.$cfg.masq=$masq
 		qmp_uci_commit firewall
 
-	else 
+	else
 	#if found we just change parameters
 		qmp_uci_set_raw firewall.@zone[$wan].input=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].output=ACCEPT
