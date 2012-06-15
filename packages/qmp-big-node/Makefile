@@ -48,7 +48,8 @@ define Package/qmp-big-node
 	+wget +horst \
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
-	+b6m
+	+b6m \
+	+quagga +quagga-bgpd +quagga-ospfd
 
 endef
 
