@@ -82,7 +82,7 @@ qmp_update_check() {
 	qmp_update_get_config
 
 	device_hash="$(qmp_update_get_local_hash)"
-	
+
 	my_device="$(qmp_update_get_my_device $url/$devices $device_hash $filter)"
 	qmp_debug "My device is $my_device"
 
@@ -93,15 +93,15 @@ qmp_update_check() {
 
 	last_timestamp="$(qmp_update_extract_timestamp $last_image)"
 	current_timestamp="$(qmp_update_get_current_timestamp)"
-	
-	if [ $current_timestamp -lt $last_timestamp ]; then 
+
+	if [ $current_timestamp -lt $last_timestamp ]; then
 		checksum="$(qmp_update_get_checksum_from_image $url/$images $last_image)"
 		echo "$url/$last_image $checksum"
 	fi
 }
 
 qmp_update_save_config() {
-	cd /  
+	cd /
 	tar czf /tmp/qmp_saved_config.tar.gz $@
 	[ $? -ne 0 ] && qmp_error "Cannot save config: $@"
 	echo "/tmp/qmp_saved_config.tar.gz"
@@ -112,7 +112,7 @@ qmp_update_save_config() {
 qmp_update_upgrade_system() {
 	image_url="$1"
 
-	if [ -z "$image_url" ]; then 
+	if [ -z "$image_url" ]; then
 		last_update_info="$(qmp_update_check)"
 		image_url="$(echo $last_update_info | awk '{print $1}')"
 		checksum="$(echo $last_update_info | awk '{print $2}')"
@@ -131,14 +131,14 @@ qmp_update_upgrade_system() {
 	else
 		output_image=$image_url
 	fi
-	
+
 	# Checking checksum
 	if [ -n "$checksum" ]; then
 		checksum_local="$(md5sum /tmp/qmp_upgrade_image.bin | awk '{print $1}')"
 		[ "$checksum_local" != "$checksum" ] && qmp_error "Upgrade not possible, checksum missmatch. Try again!"
 		qmp_log "Checksum correct!"
 	fi
-		
+
 	# Saving configuration
 	preserve="$(qmp_uci_get update.preserve)"
 	if [ -z "$preserve" ]; then
