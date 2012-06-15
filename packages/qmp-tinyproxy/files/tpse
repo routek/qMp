@@ -80,7 +80,7 @@ get_query_value()
 			echo "$value" | decode
 		fi
 	done
-} 
+}
 
 is_secure()
 {
@@ -203,7 +203,7 @@ function handleFileSelect(event, fieldName, win)
 {
 	// Get file from FileList object
 	var file = event.target.files[0];
-	
+
 	var reader = new FileReader();
 
 	// Closure to capture the file information.
@@ -257,7 +257,7 @@ function myCustomURLConverter(url, node, on_save)
 			}
 		}
 	}
-	
+
 	// Return new URL
 	return url;
 }
@@ -314,7 +314,7 @@ tinyMCE.init(
 		width: "100%",
 		height: "500",
 		plugins : "fullpage,autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount,advlist,autosave",
-		
+
 		// Theme options
 		theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
 		theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
@@ -324,13 +324,13 @@ tinyMCE.init(
 		theme_advanced_toolbar_align : "left",
 		theme_advanced_statusbar_location : "bottom",
 		theme_advanced_resizing : true,
-			
+
 		file_browser_callback : "myCustomFileBrowser",
 		urlconverter_callback : "myCustomURLConverter",
 		//execcommand_callback : "myCustomExecCommandHandler",
 
 		setup : "addContinueButton",
-		
+
 		oninit: "init"
 	}
 );
