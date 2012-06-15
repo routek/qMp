@@ -35,10 +35,10 @@ eth_section:option(Value, "dns", "Nameservers","Define the nameservers to use")
 -- Option: lan addresses
 eth_section:option(Value, "lan_address", "LAN address","IPv4 address for LAN interfaces")
 
--- Option: lan addresses                                          
+-- Option: lan addresses
 eth_section:option(Value, "lan_netmask", "LAN netmask","IPv4 netmask for LAN interfaces")
 
--- Option: publish lan 
+-- Option: publish lan
 eth_section:option(Flag, "publish_lan", "Publish LAN", "Publish LAN network through the mesh")
 
 -- Option bmx6_ipv4_address
@@ -53,7 +53,7 @@ eth_section:option(Value, "olsr6_ipv4_prefix24", "IPv4 prefix for OLSR","IPv4 pr
 -- Option: bmx6_ipv4_prefix24
 eth_section:option(Value, "bmx6_ipv4_prefix24", "IPv4 prefix for BMX6","IPv4 prefix used for BMX6 network (used if bmx6_ipv4_address not defined)")
 
--- Option: bmx6_ripe_prefix48                 
+-- Option: bmx6_ripe_prefix48
 eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
 
 -- Option: olsr6_ripe_prefix48
