@@ -4,10 +4,10 @@
 
  - ESSID should depends on channel
 
- - after removing /qmp_configured and having changed driver 
+ - after removing /qmp_configured and having changed driver
    to madwifi autoconf scripts system ignores that.
-   In fact the decision wheter it loads madwifi or mac80211 
-   depends on whether the qmp/network option mesh_devices 
+   In fact the decision wheter it loads madwifi or mac80211
+   depends on whether the qmp/network option mesh_devices
    has wlan* or ath* names in the list
 
 -  felix patches must be checked:
@@ -22,7 +22,7 @@
 DONE:
 
 -  The vlan problem with mac80211 drivers:
-   vlan interfaces for ath9k are created as vlan12@wlan1 
+   vlan interfaces for ath9k are created as vlan12@wlan1
    NO vlan interfaces for ath5k devices are created.
 
 
