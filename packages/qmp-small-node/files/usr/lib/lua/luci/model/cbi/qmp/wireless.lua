@@ -72,29 +72,29 @@ for _,wdev in ipairs(wdevs) do
 
 	s_wireless = m:section(NamedSection, wdev, "Wireless device", "Wi-Fi " .. mydev)
 	s_wireless.addremove = False
-	
+
 	-- Device
 	dev = s_wireless:option(DummyValue,"device","Device")
-	
+
 	-- MAC
 	mac = s_wireless:option(DummyValue,"mac","MAC")
-	
+
 	-- Mode
 	mode = s_wireless:option(ListValue,"mode","Mode")
 	mode:value("adhoc","Ad-Hoc")
 	mode:value("ap","Access Point")
 	mode:value("client","Client")
 	mode:value("none","Not used")
-	
+
 	-- Name
 	s_wireless:option(Value,"name","Wireless name")
-	
+
 	-- Channel
 	channel = s_wireless:option(ListValue,"channel","Channel")
 	mymode = m.uci:get("qmp",wdev,"mode")
 
 	for _,ch in ipairs(qmp.get_channels(mydev)) do
-		if mymode ~= "adhoc" or ch.adhoc then  
+		if mymode ~= "adhoc" or ch.adhoc then
 			channel:value(ch.channel, ch.channel)
 			if ch.ht40p then channel:value(ch.channel .. '+', ch.channel .. '+') end
 			if ch.ht40m then channel:value(ch.channel .. '-', ch.channel .. '-') end
@@ -102,7 +102,7 @@ for _,wdev in ipairs(wdevs) do
 	end
 
 	-- Txpower
-	txpower = s_wireless:option(ListValue,"txpower","Power")	
+	txpower = s_wireless:option(ListValue,"txpower","Power")
 	for _,t in ipairs(qmp.get_txpower(mydev)) do
 		txpower:value(t,t)
 	end
