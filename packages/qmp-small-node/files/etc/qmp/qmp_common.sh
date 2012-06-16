@@ -189,7 +189,6 @@ qmp_get_wifi_mac_devices() {
 # qmp_get_dev_from_mac 00:22:11:33:44:55
 qmp_get_dev_from_mac() {
         ip link | grep $1 -i -B1 | grep -v \@ | egrep -v "ether|br|mon" | grep mtu | awk '{print $2}' | tr -d : | awk NR==1
-
 }
 
 qmp_get_mac_for_dev() {
