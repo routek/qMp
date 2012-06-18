@@ -2,7 +2,7 @@
 <meta http-equiv="refresh" content="10" />
 <h2><a id="content" name="content"><%:Links%></a></h2>
 <br />
-<div id="links" style="position:relative;padding-left:3px">
+<div id="links" style="position:relative;padding-left:2px">
 
 <% for j,d in pairs(links) do %>
 
@@ -16,17 +16,20 @@
 	<div style="display:table">
 		
 <% for i,l in ipairs(d) do  %>
-	<div id="link" style="background-color:#dadbe9;left:50px;width:500px;margin:10px;float:left;position:relative">
+	<div id="link" style="background-color:#dadbe9;left:50px;width:300px;margin:10px;float:left;position:relative">
 	<table>
+	<tr><th colspan="2">
+		<span style="color:grey;font-weight:700;text-align:left;">
+		<%=l.globalId%>
+		<br />
+		</span>
+	</th></tr>
 	<tr>
 		<td><img src="/luci-static/resources/bmx6/link.png"/></td>
 		<td>
-		<div id="gid" style="text-align:center;margin:5px;">
-			<a href="http://<%=l.llocalIp%>" target="_blank"><%=l.globalId%></a>
-		</div>
 		<ul>
-			<li>IP: <%=l.llocalIp%></li>
-			<li>Device: <strong><%=l.viaDev%></strong></li>
+			<li>Local IP: <a href="[<%=l.llocalIp%>]"><%=l.llocalIp%></a></li>
+			<li>Device: <%=l.viaDev%></li>
 			<li>Rate (rx/tx):  
 				<% if l.rxRate+l.txRate < 120 then %>
 					<span style="color:red;">
