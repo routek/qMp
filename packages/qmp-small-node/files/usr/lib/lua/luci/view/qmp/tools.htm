@@ -1,21 +1,18 @@
 <%+header%>
 
 <script type="text/javascript">
+
 function do_test(ip,index,key,tool) {
 	var output = document.getElementById('output_'+index);
 
 	if (output) {
 		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:middle"/&gt; ';
                 output.style.display = 'inline';
-
-		var result = new XMLHttpRequest();
-		result.open("GET", "/cgi-bin/tools?" + key + "&amp;" + tool + "&amp;" + ip, true);
-                result.onreadystatechange = function() {
-                	if (result.readyState == 4) {
-                	    output.innerHTML= parse_result(result.responseText);
-                        }
-                }  
-                result.send(null);
+		XHR.get("/cgi-bin/tools",[ key ,  tool ,  ip] ,
+                function(x) {
+                	    output.innerHTML= parse_result(x.responseText);
+			    
+                } )
 	}
 }
 function parse_result(txt) {
@@ -25,21 +22,37 @@ function parse_result(txt) {
 		return("&lt;font color='#f00'&gt;<%:Cannot connecto to netserver%>&lt;/font&gt;");
 	else 
 		return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");	
+		//return("<font color='#0a0'>"+txt+"</font>");	
 }
 
 </script>
 
 <h2>Tools</h2>
-<p><strong><u>Nodes found in the network:</u></strong></p>
+
+<div class="cbi-map">
 <form>
+<fieldset class="cbi-section">
+<legend><%:Nodes found in the network%></legend>
+	
+	<table class="cbi-section-table" >
+	<tr class="cbi-section-table-titles">
+	<th class="cbi-section-table-cell"></th>
+	<th class="cbi-section-table-cell"></th>
+	<th class="cbi-section-table-cell"></th>
+	</tr>
 <% for i,n in ipairs(nodes) do %>
-	<div style="clear:both;height:30px;width:800px;float:left">
-	<strong><%=n[1]%></strong> <%=n[2]%> &nbsp;&nbsp; &nbsp;&nbsp;
-	<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
-	<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
-	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_<%=i%>"></span>	
-	</div>
+	<tr>
+		<td title="<%=n[2]%>" style="padding-left:10px;width:15%;text-align:left;"><%=n[1]%></td> 
+		<td style="width:18%;text-align:right;">
+			<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
+			<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
+			<input type="button" value="trace" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','traceroute')" />
+		</td>
+		<td style="text-align:left;padding-left:10px;"><span id="output_<%=i%>"></span></td>
+	</tr>
 <% end %>
+</table>
+<br /><br />
 	<div style="clear:both;height:30px;float:left">
 	<strong>Specify Custom ip:</strong>
 	<input type="text" name="custom" />
@@ -47,8 +60,9 @@ function parse_result(txt) {
 	<input type="button" value="ping" onclick="do_test(this.form.custom.value,'custom','<%=key%>','ping')"  />
 	<span style="display:none;margin-left:5px;border:1px solid #000;padding:0.1em 0.4em" id="output_custom"></span>
 	</div>
+</fieldset>
 </form>
-
+</div>
 
 <%+footer%>
 
