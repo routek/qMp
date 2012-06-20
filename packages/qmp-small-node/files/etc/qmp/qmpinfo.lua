@@ -71,7 +71,7 @@ function qmpinfo.get_txpower(dev)
 	local iw = iwinfo[iwinfo.type(dev)]
 	local txpower_supported = {}
 	if iw ~= nil then
-		local txp = iw.txpwrlist(dev)
+		local txp = iw.txpwrlist(dev) or {}
 		for _,v in ipairs(txp) do
 			table.insert(txpower_supported,v.dbm)
 		end
