@@ -66,10 +66,8 @@ define CommentsAndOptions
   DEPENDS_COMMENT:= \
 	+luci-mod-freifunk-community \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-        +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config +bmx-gsf-map \
+        +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config \
 	+eigennet-autoconf \
-	+gsf-map-minimal \
-	+gsf-map-full \
 	+wpa-supplicant-mini \
 	+hostapd-mini \
 
@@ -80,7 +78,7 @@ endef
 #	+tcpdump \
 #	+bwm +wprobe-export \
 
-#	+small-mesh-node +gsf-map-full \
+#	+small-mesh-node \
 #	+wget \
 #	+bwm +wprobe-export \
 #	+kmod-usb-core +kmod-usb-net +kmod-usb-ohci +kmod-usb2 +kmod-rt73-usb \
