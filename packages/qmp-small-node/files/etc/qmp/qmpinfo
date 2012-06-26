@@ -101,6 +101,15 @@ function nodes()
 	end
 end
 
+function links()
+	for _,n in ipairs(qmpinfo.links()) do
+		if #n == 2 then
+			print(n[1].." "..n[2])
+		end
+	end
+end
+
+
 function key()
 	print(qmpinfo.get_key())
 end
@@ -129,6 +138,8 @@ elseif question == "nodes" then
         nodes()   
 elseif question == "key" then
 	key()
+elseif question == "links" then
+	links()
 else
 	print_help()
 end
