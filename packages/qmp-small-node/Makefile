@@ -25,7 +25,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
-PKG_RELEASE:=3
+PKG_RELEASE:=7
 #PKG_SOURCE_URL:=@SF/qmp-small-node
 #PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
@@ -49,7 +49,7 @@ define Package/qmp-small-node
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
 	+gwck-qmp \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
-	+olsrd-mod-arprefresh +olsrd-luci \
+	+olsrd-mod-arprefresh \
 	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+firewall \
 	+ip \
@@ -61,7 +61,7 @@ define Package/qmp-small-node
 	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \
 	+gwck-qmp \
-	+b6m-spread
+	+b6m-spread \
 
 endef
 
