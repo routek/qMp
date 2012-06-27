@@ -25,7 +25,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 #PKG_SOURCE_URL:=@SF/qmp-small-node
 #PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
@@ -62,7 +62,6 @@ define Package/qmp-small-node
 	+kmod-tun \
 	+gwck-qmp \
 	+b6m-spread \
-	+qmp-ssh-keys \
 
 endef
 
