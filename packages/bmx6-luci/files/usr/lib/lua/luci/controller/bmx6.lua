@@ -161,7 +161,7 @@ end
 
 function action_neighbours_j()
 	local http = require "luci.http"
-	local link_non_js = "/cgi-bin/luci" .. http.getenv("PATH_INFO") .. 'neighbours_nojs'
+	local link_non_js = "/cgi-bin/luci" .. http.getenv("PATH_INFO") .. '/neighbours_nojs'
 
 	luci.template.render("bmx6/neighbours_j", {link_non_js=link_non_js})
 end
