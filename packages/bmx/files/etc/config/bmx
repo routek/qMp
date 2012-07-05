@@ -1,0 +1,28 @@
+config 'bmxd' 'general'
+	option 'base_port' '16305'
+	option 'prio_rules_offset' '400'
+	option 'rt_table_offset' '40'
+	option 'ogm_interval' '500'
+	option 'routing_class' '3'
+	option 'one_way_tunnel' '4'
+	option 'gateway_tunnel_network' '169.254.128.0/22'
+	option 'http_info_port' '8099'
+	option 'http_info_global_access' '1'
+	option 'gsf_map_name' 'graciasensefils.net'
+	option 'gsf_map_longitude' '2.15584'
+	option 'gsf_map_latitude' '41.40411'
+	option 'gsf_map_hw' 'unknown'
+	option 'gsf_map_email' 'info@graciasensefils.net'
+
+config 'plugin' 'plugin_0'
+	option 'plugin' 'bmx_http_info.so'
+
+config 'plugin' 'plugin_1'
+	option 'plugin' 'bmx_gsf_map.so'
+
+config 'throw_rule' 'throw_rule_0'
+	option 'throw_rule' '172.16.0.0/14'
+
+config 'throw_rule' 'throw_rule_1'
+	option 'throw_rule' '172.24.0.0/14'
+

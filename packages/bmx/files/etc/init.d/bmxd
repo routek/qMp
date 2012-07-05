@@ -1,0 +1,93 @@
+#!/bin/sh /etc/rc.common
+
+# GSF BMXD init script
+#
+# Copyright (C) 2006 OpenWrt.org
+# Copyright (C) 2008 graciasensefils.net - Agustí Moll, Axel Neumann, Simó Albert
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Version 0.2.2.2009.6.7.1702
+
+START=90
+STOP=90
+
+BMXD_COMMAND="bmxd -d3"
+
+#. /lib/config/uci.sh
+#uci_load bmxd
+
+start() {
+	bmx_args=""
+	if [ -f /etc/config/bmxd ] ; then
+		interface=$(uci get bmxd.general.interface)
+		if [ "$interface" = "" ]; then
+			echo $1 Error, you must specify at least a network interface
+			exit
+		fi
+		misc=$(uci get bmxd.general.misc)
+		announce=$(uci get bmxd.general.announce)
+		gateway_class=$(uci get bmxd.general.gateway_class)
+		originator_interval=$(uci get bmxd.general.originator_interval)
+		preferred_gateway=$(uci get bmxd.general.preferred_gateway)
+		routing_class=$(uci get bmxd.general.routing_class)
+		visualisation_srv=$(uci get bmxd.general.visualisation_srv)
+
+
+		if [ "$announce" != "" ]; then
+                	for anunci in $announce; do
+				bmx_args=${bmx_args}'-a '$anunci' '
+			done
+		fi
+
+		if [ $gateway_class ]; then
+			bmx_args=${bmx_args}'-g '$gateway_class' '
+		fi
+
+		if [ $originator_interval ]; then
+			bmx_args=${bmx_args}'-o '$originator_interval' '
+		fi
+
+		if [ $preferred_gateway ]; then
+			bmx_args=${bmx_args}'-p '$preferred_gateway' '
+		fi
+
+		if [ $routing_class ]; then
+			bmx_args=${bmx_args}'-r '$routing_class' '
+		fi
+		
+		if [ $visualisation_srv ]; then
+			bmx_args=${bmx_args}'-s '$visualisation_srv' '
+		fi
+	
+
+		bmx_args=${misc}' '${bmx_args}$interface
+	fi
+
+	echo "$BMXD_COMMAND $bmx_args"
+	cd /tmp/
+	ulimit -c 20000
+	$BMXD_COMMAND $bmx_args >/dev/null 2>&1 &
+}
+
+stop() {
+	killall bmxd
+	echo -n "Please wait. "
+	while ps aux | grep -q "$BMXD_COMMAND $" ; do
+		echo -n .
+		sleep 1
+	done
+	echo " Thanks."
+}
+
