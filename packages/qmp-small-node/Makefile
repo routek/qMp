@@ -34,7 +34,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-small-node
   SECTION:=net
-  CATEGORY:=Base system
+  CATEGORY:=qMp
   TITLE:=Required addons for small qmp mesh nodes ( 4MByte )
   URL:=http://qmp.cat
   DEPENDS:= \

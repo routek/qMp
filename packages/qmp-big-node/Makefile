@@ -35,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-big-node
   SECTION:=net
-  CATEGORY:=Base system
+  CATEGORY:=qMp
   TITLE:=Required addons for big qmp mesh nodes (8MByte flash or more)
   URL:=http://qmp.cat
   DEPENDS:= \
