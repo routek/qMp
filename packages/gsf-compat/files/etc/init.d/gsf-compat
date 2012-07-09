@@ -1,0 +1,10 @@
+#!/bin/sh
+
+
+get_ssid() {
+
+}
+
+get_bssid() {
+
+}

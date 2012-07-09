@@ -1,0 +1,7 @@
+
+
+config gsf-compat options
+	option community 'guifisants'
+	option ip '10.140.48.1'
+	
+
