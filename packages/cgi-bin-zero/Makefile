@@ -17,6 +17,7 @@
 #
 
 include $(TOPDIR)/rules.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=cgi-bin-zero
 PKG_VERSION:=1
@@ -26,13 +27,13 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/cgi-bin-zero
   SECTION:=utils
-  CATEGORY:=Utilities
+  CATEGORY:=qMp
   TITLE:=cgi-bin/zero
   MAINTAINER:=Simó Albert i Beltran <sim6@probeta.net>
 endef
 
 define Package/cgi-bin-zero/description
- cgi-bin/zero
+ cgi-bin/zero dummy script
 endef
 
 define Build/Compile
@@ -44,3 +45,4 @@ define Package/cgi-bin-zero/install
 endef
 
 $(eval $(call BuildPackage,cgi-bin-zero))
+
