@@ -1,4 +1,4 @@
-#!/usr/bin/luapplies UCI configuration changes
+#!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
 
