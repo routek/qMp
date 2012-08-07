@@ -25,6 +25,8 @@ local debug = require "qmp.debug"
 
 model = {}
 
+local model.file = 'qmp'
+
 --- Get a section type or an option
 -- @class function
 -- @name get
@@ -38,7 +40,7 @@ function model.get(section, option)
 		return nil
 	else
 		if section and option then
-			return c:get('qmp', section, option)
+			return c:get(model.get_file(), section, option)
 		else
 			return nil
 		end
@@ -59,7 +61,7 @@ function model.add(type, name, values)
 		debug.logger(c)
 		return nil
 	else
-		if c:section('qmp', type, name, values) then
+		if c:section(model.get_file(), type, name, values) then
 			model.commit(c)
 			return nil, true
 		else
@@ -91,14 +93,14 @@ function model.delete(section, option)
 		return nil
 	else
 		if option then
-			if c:delete('qmp', section, option) then
+			if c:delete(model.get_file(), section, option) then
 				model.commit(c)
 				return nil, true
 			else
 				return false
 			end
 		else 
-			if c:delete('qmp', section) then
+			if c:delete(model.get_file(), section) then
 				model.commit(c)
 				return true
 			else
@@ -121,9 +123,9 @@ function model.delete_type(type)
 		return nil
 	else
 		function del (s)
-			c:delete('qmp', s['.index'])
+			c:delete(model.get_file(), s['.index'])
 		end
-		if c:foreach('qmp', type, del) then
+		if c:foreach(model.get_file(), type, del) then
 			return true
 		else
 			return false
@@ -145,7 +147,7 @@ function model.set(section, option, value)
 		return nil
 	else
 		if section and option then
-			if c:set('qmp', section, option, value) then
+			if c:set(model.get_file(), section, option, value) then
 				model.commit(c)
 				return true
 			else
@@ -171,7 +173,7 @@ function model.set_list(section, option, value)
 		return nil
 	else
 		if section and option then
-			if c:set_list('qmp', section, option, value) then
+			if c:set_list(model.get_file(), section, option, value) then
 				model.commit(c)
 				return nil, true
 			else
@@ -210,7 +212,7 @@ function model.get_all_type(type)
 		return nil
 	else
 		local gt = {}
-		if c:foreach('qmp', type, function (t) table.insert(gt, t) end) then
+		if c:foreach(model.get_file(), type, function (t) table.insert(gt, t) end) then
 			return gt
 		else
 			return false
@@ -229,7 +231,7 @@ function model.get_type_index(type, index)
 		return nil
 	else
 		local gt = {}
-		if c:foreach('qmp', type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
+		if c:foreach(model.get_file(), type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
 			return gt
 		else 
 			return false
@@ -250,7 +252,7 @@ function model.get_type_option(type, index, option)
 		return nil
 	else
 		local gt = {}
-		if c:foreach('qmp', type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
+		if c:foreach(model.get_file(), type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
 			return gt[option]
 		else 
 			return false
@@ -289,7 +291,21 @@ end
 -- @param cmd	Don't apply only return the command
 function model.apply(cmd)
 	local c = uci.cursor()
-	c.apply('qmp', cmd)
+	c.apply(model.get_file(), cmd)
+end
+
+--- Set the config file do you want to work with
+-- @param f Name of a file found on the path /etc/config/
+function model.set_file(f)
+	if f then
+		model.file = f
+	end
+end
+
+--- Get the currently configuration file
+-- @return Name of the currently working configuration file found on the path /etc/config/
+function model.get_file()
+	return model.file
 end
 
 return model
