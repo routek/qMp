@@ -53,6 +53,8 @@ define Package/qmp-big-node
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
 	+b6m \
+	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
+	+bmx6-qmp-quagga \
 	+cgi-bin-zero \
 
 endef
@@ -64,6 +66,8 @@ endef
 
 define CommentsAndOptions
   DEPENDS_COMMENT:= \
+	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
+	+qmp-quagga-zebra +qmp-quagga-watchquagga \
 	+luci-mod-freifunk-community \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
         +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config +bmx-gsf-map \
@@ -79,7 +83,6 @@ endef
 #       +niit \
 #	+tcpdump \
 #	+bwm +wprobe-export \
-
 #	+small-mesh-node +gsf-map-full \
 #	+wget \
 #	+bwm +wprobe-export \
