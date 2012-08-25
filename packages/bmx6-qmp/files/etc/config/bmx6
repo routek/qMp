@@ -1,12 +1,26 @@
 # for more options execute: bmx6 --help
 
+config 'plugin'
+        option 'plugin' 'bmx6_config.so'
+
+config 'plugin'
+        option 'plugin' 'bmx6_json.so'
+
+config 'plugin'
+        option 'plugin' 'bmx6_sms.so'
+
+config 'plugin'
+        option 'plugin' 'bmx6_quagga.so'
+
+config 'ipVersion'
+        option 'ipVersion' '6'
+#       option 'throwRules' '0'
+
+
 config 'bmx6' 'general'
 #       option 'runtimeDir' '/var/run/bmx6'
 #       option 'tun4Address' '10.202.0.116/32'
 
-#config 'ipVersion' 'ipVersion'
-#       option 'ipVersion' '6'   # default is 4
-#       option 'throwRules' '0'
 
 config 'dev' 'mesh_1'
         option 'dev' 'eth0.12'
@@ -17,3 +31,28 @@ config 'dev' 'mesh_2'
 #config 'hna' 'my_global_prefix'
 #       option 'hna' '2012:0:0:74:0:0:0:0/64'
 
+
+
+config 'bmx6' 'general'
+#        option 'tun6Address' '2012:0:0:1123::1/64'
+#        option 'tun4Address' '10.1.2.3/32'
+
+#config 'tunOut'
+#        option 'tunOut' 'ip6'
+#        option 'network' '::/0'
+#        option 'ipMetric' '2000'
+
+#config 'tunOut'
+#        option 'tunOut' 'ip4'
+#        option 'network' '10.0.0.0/8'
+#        option 'exportDistance' '0'
+#        option 'ipMetric' '2000'
+
+#config 'syncSms'
+#        option 'syncSms' 'test'
+
+#config 'redistribute'
+#        option 'redistribute' 'guifi'
+#        option 'network' 10.0.0.0/8
+#        option 'bgp' '1'
+#        option 'bandwidth' '10000'
