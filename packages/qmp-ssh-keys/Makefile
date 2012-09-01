@@ -26,13 +26,13 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-ssh-keys
   SECTION:=utils
-  CATEGORY:=Utilities
-  TITLE:=qMp SSH keys
+  CATEGORY:=qMp
+  TITLE:=qMp admins ssh keys
   MAINTAINER:=Simó Albert i Beltran <sim6@probeta.net>
 endef
 
 define Package/qmp-ssh-keys/description
- Administrators qMp SSH keys.
+ Developers/Adrministrators SSH keys
 endef
 
 define Build/Compile
