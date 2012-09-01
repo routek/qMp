@@ -71,7 +71,7 @@ function qmpinfo.get_txpower(dev)
 	local iw = iwinfo[iwinfo.type(dev)]
 	local txpower_supported = {}
 	if iw ~= nil then
-		local txp = iw.txpwrlist(dev)
+		local txp = iw.txpwrlist(dev) or {}
 		for _,v in ipairs(txp) do
 			table.insert(txpower_supported,v.dbm)
 		end
@@ -206,6 +206,21 @@ function qmpinfo.nodes()
 	end
 	return result
 end
+
+function qmpinfo.links()
+	local nodes = util.split(util.exec('bmx6 -c --links | awk \'{print $1 "|" $2}\' |  grep -e ".*:.*:"'))
+	local ni
+	result = {}
+	for _,n in ipairs(nodes) do
+		if n ~= "" then
+		ni = util.split(n,"|")
+		ni[1] = util.split(ni[1],".")[1]
+		table.insert(result,ni)
+		end
+	end
+	return result
+end
+
 
 function qmpinfo.get_key()
 	local keyf = util.exec("uci get qmp.node.key")

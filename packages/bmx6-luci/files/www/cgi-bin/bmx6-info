@@ -1,5 +1,6 @@
 #!/bin/sh
-#    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+#    Copyright (C) 2011 Pau Escrich
+#    Contributors Jo-Philipp Wich <xm@subsignal.org>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,8 +30,8 @@ BMX6_DIR="$(uci get bmx6.general.runtimeDir 2>/dev/null)" || BMX6_DIR="/var/run/
 if [ "$1" == "-s" ]; then 
 	QUERY="$2"
 else 
-	QUERY="$QUERY_STRING"
-	echo "Content-type: text/plain"
+	QUERY="${QUERY_STRING%%=*}"
+	echo "Content-type: application/json"
 	echo ""
 
 fi
@@ -41,28 +42,65 @@ check_path() {
         [ $(echo "$path" | grep -c "^$BMX6_DIR") -ne 1 ] && exit 1
 }
 
-
-check_path "$BMX6_DIR/$QUERY"
-
-[ -d "$BMX6_DIR/$QUERY" ] &&
+print_query() {
+	# If the query is a directory
+	[ -d "$BMX6_DIR/$1" ] &&
         {
-	total=$(ls $BMX6_DIR/$QUERY | wc -w)
-	i=1
-        echo -n "{ \"$QUERY\": [ "
-        for f in $(ls $BMX6_DIR/$QUERY); do
-		echo -n "{ \"name\": \"$f\" }"
-		[ $i -lt $total ]  && echo -n ','
-		i=$(( $i + 1 ))
-        done 
-        echo -n " ] }"
-        exit 0;
+	# If /all has not been specified
+		[ -z "$QALL" ] &&
+		{	
+		total=$(ls $BMX6_DIR/$1 | wc -w)
+		i=1
+        	echo -n "{ \"$1\": [ "
+	        for f in $(ls $BMX6_DIR/$1); do
+			echo -n "{ \"name\": \"$f\" }"
+			[ $i -lt $total ]  && echo -n ','
+			i=$(( $i + 1 ))
+        	done 
+	        echo -n " ] }"
+
+	# If /all has been specified, printing all the files together
+		} || {
+		comma=""
+		echo -n "[ "
+		for entry in "$BMX6_DIR/$1/"*; do
+			[ -f "$entry" ] && 
+			{
+				${comma:+echo "$comma"}
+				tr -d '\n' < "$entry"
+				comma=","
+			}
+		done
+		echo -n " ]"
+		}	
         }
 
-[ -f "$BMX6_DIR/$QUERY" ] &&
-        {
-        cat "$BMX6_DIR/$QUERY";
-        exit 0;
-        }
+	# If the query is a file, just printing the file
+	[ -f "$BMX6_DIR/$QUERY" ] && cat "$BMX6_DIR/$QUERY";
+}
+
+if [ "${QUERY##*/}" == "all" ]; then
+	QUERY="${QUERY%/all}"
+	QALL=1
+fi
+
+
+if [ "$QUERY" == '$neighbours' ]; then
+	QALL=1
+	echo '{ "neighbours": [ '
+	echo '{ "originators": '
+	print_query originators
+	echo '}, '
+	echo '{ "descriptions": '
+	print_query descriptions
+	echo "} ] }"
+	exit 0
+else
+	check_path "$BMX6_DIR/$QUERY"
+	print_query $QUERY
+	exit 0
+fi
+
 
 ls -1F "$BMX6_DIR"
 exit 0

@@ -16,12 +16,16 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_SOURCE_URL:=@SF/qmp-big-node
 
 
@@ -31,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-big-node
   SECTION:=net
-  CATEGORY:=Base system
+  CATEGORY:=qMp
   TITLE:=Required addons for big qmp mesh nodes (8MByte flash or more)
   URL:=http://qmp.cat
   DEPENDS:= \
@@ -40,7 +44,7 @@ define Package/qmp-big-node
 	+babeld \
 	+openvpn \
 	+openssl-util \
-        +tcptraceroute6 \
+	+tcptraceroute6 \
 	+iperf +mtr +netcat \
 	+tcpdump \
 	+lsof \
@@ -49,7 +53,9 @@ define Package/qmp-big-node
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
 	+b6m \
-	+quagga +quagga-bgpd +quagga-ospfd
+	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
+	+bmx6-qmp-quagga \
+	+cgi-bin-zero \
 
 endef
 
@@ -60,6 +66,8 @@ endef
 
 define CommentsAndOptions
   DEPENDS_COMMENT:= \
+	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
+	+qmp-quagga-zebra +qmp-quagga-watchquagga \
 	+luci-mod-freifunk-community \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
         +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config +bmx-gsf-map \
@@ -75,7 +83,6 @@ endef
 #       +niit \
 #	+tcpdump \
 #	+bwm +wprobe-export \
-
 #	+small-mesh-node +gsf-map-full \
 #	+wget \
 #	+bwm +wprobe-export \
