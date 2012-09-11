@@ -25,7 +25,7 @@ local debug = require "qmp.debug"
 
 model = {}
 
-local model.file = 'qmp'
+model.file = 'qmp'
 
 --- Get a section type or an option
 -- @class function
@@ -151,7 +151,7 @@ function model.set(section, option, value)
 				model.commit(c)
 				return true
 			else
-				false
+				return false
 			end
 		else
 			return false

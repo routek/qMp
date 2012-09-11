@@ -20,9 +20,9 @@
     the file called "COPYING".
 --]]
 
-bgp = require "qmp.bgp"
-model = require "qmp.model"
-
+local bgp = require "qmp.bgp"
+local model = require "qmp.model"
+local util = require "luci.util"
 control = {}
 
 --- Remove the current bgp configuration 
@@ -129,6 +129,21 @@ end
 -- @name apply_changes
 function control.apply_changes()
 	model.apply()
+end
+
+function control.configure_net_devices()
+	print("Configuring network devices")
+	local v,i,s
+	local vlan_tags = {}
+	local vids = model.get("networks","mesh_protocol_vids")
+	local vid_offset = model.get("networks","mesh_vid_offset")
+	
+	for i,v in ipairs(util.split(vids," ")) do
+		s = util.split(v,":")
+		vlan_tags[s[1]] = vid_offset + s[2]
+	end
+	print("VLAN vids and protocols found")
+	util.dumptable(vlan_tags)	
 end
 
 return control

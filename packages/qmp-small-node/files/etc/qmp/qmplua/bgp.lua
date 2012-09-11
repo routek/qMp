@@ -48,7 +48,7 @@ end
 -- @param netmask Netmask of the BGP peer
 -- @return	Name of created section
 function bgp.add_peer(as, ip, netmask)
-	return model.add_type('bgp', {'as' = as, 'ipdest' = ip, 'netmask' = netmask})
+	return model.add_type('bgp', { as = 'as', ipdest = 'ip', netmask = 'netmask'})
 end
 
 --- Set the devices working on BGP mode
