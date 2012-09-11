@@ -39,8 +39,8 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-quagga/Default
-  SECTION:=net
-  CATEGORY:=Network
+  SECTION:=qMp
+  CATEGORY:=qMp
   SUBMENU:=Routing and Redirection
   DEPENDS:=qmp-quagga
   TITLE:=The Quagga Software Routing Suite
@@ -50,7 +50,7 @@ endef
 
 define Package/qmp-quagga
   $(call Package/qmp-quagga/Default)
-  DEPENDS:=+librt
+  DEPENDS:=+librt +qmp-quagga-vtysh +qmp-quagga-bgpd
   MENU:=1
 endef
 
