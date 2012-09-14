@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# Contributors:
+#  Simó Albert i Beltran
+
 # Importing functions
 QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_common.sh
