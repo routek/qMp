@@ -47,11 +47,11 @@ signal_avg() {
 	signals=$(iw $1 station dump | grep "signal avg" | awk '{print $3}')
 	total=0
 	stations=0
-	for n in $signals; do total=$(($total+$n)); stations=$(($stations+1)); done 
+	for n in $signals; do total=$(($total+$n)); stations=$(($stations+1)); done
 	[ $stations -gt 0 ] &&	echo "$(($total/$stations))"
 }
 
-## MAIN 
+## MAIN
 
 echo "$(get_time)${SEP}$(dhcp_leases)" >> $OUTPUT/leases.log
 echo "$(get_time)${SEP}$(lan_bw)" >> $OUTPUT/lan_bw.log
