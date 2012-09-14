@@ -14,7 +14,7 @@ LAN="br-lan"
 SEP=" "
 
 # Preparing environment
-mkdir -p $OUTPUT
+mkdir -p "$OUTPUT"
 
 # Returns the time in UNIX format
 get_time() {
@@ -57,12 +57,12 @@ signal_avg() {
 
 ## MAIN
 
-echo "$(get_time)${SEP}$(dhcp_leases)" >> $OUTPUT/leases.log
-echo "$(get_time)${SEP}$(lan_bw)" >> $OUTPUT/lan_bw.log
-echo "$(get_time)${SEP}$(load_avg)" >> $OUTPUT/load.log
-echo "$(get_time)${SEP}$(nodes_seen)" >> $OUTPUT/nodes.log
+echo "$(get_time)${SEP}$(dhcp_leases)" >> "$OUTPUT/leases.log"
+echo "$(get_time)${SEP}$(lan_bw)" >> "$OUTPUT/lan_bw.log"
+echo "$(get_time)${SEP}$(load_avg)" >> "$OUTPUT/load.log"
+echo "$(get_time)${SEP}$(nodes_seen)" >> "$OUTPUT/nodes.log"
 
 for d in $WIFI_DEVS; do
-	echo "$(get_time)${SEP}$(assoc_list $d)" >> $OUTPUT/wifi_assoc_$d.log
-	echo "$(get_time)${SEP}$(signal_avg $d)" >> $OUTPUT/wifi_signal_$d.log
+	echo "$(get_time)${SEP}$(assoc_list $d)" >> "$OUTPUT/wifi_assoc_$d.log"
+	echo "$(get_time)${SEP}$(signal_avg $d)" >> "$OUTPUT/wifi_signal_$d.log"
 done
