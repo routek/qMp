@@ -1,0 +1,6 @@
+#!/bin/sh
+uci batch <<-EOF
+	set luci.themes.qMp=/luci-static/qmp
+        commit luci
+EOF
+	
