@@ -10,7 +10,7 @@ LAN="br-lan"
 SEP=" "
 
 # Preparing environment
-[ ! -d "$OUTPUT" ] && mkdir $OUTPUT
+mkdir -p $OUTPUT
 
 # Returns the time in UNIX format
 get_time() {
