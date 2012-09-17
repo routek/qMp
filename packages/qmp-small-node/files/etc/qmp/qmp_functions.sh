@@ -826,6 +826,24 @@ qmp_configure_olsr6_uci_unused() {
 }
 
 
+qmp_set_hosts() {
+  echo "Configuring /etc/hosts file with qmpadmin entry"
+
+  local ip=$(uci get bmx6.general.tun4Address | cut -d'/' -f1)
+  local hn=$(uci get system.@system[0].hostname)
+ 
+  if [ -z "$ip" -o -z "$hn" ]; then
+ 	echo "Cannot get IP or HostName"
+	return
+  fi
+
+  cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
+  echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
+  cp /tmp/hosts.tmp /etc/hosts
+
+  echo "done"
+}
+
 qmp_configure_system() {
 
   local primary_device="$(uci get qmp.node.primary_device)"
@@ -849,6 +867,9 @@ qmp_configure_system() {
   uci set uhttpd.main.listen_https="443"
   uci commit uhttpd
   /etc/init.d/uhttpd restart
+
+  # configuring hosts
+  qmp_set_hosts
 }
 
 

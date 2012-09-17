@@ -61,8 +61,17 @@ configure() {
 
 #This function is executed in each boot
 startup() {
+	# Set HostName
+	. $QMP_DIR/qmp_functions.sh
+	qmp_set_hosts
+
+	# Start/Stop netserver
 	$QMP_DIR/qmp_control.sh apply_netserver
+
+	# Generate current qmp key
 	logread | md5sum | awk '{print $1}' > $QMP_KEY
+
+	# Hack to enable wifi when channel is not standar
 	wifi
 }
 
