@@ -29,22 +29,26 @@ function index()
 	root.index  = true
 
 	-- Main window with auth enabled
-	overview = entry({"qmp"}, call("action_status"), "qMp", 1)
+	overview = entry({"qmp"}, template("admin_status/index"), "qMp", 1)
 	overview.dependent = false
 	overview.sysauth = "root"
 	overview.sysauth_authenticator = "htmlauth"
 	
 	-- Rest of entries
-	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
-	entry({"qmp","wizard"}, cbi("qmp/wizard"), "Wizard", 3).dependent=false
-	entry({"qmp","node"}, cbi("qmp/node"), "Node", 4).dependent=false
-	entry({"qmp","network"}, cbi("qmp/network"), "Network", 5).dependent=false
-	entry({"qmp","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
-	entry({"qmp","wireless"}, cbi("qmp/wireless"), "Wireless", 6).dependent=false
-	entry({"qmp","splash"}, call("action_splash"), "Splash", 7).dependent=false
-	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
-	entry({"qmp","map"}, call("action_map"), "Map", 8).dependent=false
+	
+	entry({"qmp","configuration"}, cbi("qmp/wizard"), "Configuration", 4).dependent=false
+	entry({"qmp","configuration","wizard"}, cbi("qmp/wizard"), "Wizard", 1).dependent=false
+	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 2).dependent=false
+	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
+	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "WiFi", 3).dependent=false
+	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 4).dependent=false
+
+	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
+	entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 1).dependent=false
+	entry({"qmp","tools","map"}, call("action_map"), "Map", 2).dependent=false
+
+	entry({"qmp","about"}, call("action_status"), "About", 9).dependent=false
 end
      
 function action_status()
