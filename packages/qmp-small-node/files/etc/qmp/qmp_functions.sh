@@ -485,9 +485,14 @@ qmp_configure_network() {
           uci set $conf.$TUNDEV.ip6addr="$(qmp_get_addr64 $ripe_prefix48:: $community_node_id ::1 64)"
         fi
 
-        if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address && qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask ; then
+        if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address ; then
           uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-          uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
+          if qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask; then 
+	     uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
+	  else
+	     uci set $conf.$TUNDEV.netmask="255.255.255.255"
+	  fi
+
         elif qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 && ! [ -z "$community_node_id" ] ; then
 	  local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
           uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).$ipv4_suffix24"
