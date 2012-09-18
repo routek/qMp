@@ -31,10 +31,10 @@ wifi.info = {}
 function wifi.apply(dev)
 	local wdev = model.get_type_by_option('wireless','device',dev)
 	if wdev.mode == "none" then
-		debug.logger("Device "..dev.." mode is none, qMp wont configure it")	
+		debug.logger("Device "..dev.." mode is none, qMp wont configure it")
 		return true
 	end
-		
+
 	-- Getting all parameters and checking no one is nil
 	local mode = wdev.mode || return nil
 	local channel =  util.replace(wdev.channel,'',('+','-')) || return nil
@@ -52,10 +52,10 @@ function wifi.apply(dev)
 		else
 			template = mode
 		end
-	else	
+	else
 		template = mode.."-b"
-	end 
-	
+	end
+
 end
 
 function wifi.info.modes(dev)
