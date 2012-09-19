@@ -141,7 +141,7 @@ qmp_get_ip6_slow() {
         echo "Invalid 3 IPv6 address $addr_prefix" 1>&2
         return 1
       fi
-     
+
       addr_in=$( printf "%X" $(( $(( $ip3 * 0x100 )) + $ip4 )) )$addr_in
 
 
@@ -317,7 +317,7 @@ qmp_get_addr64() {
   local mask=$4
 
   local addr64=$( qmp_calculate_addr64 $prefix $node $suffix )
- 
+
   echo "$addr64/$mask"
 }
 
@@ -410,7 +410,7 @@ qmp_configure_network() {
   uci set $conf.niit4to6="interface"
   uci set $conf.niit4to6.proto="none"
   uci set $conf.niit4to6.ifname="niit4to6"
- 
+
   uci set $conf.niit6to4="interface"
   uci set $conf.niit6to4.proto="none"
   uci set $conf.niit6to4.ifname="niit6to4"
@@ -487,7 +487,7 @@ qmp_configure_network() {
 
         if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address ; then
           uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-          if qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask; then 
+          if qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask; then
 	     uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
 	  else
 	     uci set $conf.$TUNDEV.netmask="255.255.255.255"
@@ -560,7 +560,7 @@ qmp_configure_bmx6() {
   # chat file must be syncronized using sms
   cfg_sms=$(uci add $conf syncSms)
   uci set $conf.${cfg_sms}.syncSms=chat
- 
+
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
   if value="$(uci get qmp.networks.bmx6_throwRules)" ; then
@@ -820,7 +820,7 @@ qmp_configure_olsr6_uci_unused() {
     uci add_list $conf.interface.interface="$interface_list"
 
   fi
- 
+
   uci commit $conf
 #  /etc/init.d/$conf restart
 }
