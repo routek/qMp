@@ -407,14 +407,6 @@ qmp_configure_network() {
   done
 
 
-  uci set $conf.niit4to6="interface"
-  uci set $conf.niit4to6.proto="none"
-  uci set $conf.niit4to6.ifname="niit4to6"
-
-  uci set $conf.niit6to4="interface"
-  uci set $conf.niit6to4.proto="none"
-  uci set $conf.niit6to4.ifname="niit6to4"
-
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
   local LSB_PRIM_MAC="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
@@ -464,45 +456,7 @@ qmp_configure_network() {
     uci set $conf.lan.netmask=$LAN_MASK
     uci set $conf.lan.dns="$(uci get qmp.networks.dns)"
 
-
-
-
-# Configuration of 4to6 tunnel interface per protocol
-    if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then
-
-      for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
-
-        local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-        local TUNDEV="niit4to6_${protocol_name}"
-
-	uci set $conf.$TUNDEV="alias"
-	uci set $conf.$TUNDEV.interface="niit4to6"
-	uci set $conf.$TUNDEV.proto="static"
-
-        if qmp_uci_test qmp.networks.${protocol_name}_ripe_prefix48 ; then
-
-          local ripe_prefix48="$(uci get qmp.networks.${protocol_name}_ripe_prefix48)"
-          uci set $conf.$TUNDEV.ip6addr="$(qmp_get_addr64 $ripe_prefix48:: $community_node_id ::1 64)"
-        fi
-
-        if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address ; then
-          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-          if qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask; then
-	     uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
-	  else
-	     uci set $conf.$TUNDEV.netmask="255.255.255.255"
-	  fi
-
-        elif qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 && ! [ -z "$community_node_id" ] ; then
-	  local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).$ipv4_suffix24"
-          uci set $conf.$TUNDEV.netmask="255.255.255.255"
-        fi
-
-      done
-    fi
   fi
-
 
   local counter=1
 
@@ -648,8 +602,10 @@ qmp_configure_bmx6() {
   fi
 
 
-
-
+  #Configuring the tunnel to search 10/8 networks
+  uci set $conf.nodes10="tunOut"
+  uci set $conf.nodes10.tunOut="nodes10"
+  uci set $conf.nodes10.network="10.0.0.0/8"
 
   uci commit $conf
 #  /etc/init.d/$conf restart
