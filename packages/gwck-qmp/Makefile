@@ -55,7 +55,6 @@ endef
 
 define Package/gwck-qmp/install
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/etc/init.d/gwck $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/gwck $(1)/etc/gwck/module
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/usr/bin/gwck $(1)/usr/bin/gwck
@@ -65,6 +64,7 @@ define Package/gwck-qmp/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/gwck_conf_qmp_ipv6 $(1)/etc/gwck/gwck_conf_qmp_ipv6
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/module/specific_routes $(1)/etc/gwck/module/specific_routes
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/module/bmx6 $(1)/etc/gwck/module/bmx6
+	$(CP) ./files/* $(1)/
 endef
 
 
