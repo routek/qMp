@@ -585,22 +585,28 @@ qmp_configure_bmx6() {
     uci set $conf.tun6Out.mtu=1400
   fi
 
+  if qmp_uci_test qmp.tunnels.offer_ipv6_tunnel ; then
+    uci set $conf.tun6InNet="tunInNet"
+    uci set $conf.tun6InNet.tunInNet="$(uci get qmp.tunnels.offer_ipv6_tunnel)"
+    uci set $conf.tun6InNet.bandwidth="1000000"
+  fi
 
   if qmp_uci_test qmp.tunnels.search_ipv4_tunnel ; then
     uci set $conf.tun4Out="tunOut"
     uci set $conf.tun4Out.tunOut="tun4Out"
     uci set $conf.tun4Out.network="$(uci get qmp.tunnels.search_ipv4_tunnel)"
     uci set $conf.tun4Out.mtu=1400
+  fi
 
-  elif qmp_uci_test qmp.tunnels.offer_ipv4_tunnel ; then
-    uci set $conf.tunInRemote="tunInRemote"
-    uci set $conf.tunInRemote.tunInRemote="$(qmp_get_ula96 $(uci get qmp.networks.bmx6_mesh_prefix48):: $primary_mesh_device 2002::ffff )"
+  if qmp_uci_test qmp.tunnels.offer_ipv4_tunnel ; then
+   # Deprecated
+   # uci set $conf.tunInRemote="tunInRemote"
+   # uci set $conf.tunInRemote.tunInRemote="$(qmp_get_ula96 $(uci get qmp.networks.bmx6_mesh_prefix48):: $primary_mesh_device 2002::ffff )"
 
     uci set $conf.tun4InNet="tunInNet"
     uci set $conf.tun4InNet.tunInNet="$(uci get qmp.tunnels.offer_ipv4_tunnel)"
     uci set $conf.tun4InNet.bandwidth="1000000"
   fi
-
 
   #Configuring the tunnel to search 10/8 networks
   uci set $conf.nodes10="tunOut"
