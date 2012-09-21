@@ -473,14 +473,12 @@ qmp_configure_network() {
          local mesh="mesh_${protocol_name}_${counter}"
          local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
 
-         if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
            uci set $conf.$mesh="interface"
            uci set $conf.$mesh.ifname="$dev.$vid"
            uci set $conf.$mesh.proto="static"
-	   if [ "$protocol_name" != "bmx6" ]; then
+           if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
            	uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
 	   fi
-         fi
 
        done
 
