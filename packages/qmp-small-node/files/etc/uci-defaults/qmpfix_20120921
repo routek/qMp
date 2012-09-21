@@ -1,3 +1,4 @@
 
+uci delete qmp.networks.bmx6_mesh_prefix48
 uci delete bmx6.general.globalPrefix
 uci commit
