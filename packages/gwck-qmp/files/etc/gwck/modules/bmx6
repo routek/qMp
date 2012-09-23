@@ -3,7 +3,6 @@
 # gwck bmx6 module
 #
 # Copyright (C) 2008-2012 Simó Albert i Beltran
-# Contributors: Pau Escrich <p4u@dabax.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -97,17 +96,19 @@ gwck_mod_bmx6_this_node_offer()
 {
 	local offer="$(bmx6 -c --parameters | while read key val
 	do
-		if [ "$key" = "tunInNet" ] && [ "$val" = "$GWCK_MOD_BMX6_TUN_IN_NET" ]
-			then
+		if [ "$key" = "tunInRemote" ] && [ "$val" = "$GWCK_MOD_BMX6_TUN_IN_REMOTE" ]
+		then
 			read key val
-			if [ "$key" = "/bandwidth" ] && [ "$val" = "$GWCK_MOD_BMX6_BANDWIDTH" ]
+			if [ "$key" = "tunInNet" ] && [ "$val" = "$GWCK_MOD_BMX6_TUN_IN_NET" ]
 			then
-				echo "true"
+				read key val
+				if [ "$key" = "/bandwidth" ] && [ "$val" = "$GWCK_MOD_BMX6_BANDWIDTH" ]
+				then
+						echo "true"
+				fi
 			fi
 		fi
-		
 	done)"
-
 	[ -z "$offer" ] && offer="false"
 	if $offer
 	then
