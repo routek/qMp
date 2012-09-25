@@ -1,0 +1,7 @@
+#!/bin/sh
+uci batch <<-EOF
+	set luci.themes.qMp=/luci-static/qmp
+	set luci.main.mediaurlbase=/luci-static/qmp
+        commit luci
+EOF
+	

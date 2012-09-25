@@ -32,13 +32,12 @@ Public Sources:
 #PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
 PKG_SOURCE_URL:=git://github.com/axn/bmx6.git
 
-PKG_REV:=bf55438352797a939ccf08eacdc3290928fe3fe7
-#PKG_REV:=3434d7fddf8de71d3d4829cb6d5adcefbbf7fe4f
+PKG_REV:=9e322f29d36dc6f6645428a6f4ae94999caa3343
 
 Private Sources:
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
 
-PKG_VERSION:=r2012061801
+PKG_VERSION:=r2012082801
 
 PKG_RELEASE:=3
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
@@ -101,6 +100,11 @@ define Package/bmx6-qmp-sms
   TITLE:=sms plugin 
 endef
 
+define Package/bmx6-qmp-quagga
+  $(call Package/bmx6-qmp/Default)
+  DEPENDS:=bmx6-qmp
+  TITLE:=bmx6 quagga plugin to redistribute/export routes (needs manet/bmx6 patched quagga 0.99.21)
+endef
 
 define Build/Configure
 	mkdir -p $(PKG_INSTALL_DIR)
@@ -139,8 +143,15 @@ define Package/bmx6-qmp-sms/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/bmx6_sms/bmx6_sms.so $(1)/usr/lib/bmx6_sms.so
 endef
 
+define Package/bmx6-qmp-quagga/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/bmx6_quagga/bmx6_quagga.so $(1)/usr/lib/bmx6_quagga.so
+endef
+
 $(eval $(call BuildPackage,bmx6-qmp))
 $(eval $(call BuildPackage,bmx6-qmp-uci-config))
 $(eval $(call BuildPackage,bmx6-qmp-json))
 $(eval $(call BuildPackage,bmx6-qmp-sms))
+$(eval $(call BuildPackage,bmx6-qmp-quagga))
+
 

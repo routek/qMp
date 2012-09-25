@@ -141,7 +141,7 @@ qmp_get_ip6_slow() {
         echo "Invalid 3 IPv6 address $addr_prefix" 1>&2
         return 1
       fi
-     
+
       addr_in=$( printf "%X" $(( $(( $ip3 * 0x100 )) + $ip4 )) )$addr_in
 
 
@@ -317,7 +317,7 @@ qmp_get_addr64() {
   local mask=$4
 
   local addr64=$( qmp_calculate_addr64 $prefix $node $suffix )
- 
+
   echo "$addr64/$mask"
 }
 
@@ -407,14 +407,6 @@ qmp_configure_network() {
   done
 
 
-  uci set $conf.niit4to6="interface"
-  uci set $conf.niit4to6.proto="none"
-  uci set $conf.niit4to6.ifname="niit4to6"
- 
-  uci set $conf.niit6to4="interface"
-  uci set $conf.niit6to4.proto="none"
-  uci set $conf.niit6to4.ifname="niit6to4"
-
   local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   local community_node_id
   local LSB_PRIM_MAC="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
@@ -464,40 +456,7 @@ qmp_configure_network() {
     uci set $conf.lan.netmask=$LAN_MASK
     uci set $conf.lan.dns="$(uci get qmp.networks.dns)"
 
-
-
-
-# Configuration of 4to6 tunnel interface per protocol
-    if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids; then
-
-      for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
-
-        local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-        local TUNDEV="niit4to6_${protocol_name}"
-
-	uci set $conf.$TUNDEV="alias"
-	uci set $conf.$TUNDEV.interface="niit4to6"
-	uci set $conf.$TUNDEV.proto="static"
-
-        if qmp_uci_test qmp.networks.${protocol_name}_ripe_prefix48 ; then
-
-          local ripe_prefix48="$(uci get qmp.networks.${protocol_name}_ripe_prefix48)"
-          uci set $conf.$TUNDEV.ip6addr="$(qmp_get_addr64 $ripe_prefix48:: $community_node_id ::1 64)"
-        fi
-
-        if qmp_uci_test qmp.networks.${protocol_name}_ipv4_address && qmp_uci_test qmp.networks.${protocol_name}_ipv4_netmask ; then
-          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_address)"
-          uci set $conf.$TUNDEV.netmask="$(uci get qmp.networks.${protocol_name}_ipv4_netmask)"
-        elif qmp_uci_test qmp.networks.${protocol_name}_ipv4_prefix24 && ! [ -z "$community_node_id" ] ; then
-	  local ipv4_suffix24="$(( 0x$community_node_id / 0x100 )).$(( 0x$community_node_id % 0x100 ))"
-          uci set $conf.$TUNDEV.ipaddr="$(uci get qmp.networks.${protocol_name}_ipv4_prefix24).$ipv4_suffix24"
-          uci set $conf.$TUNDEV.netmask="255.255.255.255"
-        fi
-
-      done
-    fi
   fi
-
 
   local counter=1
 
@@ -518,7 +477,9 @@ qmp_configure_network() {
            uci set $conf.$mesh="interface"
            uci set $conf.$mesh.ifname="$dev.$vid"
            uci set $conf.$mesh.proto="static"
-           uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+	   if [ "$protocol_name" != "bmx6" ]; then
+           	uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+	   fi
          fi
 
        done
@@ -540,7 +501,7 @@ qmp_configure_bmx6() {
   qmp_configure_prepare $conf
 
   uci set $conf.general="bmx6"
-  uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
+#  uci set $conf.general.globalPrefix="$(uci get qmp.networks.bmx6_mesh_prefix48)::/48"
 #  uci set $conf.general.udpDataSize=1000
 
   uci set $conf.bmx6_config_plugin=plugin
@@ -555,7 +516,7 @@ qmp_configure_bmx6() {
   # chat file must be syncronized using sms
   cfg_sms=$(uci add $conf syncSms)
   uci set $conf.${cfg_sms}.syncSms=chat
- 
+
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
   if value="$(uci get qmp.networks.bmx6_throwRules)" ; then
@@ -643,8 +604,10 @@ qmp_configure_bmx6() {
   fi
 
 
-
-
+  #Configuring the tunnel to search 10/8 networks
+  uci set $conf.nodes10="tunOut"
+  uci set $conf.nodes10.tunOut="nodes10"
+  uci set $conf.nodes10.network="10.0.0.0/8"
 
   uci commit $conf
 #  /etc/init.d/$conf restart
@@ -815,11 +778,29 @@ qmp_configure_olsr6_uci_unused() {
     uci add_list $conf.interface.interface="$interface_list"
 
   fi
- 
+
   uci commit $conf
 #  /etc/init.d/$conf restart
 }
 
+
+qmp_set_hosts() {
+  echo "Configuring /etc/hosts file with qmpadmin entry"
+
+  local ip=$(uci get bmx6.general.tun4Address | cut -d'/' -f1)
+  local hn=$(uci get system.@system[0].hostname)
+ 
+  if [ -z "$ip" -o -z "$hn" ]; then
+ 	echo "Cannot get IP or HostName"
+	return
+  fi
+
+  cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
+  echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
+  cp /tmp/hosts.tmp /etc/hosts
+
+  echo "done"
+}
 
 qmp_configure_system() {
 
@@ -844,6 +825,9 @@ qmp_configure_system() {
   uci set uhttpd.main.listen_https="443"
   uci commit uhttpd
   /etc/init.d/uhttpd restart
+
+  # configuring hosts
+  qmp_set_hosts
 }
 
 

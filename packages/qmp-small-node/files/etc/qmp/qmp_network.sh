@@ -42,8 +42,12 @@ qmp_disable_netserver() {
 	killall -9 netserver || true
 }
 
+## DISABLED
 # Publish or unpublish lan HNA depending on qmp configuration
 qmp_publish_lan() {
+	echo "Publish LAN is a garbage, doing nothing..."
+	return
+
 	is_publish_on=$(qmp_uci_get networks.publish_lan)
 	[ -z "$is_publish_on" ] && is_publish_on=0
 
