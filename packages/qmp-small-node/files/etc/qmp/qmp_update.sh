@@ -61,7 +61,7 @@ qmp_update_get_checksum_from_image() {
 
 qmp_update_extract_timestamp() {
 	image_name="$1"
-	echo "$image_name" | awk -F\- '{print $3}' | awk -F_ '{print $1}' | sed s/"\..*"//
+	echo "$image_name" | awk -F\- '{print $4}' | awk -F_ '{print $1}' | sed s/"\..*"//
 }
 
 qmp_update_get_config() {
