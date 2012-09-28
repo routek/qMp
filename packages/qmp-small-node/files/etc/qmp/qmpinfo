@@ -79,19 +79,19 @@ function print_hostname()
 	print(qmp.get_hostname())
 end
 
-function bw_test()                                             
+function bw_test()
         if #op1 < 5 then
-                print_help()                                               
-                os.exit(1)    
+                print_help()
+                os.exit(1)
         end
 
-        local bwt = qmpinfo.bandwidth_test(op1) 
+        local bwt = qmpinfo.bandwidth_test(op1)
         if bwt == nil then
                 print("Cannot connecto to "..op1.." netserver")
         else
-                print ("Bandwidth: "..bwt.." Mbit/s")                                               
-        end                                        
-end                            
+                print ("Bandwidth: "..bwt.." Mbit/s")
+        end
+end
 
 function nodes()
 	for _,n in ipairs(qmpinfo.nodes()) do
@@ -120,7 +120,7 @@ if #arg < 1 then
 end
 
 local question = arg[1]
-op1 = arg[2] 
+op1 = arg[2]
 
 if question == "modes" then
 	print_modes()
@@ -133,9 +133,9 @@ elseif question == "ipv4" then
 elseif question == "hostname" then
         print_hostname()
 elseif question == "bwtest" then
-        bw_test() 
+        bw_test()
 elseif question == "nodes" then
-        nodes()   
+        nodes()
 elseif question == "key" then
 	key()
 elseif question == "links" then
