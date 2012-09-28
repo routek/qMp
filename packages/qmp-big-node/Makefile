@@ -72,7 +72,7 @@ define CommentsAndOptions
 	+gsf-map-full \
 	+wpa-supplicant-mini \
 	+hostapd-mini \
- 
+
 
 
 endef
