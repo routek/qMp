@@ -59,7 +59,7 @@ function get(field, host)
 
 	if json_url[1] == "http"  then
 		raw,err = wget(url..field,1000)
-	else 
+	else
 
 		if json_url[1] == "exec" then
 			raw = sys.exec(json_url[2]..' '..field)
@@ -78,11 +78,11 @@ function get(field, host)
 		data = decoder:get()
 --	else
 --		print_error("Cannot get data from bmx6 daemon",true)
---		return nil     
+--		return nil
 	end
 
 	return data
-end    
+end
 
 function print_error(txt,popup)
 	util.perror(txt)
@@ -112,7 +112,7 @@ function wget(url, timeout)
 	if pid == 0 then
 		rfd:close()
 		nixio.dup(wfd, nixio.stdout)
-		
+
 		local candidates = { "/usr/bin/wget", "/bin/wget" }
 		local _, bin
 		for _, bin in ipairs(candidates) do
@@ -135,7 +135,7 @@ function wget(url, timeout)
 				err1 = "timeout"
 				break
 			end
-				
+
 			local rv = rfd:read(4096)
 			if rv then
 				-- eof
