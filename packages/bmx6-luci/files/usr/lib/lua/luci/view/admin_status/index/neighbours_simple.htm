@@ -17,7 +17,7 @@
 				td.innerHTML = '<em><br /><%:Some problem with JSON: lenght of originators and descriptions different. %></em>';
 				return 1;
 			}
-				
+
 			if ( originators && descriptions && tb)
 			{
 				/* clear all rows */
@@ -29,7 +29,7 @@
 					var tr = tb.insertRow(-1);
 					tr.className = 'cbi-section-table-row cbi-rowstyle-' + ((i % 2) + 1);
 					tr.insertCell(-1).innerHTML = descriptions[i].DESC_ADV.globalId.replace(/\.[^\.]+$/,"");
-					
+
 					var extensions = descriptions[i].DESC_ADV.extensions;
 
 					//Looking for the extensions
@@ -42,7 +42,7 @@
 							break;
 						}
 					}
-					
+
 					//Adding first HNA with prefix=128 as main address
 					var ipstxt = '';
 					var address;
@@ -60,13 +60,13 @@
 					}
 
 					tr.insertCell(-1).innerHTML = ipstxt;
-						
+
 					tr.insertCell(-1).innerHTML = originators[i].viaDev;
 					tr.insertCell(-1).innerHTML = originators[i].metric;
 					tr.insertCell(-1).innerHTML = originators[i].lastDesc;
 					tr.insertCell(-1).innerHTML = originators[i].lastRef;
 					tr.insertCell(-1).innerHTML = originators[i].blocked;
-					
+
 				}
 
 				if( tb.rows.length == 1 )
