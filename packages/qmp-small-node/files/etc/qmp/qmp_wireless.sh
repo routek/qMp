@@ -37,7 +37,7 @@ SOURCE_WIRELESS=1
 . $QMP_PATH/qmp_common.sh
 
 ###########################
-# Find wireless interface 
+# Find wireless interface
 ##########################
 # Returns the index from wifi-iface (config/wireless) associated to the device or first free if not found
 
@@ -47,7 +47,7 @@ qmp_find_wireless_iface() {
 	while true; do
 		d=$(qmp_uci_get_raw wireless.@wifi-iface[$i].device)
 		r=$?
-		[ "$d" == "$device" ] && break 
+		[ "$d" == "$device" ] && break
 		[ $r -ne 0 ] && { qmp_uci_add_raw wireless wifi-iface; break; }
 		i=$(( $i + 1 ))
 	done
@@ -74,7 +74,7 @@ qmp_check_channel() {
 		wrong=0
 		[ -z "$channel" ] || [ -z "$chaninfo" ] && wrong=1
 		[ "$mode" == "adhoc" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
-		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1 
+		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
 
 		# If something wrong, asking for default parameter
@@ -86,8 +86,8 @@ qmp_check_channel() {
 #############################
 # Configure driver from wifi
 #############################
-# This function reload modules from madwifi and mac80211 
-# Also depending on which driver is configured in config file, modifies the files from /etc/modules.d 
+# This function reload modules from madwifi and mac80211
+# Also depending on which driver is configured in config file, modifies the files from /etc/modules.d
 
 qmp_configure_wifi_driver() {
 	mac80211_modules="mac80211 ath ath5k ath9k_hw ath9k_common ath9k"
@@ -95,15 +95,15 @@ qmp_configure_wifi_driver() {
 
 	#Removing all modules
 	echo "Removing wifi modules..."
-	for m in $(qmp_reverse_order $mac80211_modules); do                   
-		rmmod -f $m 2>/dev/null                                            
-	done   
-	for m in $(qmp_reverse_order $madwifi_modules); do                    
+	for m in $(qmp_reverse_order $mac80211_modules); do
 		rmmod -f $m 2>/dev/null
-	done   	
-		
+	done
+	for m in $(qmp_reverse_order $madwifi_modules); do
+		rmmod -f $m 2>/dev/null
+	done
+
 	rmmod -a
-	
+
 	#Loading driver modules
 	echo "Loading wifi modules..."
 	driver="$(qmp_uci_get wireless.driver)"
@@ -139,31 +139,31 @@ qmp_configure_wifi_device() {
 	id=$1
 	device=$2
 
-	# checking if device is configured as "none"	
+	# checking if device is configured as "none"
 	mode="$(qmp_uci_get @wireless[$id].mode)"
-	[ "$mode" == "none" ] && { echo "Interface $device disabled by qmp system"; return; }  
+	[ "$mode" == "none" ] && { echo "Interface $device disabled by qmp system"; return; }
 
-	# spliting channel in channel number and ht40 mode	
+	# spliting channel in channel number and ht40 mode
 	channel_raw="$(qmp_uci_get @wireless[$id].channel)"
 	channel="$(echo $channel_raw | tr -d +-)"
 
 	# is ht40 (802.11n) enabled?
 	ht40="$(echo $channel_raw | tr -d [0-9])"
 	[ ! -z "$ht40" ] && { mode="${mode}-n"; htmode="HT40$ht40"; }
-	
+
 	mac="$(qmp_uci_get @wireless[$id].mac)"
 	name="$(qmp_uci_get @wireless[$id].name)"
 	driver="$(qmp_uci_get wireless.driver)"
 	country="$(qmp_uci_get wireless.country)"
 	bssid="$(qmp_uci_get wireless.bssid)"
 	txpower="$(qmp_uci_get @wireless[$id].txpower)"
-	
+
 	echo "------------------------"
 	echo "Mac: $mac"
 	echo "Mode: $mode"
 	echo "Driver: $driver"
 	echo "Channel: $channel"
-	echo "Country: $country"	
+	echo "Country: $country"
 	echo "Name: $name"
 	echo "------------------------"
 
@@ -213,7 +213,7 @@ qmp_configure_wifi() {
 	devices="$(qmp_get_wifi_devices)"
 	macs="$(qmp_get_wifi_mac_devices)"
 	i=1
-	for d in $devices; do 
+	for d in $devices; do
 		m=$(echo $macs | cut -d' ' -f$i)
 		j=0
 		while [ ! -z "$(qmp_uci_get @wireless[$j])" ]; do
@@ -223,7 +223,7 @@ qmp_configure_wifi() {
 		done
 		i=$(( $i + 1 ))
 	done
-	
+
 	echo ""
 	echo "Done. All devices configured according qmp configuration"
 }
@@ -267,14 +267,14 @@ qmp_wifi_get_default() {
 		if [ $bg_this_device -eq 1 -a $bg_devices -eq 1 ]; then
 			echo "ap"
 		else
-	
+
 		#If only one B/G device and only two devices, using the non B/G one as adhoc
 		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
 			echo "adhoc"
 		else
 
 		#Else depending on index
-		if [ $index -eq 1 ]; then 
+		if [ $index -eq 1 ]; then
 			echo "ap"
 		else
 			echo "adhoc"
@@ -286,7 +286,7 @@ qmp_wifi_get_default() {
 	#  Lower channel -> ap
 
 	elif [ "$what" == "channel" ]; then
-		[ -z "$device" ] && qmp_error "Device not found?" 
+		[ -z "$device" ] && qmp_error "Device not found?"
 		mode="$3"
 
 		# we are using index var to put devices in different channels
@@ -303,25 +303,25 @@ qmp_wifi_get_default() {
 
 		# channel AdHoc is the last available (qmp_tac = inverse order) plus index*2+1 (1 3 5 ...)
 		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${index}+${index}*2+1)"
-		
+
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
-		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\(\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap\)+1)" 
-			
+		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\(\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap\)+1)"
+
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
 			qmp_log "Warning, not usable channels found in device $device "
-			[ "$1" == "channel" ] && echo "6"	
+			[ "$1" == "channel" ] && echo "6"
 			return
 		fi
-		
+
 		# let's see if we can use ht40 mode
-		# if it is avaiable, channel must be configured with + or - symbol 
+		# if it is avaiable, channel must be configured with + or - symbol
 		channel="$(echo $channel_info | cut -d' ' -f1)"
 		ht40="$(echo $channel_info | cut -d' ' -f2)"
 		[ "$ht40" == "ht40+" ] && channel="${channel}+"
 		[ "$ht40" == "ht40-" ] && channel="${channel}-"
-			
-		echo "$channel"			
+
+		echo "$channel"
 
 	# REST OF DEFAULT VAULES
 	# The rest of default values are taken from the template
@@ -333,11 +333,11 @@ qmp_wifi_get_default() {
 
 qmp_configure_wifi_initial() {
 
-	#First we are going to configure default parameters if they are not present                                                           
-	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp                                                                            
-	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)                                   
-	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)                                
-	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)  
+	#First we are going to configure default parameters if they are not present
+	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp
+	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)
+	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)
+	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)
 
 	#Changing to configured countrycode
 	iw reg set $(qmp_uci_get wireless.country)
@@ -352,11 +352,11 @@ qmp_configure_wifi_initial() {
 		j=0
 		while [ ! -z "$(qmp_uci_get @wireless[$j])" ]; do
 			configured_mac="$(qmp_uci_get @wireless[$j].mac | tr [A-Z] [a-z])"
-			if [ "$configured_mac" == "$m" ]; then   
+			if [ "$configured_mac" == "$m" ]; then
 				#If we found configured device, we are going to check all needed parameters
-				found=1 
+				found=1
 				device="$(qmp_get_dev_from_mac $m)"
-				id_configured="$id_configured $j" 
+				id_configured="$id_configured $j"
 				echo "Found configured device: $m"
 			        [ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
         			[ -z "$(qmp_uci_get @wireless[$j].name)" ] && qmp_uci_set @wireless[$j].name $(qmp_wifi_get_default name)
@@ -366,23 +366,23 @@ qmp_configure_wifi_initial() {
 				# if not, using default one
 				sleep 1 && mode="$(qmp_uci_get @wireless[$j].mode)"
 				channel="$(qmp_uci_get @wireless[$j].channel)"
-				if [ -z "$channel" ]; then 
+				if [ -z "$channel" ]; then
 					 qmp_uci_set @wireless[$j].channel $(qmp_wifi_get_default channel $device $mode)
 
 				else
 					newchan="$(qmp_check_channel $device $channel $mode)"
 					if [ "$newchan" != "$channel" ]; then
 						qmp_log Warning: "Channel $channel for device $device in mode $mode is not right, using default one"
-						qmp_uci_set @wireless[$j].channel $newchan	
-					fi  
-				fi			
-								 
+						qmp_uci_set @wireless[$j].channel $newchan
+					fi
+				fi
+
 				qmp_uci_set @wireless[$j].device $device
 				break
 			fi
 			j=$(( $j + 1 ))
 		done
-		
+
 		[ $found -eq 0 ] && to_configure="$to_configure $m"
 	done
 
@@ -410,4 +410,4 @@ qmp_configure_wifi_initial() {
 	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)
 	[ -z "$(qmp_uci_get wireless.country)" ] && qmp_uci_set wireless.country $(qmp_wifi_get_default country)
 	[ -z "$(qmp_uci_get wireless.bssid)" ] && qmp_uci_set wireless.bssid $(qmp_wifi_get_default bssid)
-}                        
+}

@@ -1,5 +1,5 @@
 /*
- * niit.h 
+ * niit.h
  *
  *
  */
@@ -16,6 +16,6 @@
 #ifdef NIIT_DEBUG
 #define PDEBUG(fmt, args...) printk(KERN_DEBUG "niit " fmt, ## args)
 #else
-#  define PDEBUG(fmt, args...) 
+#  define PDEBUG(fmt, args...)
 #endif
 

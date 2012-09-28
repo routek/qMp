@@ -6,7 +6,7 @@ cd 13f
 git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/autoconfig; cd ..
 svn co -r 27617 svn://svn.openwrt.org/openwrt/branches/backfire
 git clone git://gitorious.org/eigennet/packages.git eigennet/packages
-svn co -r 27617 svn://svn.openwrt.org/openwrt/packages packages 
+svn co -r 27617 svn://svn.openwrt.org/openwrt/packages packages
 
 cd backfire
 rm -rf feeds/
@@ -27,11 +27,11 @@ cd backfire
 ## Configuring system
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
-* Target Profile (WGT634u, wrap, alix, routerstation,...) 
+* Target Profile (WGT634u, wrap, alix, routerstation,...)
 (* Global build-settings -> Compile the kernel with profiling enabled )
 (* Advanced configuration options for developers -> Toolchain options -> Build gdb )
 * Base system ->
-    qmp-big-node # for 8Mbyte flash devices  
+    qmp-big-node # for 8Mbyte flash devices
     qmp-small-node # for 4MByte flash devices STILL TO BIG ?? Needs testing on 4MB flash devices !!!
 
 * remove for 4MByte-flash devices: network -> ppp
@@ -41,12 +41,12 @@ HT40 is supported since backfire revision 27441
 #### Optional, to have HT40 in IBSS mode: Patching files
 ## cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
 ## cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
-## patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh 
+## patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh
 ## rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
 
 ## Kernel configuration
 # sometimes you have to run make (build backfire with default kernel) once before you can continue with make kernel_menuconfig
-make kernel_menuconfig 
+make kernel_menuconfig
 (* File systems -> Dnotify support && Inotify file change notification support && Inotify support for userspace )
 (* General setup -> Configure standard kernel features (for small systems) -> Enable ELF core dumps )
 
@@ -95,13 +95,13 @@ sysupgrade -n /tmp/openwrt-ar71xx-ubnt-rspro-squashfs-sysupgrade.bin
 
 
 
-#### POSTCONFIGURE: 
+#### POSTCONFIGURE:
 
 after a second reboot (better wait a while) the system should be autoconfigured
 
 ssh root@192.168.1.1
 
-to enforce a reconfiguration remove /qmp_configured 
+to enforce a reconfiguration remove /qmp_configured
 
 TODO: Which further options exist here???
 

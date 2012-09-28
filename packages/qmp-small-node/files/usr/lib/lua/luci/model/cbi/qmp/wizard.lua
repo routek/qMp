@@ -110,7 +110,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","olsr6_ipv4_prefix24","10.201")
 
 	end
-	
+
 	local i,v,devmode,devname
 	local lan_devices = ""
 	local wan_devices = ""
@@ -126,13 +126,13 @@ function netmode.write(self, section, value)
 			wan_devices = wan_devices..devname.." "
 		elseif devmode == "Mesh" then
 			mesh_devices = mesh_devices..devname.." "
-		end	
+		end
 	end
 
 	for i,v in ipairs(nodedevs_wifi) do
 		devmode = v[2]:formvalue(section)
 		devname = v[1]
-			
+
 		if devmode == "AP" then
 			lan_devices = lan_devices..devname.." "
 		elseif devmode == "Mesh" then
@@ -147,7 +147,7 @@ function netmode.write(self, section, value)
 		end
 		uciout:foreach("qmp","wireless",setmode)
 	end
-	
+
 	uciout:set("qmp","interfaces","lan_devices",lan_devices)
 	uciout:set("qmp","interfaces","wan_devices",wan_devices)
 	uciout:set("qmp","interfaces","mesh_devices",mesh_devices)

@@ -59,51 +59,17 @@ define Package/qmp-big-node
 
 endef
 
-#fails compiling:
-#       +tcpdump \# fails compiling with backfire 27441
-
-# for qmp-big-node-testing:
-
 define CommentsAndOptions
   DEPENDS_COMMENT:= \
 	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
 	+qmp-quagga-zebra +qmp-quagga-watchquagga \
 	+luci-mod-freifunk-community \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-        +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config +bmx-gsf-map \
+        +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config \
 	+eigennet-autoconf \
-	+gsf-map-minimal \
-	+gsf-map-full \
 	+wpa-supplicant-mini \
 	+hostapd-mini \
- 
-
-
 endef
-#       +niit \
-#	+tcpdump \
-#	+bwm +wprobe-export \
-#	+small-mesh-node +gsf-map-full \
-#	+wget \
-#	+bwm +wprobe-export \
-#	+kmod-usb-core +kmod-usb-net +kmod-usb-ohci +kmod-usb2 +kmod-rt73-usb \
-#	+kmod-p54-usb +kmod-rt2500-usb +kmod-rt2800-usb \
-#	+kmod-zd1211rw \
-#	+kmod-rtl8187 \
-#	+kmod-ath +kmod-ath9k \
-#	+iw \
-#	+libopenssl \
-#	+openvpn \
-#
-#	+luci-app-openvpn \
-#	+openssl-util \
-#	+libnl-tiny \
-#	+luci-app-openvpn \
-#	+wprobe-export \  # I guess this one causes the crc-ccitt compile ERROR
-#	+usbutils \
-#	+hostapd +hostapd-utils \ # causing recursive dependency
-
-#  KCONFIG:=CONFIG_KERNEL_KALLSYMS CONFIG_GDB
 
 
 define Package/qmp-big-node/description

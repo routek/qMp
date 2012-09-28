@@ -14,7 +14,7 @@
 	</table>
 
 	<div style="display:table">
-		
+
 <% for i,l in ipairs(d) do  %>
 	<div id="link" style="background-color:#dadbe9;left:50px;width:300px;margin:10px;float:left;position:relative">
 	<table>
@@ -30,12 +30,12 @@
 		<ul>
 			<li>Local IP: <a href="[<%=l.llocalIp%>]"><%=l.llocalIp%></a></li>
 			<li>Device: <%=l.viaDev%></li>
-			<li>Rate (rx/tx):  
+			<li>Rate (rx/tx):
 				<% if l.rxRate+l.txRate < 120 then %>
 					<span style="color:red;">
 				<% else %>
 					<span style="color:green;">
-				<% end %>	
+				<% end %>
 					<%=l.rxRate%>/<%=l.txRate%>
 				</span>
 			</li>
@@ -43,7 +43,7 @@
 		</ul>
 		</td>
 	</tr>
-	</table>	
+	</table>
 	</div>
 <% end %>
 </div>

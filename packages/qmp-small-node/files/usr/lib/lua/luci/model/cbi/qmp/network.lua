@@ -33,7 +33,7 @@ eth_section.addremove = False
 --wl_section.addremove = False
 
 
--- Getting the physical (real) interfaces 
+-- Getting the physical (real) interfaces
 -- interfaces matching with real_interfaces and without dot
 -- ethernet interfaces will be stored in eth_int and wireless in wl_int
 eth_int = {}
