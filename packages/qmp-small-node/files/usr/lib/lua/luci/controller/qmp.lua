@@ -23,7 +23,7 @@ module("luci.controller.qmp", package.seeall)
 
 function index()
 
-	-- Making qmp as default 	
+	-- Making qmp as default
 	local root = node()
 	root.target = alias("qmp")
 	root.index  = true
@@ -33,7 +33,7 @@ function index()
 	overview.dependent = false
 	overview.sysauth = "root"
 	overview.sysauth_authenticator = "htmlauth"
-	
+
 	-- Rest of entries
 	entry({"qmp","info"}, call("action_status"), "Info", 1).dependent=false
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
@@ -46,14 +46,14 @@ function index()
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 8).dependent=false
 	entry({"qmp","map"}, call("action_map"), "Map", 8).dependent=false
 end
-     
+
 function action_status()
 	package.path = package.path .. ";/etc/qmp/?.lua"
 	local qmp = require "qmpinfo"
 	local ipv4 = qmp.get_ipv4()
 	local hostname = qmp.get_hostname()
 	local uname = qmp.get_uname()
-		
+
 	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
 end
 
@@ -62,7 +62,7 @@ function action_tools()
 	local qmp = require "qmpinfo"
 	local nodes = qmp.nodes()
 	local key = qmp.get_key()
-	luci.template.render("qmp/tools",{nodes=nodes,key=key})	
+	luci.template.render("qmp/tools",{nodes=nodes,key=key})
 end
 
 function action_splash()

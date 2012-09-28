@@ -27,8 +27,8 @@ local http = require("luci.http")
 local sys = require("luci.sys")
 
 local options = bmx6json.get("options")
-if options == nil or options.OPTIONS == nil then 
-	m.message = "bmx6-json plugin is not running or some mistake in luci-bmx6 configuration, check /etc/config/luci-bmx6"  
+if options == nil or options.OPTIONS == nil then
+	m.message = "bmx6-json plugin is not running or some mistake in luci-bmx6 configuration, check /etc/config/luci-bmx6"
 	options = {}
 else
 	options = options.OPTIONS
@@ -41,17 +41,17 @@ local help = ""
 local value = nil
 local _,o
 
-for _,o in ipairs(options) do 
+for _,o in ipairs(options) do
 	if o.name ~= nil and o.CHILD_OPTIONS == nil and o.configurable == 1 then
 		help = ""
 		name = o.name
 
-		if o.help ~= nil then 
-			help = bmx6json.text2html(o.help) 
+		if o.help ~= nil then
+			help = bmx6json.text2html(o.help)
 		end
 
-		if o.syntax ~= nil then 
-			help = help .. "<br/><strong>Syntax: </strong>" .. bmx6json.text2html(o.syntax) 
+		if o.syntax ~= nil then
+			help = help .. "<br/><strong>Syntax: </strong>" .. bmx6json.text2html(o.syntax)
 		end
 
 		if o.def ~= nil then

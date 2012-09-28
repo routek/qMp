@@ -92,13 +92,13 @@ endef
 define Package/bmx6-qmp-json
   $(call Package/bmx6-qmp/Default)
   DEPENDS:=bmx6-qmp +libjson
-  TITLE:=josn plugin based on jsonc 
+  TITLE:=josn plugin based on jsonc
 endef
 
 define Package/bmx6-qmp-sms
   $(call Package/bmx6-qmp/Default)
   DEPENDS:=bmx6-qmp
-  TITLE:=sms plugin 
+  TITLE:=sms plugin
 endef
 
 

@@ -142,7 +142,7 @@ static int niit_xmit(struct sk_buff *skb, struct net_device *dev) {
 		}
 		/* how the package should look like :
 		 * skb->network_header =  iph6
-		 * skb->transport_header = iph4; 
+		 * skb->transport_header = iph4;
                  */
 		skb->transport_header = skb->network_header; /* we say skb->transport_header = iph4; */
 		skb_reset_network_header(skb); /* now -> we reset the network header to skb->data which is our ipv6 paket */
@@ -321,7 +321,7 @@ static int niit_xmit(struct sk_buff *skb, struct net_device *dev) {
 	}
 	return 0;
 
-  tx_error_icmp: 
+  tx_error_icmp:
 	dst_link_failure(skb);
 	PDEBUG("niit: tx_error_icmp\n");
   tx_error:
@@ -380,7 +380,7 @@ static int __init niit_init(void) {
 		goto err_alloc_dev;
 	}
 	tunnel = (struct niit_tunnel *) netdev_priv(tunnel4_dev);
-	
+
 	if ((err = register_netdev(tunnel4_dev)) ||
 		(err = register_netdev(tunnel6_dev)))
 		goto err_reg_dev;
