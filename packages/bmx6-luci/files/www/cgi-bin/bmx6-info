@@ -27,9 +27,9 @@
 BMX6_DIR="$(uci get bmx6.general.runtimeDir 2>/dev/null)" || BMX6_DIR="/var/run/bmx6/json"
 
 #Checking if shell mode or cgi-bin mode
-if [ "$1" == "-s" ]; then 
+if [ "$1" == "-s" ]; then
 	QUERY="$2"
-else 
+else
 	QUERY="${QUERY_STRING%%=*}"
 	echo "Content-type: application/json"
 	echo ""
@@ -48,7 +48,7 @@ print_query() {
         {
 	# If /all has not been specified
 		[ -z "$QALL" ] &&
-		{	
+		{
 		total=$(ls $BMX6_DIR/$1 | wc -w)
 		i=1
         	echo -n "{ \"$1\": [ "
@@ -56,7 +56,7 @@ print_query() {
 			echo -n "{ \"name\": \"$f\" }"
 			[ $i -lt $total ]  && echo -n ','
 			i=$(( $i + 1 ))
-        	done 
+        	done
 	        echo -n " ] }"
 
 	# If /all has been specified, printing all the files together
@@ -64,7 +64,7 @@ print_query() {
 		comma=""
 		echo -n "[ "
 		for entry in "$BMX6_DIR/$1/"*; do
-			[ -f "$entry" ] && 
+			[ -f "$entry" ] &&
 			{
 				${comma:+echo "$comma"}
 				tr -d '\n' < "$entry"
@@ -72,7 +72,7 @@ print_query() {
 			}
 		done
 		echo -n " ]"
-		}	
+		}
         }
 
 	# If the query is a file, just printing the file
