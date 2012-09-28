@@ -1,5 +1,4 @@
-#    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
-#    Copyright (C) 2009 Jo-Philipp Wich <xm@subsignal.org>
+#    Copyright (C) 2011 Pau Escrich <pau@dabax.net>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,13 +36,12 @@ define Package/bmx6-luci
 endef
 
 define Package/bmx6-luci/description
-	bmx6 web interface for luci (json)
+	bmx6 web interface for luci
 endef
 
 define Package/bmx6-luci/conffiles
-/etc/config/luci-bmx6
+	/etc/config/luci-bmx6
 endef
-
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)

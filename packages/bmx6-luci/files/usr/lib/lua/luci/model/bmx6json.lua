@@ -1,5 +1,6 @@
 --[[
-    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+    Copyright (C) 2011 Pau Escrich <pau@dabax.net>
+    Contributors Jo-Philipp Wich <xm@subsignal.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,14 +27,27 @@ local uci = require("luci.model.uci")
 local sys = require("luci.sys")
 local template = require("luci.template")
 local http = require("luci.http")
-local string = require "string"
+local string = require("string")
+local table = require("table")
+local nixio = require("nixio")
+local nixiofs = require("nixio.fs")
+local ipairs = ipairs
 
 module "luci.model.bmx6json"
 
 -- Returns a LUA object from bmx6 JSON daemon
 
-function get(field)
-	local url = uci.cursor():get("luci-bmx6","luci","json")
+function get(field, host)
+	local url
+	if host ~= nil then
+		if host:match(":") then
+			url = 'http://[%s]/cgi-bin/bmx6-info?' % host
+		else
+			url = 'http://%s/cgi-bin/bmx6-info?' % host
+		end
+	else
+		url = uci.cursor():get("luci-bmx6","luci","json")
+	end
 
 	if url == nil then
 		 print_error("bmx6 json url not configured, cannot fetch bmx6 daemon data",true)
@@ -44,7 +58,7 @@ function get(field)
 	 local raw = ""
 
 	if json_url[1] == "http"  then
-		raw = sys.httpget(url..field)
+		raw,err = wget(url..field,1000)
 	else 
 
 		if json_url[1] == "exec" then
@@ -58,7 +72,7 @@ function get(field)
 
 	local data = nil
 
-	if raw:len() > 10 then
+	if raw and raw:len() > 10 then
 		local decoder = json.Decoder()
 		ltn12.pump.all(ltn12.source.string(raw), decoder:sink())
 		data = decoder:get()
@@ -89,5 +103,63 @@ function text2html(txt)
 	txt = string.gsub(txt,">","}")
 	txt = util.striptags(txt)
 	return txt
+end
+
+
+function wget(url, timeout)
+	local rfd, wfd = nixio.pipe()
+	local pid = nixio.fork()
+	if pid == 0 then
+		rfd:close()
+		nixio.dup(wfd, nixio.stdout)
+		
+		local candidates = { "/usr/bin/wget", "/bin/wget" }
+		local _, bin
+		for _, bin in ipairs(candidates) do
+			if nixiofs.access(bin, "x") then
+				nixio.exec(bin, "-q", "-O", "-", url)
+			end
+		end
+		return
+	else
+		wfd:close()
+		rfd:setblocking(false)
+
+		local buffer = { }
+		local err1, err2
+
+		while true do
+			local ready = nixio.poll({{ fd = rfd, events = nixio.poll_flags("in") }}, timeout)
+			if not ready then
+				nixio.kill(pid, nixio.const.SIGKILL)
+				err1 = "timeout"
+				break
+			end
+				
+			local rv = rfd:read(4096)
+			if rv then
+				-- eof
+				if #rv == 0 then
+					break
+				end
+
+				buffer[#buffer+1] = rv
+			else
+				-- error
+				if nixio.errno() ~= nixio.const.EAGAIN and
+				   nixio.errno() ~= nixio.const.EWOULDBLOCK then
+				   	err1 = "error"
+				   	err2 = nixio.errno()
+				end
+			end
+		end
+
+		nixio.waitpid(pid, "nohang")
+		if not err1 then
+			return table.concat(buffer)
+		else
+			return nil, err1, err2
+		end
+	end
 end
 

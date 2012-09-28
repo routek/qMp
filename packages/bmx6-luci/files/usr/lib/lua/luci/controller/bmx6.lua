@@ -1,5 +1,6 @@
 --[[
-    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+    Copyright (C) 2011 Pau Escrich <pau@dabax.net>
+    Contributors Jo-Philipp Wich <xm@subsignal.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,10 +25,9 @@ local bmx6json = require("luci.model.bmx6json")
 module("luci.controller.bmx6", package.seeall)
  
 function index()
-       
+	local place = {}       
 	local ucim = require "luci.model.uci"
 	local uci = ucim.cursor()
- 	local place = {}
 	-- checking if ignore is on
 	if uci:get("luci-bmx6","luci","ignore") == "1" then
 		return nil
@@ -46,18 +46,22 @@ function index()
 	---------------------------
 	-- Starting with the pages
 	---------------------------
-   
-	--- status (this is default one)
-	entry(place,call("action_status"),place[#place])	
-
-	--- neighbours
-	table.insert(place,"Neighbours")
-	entry(place,call("action_neighbours"),"Neighbours") 
-	table.remove(place)
+  	
+	--- neighbours/descriptions (default)
+	entry(place,call("action_neighbours_j"),place[#place]) 
  
+	table.insert(place,"neighbours_nojs")	
+	entry(place, call("action_neighbours"), nil)
+	table.remove(place)
+	 
+	--- status (this is default one)
+	table.insert(place,"Status")
+	entry(place,call("action_status"),"Status")	
+	table.remove(place)
+
 	--- links
 	table.insert(place,"Links")
-	entry(place,call("action_links"),"Links") 
+	entry(place,call("action_links"),"Links").leaf = true
 	table.remove(place)
 
 	--- chat
@@ -65,6 +69,16 @@ function index()
 	entry(place,call("action_chat"),"Chat") 
 	table.remove(place)
 
+	--- Graph
+	table.insert(place,"Graph")	
+	entry(place, template("bmx6/graph"), "Graph")
+	table.remove(place)
+
+	--- Topology (hidden)
+	table.insert(place,"topology")	
+	entry(place, call("action_topology"), nil)
+	table.remove(place)
+	
 	--- configuration (CBI)
 	table.insert(place,"Configuration")
 	entry(place, cbi("bmx6/main"), "Configuration").dependent=false
@@ -144,23 +158,72 @@ function action_neighbours()
 
         luci.template.render("bmx6/neighbours", {originators=originators})
 end
- 
-function action_links()
-	local links = bmx6json.get("links")
+
+function action_neighbours_j()
+	local http = require "luci.http"
+	local link_non_js = "/cgi-bin/luci" .. http.getenv("PATH_INFO") .. '/neighbours_nojs'
+
+	luci.template.render("bmx6/neighbours_j", {link_non_js=link_non_js})
+end
+
+function action_links(host)
+	local links = bmx6json.get("links", host)
 	local devlinks = {}
-	
+	local _,l
+
 	if links ~= nil then
 		links = links.links
 		for _,l in ipairs(links) do
 			devlinks[l.viaDev] = {}
 		end
 		for _,l in ipairs(links) do
+			l.globalId = luci.util.split(l.globalId,'.')[1]
 			table.insert(devlinks[l.viaDev],l)	
 		end
 	end
 
 	luci.template.render("bmx6/links", {links=devlinks}) 
 end
+
+function action_topology()
+	local originators = bmx6json.get("originators/all")
+	local o,i,l,i2
+	local first = true
+	luci.http.prepare_content("application/json")
+	luci.http.write('[ ')
+
+	for i,o in ipairs(originators) do
+		local links = bmx6json.get("links",o.primaryIp)
+		if links then
+			if first then
+				first = false
+			else
+				luci.http.write(', ')
+			end
+
+			luci.http.write('{ "globalId": "%s", "links": [' %o.globalId:match("^[^%.]+"))
+			
+			local first2 = true
+
+			for i2,l in ipairs(links.links) do
+				if first2 then
+					first2 = false
+				else
+					luci.http.write(', ')
+				end
+			
+				luci.http.write('{ "globalId": "%s", "rxRate": %s, "txRate": %s }'
+					%{ l.globalId:match("^[^%.]+"), l.rxRate, l.txRate })
+
+			end
+			
+			luci.http.write(']}')
+		end
+
+	end
+	luci.http.write(' ]')
+end
+
 
 function action_chat()
 	local sms_dir = "/var/run/bmx6/sms"

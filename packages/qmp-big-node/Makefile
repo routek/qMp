@@ -16,12 +16,16 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_SOURCE_URL:=@SF/qmp-big-node
 
 
@@ -31,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-big-node
   SECTION:=net
-  CATEGORY:=Base system
+  CATEGORY:=qMp
   TITLE:=Required addons for big qmp mesh nodes (8MByte flash or more)
   URL:=http://qmp.cat
   DEPENDS:= \
@@ -48,7 +52,8 @@ define Package/qmp-big-node
 	+wget +horst \
 	+ipv6calc \
 	+bmon +bwm +ebtables +pv \
-	+b6m
+	+b6m \
+	+cgi-bin-zero \
 
 endef
 

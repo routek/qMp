@@ -207,6 +207,21 @@ function qmpinfo.nodes()
 	return result
 end
 
+function qmpinfo.links()
+	local nodes = util.split(util.exec('bmx6 -c --links | awk \'{print $1 "|" $2}\' |  grep -e ".*:.*:"'))
+	local ni
+	result = {}
+	for _,n in ipairs(nodes) do
+		if n ~= "" then
+		ni = util.split(n,"|")
+		ni[1] = util.split(ni[1],".")[1]
+		table.insert(result,ni)
+		end
+	end
+	return result
+end
+
+
 function qmpinfo.get_key()
 	local keyf = util.exec("uci get qmp.node.key")
 	if #keyf < 2 then

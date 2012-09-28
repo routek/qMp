@@ -33,8 +33,8 @@ PKG_UNPACK:=unzip -d $(PKG_BUILD_DIR)/ $(DL_DIR)/$(PKG_SOURCE)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/tinymce
-  SECTION:=net
-  CATEGORY:=Base system
+  SECTION:=utils
+  CATEGORY:=Utilities
   TITLE:=TinyMCE is a Javascript HTML WYSIWYG editor.
   URL:=http://www.tinymce.com
   MAINTAINER:=Simó Albert i Beltran <sim6@probeta.net>

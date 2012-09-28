@@ -36,7 +36,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/gwck-qmp
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=qMp
   SUBMENU:=Routing and Redirection
   TITLE:=Check gateway and control bmx6 tunnels.
   URL:=http://qmp.net/projects/gwck

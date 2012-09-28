@@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-tinyproxy
   SECTION:=net
-  CATEGORY:=Base system
+  CATEGORY:=qMp
   TITLE:=Tinyproxy is a lightweight HTTP and HTTPS proxy with support splash
   URL:=http://tinyproxy.sourceforge.net/
   DEPENDS:=+tinymce
