@@ -23,7 +23,7 @@
 				td.innerHTML += '<em><%: Please perform a manually cache flush from a terminal: bmx6 -c --flushAll %></em>'
 				return 1;
 			}
-				
+
 			if ( originators && descriptions && tb)
 			{
 				/* clear all rows */
@@ -37,7 +37,7 @@
 					tr.className = 'cbi-section-table-row cbi-rowstyle-' + ((i % 2) + 1);
 					tr.insertCell(-1).innerHTML = '<a onclick="displayExtraInfo(\'ip-'+i+'\')"><img src=\"/luci-static/resources/cbi/help.gif\" /></a>';
 					tr.insertCell(-1).innerHTML = nodename;
-					
+
 					var extensions = descriptions[i].DESC_ADV.extensions;
 
 					//Looking for the extensions
@@ -55,7 +55,7 @@
 							tun4in6 = extensions[e].TUN4IN6_NET_EXTENSION;
 						}
 					}
-					
+
 					var gateways = '<ul>';
 					for ( var t = 0; t < tun4in6.length; t++)
 					{
@@ -63,7 +63,7 @@
 						gateways += tun4in6[t].bandwidth+'</li>';
 					}
 					gateways += '</ul>';
-					
+
 					//Adding HNAs with prefix=128 as main address
 					var ipstxt = '';
 					var address;
@@ -77,42 +77,42 @@
 						prefix = hna6[e].prefixlen;
 						if ( prefix == '128' )
 							{
-							if (first) 
+							if (first)
 								{
 								ipstxt += address;
 								ipstxt_hidden += '<li><a href="http://['+address+']" >'+address+"</a></li>";
 								first = 0;
-								} 
+								}
 							else 	{
-								ipstxt_hidden += '<li><a href="http://['+address+']" >'+address+"</a></li>";		
+								ipstxt_hidden += '<li><a href="http://['+address+']" >'+address+"</a></li>";
 								}
 							}
 						else	{
-							hna6list += '<li>'+address+'/'+prefix+'</li>'; 		
+							hna6list += '<li>'+address+'/'+prefix+'</li>';
 							}
 					}
 					hna6list += '</ul>';
 					ipstxt_hidden += '</ul>';
 
 					tr.insertCell(-1).innerHTML = ipstxt;
-						
+
 					tr.insertCell(-1).innerHTML = originators[i].viaDev;
 					tr.insertCell(-1).innerHTML = originators[i].metric;
 					tr.insertCell(-1).innerHTML = originators[i].lastDesc;
 					tr.insertCell(-1).innerHTML = originators[i].lastRef;
 					tr.insertCell(-1).innerHTML = originators[i].blocked;
 					//tr.onclick = displayExtraInfo("ip-"+i);
-					
+
 					extrainfo = '<div id="ip-'+ i +'" class="hideme">';
 					extrainfo += "<div class='inforow'><br /><br /><h4>"+nodename+'</h4></div>\n';
 					extrainfo += "<div class='inforow'><h5>Available IPs</h5>\n<p>" + ipstxt_hidden + "</p></div>\n";
 					extrainfo += "<div class='inforow'><h5>Gateways announced</h5>\n<p>" + gateways + "</p></div>\n";
 					extrainfo += "<div class='inforow'><h5>Networks announced</h5>\n<p>" + hna6list + "</p></div>\n";
-				
+
 					extrainfo += "\n</div>";
 
 					tr.insertCell(-1).innerHTML = extrainfo;
-					
+
 				}
 
 				if( tb.rows.length == 1 )
@@ -134,7 +134,7 @@
 	div.hideme{
 		display: none;
 	}
-	
+
 	div.info{
 		background: #FFF;
 		border: solid 1px;
