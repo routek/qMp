@@ -11,18 +11,18 @@ function do_test(ip,index,key,tool) {
 		XHR.get("/cgi-bin/tools",[ key ,  tool ,  ip] ,
                 function(x) {
                 	    output.innerHTML= parse_result(x.responseText);
-			    
+
                 } )
 	}
 }
 function parse_result(txt) {
 	var t = new String(txt);
-	
-	if (t.indexOf("Cannot") >= 0) 
+
+	if (t.indexOf("Cannot") >= 0)
 		return("&lt;font color='#f00'&gt;<%:Cannot connecto to netserver%>&lt;/font&gt;");
-	else 
-		return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");	
-		//return("<font color='#0a0'>"+txt+"</font>");	
+	else
+		return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");
+		//return("<font color='#0a0'>"+txt+"</font>");
 }
 
 </script>
@@ -33,7 +33,7 @@ function parse_result(txt) {
 <form>
 <fieldset class="cbi-section">
 <legend><%:Nodes found in the network%></legend>
-	
+
 	<table class="cbi-section-table" >
 	<tr class="cbi-section-table-titles">
 	<th class="cbi-section-table-cell"></th>
@@ -42,7 +42,7 @@ function parse_result(txt) {
 	</tr>
 <% for i,n in ipairs(nodes) do %>
 	<tr>
-		<td title="<%=n[2]%>" style="padding-left:10px;width:15%;text-align:left;"><%=n[1]%></td> 
+		<td title="<%=n[2]%>" style="padding-left:10px;width:15%;text-align:left;"><%=n[1]%></td>
 		<td style="width:18%;text-align:right;">
 			<input type="button" value="bandwidth" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','bwtest')" />
 			<input type="button" value="ping" onclick="do_test('<%=n[2]%>',<%=i%>,'<%=key%>','ping')" />
