@@ -59,23 +59,9 @@ define Package/qmp-big-node
 
 endef
 
-define CommentsAndOptions
-  DEPENDS_COMMENT:= \
-	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
-	+qmp-quagga-zebra +qmp-quagga-watchquagga \
-	+luci-mod-freifunk-community \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-        +olsrd-eigennet +olsrd-eigennet-mod-dyn-gw +olsrd-eigennet-mod-httpinfo +olsrd-eigennet-mdns +olsrd-eigennet-mod-arprefresh +olsrd-eigennet-mod-txtinfo  +bmxe +bmx-uci-config \
-	+eigennet-autoconf \
-	+wpa-supplicant-mini \
-	+hostapd-mini \
-endef
-
 
 define Package/qmp-big-node/description
  Addons for big qmp nodes (8MByte flash or more)
 endef
-
-
 
 $(eval $(call BuildPackage,qmp-big-node))
