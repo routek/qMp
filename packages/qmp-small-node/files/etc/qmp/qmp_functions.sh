@@ -793,9 +793,11 @@ qmp_set_hosts() {
 	return
   fi
 
-  cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
-  echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
-  cp /tmp/hosts.tmp /etc/hosts
+  if [ $(cat /etc/hosts | grep qmpadmin | grep "^$ip" -c) -eq 0 ]; then
+        cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp             
+        echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp                 
+        cp /tmp/hosts.tmp /etc/hosts                                        
+  fi                                                                   
 
   echo "done"
 }
