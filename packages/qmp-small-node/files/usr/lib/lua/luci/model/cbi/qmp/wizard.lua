@@ -20,19 +20,35 @@
 --]]
 
 local sys = require "luci.sys"
-local uci  = require "luci.model.uci"
 local http = require "luci.http"
+local ip = require "luci.ip"
+local util = require "luci.util"
+local uci  = require "luci.model.uci"
+local uciout = uci.cursor()
 
 package.path = package.path .. ";/etc/qmp/?.lua"
 qmpinfo = require "qmpinfo"
 
 m = SimpleForm("qmp_tmp", translate("qMp Wizard"))
 
+local roaming_help                                                                                                                            
+roaming_help = m:field(DummyValue,"roaming_help")  
+roaming_help:depends("_netmode","roaming")                                                                                                    
+roaming_help.rawhtml = true                                                                                                                   
+roaming_help.default = "This mode is used to quick deployments. Connected devices cannot see each other among different Mesh nodes. \
+    However the devices can change between Access Points without loosing connectivity"
+
+local community_help
+community_help = m:field(DummyValue,"community_help")
+community_help:depends("_netmode","community")
+community_help.rawhtml = true
+community_help.default = "This mode is used to static deployments (like community networks). Connected devices have a static IP range and are able to see each others.\
+   However there is no roaming."
+
 netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming is used for quick deployments.<br/>Community for network communities"))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
 netmode.default="roaming"
-
 
 nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
 nodename:depends("_netmode","community")
@@ -44,28 +60,36 @@ nodemask = m:field(Value, "_nodemask",translate("Network mask"),translate("Netma
 nodemask.default = "255.255.255.0"
 nodemask:depends("_netmode","community")
 
-
---local htmlraw
---htmlraw = m:option(DummyValue)
---htmlraw.rawhtml = true
---htmlraw.default = "<h3>Network devices</h3>"
-
 -- Get list of devices {{ethernet}{wireless}}
 devices = qmpinfo.get_devices()
 
 -- Ethernet devices
 nodedevs_eth = {}
 
+local function is_a(dev, what)  
+	local x                                                      
+	for x in util.imatch(uciout:get("qmp", "interfaces", what)) do
+        	if dev == x then
+        		return true
+        	end
+        end
+	return false
+end
+
 for i,v in ipairs(devices[1]) do
         tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("Lan")
 	tmp:value("Wan")
-	if v == "eth0" then
+
+	if is_a(v, "lan_devices") then
 		tmp.default = "Lan"
-	else
+	elseif is_a(v, "wan_devices") then
 		tmp.default = "Wan"
+	elseif is_a(v, "mesh_devices") then
+		tmp.default = "Mesh"
 	end
+
 	nodedevs_eth[i] = {v,tmp}
 end
 
@@ -76,16 +100,17 @@ for i,v in ipairs(devices[2]) do
 	tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("AP")
-	if v == "wlan1" then
+
+	if is_a(v,"lan_devices") then
 		tmp.default = "AP"
 	else
 		tmp.default = "Mesh"
 	end
+	
 	nodedevs_wifi[i] = {v,tmp}
 end
 
 function netmode.write(self, section, value)
-	local uciout = uci.cursor()
 	local name = nodename:formvalue(section)
 	local mode = netmode:formvalue(section)
 	local nodeip = nodeip:formvalue(section)
@@ -95,7 +120,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","non_overlapping","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
 		uciout:set("qmp","networks","lan_address",nodeip)
-		uciout:set("qmp","networks","bmx6_ipv4_address",nodeip)
+		uciout:set("qmp","networks","bmx6_ipv4_address",ip.IPv4(nodeip,nodemask):string())
 		uciout:set("qmp","networks","lan_netmask",nodemask)
 		uciout:set("qmp","node","community_id",name)
 
