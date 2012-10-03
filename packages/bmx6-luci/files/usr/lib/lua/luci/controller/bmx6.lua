@@ -64,6 +64,11 @@ function index()
 	entry(place,call("action_links"),"Links").leaf = true
 	table.remove(place)
 
+	-- Gateways
+	table.insert(place,"Gateways")
+	entry(place,call("action_gateways_j"),"Gateways").leaf = true
+	table.remove(place)
+
 	--- chat
 	table.insert(place,"Chat")
 	entry(place,call("action_chat"),"Chat")
@@ -165,6 +170,11 @@ function action_neighbours_j()
 
 	luci.template.render("bmx6/neighbours_j", {link_non_js=link_non_js})
 end
+
+function action_gateways_j()
+	luci.template.render("bmx6/gateways_j", {})
+end
+
 
 function action_links(host)
 	local links = bmx6json.get("links", host)
