@@ -4,5 +4,5 @@ if cat /etc/firewall.user | grep -e "^# Clamp MSS TCP rule to fix MTU problems";
 
 cat << EOF >> /etc/firewall.user
 # Clamp MSS TCP rule to fix MTU problems
-iptables -A FORWARD -p tcp -i br-lan ! -d 10.0.0.0/8  -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+iptables -A FORWARD -p tcp -o bmx6_+ -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 EOF
