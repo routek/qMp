@@ -1,0 +1,14 @@
+diff --git a/etc/gwck/gwck_conf_qmp_ipv4 b/etc/gwck/gwck_conf_qmp_ipv4
+index ed28194..ac79dc4 100644
+--- a/etc/gwck/gwck_conf_qmp_ipv4
++++ b/etc/gwck/gwck_conf_qmp_ipv4
+@@ -137,6 +137,9 @@ done
+ iface="$(ip route | grep "^default" | grep -v "bmx6_out" | sed -n -e 's/.* dev \([^ ]\+\) .*/\1/gp')"
+ if [ -n "$iface" ] && ! echo "$iface" | grep -q " "
+ then
++	log "Masquerading via iptables"
++	iptables -A POSTROUTING -t nat -o $iface -j MASQUERADE
++
+ 	log "Clamping the MSS via iptables"
+ 	iptables -I FORWARD -o $iface -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+ fi

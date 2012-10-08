@@ -1,0 +1,13 @@
+diff --git a/etc/gwck/module/bmx6 b/etc/gwck/module/bmx6
+index 26a31ee..7a504f2 100644
+--- a/etc/gwck/module/bmx6
++++ b/etc/gwck/module/bmx6
+@@ -61,7 +61,7 @@ fi
+ 
+ # bmx6 tunOut mtu value.
+ [ -z "$GWCK_MOD_BMX6_MTU" ] \
+-&& GWCK_MOD_BMX6_MTU="1400"
++&& GWCK_MOD_BMX6_MTU="1360"
+ 
+ # Not disable offer if no other nodes offer Internet access.
+ [ -z "$GWCK_MOD_BMX6_TEST_OTHER_OFFER" ] \
