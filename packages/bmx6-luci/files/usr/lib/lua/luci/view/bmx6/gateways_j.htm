@@ -11,8 +11,8 @@
 		function(x, st)
 		{
 		  var tb = document.getElementById('descriptions_table');
-		  var rowcount = 0;	
-		  var tunicon = "<%=resource%>/icons/tunnel.png"; 
+		  var rowcount = 0;
+		  var tunicon = "<%=resource%>/icons/tunnel.png";
 		  /* clear all rows */
 		  while( tb.rows.length > 1 ) tb.deleteRow(1);
 
@@ -20,14 +20,14 @@
 			{
 			var description = st[k].DESC_ADV;
 		  	var tun4in6;
-			
+
 			for ( var k in description.extensions )
 				{
 				var value = description.extensions[k];
 
-					if ( value.TUN4IN6_NET_EXTENSION ) 
+					if ( value.TUN4IN6_NET_EXTENSION )
 						{
-						tun4in6 = value.TUN4IN6_NET_EXTENSION; 
+						tun4in6 = value.TUN4IN6_NET_EXTENSION;
 						break;
 						}
 				}
@@ -42,7 +42,7 @@
 					var network =  tun4in6[i].network;
 					var network_len = tun4in6[i].networklen;
 					var network_bw = tun4in6[i].bandwidth;
-			
+
 					if ( network_len >= 32 ) continue;
 
 					tr.className = 'cbi-section-table-row cbi-rowstyle-' + ((rowcount++ % 2) + 1);
@@ -50,8 +50,8 @@
 					tr.insertCell(-1).innerHTML = nodename;
 					tr.insertCell(-1).innerHTML = network + '/' + network_len;
 					tr.insertCell(-1).innerHTML = network_bw;
-					
-					
+
+
 				}
 
 				if( tb.rows.length == 1 )
@@ -74,7 +74,7 @@
 	div.hideme{
 		display: none;
 	}
-	
+
 	div.info{
 		background: #FFF;
 		border: solid 1px;
