@@ -36,7 +36,7 @@ function index()
 
 	-- Rest of entries
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
-	
+
 	entry({"qmp","configuration"}, cbi("qmp/wizard"), "Configuration", 4).dependent=false
 	entry({"qmp","configuration","wizard"}, cbi("qmp/wizard"), "Wizard", 1).dependent=false
 	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 2).dependent=false
