@@ -31,10 +31,10 @@ qmpinfo = require "qmpinfo"
 
 m = SimpleForm("qmp_tmp", translate("qMp Wizard"))
 
-local roaming_help                                                                                                                            
-roaming_help = m:field(DummyValue,"roaming_help")  
-roaming_help:depends("_netmode","roaming")                                                                                                    
-roaming_help.rawhtml = true                                                                                                                   
+local roaming_help
+roaming_help = m:field(DummyValue,"roaming_help")
+roaming_help:depends("_netmode","roaming")
+roaming_help.rawhtml = true
 roaming_help.default = "This mode is used to quick deployments. Connected devices cannot see each other among different Mesh nodes. \
     However the devices can change between Access Points without loosing connectivity"
 
@@ -66,8 +66,8 @@ devices = qmpinfo.get_devices()
 -- Ethernet devices
 nodedevs_eth = {}
 
-local function is_a(dev, what)  
-	local x                                                      
+local function is_a(dev, what)
+	local x
 	for x in util.imatch(uciout:get("qmp", "interfaces", what)) do
         	if dev == x then
         		return true
@@ -106,7 +106,7 @@ for i,v in ipairs(devices[2]) do
 	else
 		tmp.default = "Mesh"
 	end
-	
+
 	nodedevs_wifi[i] = {v,tmp}
 end
 
