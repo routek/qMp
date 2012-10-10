@@ -786,17 +786,17 @@ qmp_set_hosts() {
 
   local ip=$(uci get bmx6.general.tun4Address | cut -d'/' -f1)
   local hn=$(uci get system.@system[0].hostname)
- 
+
   if [ -z "$ip" -o -z "$hn" ]; then
  	echo "Cannot get IP or HostName"
 	return
   fi
 
   if [ $(cat /etc/hosts | grep qmpadmin | grep "^$ip" -c) -eq 0 ]; then
-        cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp             
-        echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp                 
-        cp /tmp/hosts.tmp /etc/hosts                                        
-  fi                                                                   
+        cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
+        echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
+        cp /tmp/hosts.tmp /etc/hosts
+  fi
 
   echo "done"
 }
