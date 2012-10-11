@@ -152,7 +152,7 @@ qmp_update_upgrade_system() {
 
 	read -p "Do you want to upgrade system using image $image_url? [N,y] " a
 	if [ "$a" == "y" ]; then
-		rm -rf /overlay/* 2>/dev/null
+		[ $(echo $image_url | grep Alix -c) -eq 1 ] && { echo "Detected Alix, applying sysupgrade patch..."; rm -rf /overlay/* 2>/dev/null; }
 		[ -n "$config" ] && sysupgrade -f $config $output_image
 		[ -z "$config" ] && sysupgrade -n $output_image
 	fi
