@@ -1,6 +1,6 @@
-wireless.@wifi-iface[#QMP_INDEX].mode=ap       
-wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID 
-wireless.@wifi-iface[#QMP_INDEX].encryption=none   
+wireless.@wifi-iface[#QMP_INDEX].mode=ap
+wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
+wireless.@wifi-iface[#QMP_INDEX].encryption=none
 wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
 wireless.#QMP_DEVICE=wifi-device
 wireless.#QMP_DEVICE.type=atheros

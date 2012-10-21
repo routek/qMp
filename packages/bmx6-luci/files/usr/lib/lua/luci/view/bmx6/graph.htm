@@ -45,10 +45,14 @@ $Id$
 						 var key = (data[i].globalId < data[i].links[j].globalId)
 						 	? data[i].globalId + '|' + data[i].links[j].globalId
 							: data[i].links[j].globalId + '|' + data[i].globalId;
-						 if (!seen[key])
+
+							var rxRate = data[i].links[j].rxRate;
+							var txRate = data[i].links[j].txRate;
+
+							if (!seen[key] && rxRate>0 && txRate>0)
 						 	{
-							 g.addEdge(data[i].globalId, data[i].links[j].globalId, 
-							 	{ label: data[i].links[j].rxRate + '/' + data[i].links[j].txRate, 
+							 g.addEdge(data[i].globalId, data[i].links[j].globalId,
+							 	{ label: rxRate + '/' + txRate,
 								directed: false, stroke: '#aaaaaa', fill: '#ffffff',
 								'label-style': { 'font-size': 10 }});
 							 seen[key] = true;
@@ -75,7 +79,7 @@ $Id$
 				layouter.layout();
 				renderer.draw();
 			}
-	
+
 		}
 	);
 //]]></script>

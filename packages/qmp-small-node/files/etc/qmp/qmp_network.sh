@@ -42,8 +42,12 @@ qmp_disable_netserver() {
 	killall -9 netserver || true
 }
 
+## DISABLED
 # Publish or unpublish lan HNA depending on qmp configuration
 qmp_publish_lan() {
+	echo "Publish LAN is a garbage, doing nothing..."
+	return
+
 	is_publish_on=$(qmp_uci_get networks.publish_lan)
 	[ -z "$is_publish_on" ] && is_publish_on=0
 
@@ -56,8 +60,8 @@ qmp_publish_lan() {
 		echo "Publishing LAN network: $lan_netid/$lan_prefix"
 		qmp_publish_hna_bmx6 $lan_netid/$lan_prefix qMp_lan
 	else
-		qmp_unpublish_hna_bmx6 qMp_lan	
-	fi	
+		qmp_unpublish_hna_bmx6 qMp_lan
+	fi
 }
 
 # Usage: qmp_publish_hna_bmx6_ipv4 10.22.33.64/27 [name_id]
@@ -71,10 +75,10 @@ qmp_publish_hna_bmx6() {
 	is_ipv6=$(echo $netid | grep : -c)
 	is_ipv4=$(echo $netid | grep . -c)
 
-	[ $is_ipv6 -eq $is_ipv4 ] && { echo "Error in IP format"; return; } 
+	[ $is_ipv6 -eq $is_ipv4 ] && { echo "Error in IP format"; return; }
 
 	# if not name_id provided, getting one from netid md5sum
-	[ -z "$name_id" ] && name_id="$(echo $netid | md5sum | cut -c1-5)"	
+	[ -z "$name_id" ] && name_id="$(echo $netid | md5sum | cut -c1-5)"
 
 	if [ $is_ipv4 ]; then
 		# Checking if netmask is in ipv4 format and converting it to ipv6
@@ -83,17 +87,17 @@ qmp_publish_hna_bmx6() {
 	else
 		hna="$netid/$netmask"
 	fi
-	
+
 
 	uci set bmx6.$name_id=hna
 	uci set bmx6.$name_id.hna="$hna"
 	uci commit
 
 	bmx6 -c --test -a $hna > /dev/null
-	if [ $? -eq 0 ]; then  
+	if [ $? -eq 0 ]; then
 		bmx6 -c --configReload
 	else
-		echo "ERROR in bmx6, check log" 
+		echo "ERROR in bmx6, check log"
 	fi
 }
 

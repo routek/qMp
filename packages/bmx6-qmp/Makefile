@@ -32,12 +32,12 @@ Public Sources:
 #PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
 PKG_SOURCE_URL:=git://github.com/axn/bmx6.git
 
-PKG_REV:=9e322f29d36dc6f6645428a6f4ae94999caa3343
+PKG_REV:=f49d102a6738b51aa936a4059e3e76136a32c582
 
 Private Sources:
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
 
-PKG_VERSION:=r2012082801
+PKG_VERSION:=r2012101401
 
 PKG_RELEASE:=3
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
@@ -91,13 +91,13 @@ endef
 define Package/bmx6-qmp-json
   $(call Package/bmx6-qmp/Default)
   DEPENDS:=bmx6-qmp +libjson
-  TITLE:=josn plugin based on jsonc 
+  TITLE:=josn plugin based on jsonc
 endef
 
 define Package/bmx6-qmp-sms
   $(call Package/bmx6-qmp/Default)
   DEPENDS:=bmx6-qmp
-  TITLE:=sms plugin 
+  TITLE:=sms plugin
 endef
 
 define Package/bmx6-qmp-quagga

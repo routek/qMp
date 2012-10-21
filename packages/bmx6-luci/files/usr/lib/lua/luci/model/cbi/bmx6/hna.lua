@@ -32,8 +32,8 @@ function hna_option:validate(value)
 	local err = sys.call('bmx6 -c --test -a ' .. value)
 	if err ~= 0 then
 		return nil
-	end	
-	return value 
+	end
+	return value
 end
 
 function m.on_commit(self,map)

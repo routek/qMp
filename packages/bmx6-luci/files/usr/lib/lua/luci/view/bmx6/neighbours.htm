@@ -22,7 +22,7 @@
        font:bold 1.2em/2em "Century Gothic","Trebuchet MS",Arial,Helvetica,sans-serif;
        color:#66a3d3;
      }
-                                                                                
+
 
 #neighbour {
 	position:relative;
@@ -49,18 +49,18 @@
   <th scope="col">Last Desc</th>
   <th scope="col">Last Ref</th>
  </tr>
- 
+
 <% for i,o in ipairs(originators) do %>
 		<tr>
 		<td><%=o.name%></td>
 		<td><a href="http://<%=o.ipv4%>"><%=o.ipv4%></a></td>
 		<td><a href="http://[<%=o.orig.primaryIp%>]"><%=o.orig.primaryIp%></a></td>
-		<td><%=o.orig.viaDev%></td> 
-		<td><%=o.orig.viaIp%></td> 
+		<td><%=o.orig.viaDev%></td>
+		<td><%=o.orig.viaIp%></td>
 		<td><%=o.orig.routes%></td>
-		<td><%=o.orig.metric%></td> 
-		<td><%=o.orig.lastDesc%></td> 
-		<td><%=o.orig.lastRef%></td> 
+		<td><%=o.orig.metric%></td>
+		<td><%=o.orig.lastDesc%></td>
+		<td><%=o.orig.lastRef%></td>
 		</tr>
 <%end%>
 </table>
@@ -70,7 +70,7 @@
  <th scope="col">Node</th>
  <th scope="col">Announced networks</th>
  </tr>
- 
+
 <% for i,o in ipairs(originators) do %>
 	<tr>
 	 <td><%=o.name%></td>
