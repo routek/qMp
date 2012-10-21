@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU General Public License along
 #    with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# Contributors:
+#	Simó Albert i Beltran
+#
 # Check if bmx6 is stoped
 [ ! -f /proc/$(cat /var/run/bmx6/pid)/status ] && {
 	echo "[$(date)] Starting bmx6, it was down."
