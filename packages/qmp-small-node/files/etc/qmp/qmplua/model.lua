@@ -191,20 +191,22 @@ end
 -- @param option	UCI option (optional)
 -- @return			Table or UCI value
 function model.get_type(type, index, option)
+	local typeout = nil
 	if index then 
 		if option then 
-			return model.get_type_option(type, index, option)
+			typeout = model.get_type_option(type, index, option)
 		else 
-			return model.get_type_index(type, index)
+			typeout = model.get_type_index(type, index)
 		end 
 	else
-		return model.get_all_type(type)
+		typeout = model.get_all_type(type)
 	end
+	return typeout
 end
 
 --- Get a table with all the sections of a given type
 -- @param type		UCI section type
--- @return			Table 
+-- @return		Table 
 function model.get_all_type(type)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -220,23 +222,25 @@ function model.get_all_type(type)
 	end
 end
 
---- Get a table with the information of the section of a given type and index 
+--- Returns a table with the information of the section of a given type and index 
 -- @param type		UCI section type
 -- @param index		UCI section type index
--- @return			Table 
+-- @return		Table 
 function model.get_type_index(type, index)
 	local status, c = pcall(model.raw)
 	if not status then 
 		debug.logger(c)
 		return nil
-	else
-		local gt = {}
-		if c:foreach(model.get_file(), type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
-			return gt
-		else 
-			return false
-		end
 	end
+	local typeout = nil
+	c:foreach(model.get_file(), type, function (t) 
+		if t['.index'] == index then 
+			typeout = t
+			return
+		end 
+	end)
+	
+	return typeout
 end
 
 --- Get an option of the section of a given type and index 
@@ -244,7 +248,7 @@ end
 -- @param type		UCI section type
 -- @param index		UCI section type index 
 -- @param option	UCI option
--- @return			UCI value
+-- @return		UCI value
 function model.get_type_option(type, index, option)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -252,13 +256,40 @@ function model.get_type_option(type, index, option)
 		return nil
 	else
 		local gt = {}
-		if c:foreach(model.get_file(), type, function (t) if t['.index'] == tostring(index) then table.insert(gt, t) end end) then
+		if c:foreach(model.get_file(), type, function (t) if t['.index'] == index then table.insert(gt, t) end end) then
 			return gt[option]
 		else 
 			return false
 		end
 	end
 end
+
+
+-- Return the index number from the given type
+-- if option and value are specified then it only returns the section types with option=value
+-- if not specified it returns all indexes
+-- This index number can be used to call other functions like get_type_option(type,index,option)
+-- @return	array
+function model.get_indextype(type,option,value)
+	local status, c = pcall(model.raw)
+	if not status then
+		debug.logger(c)
+		return nil
+	end
+	
+	local index = {}
+	c:foreach(model.get_file(), type, function (t) 
+		if option == nil then
+			table.insert(index,t['.index'])
+			
+		elseif t[option] == value then 
+			table.insert(index,t['.index']) 
+		end
+	end)
+	
+	return index
+end
+
 
 --- Commit the changed done with a UCI-Cursor
 -- @class function

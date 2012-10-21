@@ -21,13 +21,40 @@
 --]]
 
 debug = {}
+local namespace = "Main"
+local stdout = "-s"
+local priority = "-p 7"
+
+function debug.set_namespace(t)
+	if t ~= nil then
+		namespace = t
+	end
+end
+
+function debug.set_priotiry(n)
+	if n then
+		priority = "-p "..n
+	else
+		priotiry = ""
+	end
+end
+
+function debug.set_stdout(b)
+	if b then
+		stdout = "-s"
+	else
+		stdout = ""
+	end
+end
 
 --- Add one line to the system log file with the tag qMp
 -- @class function
 -- @name logger
 -- @param msg	string
 function debug.logger(msg)
-	os.execute('logger -t qMp ' .. msg)
+	local logger = string.format("logger %s %s -t qMp[%s] '",stdout,priority,namespace)
+	local status, c = pcall(os.execute,logger .. msg .. "'")
+	return status		
 end
 
 return debug

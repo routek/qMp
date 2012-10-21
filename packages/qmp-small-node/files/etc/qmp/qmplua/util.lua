@@ -24,12 +24,33 @@ luciutil = require "luci.util"
 util = {}
 util.luci = luciutil
 
--- Replace p1 for p2
+-- Replace p1 for p2, p1 might be an array
 function util.replace(s,p1,p2)
-	return string.gsub(s,p1,p2)
+	if s == nil then
+		return nil
+	end
+	local sout
+	if type(p1) == "table" then
+		local i,p
+		sout = s
+		for i,p in ipairs(p1) do
+			sout = string.gsub(sout,p,p2)
+		end
+	else
+		sout = string.gsub(s,p1,p2)
+	end
+
+	return sout
 end
 
 function util.find(s,p)
 	return string.find(s,p)
+end
+
+function util.printf(...) 
+	local s,c = pcall(string.format,...)
+	if not s then c = "" end
+	return c
+end
 
 return util

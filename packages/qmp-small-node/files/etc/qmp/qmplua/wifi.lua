@@ -29,21 +29,39 @@ wifi = {}
 wifi.info = {}
 
 function wifi.apply(dev)
-	local wdev = model.get_type_by_option('wireless','device',dev)
+	debug.set_namespace("WiFi")
+	debug.logger(util.printf("Executing wifi.apply(%s)",dev))
+
+	local index = model.get_indextype("wireless","device",dev)[1]
+	local wdev = model.get_type("wireless",index)
+
+	if wdev == nil then
+		debug.logger(util.printf("Device %s cannot be found!",dev))
+	end
 	if wdev.mode == "none" then
-		debug.logger("Device "..dev.." mode is none, qMp wont configure it")
+		debug.logger("Device "..dev.." mode is none, qMp won't configure it")
 		return true
 	end
 
+	debug.logger(util.printf("From model: index=%s wdev=%s",index,wdev))
+
 	-- Getting all parameters and checking no one is nil
-	local mode = wdev.mode || return nil
-	local channel =  util.replace(wdev.channel,'',('+','-')) || return nil
-	local channel_mode = util.replace(wdev.channel,'',"[0-9]") || return nil
-	local name = wdev.name || return nil
-	local mac = wdev.mac || return nil
-	local device = wdev.device || return nil
+	local mode = wdev.mode
+	local channel =  util.replace(wdev.channel,{'+','-'},'')
+	local channel_mode = util.replace(wdev.channel,"[0-9]",'')
+	local name = wdev.name
+	local mac = wdev.mac
+	local device = wdev.device
+	
+	if not (mode and channel and channel_mode and name and mac and device) then
+		debug.logger("Some missing parameter, cannot apply")
+		return false
+	end
 
 	local template = nil
+
+	debug.logger("Channel is " .. channel)
+	debug.logger("Channel mode is " .. channel_mode)
 
 	-- chnanel_mode: HT40 = 10+/- | 802.11b = 10b | 802.11ag or HT20 = 10
 	if channel_mode ~= "b" then
@@ -55,7 +73,7 @@ function wifi.apply(dev)
 	else
 		template = mode.."-b"
 	end
-
+	debug.logger("Selected template is " .. template)
 end
 
 function wifi.info.modes(dev)
@@ -64,6 +82,5 @@ function wifi.info.modes(dev)
         if iw ~= nil then modes = iw.hwmodelist(dev) end
         return modes
 end
-
 
 
