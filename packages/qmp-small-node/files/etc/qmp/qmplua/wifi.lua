@@ -27,53 +27,157 @@ iwinfo = require "iwinfo"
 
 wifi = {}
 wifi.info = {}
+wifi.template = {}
+
+local _TEMPLATES_DIR="/etc/qmp/templates/wifi"
 
 function wifi.apply(dev)
 	debug.set_namespace("WiFi")
 	debug.logger(util.printf("Executing wifi.apply(%s)",dev))
-
-	local index = model.get_indextype("wireless","device",dev)[1]
-	local wdev = model.get_type("wireless",index)
-
-	if wdev == nil then
-		debug.logger(util.printf("Device %s cannot be found!",dev))
-	end
-	if wdev.mode == "none" then
-		debug.logger("Device "..dev.." mode is none, qMp won't configure it")
-		return true
-	end
-
-	debug.logger(util.printf("From model: index=%s wdev=%s",index,wdev))
-
-	-- Getting all parameters and checking no one is nil
-	local mode = wdev.mode
-	local channel =  util.replace(wdev.channel,{'+','-'},'')
-	local channel_mode = util.replace(wdev.channel,"[0-9]",'')
-	local name = wdev.name
-	local mac = wdev.mac
-	local device = wdev.device
 	
-	if not (mode and channel and channel_mode and name and mac and device) then
-		debug.logger("Some missing parameter, cannot apply")
+	wdev,msg = wifi.info.config(dev)
+	if not wdev then
+		if msg == "Device configured as none" then
+			debug.logger("Device "..dev.." mode is none, qMp won't configure it")
+			return true
+		else
+			debug.logger(msg)
+			return false
+		end
+	end
+
+	debug.logger(util.printf("Mode: %s | Channel: %s | Channel mode: %s | Country: %s | BSSID: %s | ESSID: %s | TXpower: %s | MAC: %s",
+			wdev.mode,wdev.channel,wdev.channel_mode,wdev.country,wdev.bssid,wdev.name,wdev.txpower,wdev.mac))
+		
+	local device = wifi.template.device(wdev)
+	local iface = wifi.template.iface(wdev)
+	if not (device and iface) then
+		debug.logger("Cannot get device/iface template information")
+		return false
+	end
+end
+
+function wifi.template.filename(wdev)
+	-- chnanel_mode: HT40 = 10+/- | 802.11b = 10b | 802.11ag or HT20 = 10
+	-- mode = adhoc | ap | client
+	local template = {}
+
+	if wdev.channel_mode ~= "b" then
+		if  wifi.info.modes(wdev.device).n then
+			template.device = "device."..wdev.driver .. "-n"
+		else
+			template.device = "device."..wdev.driver
+		end
+	else
+		template.device = "device."..wdev.driver.."-b"
+	end
+
+	template.iface = "iface."..wdev.mode
+	debug.logger("Selected template is: " .. template.device .. " | " .. template.iface)
+
+	return template
+end
+
+function wifi.template.device(wdev)
+	local template = wifi.template.filename(wdev).device
+	local st,fd = pcall(io.open,_TEMPLATES_DIR.."/"..template,"r")
+	if not st then
+		debug.logger("Cannot open file ".._TEMPLATES_DIR.."/"..template)
+		return false
+	end
+	local t = fd:read("*all")
+	fd:close()
+	
+	if #wdev.channel > 0 then t = util.replace(t,'#QMP_CHANNEL',wdev.channel) end
+	if #wdev.txpower > 0 then t = util.replace(t,'#QMP_TXPOWER',wdev.txpower) end
+	t = util.replace(t,'#QMP_MAC',wdev.mac)
+	t = util.replace(t,'#QMP_COUNTRY',wdev.country)
+	t = util.replace(t,'#QMP_DEVICE',wdev.device)
+	
+	if wdev.channel_mode == 'b' then
+		t = util.replace(t,'#QMP_HWMODE','11b')
+	else
+		t = util.replace(t,'#QMP_HWMODE','auto')
+		local ht
+		if wifi.info.modes(wdev.device).n then
+			if wdev.channel_mode == "+" or wdev.channel_mode == "-" then
+				ht = "40"
+			else
+				ht = "20"
+			end
+			t = util.replace(t,'#QMP_HTMODE','ht'..ht..wdev.channel_mode)
+			t = util.replace(t,'#QMP_HT',ht)
+		end
+	end
+
+	if util.find(t,'#QMP_') then
+		debug.logger("CRITICAL: udefined template word which start with #QMP_ but it is not reconigzed")
 		return false
 	end
 
-	local template = nil
+	return t
+end
 
-	debug.logger("Channel is " .. channel)
-	debug.logger("Channel mode is " .. channel_mode)
-
-	-- chnanel_mode: HT40 = 10+/- | 802.11b = 10b | 802.11ag or HT20 = 10
-	if channel_mode ~= "b" then
-		if #channel_mode ~= 0 and wifi.info.modes(dev).n then
-			template = mode .. "-n"
-		else
-			template = mode
-		end
-	else
-		template = mode.."-b"
+function wifi.template.iface(wdev)
+	local template = wifi.template.filename(wdev).iface
+	local st,fd = pcall(io.open,_TEMPLATES_DIR.."/"..template,"r")
+	if not st then
+		debug.logger("Cannot open file ".._TEMPLATES_DIR.."/"..template)
+		return false
 	end
-	debug.logger("Selected template is " .. template)
+	local t = fd:read("*all")
+	fd:close()
+
+	t = util.replace(t,'#QMP_DEVICE',wdev.device)
+	t = util.replace(t,'#QMP_SSID',wdev.name)
+	t = util.replace(t,'#QMP_BSSID',wdev.bssid)
+
+	if util.find(t,'#QMP_') then
+		debug.logger("CRITICAL: udefined template word which start with #QMP_ but it is not reconigzed")
+		return false
+	end
+
+	return t
+end	
+
+function wifi.info.config(dev)
+	local index = model.get_indextype("wireless","device",dev)[1]
+	if index == nil then
+		return false,"Device not found"
+	end
+
+	local wdev = model.get_type("wireless",index)
+	if wdev == nil then
+		return false,"Device not found"
+	end
+
+	if wdev.mode == "none" then
+		return false,"Device configured as none"
+	end
+
+	local devconfig = {}
+
+	-- Getting all parameters and checking no one is nil
+	devconfig.driver = model.get("wireless","driver") or "nil"
+	devconfig.bssid = model.get("wireless","bssid") or "nil"
+	devconfig.country = model.get("wireless","country") or "nil"
+	devconfig.mode = wdev.mode or "nil"
+	devconfig.channel = util.replace(wdev.channel,{'+','-'},'') or "nil"
+	devconfig.channel_mode = util.replace(wdev.channel,"[0-9]",'') or ""
+	devconfig.name = wdev.name or "nil"
+	devconfig.mac = wdev.mac or "nil"
+	devconfig.txpower = wdev.txpower or ""
+	devconfig.device = wdev.device or "nil"
+
+	local i,v
+	for i,v in pairs(devconfig) do 
+		if v == "nil" then 
+			return false,"missing parameter "..i.." in device configuration"
+		end 
+	end
+
+	return devconfig
+
 end
 
 function wifi.info.modes(dev)
