@@ -34,11 +34,8 @@ start() {
 	}
 
 stop() {
-	cat /etc/crontabs/root| grep -v stvclient > /tmp/crontabs_root
-	/etc/init.d/cron stop
-	rm /etc/crontabs/root
-	mv /tmp/crontabs_root /etc/crontabs/root
-	/etc/init.d/cron start
+	sed -i -e '/^0 \* \* \* \* \/usr\/sbin\/stvclient >> \/tmp\/log\/stvclient\.log$/d' /etc/crontabs/root
+	/etc/init.d/cron restart
 	}
 
 reload() {
