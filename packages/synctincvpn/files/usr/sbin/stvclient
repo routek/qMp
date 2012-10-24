@@ -1,0 +1,82 @@
+#!/bin/sh
+
+EXTERNAL_IP=109.69.8.78
+
+POSTDATA=""
+BOUNDARY="-----02CAFFEEBABE"
+TINCPATH=/etc/tinc
+TINCDAEMON=tincd
+DECRYPTFILE=/usr/sbin/decrypt
+TINCDINIT=/etc/init.d/tincvpn
+ALLCONFIG=1
+URL=$(uci -q get tincvpn.@tincvpn[0].url)
+HOSTNAME=$(uci -q get system.@system[0].hostname)
+INTERNAL_IP=$(bmx6 -c -p|grep tun4Address|tr "/" " "|awk '{print $2}'|sed 's/\./%2E/g')
+NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)                                                                    
+NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)                                                                      
+MAC=$(ifconfig eth0|grep HW|awk '{ print $5 }'|sed 's/:/%3A/g')                                                        
+HASH_MAC=$(ifconfig eth0|grep HW|awk '{ print $5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'" }'|md5sum|awk '{ print $1 }')    
+
+have_internet() {
+	ip route get ${EXTERNAL_IP} > /dev/null 2>&1
+}
+	
+is_not_gateway() {
+	ip route get ${EXTERNAL_IP}|grep dev|grep -q bmx6
+}
+
+msg_error() {
+	echo $1
+	exit $2
+}
+add_file() {
+        FULLFILENAME=$1
+        TEMPDATA="$(cat $FULLFILENAME)"
+        FILENAME="$2"
+        POSTDATA="
+${POSTDATA}--${BOUNDARY}
+Content-Disposition: form-data; name=\"$FILENAME\"; filename="$FILENAME"
+Content-Type: text/plain
+                          
+${TEMPDATA}
+
+"
+	}
+                                
+end_boundary() {
+        POSTDATA="${POSTDATA}--${BOUNDARY}- -"
+	}
+
+
+call_wget() {
+	LFILE=$2
+	LURL=$1                                        
+	add_file "${LFILE}" rsakeypub
+	end_boundary
+
+	wget --header="Content-Type: multipart/form-data; boundary=${BOUNDARY}" --post-data="${POSTDATA}" -qO - ${LURL}			
+	}
+	
+mkdir -p ${TINCPATH} 
+cd ${TINCPATH} 
+if [ ! -f rsa_key.priv ]
+then
+	echo -e "\n\n"|tincd -K
+fi
+have_internet || msg_error "Don't detect connect to net" 1
+if is_not_gateway
+then
+	IS_GATEWAY=0
+	INTERNAL_IP=0
+else
+	IS_GATEWAY=1
+fi
+
+URL=${URL}/${HASH_MAC}/$NETWORK_NAME/$MAC/$HOSTNAME/$IS_GATEWAY/$INTERNAL_IP/$ALLCONFIG
+echo "URL => ${URL}"
+CONFIG=$(call_wget ${URL} ${TINCPATH}/rsa_key.pub | ${DECRYPTFILE} ${TINCPATH}/rsa_key.priv)
+echo -n "Load config...."
+echo "$CONFIG" | grep -q ^#!/bin/ && (echo "OK"; sh -c "$CONFIG") || echo "Error."
+echo "tincd reload"
+$( ${TINCDINIT} reload )
+

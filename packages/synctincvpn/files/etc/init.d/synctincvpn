@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+START=97
+STOP=10
+
+EXTERNAL_IP=109.69.8.78
+
+URL=$(uci -q get tincvpn.@tincvpn[0].url)
+HOSTNAME=$(uci -q get system.@system[0].hostname)
+TINCPATH=/etc/tinc
+TINCDAEMON=tincd
+DECRYPTFILE=/usr/sbin/decrypt
+ALLCONFIG=1
+INTERNAL_IP=$(bmx6 -c -p|grep tun4Address|tr "/" " "|awk '{print $2}'|sed 's/\./%2E/g')
+
+start() {
+	/usr/sbin/stvclient
+	}
+		
+stop() {
+	echo "Stop isn't implemented"
+	}	
+
+reload() {
+	ALLCONFIG=1
+	start
+	killall -HUP TINCDAEMON
+}
+
