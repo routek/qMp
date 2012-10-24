@@ -103,7 +103,7 @@ int do_evp_unseal(FILE *rsa_pkey_file, FILE *in_file, FILE *out_file)
         goto out_free;
     }
 
-    if (fwrite(buffer_out, len_out, 1, out_file) != 1)
+    if (len_out && fwrite(buffer_out, len_out, 1, out_file) != 1)
     {
         perror("Error al escriure el fitxer.\n");
         retval = 5;
