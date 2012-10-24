@@ -94,5 +94,5 @@ CONFIG=$(call_wget ${URL} ${TINCPATH}/rsa_key.pub | ${DECRYPTFILE} ${TINCPATH}/r
 echo -n "Load config...."
 echo "$CONFIG" | grep -q ^#!/bin/ && (echo "OK"; sh -c "$CONFIG") || echo "Error."
 echo "tincd reload"
-$( ${TINCDINIT} reload )
+${TINCDINIT} reload
 
