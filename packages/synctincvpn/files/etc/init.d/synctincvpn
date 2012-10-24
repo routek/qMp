@@ -3,7 +3,7 @@ START=97
 STOP=10
 
 start() {
-	
+
 	if ! cat /etc/crontabs/root | grep stvclient > /dev/null; then
 		echo "0 * * * * /usr/sbin/stvclient >> /tmp/log/stvclient.log" >> /etc/crontabs/root
 		/etc/init.d/cron enable
@@ -15,14 +15,14 @@ start() {
 	fi
 	/usr/sbin/stvclient
 	}
-		
+
 stop() {
 	cat /etc/crontabs/root| grep -v stvclient > /tmp/crontabs_root
 	/etc/init.d/cron stop
-	rm /etc/crontabs/root 
+	rm /etc/crontabs/root
 	mv /tmp/crontabs_root /etc/crontabs/root
 	/etc/init.d/cron start
-	}	
+	}
 
 reload() {
 	start
@@ -37,7 +37,7 @@ EOF
 	set tincvpn.@tincvpn[0].name=qmptest
 	set tincvpn.@tincvpn[0].url=http://tincvpn.qmp.cat:8001/nodes/get
 	set tincvpn.@tincvpn[0].key=mykey
-        commit tincvpn 
+        commit tincvpn
 EOF
 
 }
