@@ -12,15 +12,15 @@ ALLCONFIG=1
 URL=$(uci -q get tincvpn.@tincvpn[0].url)
 HOSTNAME=$(uci -q get system.@system[0].hostname)
 INTERNAL_IP=$(bmx6 -c -p|grep tun4Address|tr "/" " "|awk '{print $2}'|sed 's/\./%2E/g')
-NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)                                                                    
-NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)                                                                      
-MAC=$(ifconfig eth0|grep HW|awk '{ print $5 }'|sed 's/:/%3A/g')                                                        
-HASH_MAC=$(ifconfig eth0|grep HW|awk '{ print $5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'" }'|md5sum|awk '{ print $1 }')    
+NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)
+NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)
+MAC=$(ifconfig eth0|grep HW|awk '{ print $5 }'|sed 's/:/%3A/g')
+HASH_MAC=$(ifconfig eth0|grep HW|awk '{ print $5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'" }'|md5sum|awk '{ print $1 }')
 
 have_internet() {
 	ip route get ${EXTERNAL_IP} > /dev/null 2>&1
 }
-	
+
 is_not_gateway() {
 	ip route get ${EXTERNAL_IP}|grep dev|grep -q bmx6
 }
@@ -37,12 +37,12 @@ add_file() {
 ${POSTDATA}--${BOUNDARY}
 Content-Disposition: form-data; name=\"$FILENAME\"; filename="$FILENAME"
 Content-Type: text/plain
-                          
+
 ${TEMPDATA}
 
 "
 	}
-                                
+
 end_boundary() {
         POSTDATA="${POSTDATA}--${BOUNDARY}- -"
 	}
@@ -50,15 +50,15 @@ end_boundary() {
 
 call_wget() {
 	LFILE=$2
-	LURL=$1                                        
+	LURL=$1
 	add_file "${LFILE}" rsakeypub
 	end_boundary
 
-	wget --header="Content-Type: multipart/form-data; boundary=${BOUNDARY}" --post-data="${POSTDATA}" -qO - ${LURL}			
+	wget --header="Content-Type: multipart/form-data; boundary=${BOUNDARY}" --post-data="${POSTDATA}" -qO - ${LURL}
 	}
-	
-mkdir -p ${TINCPATH} 
-cd ${TINCPATH} 
+
+mkdir -p ${TINCPATH}
+cd ${TINCPATH}
 if [ ! -f rsa_key.priv ]
 then
 	echo -e "\n\n"|tincd -K
