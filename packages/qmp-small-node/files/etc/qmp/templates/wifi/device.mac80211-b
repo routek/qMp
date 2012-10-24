@@ -1,0 +1,11 @@
+wireless.#QMP_DEVICE=wifi-device
+wireless.#QMP_DEVICE.type=mac80211
+wireless.#QMP_DEVICE.macaddr=#QMP_MAC
+wireless.#QMP_DEVICE.channel=#QMP_CHANNEL
+wireless.#QMP_DEVICE.diversity=1
+wireless.#QMP_DEVICE.txantenna=0
+wireless.#QMP_DEVICE.rxantenna=0
+wireless.#QMP_DEVICE.country=#QMP_COUNTRY
+wireless.#QMP_DEVICE.outdoor=1
+wireless.#QMP_DEVICE.hwmode=11b
+wireless.#QMP_DEVICE.txpower=#QMP_TXPOWER
