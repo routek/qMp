@@ -34,7 +34,7 @@ HOSTNAME=$(uci -q get system.@system[0].hostname)
 INTERNAL_IP=$(bmx6 -c -p | awk '/tun4Address/{gsub(/\//," "); gsub(/\./,"%2E"); print $2}')
 NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)
 NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)
-MAC=$(ifconfig eth0|grep HW|awk '{ print $5 }'|sed 's/:/%3A/g')
+MAC=$(ifconfig eth0 | awk '/HW/{gsub(/:/,"%3A"); print $5}')
 HASH_MAC=$(ifconfig eth0|grep HW|awk '{ print $5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'" }'|md5sum|awk '{ print $1 }')
 
 have_internet() {
