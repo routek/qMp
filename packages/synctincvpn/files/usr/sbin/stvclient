@@ -96,7 +96,12 @@ URL=${URL}/${HASH_MAC}/$NETWORK_NAME/$MAC/$HOSTNAME/$IS_GATEWAY/$INTERNAL_IP/$AL
 echo "URL => ${URL}"
 CONFIG=$(call_wget ${URL} ${TINCPATH}/rsa_key.pub | ${DECRYPTFILE} ${TINCPATH}/rsa_key.priv)
 echo -n "Load config...."
-echo "$CONFIG" | grep -q ^#!/bin/ && (echo "OK"; sh -c "$CONFIG") || echo "Error."
-echo "tincd reload"
-${TINCDINIT} reload
-
+if echo "$CONFIG" | grep -q "^#!/bin/"
+then
+	echo "OK"
+	sh -c "$CONFIG"
+	echo "tincd reload"
+	${TINCDINIT} reload
+else
+	echo "Error."
+fi
