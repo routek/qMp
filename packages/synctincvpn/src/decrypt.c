@@ -16,8 +16,6 @@
  *
  * Authors:
  *	Agustí Moll i Garcia
- *
- * Contributors:
  *	Simó Albert i Beltran
  *
  */
