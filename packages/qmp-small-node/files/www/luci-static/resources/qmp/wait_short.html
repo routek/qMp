@@ -73,7 +73,7 @@
 				progressElement.style.width = time*100.0/timeout+'%';
 				if (time >= timeout){
 					clearInterval(timer);
-					history.back();
+					location.href=document.referrer;
 				}
 			}, tick);
 		}
