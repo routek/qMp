@@ -39,7 +39,7 @@ Private Sources:
 
 PKG_VERSION:=r2012101401
 
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
