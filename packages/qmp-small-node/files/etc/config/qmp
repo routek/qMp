@@ -9,11 +9,11 @@ config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
         option 'lan_devices'      'eth0 wlan1'              # will be used as is!
         option 'wan_devices'      'eth1'                    # will be used as is!
-        option 'mesh_devices'     'wlan0 wlan2'  	    # will be extended by vlan tag!
+        option 'mesh_devices'     'wlan0 wlan2 eth0 eth1'   # will be extended by vlan tag!
 
 config 'qmp' 'node'
 	option 'primary_device' 'eth0'
-	option 'community_id' 'qmp'
+	option 'community_id' 'qMp'
 	option 'community_node_id' ''
 	option 'key' '/tmp/qmp_key'
 
@@ -33,8 +33,8 @@ config 'qmp' 'networks'
         option 'dns'                 '141.1.1.1 85.126.4.170 202.83.95.227'
         option 'lan_address'         '172.30.22.1'
         option 'lan_netmask'         '255.255.255.0'
-        option 'publish_lan'	     '0'
-	option 'niit_prefix96'       '0:0:0:0:0:ffff'        # omit trailing 32 ipv4 bits !
+        #option 'publish_lan'	     '0'
+	#option 'niit_prefix96'       '0:0:0:0:0:ffff'        # omit trailing 32 ipv4 bits !
         option 'mesh_protocol_vids'  'olsr6:1 bmx6:2'   # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
         option 'mesh_vid_offset'     '10'
 
@@ -66,7 +66,7 @@ config 'qmp' 'tunnels'
 
 config 'qmp' 'wireless'
         option 'driver'  'mac80211'
-        option 'country' 'CT'
+        option 'country' 'UZ'
         option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 
