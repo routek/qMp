@@ -38,6 +38,8 @@ config 'qmp' 'networks'
         option 'mesh_protocol_vids'  'olsr6:1 bmx6:2'   # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
         option 'mesh_vid_offset'     '10'
 
+	option 'rescue_prefix24'     '169.254' # rescue network prefix, the 16 missing bits are taken from device MAC 
+
         option 'olsr6_mesh_prefix48' 'fd01:0:0'
         option 'olsr6_ripe_prefix48' '2011:0:0'
         option 'olsr6_ipv4_prefix24' '10.201'

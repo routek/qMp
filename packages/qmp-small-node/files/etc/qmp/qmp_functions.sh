@@ -79,6 +79,43 @@ qmp_get_devices() {
 }
 
 
+qmp_get_rescue_ip() {
+	local device=$1
+	[ -z "$device" ] && return 1
+
+	local rprefix=$(uci get qmp.networks.rescue_prefix24 2>/dev/null)
+	[ -z "$rprefix" ] && return 0
+
+	local mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
+	[ -z "$mac" ] && return 2
+	
+	local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
+	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
+	local rip="$rprefix.$xoctet.$yoctet"
+
+	echo "$rip"
+}
+
+qmp_configure_rescue_ip() {
+	
+	local device=$1
+	[ -z "$device" ] && return 1
+	
+	local rip="$(qmp_get_rescue_ip $device)"
+	[ -z "$rip" ] && { echo "Cannot get rescue IP for device $device"; return 1; }
+	
+	echo "Rescue IP for device $device is $rip"	
+
+	local conf="network"
+
+	uci set $conf.${device}_rescue="interface"
+	uci set $conf.${device}_rescue.ifname="$device"
+	uci set $conf.${device}_rescue.proto="static"
+	uci set $conf.${device}_rescue.ipaddr="$rip"
+	uci set $conf.${device}_rescue.netmask="255.255.255.248"
+	uci commit $conf
+}
+
 qmp_get_ip6_slow() {
 
   local addr_prefix="$1"
@@ -524,7 +561,13 @@ qmp_configure_network() {
            	uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
 	   fi
 
-       done
+         done
+      # Configuring rescue IPs only if the device is not LAN nor WAN
+       [ "$dev" != "br-lan" ] && {
+		isWan=0
+		for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
+		[ $isWan -eq 0 ] && qmp_configure_rescue_ip $dev
+	}
 
        counter=$(( $counter + 1 ))
     done
