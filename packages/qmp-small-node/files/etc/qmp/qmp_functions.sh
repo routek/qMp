@@ -518,7 +518,7 @@ qmp_configure_network() {
     if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
 	LAN_MASK="255.255.0.0"
 	# Last byte of lan adress must be "1" to avoid overlappings
-	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/&.1:/1' | awk -F ":" '{print $1}')
+	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)\.[0-9]\{1,3\}/\1.1/1')
 
 	OFFSET=0
 	NUM_GRP=256
