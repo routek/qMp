@@ -527,7 +527,7 @@ qmp_configure_network() {
 
 	[ $UCI_OFFSET -lt $NUM_GRP ] && OFFSET=$UCI_OFFSET
 
-	START=$(( $(printf %d 0x$community_node_id) * $NUM_GRP + $OFFSET ))
+	START=$(( 0x$community_node_id * $NUM_GRP + $OFFSET ))
 	LIMIT=$(( $NUM_GRP - $OFFSET ))
 
 	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
