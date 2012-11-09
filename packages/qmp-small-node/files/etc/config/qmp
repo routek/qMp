@@ -7,7 +7,7 @@
 
 config 'qmp' 'interfaces'
 #       option 'configure_switch' 'eth0'                    # (uncomment line if available, e.g. WGT634U)
-        option 'lan_devices'      'eth0 wlan1'              # will be used as is!
+        option 'lan_devices'      'eth0 wlan1 dummy0'       # will be used as is!
         option 'wan_devices'      'eth1'                    # will be used as is!
         option 'mesh_devices'     'wlan0 wlan2 eth0 eth1'   # will be extended by vlan tag!
 
@@ -68,7 +68,7 @@ config 'qmp' 'tunnels'
 
 config 'qmp' 'wireless'
         option 'driver'  'mac80211'
-        option 'country' 'UZ'
+        option 'country' 'SP'
         option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 

@@ -60,6 +60,7 @@ define Package/qmp-small-node
 	+kmod-ipip \
 	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \
+	+kmod-dummy \
 	+gwck-qmp \
 	+b6m-spread \
 
