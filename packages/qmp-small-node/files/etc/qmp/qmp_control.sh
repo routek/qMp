@@ -80,9 +80,14 @@ unpublish_hna() {
 
 upgrade() {
 	qmp_update_upgrade_system $1
+	hard_reboot
 }
 
-
+hard_reboot() {
+	echo "System is gonna be rebooted now!"
+	echo 1 > /proc/sys/kernel/sysrq
+	echo b > /proc/sysrq-trigger 
+}
 
 help() {
 	echo "Use: $0 <function> [params]"
@@ -98,6 +103,7 @@ help() {
 	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
 	echo "  upgrade [URL]	  : Upgrade system. By default to the last version, but image url can be provided to force"
+	echo "  hard_reboot	  : Performs a hard reboot (using kernel sysrq)"
 	echo ""
 	exit 1
 }
