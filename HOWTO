@@ -1,59 +1,56 @@
-## Creating files and directories
+#################################
+## 1. Compilation instructions ##
+#################################
 
-mkdir -p 13f # or however you want to name your working directory
-cd 13f
+## 1.1 qmpfw 
+We provide a tool to compile the sources (OpenWRT plus qMp), it can be found here: http://qmp.cat/projects/qmpfw
 
-git clone ssh://gitosis@qmp.cat:221/qmp.git; cd qmp; git checkout --track origin/autoconfig; cd ..
-svn co -r 27617 svn://svn.openwrt.org/openwrt/branches/backfire
-git clone git://gitorious.org/eigennet/packages.git eigennet/packages
-svn co -r 27617 svn://svn.openwrt.org/openwrt/packages packages
+Or just clone the repository:
+  git clone git://qmp.cat/qmpfw.git
 
-cd backfire
-rm -rf feeds/
-[ ! -d ../../dl ] && mkdir ../../dl # Create download directory if it don't exists.
-ln -s ../../dl # wherever you already have some openwrt downloads...
-ln -s ../qmp/files
-cp ../qmp/feeds.conf . # to not conflict with example qmp/feeds.conf version which is managed by git
+And compile it to your target:
+  cd qmpfw
+  make T=alix
 
-#nano feeds.conf  # adapt path to .../13f/packages
-cd ..
-sed -i -e "s|PATH|`pwd`|" backfire/feeds.conf
-cd backfire
+To see available targets execute:
+  make list_targets
 
+## 1.2 Adding qMp as a feed for an existing OpenWRT buildoort
 
-./scripts/feeds update -a
-./scripts/feeds install -a
+### 1.2.1 Adding feeds
+Modify your feeds.conf file and add these three new entries:
 
-## Configuring system
+  src-git qmp git://qmp.cat/qmp.git
+  src-git b6m git://qmp.cat/b6m.git
+  src-git gwck git://qmp.cat/gwck.git
+
+Then execute:
+  scripts/feeds update -a
+  scripts/feeds install -a
+
+If you don't have the OpenWRT build root you can download it executing:
+svn co svn://svn.openwrt.org/openwrt/branches/backfire
+
+### 1.2.2 Configuring system
 make menuconfig
 * Target System  (BCM947xxx, x86, atheros,...)
 * Target Profile (WGT634u, wrap, alix, routerstation,...)
 (* Global build-settings -> Compile the kernel with profiling enabled )
 (* Advanced configuration options for developers -> Toolchain options -> Build gdb )
-* Base system ->
+* qMp ->
     qmp-big-node # for 8Mbyte flash devices
-    qmp-small-node # for 4MByte flash devices STILL TO BIG ?? Needs testing on 4MB flash devices !!!
+    qmp-small-node # for 4MByte flash devices 
 
 * remove for 4MByte-flash devices: network -> ppp
 * remove for 4MByte-flash devices: network -> ppad-mini
 
-HT40 is supported since backfire revision 27441
-#### Optional, to have HT40 in IBSS mode: Patching files
-## cp ../qmp/patches/004-ibss.patch package/mac80211/patches/
-## cp ../qmp/patches/002-ibss_ht40.patch package/iw/patches/
-## patch -p1 -i ../qmp/patches/mac80211.sh_ht40.patch package/mac80211/files/lib/wifi/mac80211.sh
-## rm package/mac80211/patches/542-mac80211_enable_iftype_wds_aggregation.patch
-
-## Kernel configuration
-# sometimes you have to run make (build backfire with default kernel) once before you can continue with make kernel_menuconfig
-make kernel_menuconfig
-(* File systems -> Dnotify support && Inotify file change notification support && Inotify support for userspace )
-(* General setup -> Configure standard kernel features (for small systems) -> Enable ELF core dumps )
-
-## Compiling
+### 1.2.3 Compiling
 time make V=99
 
-#### INSTALL ####
+
+##################################################
+## 2. Specific device installation instructions ##
+##################################################
 
 ## wgt634u: (tested)
 scp bin/brcm47xx/openwrt-brcm47xx-squashfs.trx root@192.168.1.1:/tmp/
@@ -78,7 +75,6 @@ tftp 192.168.1.20
  trace on
  put openwrt*ubnt*.bin
 
-
 ## Routerstation PRO: (tested backfire rev 27441)
 http://wiki.openwrt.org/toh/ubiquiti/routerstation.pro
 apt-get install tftp-hpa
@@ -89,21 +85,4 @@ press rspro reset button (for some seconds) while connecting power! Once ping re
 tftp 192.168.1.20 -m binary -c put openwrt-ar71xx-ubnt-rspro-squashfs-factory.bin
 or flashing from inside:
 sysupgrade -n /tmp/openwrt-ar71xx-ubnt-rspro-squashfs-sysupgrade.bin
-
-
-
-
-
-
-#### POSTCONFIGURE:
-
-after a second reboot (better wait a while) the system should be autoconfigured
-
-ssh root@192.168.1.1
-
-to enforce a reconfiguration remove /qmp_configured
-
-TODO: Which further options exist here???
-
-
 
