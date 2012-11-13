@@ -59,13 +59,13 @@ for i,d in ipairs(luci.sys.net.devices()) do
 end
 
 -- Option: lan_devices
-lan = eth_section:option(MultiValue, "lan_devices", "LAN devices","These devices will be used for user end connection")
+lan = eth_section:option(MultiValue, "lan_devices", "LAN devices","These devices will be used for end-user connection (DHCP server)")
 for i,l in ipairs(eth_int) do
 	lan:value(l,l)
 end
 
 -- Option wan_device
-wan = eth_section:option(MultiValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection")
+wan = eth_section:option(MultiValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection (DHCP client)")
 for i,w in ipairs(eth_int) do
 	wan:value(w,w)
 end
@@ -75,6 +75,8 @@ mesh = eth_section:option(MultiValue, "mesh_devices", "MESH devices","These devi
 for i,l in ipairs(eth_int) do
         mesh:value(l,l)
 end
+
+no_vlan = eth_section:option(Value, "no_vlan_devices", translate("No VLAN devices"),translate("Devices we want to use without VLAN tagging (not recommended)"))
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")

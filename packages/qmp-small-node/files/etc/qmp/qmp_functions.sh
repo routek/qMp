@@ -89,9 +89,9 @@ qmp_get_rescue_ip() {
 	local mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
 	[ -z "$mac" ] && return 2
 	
-	local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
+	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
 	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
-	local rip="$rprefix.$xoctet.$yoctet"
+	local rip="$rprefix.$yoctet.1/24"
 
 	echo "$rip"
 }
@@ -534,16 +534,24 @@ qmp_configure_network() {
 
   fi
 
+  # MESH DEVICES CONFIGURATION
   local counter=1
 
   if uci get qmp.interfaces.mesh_devices && uci get qmp.networks.mesh_protocol_vids && uci get qmp.networks.mesh_vid_offset; then
     for dev in $(qmp_get_devices mesh); do
 
-       # If dev is empty, nothing to do
+        # If dev is empty, nothing to do
         [ -z "$dev" ] && continue
 
-       #Let's configure the mesh device
+        # Let's configure the mesh device
 	echo "Configuring "$dev" for Meshing"
+
+	# Check if the current device is configured as no-vlan
+	local use_vlan=1
+	for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices); do
+		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
+	done
+	
 	for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -553,13 +561,20 @@ qmp_configure_network() {
 
          local mesh="mesh_${protocol_name}_${counter}"
          local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
+	
+	 # Since all interfaces are defined somewhere (LAN, WAN or with Rescue IP), 
+	 # in case of not use vlan tag, device definition is not needed.
+	 # However for the moment only bmx6 support not-vlan interfaces
+	 if [ "$protocol_name" != "bmx6" ] || [ $use_vlan -eq 1 ]; then
+             uci set $conf.$mesh="interface"
+             uci set $conf.$mesh.ifname="$dev.$vid"
+             uci set $conf.$mesh.proto="static"
+         fi
 
-           uci set $conf.$mesh="interface"
-           uci set $conf.$mesh.ifname="$dev.$vid"
-           uci set $conf.$mesh.proto="static"
-           if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
-           	uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
-	   fi
+	 # Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
+	 if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
+             uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+	 fi
 
          done
       # Configuring rescue IPs only if the device is not LAN nor WAN
@@ -631,12 +646,24 @@ qmp_configure_bmx6() {
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-
+	
          if [ "$protocol_name" = "bmx6" ] ; then
-
-            local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
-            local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
-	    local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
+	    
+	    # Check if the current device is configured as no-vlan
+	    local use_vlan=1
+	    for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices); do
+		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
+	    done
+		
+	    if [ $use_vlan -eq 1 ]; then
+	        # If vlan tagging
+                local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
+                local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
+	        local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
+	    else
+	        # If not vlan tagging
+		local ifname="$dev"
+	    fi
 
 	    uci set $conf.mesh_$counter="dev"
 	    uci set $conf.mesh_$counter.dev="$ifname"
