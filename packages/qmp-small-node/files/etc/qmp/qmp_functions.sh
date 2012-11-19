@@ -91,7 +91,7 @@ qmp_get_rescue_ip() {
 	
 	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
 	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
-	local rip="$rprefix.$yoctet.1/24"
+	local rip="$rprefix.$yoctet.1"
 
 	echo "$rip"
 }
