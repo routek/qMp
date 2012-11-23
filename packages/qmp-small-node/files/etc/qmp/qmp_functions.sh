@@ -867,8 +867,10 @@ qmp_configure_system() {
   local community_id="$(uci get qmp.node.community_id)"
   [ -z "$community_id" ] && community_id="qmp"
 
+  # set hostname
   uci set system.@system[0].hostname=${community_id}${community_node_id}
   uci commit system
+  echo "${community_id}${community_node_id}" > /proc/sys/kernel/hostname
 
   # enable IPv6 in httpd:
   uci set uhttpd.main.listen_http="80"
