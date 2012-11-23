@@ -42,6 +42,14 @@ qmp_gw_offer_default() {
 	qmp_uci_del tunnels.search_ipv6_tunnel
 }
 
+qmp_gw_disable_default() {
+	qmp_uci_del tunnels.offer_ipv4_tunnel
+	qmp_uci_del tunnels.offer_ipv6_tunnel
+	qmp_uci_del tunnels.search_ipv4_tunnel
+	qmp_uci_del tunnels.search_ipv6_tunnel
+	qmp_gw_masq_wan 0
+}
+
 qmp_gw_masq_wan() {
 	#First parameter is 1/0 (enable/disable masquerade). Default is 1
 	[ -z "$1" ] && masq=1 || masq=$1
