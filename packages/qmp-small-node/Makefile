@@ -29,6 +29,9 @@ PKG_RELEASE:=8
 #PKG_SOURCE_URL:=@SF/qmp-small-node
 #PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+QMP_CODENAME:=Ratafia
+QMP_RELEASE:=1.0beta
+QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -86,23 +89,22 @@ define Build/Compile
 endef
 
 define Package/qmp-small-node/install
-	CODENAME:=Ratafia
-	RELEASE:=1.0beta
 	$(CP) ./files/* $(1)/
 	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
 	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
-	$(SED) 's,$$$$COD,$(CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
-	$(SED) 's,$$$$REV,$(RELEASE),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$COD,$(QMP_CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REL,$(QMP_RELEASE),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$DATE,$(QMP_BUILDDATE),g' $(1)/etc/uci-defaults/qmp_banner
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
 	date +%Y%m%d > $(1)/etc/qmp/qmp.version
-        echo "QMP_ID=qMp" > $(1)/etc/qmp/qmp.release
-        echo "QMP_CODENAME=$(CODENAME)" >> $(1)/etc/qmp/qmp.release
-        echo "QMP_RELEASE=$(RELEASE)" >> $(1)/etc/qmp/qmp.release
-        echo "QMP_BRANCH=$(BRANCH_GIT)" >> $(1)/etc/qmp/qmp.release
-        echo "QMP_REVISION=$(REV_GIT)" >> $(1)/etc/qmp/qmp.release
-        echo "QMP_BUILDDATE=$(date +%Y%m%d)" >> $(1)/etc/qmp/qmp.release
-        echo "QMP_DESCRIPTION=\"qMp $(CODENAME) $(RELEASE), $(BRANCH_GIT) rev.$(REV_GIT)-$(date +%Y%m%d)\"" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_ID=qMp" > $(1)/etc/qmp/qmp.release
+	echo "QMP_CODENAME=$(QMP_CODENAME)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_RELEASE=$(QMP_RELEASE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BRANCH=$(BRANCH_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_REVISION=$(REV_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BUILDDATE=$(QMP_BUILDDATE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_DESCRIPTION=\"qMp $(QMP_CODENAME) $(QMP_RELEASE), $(BRANCH_GIT) rev.$(REV_GIT)-$(QMP_BUILDDATE)\"" >> $(1)/etc/qmp/qmp.release
 endef
 
 

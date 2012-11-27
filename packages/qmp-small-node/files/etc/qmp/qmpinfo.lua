@@ -221,6 +221,18 @@ function qmpinfo.links()
 	return result
 end
 
+function qmpinfo.get_version(option)                    
+	local version = nil
+	if option == nil or option == "full" then version = util.exec("cat /etc/qmp/qmp.release | grep DESCRIPTION | cut -d= -f2")
+	elseif option == "build" then version = util.exec("cat /etc/qmp/qmp.release | grep BUILDDATE | cut -d= -f2")
+	elseif option == "branch" then version = util.exec("cat /etc/qmp/qmp.release | grep BRANCH | cut -d= -f2")
+	elseif option == "codename" then version = util.exec("cat /etc/qmp/qmp.release | grep CODENAME | cut -d= -f2")
+	elseif option == "release" then version = util.exec("cat /etc/qmp/qmp.release | grep RELEASE | cut -d= -f2")
+	elseif option == "revision" then version = util.exec("cat /etc/qmp/qmp.release | grep REVISION | cut -d= -f2")
+	else version = nil
+	end
+	return version
+end  
 
 function qmpinfo.get_key()
 	local keyf = util.exec("uci get qmp.node.key")

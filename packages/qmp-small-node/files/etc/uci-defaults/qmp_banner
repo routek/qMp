@@ -2,7 +2,7 @@
 
 cat /etc/qmp/qmp.banner >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
-echo " $CODE ($REL, $BRANCH rev.$REV-$DATE)" >> /etc/banner
+echo " $COD ($REL, $BRANCH rev.$REV-$DATE)" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
 echo "  * Recipe: http://en.wikipedia.org/wiki/Ratafia" >> /etc/banner
 echo "" >> /etc/banner

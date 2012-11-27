@@ -105,8 +105,8 @@ help() {
 	echo "  unpublish_hna      : Unpublish a current HNA: unpublish_hna <ID>"
 	echo "  apply_netserver    : Start/stop nerserver depending on qmp configuration"
 	echo "  enable_ns_ppt      : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
-	echo "  upgrade [URL]	   : Upgrade system. By default to the last version, but image url can be provided to force"
-	echo "  hard_reboot	   : Performs a hard reboot (using kernel sysrq)"
+	echo "  upgrade [URL]      : Upgrade system. By default to the last version, but image url can be provided to force"
+	echo "  hard_reboot        : Performs a hard reboot (using kernel sysrq)"
 	echo ""
 	exit 1
 }
