@@ -86,12 +86,23 @@ define Build/Compile
 endef
 
 define Package/qmp-small-node/install
+	CODENAME:=Ratafia
+	RELEASE:=1.0beta
 	$(CP) ./files/* $(1)/
 	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
 	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$COD,$(CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REV,$(RELEASE),g' $(1)/etc/uci-defaults/qmp_banner
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
 	date +%Y%m%d > $(1)/etc/qmp/qmp.version
+        echo "QMP_ID=qMp" > $(1)/etc/qmp/qmp.release
+        echo "QMP_CODENAME=$(CODENAME)" >> $(1)/etc/qmp/qmp.release
+        echo "QMP_RELEASE=$(RELEASE)" >> $(1)/etc/qmp/qmp.release
+        echo "QMP_BRANCH=$(BRANCH_GIT)" >> $(1)/etc/qmp/qmp.release
+        echo "QMP_REVISION=$(REV_GIT)" >> $(1)/etc/qmp/qmp.release
+        echo "QMP_BUILDDATE=$(date +%Y%m%d)" >> $(1)/etc/qmp/qmp.release
+        echo "QMP_DESCRIPTION=\"qMp $(CODENAME) $(RELEASE), $(BRANCH_GIT) rev.$(REV_GIT)-$(date +%Y%m%d)\"" >> $(1)/etc/qmp/qmp.release
 endef
 
 
