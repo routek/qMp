@@ -113,7 +113,7 @@ function links()
 end
 
 function version()
-	loocal checkop = qmpinfo.get_version(op1)
+	local checkop = qmpinfo.get_version(op1)
 	if checkop == nil then
 		print("Wrong option!")
 		print("Usage: qmpinfo version <options>")
