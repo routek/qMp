@@ -48,60 +48,64 @@ function index()
 	---------------------------
 
 	--- neighbours/descriptions (default)
-	entry(place,call("action_neighbours_j"),place[#place])
+	entry(place,call("action_neighbours_j"),place[#place], 3)
+
+	table.insert(place,"neighbours_js")
+	entry(place, call("action_neighbours_j"), "Nodes", 1)
+	table.remove(place)
 
 	table.insert(place,"neighbours_nojs")
 	entry(place, call("action_neighbours"), nil)
 	table.remove(place)
 
-	--- status (this is default one)
+	--- status
 	table.insert(place,"Status")
-	entry(place,call("action_status"),"Status")
+	entry(place,call("action_status"),"Status", 2)
 	table.remove(place)
 
 	--- links
 	table.insert(place,"Links")
-	entry(place,call("action_links"),"Links").leaf = true
+	entry(place,call("action_links"),"Links", 3).leaf = true
 	table.remove(place)
 
 	-- Gateways
 	table.insert(place,"Gateways")
-	entry(place,call("action_gateways_j"),"Gateways").leaf = true
+	entry(place,call("action_gateways_j"),"Gateways", 4).leaf = true
 	table.remove(place)
 
 	--- chat
 	table.insert(place,"Chat")
-	entry(place,call("action_chat"),"Chat")
+	entry(place,call("action_chat"),"Chat", 5)
 	table.remove(place)
 
 	--- Graph
 	table.insert(place,"Graph")
-	entry(place, template("bmx6/graph"), "Graph")
+	entry(place, template("bmx6/graph"), "Graph", 6)
 	table.remove(place)
 
 	--- Topology (hidden)
 	table.insert(place,"topology")
-	entry(place, call("action_topology"), nil)
+	entry(place, call("action_topology"), nil, 7)
 	table.remove(place)
 
 	--- configuration (CBI)
 	table.insert(place,"Configuration")
-	entry(place, cbi("bmx6/main"), "Configuration").dependent=false
-
-	table.insert(place,"Advanced")
-	entry(place, cbi("bmx6/advanced"), "Advanced")
-	table.remove(place)
+	entry(place, cbi("bmx6/main"), "Configuration", 8).dependent=false
 
 	table.insert(place,"Interfaces")
-	entry(place, cbi("bmx6/interfaces"), "Interfaces")
+	entry(place, cbi("bmx6/interfaces"), "Interfaces", 1)
 	table.remove(place)
 
 	table.insert(place,"Plugins")
-	entry(place, cbi("bmx6/plugins"), "Plugins")
+	entry(place, cbi("bmx6/plugins"), "Plugins", 2)
 	table.remove(place)
 
 	table.insert(place,"HNA")
-	entry(place, cbi("bmx6/hna"), "HNA")
+	entry(place, cbi("bmx6/hna"), "HNA", 3)
+	table.remove(place)
+
+	table.insert(place,"Advanced")
+	entry(place, cbi("bmx6/advanced"), "Advanced", 4)
 	table.remove(place)
 
 	table.remove(place)
