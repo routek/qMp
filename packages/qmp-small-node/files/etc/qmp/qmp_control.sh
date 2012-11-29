@@ -52,16 +52,19 @@ apply_netserver() {
 }
 
 configure_network() {
-	sleep 2
+	sleep 1
 	qmp_configure
 	/etc/init.d/network restart
 	#qmp_publish_lan
+	/etc/init.d/dnsmasq
 	apply_netserver
 	wifi
 }
 
 configure_system() {
+	sleep 1
 	qmp_configure_system
+	/etc/init.d/uhttpd restart
 }
 
 enable_ns_ppt() {
