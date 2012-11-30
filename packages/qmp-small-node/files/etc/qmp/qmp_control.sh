@@ -56,7 +56,7 @@ configure_network() {
 	qmp_configure
 	/etc/init.d/network restart
 	#qmp_publish_lan
-	/etc/init.d/dnsmasq
+	/etc/init.d/dnsmasq restart
 	apply_netserver
 	wifi
 }
