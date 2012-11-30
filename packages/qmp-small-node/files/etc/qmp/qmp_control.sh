@@ -59,7 +59,11 @@ configure_network() {
 	sleep 1
 	qmp_configure
 	/etc/init.d/network restart
+	ifup -a
 	#qmp_publish_lan
+	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
+	/etc/init.d/bmx6 restart
+	bmx6 -c --configReload || /etc/init.d/bmx6 restart
 	/etc/init.d/dnsmasq restart
 	apply_netserver
 	wifi
