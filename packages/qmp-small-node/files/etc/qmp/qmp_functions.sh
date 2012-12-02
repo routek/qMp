@@ -96,6 +96,19 @@ qmp_get_rescue_ip() {
 	echo "$rip"
 }
 
+qmp_attach_device_to_interface() {
+	local device=$1
+	local conf=$2
+	local interface=$3
+	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$device/\1/p")"
+	if [ -n "$wifi_config" -a "wifi-iface" = "$(uci -q get wireless.$wifi_config)" ] ; then
+		uci set wireless.$wifi_config.network="$interface"
+		uci commit wireless
+	else
+		uci add_list $conf.$interface.ifname="$device"
+	fi
+}
+
 qmp_configure_rescue_ip() {
 	
 	local device=$1
@@ -109,7 +122,7 @@ qmp_configure_rescue_ip() {
 	local conf="network"
 
 	uci set $conf.${device}_rescue="interface"
-	uci set $conf.${device}_rescue.ifname="$device"
+	qmp_attach_device_to_interface $device $conf ${device}_rescue
 	uci set $conf.${device}_rescue.proto="static"
 	uci set $conf.${device}_rescue.ipaddr="$rip"
 	uci set $conf.${device}_rescue.netmask="255.255.255.248"
@@ -477,7 +490,7 @@ qmp_configure_network() {
   wan_offset=0
   for i in $(qmp_get_devices wan) ; do
     uci set $conf.wan${wan_offset}="interface"
-    uci set $conf.wan${wan_offset}.ifname="$i"
+    qmp_attach_device_to_interface $i $conf wan${wan_offset}
     uci set $conf.wan${wan_offset}.proto="dhcp"
     let wan_offset=${wan_offset}+1
   done
@@ -525,7 +538,10 @@ qmp_configure_network() {
     uci commit dhcp
 
     uci set $conf.lan="interface"
-    uci set $conf.lan.ifname="$(qmp_get_devices lan)"
+    local device
+    for device in $(qmp_get_devices lan) ; do
+      qmp_attach_device_to_interface $device $conf lan
+    done
     uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr=$LAN_ADDR

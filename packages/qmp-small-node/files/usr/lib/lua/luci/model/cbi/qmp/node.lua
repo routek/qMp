@@ -28,7 +28,7 @@ node_section = m:section(NamedSection, "node", "qmp", translate("Node"), transla
 node_section.addremove = False
 
 community_id = node_section:option(Value,"community_id", translate("Community id"), translate("Community identifier for node name (alphanumeric, no spaces)"))
-community_node_id = node_section:option(Value,"community_node_id", translate("Node id"), translate("Node identifier, leave blank for randomize (hexadecimal 16bit)"))
+community_node_id = node_section:option(Value,"community_node_id", translate("Node id"), translate("Node identifier, two hexadecimal digits, leave blank to use last byte of primary MAC address."))
 primary_device = node_section:option(Value,"primary_device", translate("Primary device"), translate("Network primary device which never will change"))
 
 
