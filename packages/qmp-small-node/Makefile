@@ -26,8 +26,6 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
 PKG_RELEASE:=8
-#PKG_SOURCE_URL:=@SF/qmp-small-node
-#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Ratafia
 QMP_RELEASE:=1.0beta
@@ -43,23 +41,17 @@ define Package/qmp-small-node
   DEPENDS:= \
 	+uhttpd +luci +luci-lib-nixio \
 	+luci-ssl +iwinfo \
-	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
 	+hostapd-mini +wpa-supplicant-mini \
 	+wireless-tools +iw +netperf \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
+	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+gwck-qmp +luci-theme-qmp \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
-	+olsrd-mod-arprefresh \
-	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+firewall \
 	+ip \
-	+ndisc6 +rdisc6 +rdnssd \
 	+6in4 +6to4 \
 	+ip6tables +ip6tables-utils \
-	+kmod-niit \
 	+kmod-ipip \
 	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \

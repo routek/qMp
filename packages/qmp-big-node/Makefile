@@ -26,9 +26,6 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
 PKG_RELEASE:=2
-PKG_SOURCE_URL:=@SF/qmp-big-node
-
-
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 
 include $(INCLUDE_DIR)/package.mk
@@ -50,9 +47,11 @@ define Package/qmp-big-node
 	+lsof \
 	+hostapd \
 	+wget +horst \
-	+ipv6calc \
+	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
+	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmon +bwm +ebtables +pv \
 	+b6m \
+	+ndisc6 +rdisc6 +rdnssd \ 
 	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
 	+bmx6-qmp-quagga \
 	+cgi-bin-zero \
