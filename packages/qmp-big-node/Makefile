@@ -47,17 +47,15 @@ define Package/qmp-big-node
 	+lsof \
 	+hostapd \
 	+wget +horst \
-	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmon +bwm +ebtables +pv \
 	+b6m \
-	+ndisc6 +rdisc6 +rdnssd \ 
 	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
 	+bmx6-qmp-quagga \
-	+cgi-bin-zero \
-
+	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
+	+ndisc6 +rdisc6 +rdnssd \
+	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
+	+cgi-bin-zero
 endef
-
 
 define Package/qmp-big-node/description
  Addons for big qmp nodes (8MByte flash or more)
