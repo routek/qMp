@@ -16,6 +16,10 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 QMP_PATH="/etc/qmp"
 
@@ -36,6 +40,11 @@ search_default_gw() {
 	qmp_gw_apply
 }
 
+disable_default_gw() {
+        qmp_gw_disable_default
+        qmp_gw_apply
+}
+
 configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
@@ -47,19 +56,22 @@ apply_netserver() {
 }
 
 configure_network() {
+	sleep 1
 	qmp_configure
 	/etc/init.d/network restart
 	ifup -a
-	/etc/init.d/olsrd restart
-	/etc/init.d/bmx6 restart
+	#qmp_publish_lan
+	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
+	bmx6 -c --configReload || /etc/init.d/bmx6 restart
 	/etc/init.d/dnsmasq restart
-	/etc/init.d/firewall restart
-	qmp_publish_lan
 	apply_netserver
+	wifi
 }
 
 configure_system() {
+	sleep 1
 	qmp_configure_system
+	/etc/init.d/uhttpd restart
 }
 
 enable_ns_ppt() {
@@ -80,24 +92,31 @@ unpublish_hna() {
 
 upgrade() {
 	qmp_update_upgrade_system $1
+	hard_reboot
 }
 
-
+hard_reboot() {
+	echo "System is gonna be rebooted now!"
+	echo 1 > /proc/sys/kernel/sysrq
+	echo b > /proc/sysrq-trigger 
+}
 
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
 	echo "Available functions:"
-	echo "  offer_default_gw  : Offers default gw to the network"
-	echo "  search_default_gw : Search for a default gw in the network"
-	echo "  configure_wifi    : Configure and apply current wifi settings"
-	echo "  configure_network : Configure and apply current network settings"
-	echo "  configure_system  : Configure and apply current system settings (qmp.node section and so on)"
-	echo "  publish_hna       : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
-	echo "  unpublish_hna     : Unpublish a current HNA: unpublish_hna <ID>"
-	echo "  apply_netserver   : Start/stop nerserver depending on qmp configuration"
-	echo "  enable_ns_ppt     : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
-	echo "  upgrade [URL]	  : Upgrade system. By default to the last version, but image url can be provided to force"
+	echo "  offer_default_gw   : Offers default gw to the network"
+	echo "  search_default_gw  : Search for a default gw in the network"
+	echo "  disable_default_gw : Disables the search/offer of default gw"
+	echo "  configure_wifi     : Configure and apply current wifi settings"
+	echo "  configure_network  : Configure and apply current network settings"
+	echo "  configure_system   : Configure and apply current system settings (qmp.node section and so on)"
+	echo "  publish_hna        : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
+	echo "  unpublish_hna      : Unpublish a current HNA: unpublish_hna <ID>"
+	echo "  apply_netserver    : Start/stop nerserver depending on qmp configuration"
+	echo "  enable_ns_ppt      : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
+	echo "  upgrade [URL]      : Upgrade system. By default to the last version, but image url can be provided to force"
+	echo "  hard_reboot        : Performs a hard reboot (using kernel sysrq)"
 	echo ""
 	exit 1
 }

@@ -1,4 +1,24 @@
 #!/bin/sh
+#
+# Copyright © 2012 Routek S.L.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# Authors:
+#	Agustí Moll i Garcia
+#	Simó Albert i Beltran
+#
 
 EXTERNAL_IP=109.69.8.78
 
@@ -10,17 +30,17 @@ DECRYPTFILE=/usr/sbin/decrypt
 TINCDINIT=/etc/init.d/tincvpn
 ALLCONFIG=1
 URL=$(uci -q get tincvpn.@tincvpn[0].url)
-HOSTNAME=$(uci -q get system.@system[0].hostname)
-INTERNAL_IP=$(bmx6 -c -p|grep tun4Address|tr "/" " "|awk '{print $2}'|sed 's/\./%2E/g')
-NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)                                                                    
-NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)                                                                      
-MAC=$(ifconfig eth0|grep HW|awk '{ print $5 }'|sed 's/:/%3A/g')                                                        
-HASH_MAC=$(ifconfig eth0|grep HW|awk '{ print $5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'" }'|md5sum|awk '{ print $1 }')    
+HOSTNAME=$(uci -q get system.@system[0].hostname | sed -e "s/[^[:alnum:]]/_/g")
+INTERNAL_IP=$(bmx6 -c -p | awk '/tun4Address/{gsub(/\//," "); gsub(/\./,"%2E"); print $2}')
+NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)
+NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)
+MAC=$(ifconfig eth0 | awk '/HW/{gsub(/:/,"%3A"); print $5}')
+HASH_MAC=$(ifconfig eth0 | awk '/HW/{"echo "$5"'"$NETWORK_KEY"'""'"$NETWORK_NAME"'"" | md5sum" | getline $0 ; print $1 }')
 
 have_internet() {
 	ip route get ${EXTERNAL_IP} > /dev/null 2>&1
 }
-	
+
 is_not_gateway() {
 	ip route get ${EXTERNAL_IP}|grep dev|grep -q bmx6
 }
@@ -37,12 +57,12 @@ add_file() {
 ${POSTDATA}--${BOUNDARY}
 Content-Disposition: form-data; name=\"$FILENAME\"; filename="$FILENAME"
 Content-Type: text/plain
-                          
+
 ${TEMPDATA}
 
 "
 	}
-                                
+
 end_boundary() {
         POSTDATA="${POSTDATA}--${BOUNDARY}- -"
 	}
@@ -50,15 +70,15 @@ end_boundary() {
 
 call_wget() {
 	LFILE=$2
-	LURL=$1                                        
+	LURL=$1
 	add_file "${LFILE}" rsakeypub
 	end_boundary
 
-	wget --header="Content-Type: multipart/form-data; boundary=${BOUNDARY}" --post-data="${POSTDATA}" -qO - ${LURL}			
+	wget --header="Content-Type: multipart/form-data; boundary=${BOUNDARY}" --post-data="${POSTDATA}" -qO - ${LURL}
 	}
-	
-mkdir -p ${TINCPATH} 
-cd ${TINCPATH} 
+
+mkdir -p ${TINCPATH}
+cd ${TINCPATH}
 if [ ! -f rsa_key.priv ]
 then
 	echo -e "\n\n"|tincd -K
@@ -76,7 +96,12 @@ URL=${URL}/${HASH_MAC}/$NETWORK_NAME/$MAC/$HOSTNAME/$IS_GATEWAY/$INTERNAL_IP/$AL
 echo "URL => ${URL}"
 CONFIG=$(call_wget ${URL} ${TINCPATH}/rsa_key.pub | ${DECRYPTFILE} ${TINCPATH}/rsa_key.priv)
 echo -n "Load config...."
-echo "$CONFIG" | grep -q ^#!/bin/ && (echo "OK"; sh -c "$CONFIG") || echo "Error."
-echo "tincd reload"
-$( ${TINCDINIT} reload )
-
+if echo "$CONFIG" | grep -q "^#!/bin/"
+then
+	echo "OK"
+	sh -c "$CONFIG"
+	echo "tincd reload"
+	${TINCDINIT} reload
+else
+	echo "Error."
+fi

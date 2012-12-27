@@ -35,15 +35,15 @@ local roaming_help
 roaming_help = m:field(DummyValue,"roaming_help")
 roaming_help:depends("_netmode","roaming")
 roaming_help.rawhtml = true
-roaming_help.default = "This mode is used to quick deployments. Connected devices cannot see each other among different Mesh nodes. \
+roaming_help.default = "Roaming for quick deployments. Connected devices cannot see each other among different Mesh stations. \
     However the devices can change between Access Points without loosing connectivity"
 
 local community_help
 community_help = m:field(DummyValue,"community_help")
 community_help:depends("_netmode","community")
 community_help.rawhtml = true
-community_help.default = "This mode is used to static deployments (like community networks). Connected devices have a static IP range and are able to see each others.\
-   However there is no roaming."
+community_help.default = "Community for static deployments (like community networks). Connected devices have a static IP range and are able to see each others.\
+   However there is no roaming between stations."
 
 netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming is used for quick deployments.<br/>Community for network communities"))
 netmode:value("community","community")
@@ -52,13 +52,15 @@ netmode.default="roaming"
 
 nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
 nodename:depends("_netmode","community")
+nodename.default="qMp"
 
-nodeip = m:field(Value, "_nodeip", translate("IP address"),translate("IP address to use as main IPv4 address"))
+nodeip = m:field(Value, "_nodeip", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network."))
 nodeip:depends("_netmode","community")
+nodeip.default = "10.30."..util.trim(util.exec("echo $((($(date +%M)*$(date +%S)%254)+1))"))..".1"
 
-nodemask = m:field(Value, "_nodemask",translate("Network mask"),translate("Netmask to use with this IP"))
-nodemask.default = "255.255.255.0"
+nodemask = m:field(Value, "_nodemask",translate("Network mask"),translate("Netmask to use with IPv4 address. This range will be used for end user connection (DHCP)."))
 nodemask:depends("_netmode","community")
+nodemask.default = "255.255.255.0"
 
 -- Get list of devices {{ethernet}{wireless}}
 devices = qmpinfo.get_devices()
@@ -110,6 +112,9 @@ for i,v in ipairs(devices[2]) do
 	nodedevs_wifi[i] = {v,tmp}
 end
 
+meshall = m:field(Flag, "_meshall", translate("Use mesh in all devices"),translate("If this option is enabled all existing network devices will be used for meshing (recomended)"))
+meshall.default = "1"
+
 function netmode.write(self, section, value)
 	local name = nodename:formvalue(section)
 	local mode = netmode:formvalue(section)
@@ -140,6 +145,7 @@ function netmode.write(self, section, value)
 	local lan_devices = ""
 	local wan_devices = ""
 	local mesh_devices = ""
+	local meshall = meshall:formvalue(section)
 
 	for i,v in ipairs(nodedevs_eth) do
 		devmode = v[2]:formvalue(section)
@@ -149,7 +155,8 @@ function netmode.write(self, section, value)
 			lan_devices = lan_devices..devname.." "
 		elseif devmode == "Wan" then
 			wan_devices = wan_devices..devname.." "
-		elseif devmode == "Mesh" then
+		end
+		if devmode == "Mesh" or meshall == "1" then
 			mesh_devices = mesh_devices..devname.." "
 		end
 	end

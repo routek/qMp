@@ -40,6 +40,95 @@ qmp_get_llocal_for_dev() {
 }
 
 
+# arg1=<mesh|lan|wan>, returns the devices which have to be configured in such mode
+qmp_get_devices() {
+
+  local devices=""
+
+  if [ "$1" == "mesh" ]; then 
+    local brlan_enabled=0
+    for dev in $(uci get qmp.interfaces.mesh_devices 2>/dev/null); do
+
+        # Lookging if device is defined as LAN, in such case dev=br-lan, but only once
+        for landev in $(uci get qmp.interfaces.lan_devices 2>/dev/null); do
+            if [ "$landev" == "$dev" ]; then
+                if [ $brlan_enabled -eq 0 ]; then
+                    dev="br-lan"
+                    brlan_enabled=1
+                    break
+                else
+                    dev=""
+                    break
+                fi
+            fi
+        done
+
+      [ -n "$dev" ] && devices="$devices $dev"
+    done
+  fi
+
+  if [ "$1" == "lan" ]; then
+     devices="$(uci get qmp.interfaces.lan_devices 2>/dev/null)"
+  fi
+
+  if [ "$1" == "wan" ]; then
+     devices="$(uci get qmp.interfaces.wan_devices 2>/dev/null)"
+  fi
+
+  echo "$devices"
+}
+
+
+qmp_get_rescue_ip() {
+	local device=$1
+	[ -z "$device" ] && return 1
+
+	local rprefix=$(uci get qmp.networks.rescue_prefix24 2>/dev/null)
+	[ -z "$rprefix" ] && return 0
+
+	local mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
+	[ -z "$mac" ] && return 2
+	
+	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
+	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
+	local rip="$rprefix.$yoctet.1"
+
+	echo "$rip"
+}
+
+qmp_attach_device_to_interface() {
+	local device=$1
+	local conf=$2
+	local interface=$3
+	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$device/\1/p")"
+	if [ -n "$wifi_config" -a "wifi-iface" = "$(uci -q get wireless.$wifi_config)" ] ; then
+		uci set wireless.$wifi_config.network="$interface"
+		uci commit wireless
+	else
+		uci add_list $conf.$interface.ifname="$device"
+	fi
+}
+
+qmp_configure_rescue_ip() {
+	
+	local device=$1
+	[ -z "$device" ] && return 1
+	
+	local rip="$(qmp_get_rescue_ip $device)"
+	[ -z "$rip" ] && { echo "Cannot get rescue IP for device $device"; return 1; }
+	
+	echo "Rescue IP for device $device is $rip"	
+
+	local conf="network"
+
+	uci set $conf.${device}_rescue="interface"
+	qmp_attach_device_to_interface $device $conf ${device}_rescue
+	uci set $conf.${device}_rescue.proto="static"
+	uci set $conf.${device}_rescue.ipaddr="$rip"
+	uci set $conf.${device}_rescue.netmask="255.255.255.248"
+	uci commit $conf
+}
+
 qmp_get_ip6_slow() {
 
   local addr_prefix="$1"
@@ -399,15 +488,15 @@ qmp_configure_network() {
   uci set $conf.loopback.netmask="255.0.0.0"
 
   wan_offset=0
-  for i in $(uci get  qmp.interfaces.wan_devices) ; do
+  for i in $(qmp_get_devices wan) ; do
     uci set $conf.wan${wan_offset}="interface"
-    uci set $conf.wan${wan_offset}.ifname="$i"
+    qmp_attach_device_to_interface $i $conf wan${wan_offset}
     uci set $conf.wan${wan_offset}.proto="dhcp"
     let wan_offset=${wan_offset}+1
   done
 
 
-  local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
   local community_node_id
   local LSB_PRIM_MAC="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
 
@@ -449,7 +538,10 @@ qmp_configure_network() {
     uci commit dhcp
 
     uci set $conf.lan="interface"
-    uci set $conf.lan.ifname="$(uci get qmp.interfaces.lan_devices)"
+    local device
+    for device in $(qmp_get_devices lan) ; do
+      qmp_attach_device_to_interface $device $conf lan
+    done
     uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr=$LAN_ADDR
@@ -458,12 +550,25 @@ qmp_configure_network() {
 
   fi
 
+  # MESH DEVICES CONFIGURATION
   local counter=1
 
   if uci get qmp.interfaces.mesh_devices && uci get qmp.networks.mesh_protocol_vids && uci get qmp.networks.mesh_vid_offset; then
+    for dev in $(qmp_get_devices mesh); do
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do
-       for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
+        # If dev is empty, nothing to do
+        [ -z "$dev" ] && continue
+
+        # Let's configure the mesh device
+	echo "Configuring "$dev" for Meshing"
+
+	# Check if the current device is configured as no-vlan
+	local use_vlan=1
+	for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices); do
+		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
+	done
+	
+	for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
          local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
@@ -472,15 +577,28 @@ qmp_configure_network() {
 
          local mesh="mesh_${protocol_name}_${counter}"
          local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
+	
+	 # Since all interfaces are defined somewhere (LAN, WAN or with Rescue IP), 
+	 # in case of not use vlan tag, device definition is not needed.
+	 # However for the moment only bmx6 support not-vlan interfaces
+	 if [ "$protocol_name" != "bmx6" ] || [ $use_vlan -eq 1 ]; then
+             uci set $conf.$mesh="interface"
+             uci set $conf.$mesh.ifname="$dev.$vid"
+             uci set $conf.$mesh.proto="static"
+         fi
 
-           uci set $conf.$mesh="interface"
-           uci set $conf.$mesh.ifname="$dev.$vid"
-           uci set $conf.$mesh.proto="static"
-           if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
-           	uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
-	   fi
+	 # Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
+	 if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
+             uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+	 fi
 
-       done
+         done
+      # Configuring rescue IPs only if the device is not LAN nor WAN
+       [ "$dev" != "br-lan" ] && {
+		isWan=0
+		for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
+		[ $isWan -eq 0 ] && qmp_configure_rescue_ip $dev
+	}
 
        counter=$(( $counter + 1 ))
     done
@@ -528,7 +646,7 @@ qmp_configure_bmx6() {
   fi
 
 
-  local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
@@ -540,16 +658,28 @@ qmp_configure_bmx6() {
 
     local counter=1
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do
+    for dev in $(qmp_get_devices mesh); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-
+	
          if [ "$protocol_name" = "bmx6" ] ; then
-
-            local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
-            local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
-	    local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
+	    
+	    # Check if the current device is configured as no-vlan
+	    local use_vlan=1
+	    for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices); do
+		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
+	    done
+		
+	    if [ $use_vlan -eq 1 ]; then
+	        # If vlan tagging
+                local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
+                local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
+	        local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
+	    else
+	        # If not vlan tagging
+		local ifname="$dev"
+	    fi
 
 	    uci set $conf.mesh_$counter="dev"
 	    uci set $conf.mesh_$counter.dev="$ifname"
@@ -636,7 +766,7 @@ LoadPlugin "olsrd_txtinfo.so.0.1"
 
 EOF
 
-  local primary_mesh_device="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
@@ -649,7 +779,7 @@ EOF
 
     local counter=1
 
-    for dev in $(uci get qmp.interfaces.mesh_devices); do
+    for dev in $(qmp_get_devices mesh); do
        for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
@@ -718,69 +848,6 @@ EOF
 }
 
 
-qmp_configure_olsr6_uci_unused() {
-
-  local conf="olsrd_uci"
-
-  qmp_configure_prepare $conf
-
-
-  uci set $conf.networks="olsrd"
-  uci set $conf.networks.IpVersion="6"
-
-  uci set $conf.arprefresh="LoadPlugin"
-  uci set $conf.arprefresh.library="olsrd_arprefresh.so.0.1"
-
-  uci set $conf.httpinfo="LoadPlugin"
-  uci set $conf.httpinfo.library="olsrd_httpinfo.so.0.1"
-  uci set $conf.httpinfo.port="1978"
-  uci add_list $conf.httpinfo.Net="0::/0"
-
-  uci set $conf.nameservice="LoadPlugin"
-  uci set $conf.nameservice.library="olsrd_nameservice.so.0.3"
-
-  uci set $conf.txtinfo="LoadPlugin"
-  uci set $conf.txtinfo.library="olsrd_txtinfo.so.0.1"
-  uci set $conf.txtinfo.accept="0::"
-
-  if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids && qmp_uci_test qmp.networks.mesh_vid_offset; then
-
-    local counter=1
-    local interface_list=""
-
-    for dev in $(uci get qmp.interfaces.mesh_devices); do
-       for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
-
-         local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-
-         echo "qmp_configure_olsr6 dev=$dev protocol_vid=$protocol_vid protocol_name=$protocol_name"
-
-         if [ "$protocol_name" = "olsr6" ] ; then
-
-            local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
-            local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
-	    local interface="olsr6_${counter}"
-	    local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
-
-            echo "adding ifname=$ifname interface=$interface"
-
-            interface_list="$interface_list $interface"
-
-         fi
-
-       done
-    done
-
-    uci set $conf.interface="Interface"
-    uci add_list $conf.interface.interface="$interface_list"
-
-  fi
-
-  uci commit $conf
-#  /etc/init.d/$conf restart
-}
-
-
 qmp_set_hosts() {
   echo "Configuring /etc/hosts file with qmpadmin entry"
 
@@ -816,8 +883,10 @@ qmp_configure_system() {
   local community_id="$(uci get qmp.node.community_id)"
   [ -z "$community_id" ] && community_id="qmp"
 
+  # set hostname
   uci set system.@system[0].hostname=${community_id}${community_node_id}
   uci commit system
+  echo "${community_id}${community_node_id}" > /proc/sys/kernel/hostname
 
   # enable IPv6 in httpd:
   uci set uhttpd.main.listen_http="80"

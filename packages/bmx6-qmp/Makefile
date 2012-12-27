@@ -32,14 +32,14 @@ Public Sources:
 #PKG_SOURCE_URL:=git://git.bmx6.net/bmx6.git
 PKG_SOURCE_URL:=git://github.com/axn/bmx6.git
 
-PKG_REV:=f49d102a6738b51aa936a4059e3e76136a32c582
+PKG_REV:=6073f94f1c127926f290f3ab619d92cb39aea54c
 
 Private Sources:
 #PKG_SOURCE_URL:=file:///usr/src/bmx6/bmx6-private.git
 
-PKG_VERSION:=r2012101401
+PKG_VERSION:=r2012120204
 
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 #PKG_INSTALL:=1  # this tries to install straight to /usr/sbin/bmx6
 
 PKG_SOURCE_VERSION:=$(PKG_REV)

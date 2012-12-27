@@ -28,13 +28,16 @@ function print_help()
 	print("qMpinfo is a dummy script to get some information about the device")
 	print("Usage: qmpinfo <question> [options]")
 	print("Available questions:")
-	print("		modes <dev> : supported modes by the wireless card")
-	print("		channels <dev> : supported channels and supported HT40 type (+/-) ")
-	print("		ipv4 : print all ipv4 from this computer (excluding localhost)")
-	print("		hostname : print device hostname")
-	print("		bwtest <ipv6> : perform a bandwidth test")
-	print("		nodes : list all nodes on MESH network")
-	print("		key : print qmp key")
+	print("  modes <dev>      : supported modes by the wireless card")
+	print("  channels <dev>   : supported channels and supported HT40 type (+/-) ")
+	print("  txpower <dev>    : supported transmission powers")
+	print("  ipv4             : print all ipv4 from this computer (excluding localhost)")
+	print("  hostname         : print device hostname")
+	print("  bwtest <ipv6>    : perform a bandwidth test")
+	print("  nodes            : list all nodes on MESH network")
+	print("  links            : list direct connected nodes on MESH")
+	print("  version <option> : show version (options: full, build, branch, codename, release, revision)")
+	print("  key              : print qmp key")
 	print("")
 end
 
@@ -109,6 +112,22 @@ function links()
 	end
 end
 
+function version()
+	local checkop = qmpinfo.get_version(op1)
+	if checkop == nil then
+		print("Wrong option!")
+		print("Usage: qmpinfo version <options>")
+		print("Options:")
+		print("  full     : full description")
+		print("  build    : build date")
+		print("  branch   : development branch")
+		print("  codename : release codename")
+		print("  release  : release number")
+		print("  revision : repository revision number")
+		print("")
+	else print(qmpinfo.get_version(op1))
+	end
+end
 
 function key()
 	print(qmpinfo.get_key())
@@ -140,6 +159,8 @@ elseif question == "key" then
 	key()
 elseif question == "links" then
 	links()
+elseif question == "version" then
+	version()
 else
 	print_help()
 end

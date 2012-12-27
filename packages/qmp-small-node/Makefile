@@ -25,10 +25,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
-PKG_RELEASE:=7
-#PKG_SOURCE_URL:=@SF/qmp-small-node
-#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_RELEASE:=8
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+QMP_CODENAME:=Ratafia
+QMP_RELEASE:=1.0beta
+QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -40,26 +41,21 @@ define Package/qmp-small-node
   DEPENDS:= \
 	+uhttpd +luci +luci-lib-nixio \
 	+luci-ssl +iwinfo \
-	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+ahcpd \
 	+radvd \
 	+hostapd-mini +wpa-supplicant-mini \
 	+wireless-tools +iw +netperf \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
+	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+gwck-qmp +luci-theme-qmp \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog \
-	+olsrd-mod-arprefresh \
-	+luci-i18n-catalan +luci-i18n-spanish +luci-i18n-french \
 	+firewall \
 	+ip \
-	+ndisc6 +rdisc6 +rdnssd \
 	+6in4 +6to4 \
 	+ip6tables +ip6tables-utils \
-	+kmod-niit \
 	+kmod-ipip \
 	+kmod-ip6-tunnel +kmod-iptunnel6 \
 	+kmod-tun \
+	+kmod-dummy \
 	+gwck-qmp \
 	+b6m-spread \
 
@@ -89,8 +85,18 @@ define Package/qmp-small-node/install
 	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
 	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$COD,$(QMP_CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REL,$(QMP_RELEASE),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$DATE,$(QMP_BUILDDATE),g' $(1)/etc/uci-defaults/qmp_banner
 	chmod 755 $(1)/etc/init.d/qmp_autoconf
 	date +%Y%m%d > $(1)/etc/qmp/qmp.version
+	echo "QMP_ID=qMp" > $(1)/etc/qmp/qmp.release
+	echo "QMP_CODENAME=$(QMP_CODENAME)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_RELEASE=$(QMP_RELEASE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BRANCH=$(BRANCH_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_REVISION=$(REV_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BUILDDATE=$(QMP_BUILDDATE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_DESCRIPTION=\"qMp $(QMP_CODENAME) $(QMP_RELEASE), $(BRANCH_GIT) rev.$(REV_GIT)-$(QMP_BUILDDATE)\"" >> $(1)/etc/qmp/qmp.release
 endef
 
 
