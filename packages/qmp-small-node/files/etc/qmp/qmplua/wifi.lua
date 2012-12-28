@@ -1,7 +1,8 @@
 #!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
-
+    Authors: Pau Escrich <p4u@dabax.net>
+    
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +21,9 @@
     the file called "COPYING".
 --]]
 
+--! @file
+--! @brief wifi functions
+
 model = require "qmp.model"
 util = require "qmp.util"
 debug = require "qmp.debug"
@@ -29,8 +33,12 @@ wifi = {}
 wifi.info = {}
 wifi.template = {}
 
+--! directory of UCI templates
 local _TEMPLATES_DIR="/etc/qmp/templates/wifi"
 
+--! @brief Applies the current WiFi configuration to the system
+--! @param dev device to apply
+--! return success or not
 function wifi.apply(dev)
 	debug.set_namespace("WiFi")
 	debug.logger(util.printf("Executing wifi.apply(%s)",dev))

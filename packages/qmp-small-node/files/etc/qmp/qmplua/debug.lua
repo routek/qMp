@@ -1,7 +1,8 @@
 #!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
-
+    Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
+    
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +20,9 @@
     The full GNU General Public License is included in this distribution in
     the file called "COPYING".
 --]]
+
+--! @file
+--! @brief log and debug functions
 
 debug = {}
 local namespace = "Main"
@@ -47,10 +51,9 @@ function debug.set_stdout(b)
 	end
 end
 
---- Add one line to the system log file with the tag qMp
--- @class function
--- @name logger
--- @param msg	string
+--! @brief Add one line to the system log file with the tag qMp
+--! @param msg string with the error message
+--! return exit status of the logger call
 function debug.logger(msg)
 	local logger = string.format("logger %s %s -t qMp[%s] '",stdout,priority,namespace)
 	local status, c = pcall(os.execute,logger .. msg .. "'")

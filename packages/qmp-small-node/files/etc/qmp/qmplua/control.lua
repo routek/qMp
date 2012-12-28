@@ -1,7 +1,8 @@
 #!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
-
+    Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
+    
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,25 +21,24 @@
     the file called "COPYING".
 --]]
 
+--! @file
+--! @brief control functions to manage the system
+
 local bgp = require "qmp.bgp"
 local model = require "qmp.model"
 local util = require "luci.util"
 control = {}
 
---- Remove the current bgp configuration 
--- @class function
--- @name remove_bgp_config
+--! @brief Remove the current bgp configuration 
 function control.remove_bgp_config()
 	bgp.clear()
 end
 
---- Add a BGP peer 
--- @class function
--- @name add_bgp_peer
--- @param as AS of the BGP peer (if doesn't exist, it should be given as an argument)
--- @param ip IP of the BGP peer  (if doesn't exist, it should be given as an argument)
--- @param netmask Netmask of the BGP peer  (if doesn't exist, it should be given as an argument)
--- @return	Boolean whether operation succeeded
+--! @brief Add a BGP peer 
+--! @param as AS of the BGP peer (if doesn't exist, it should be given as an argument)
+--! @param ip IP of the BGP peer  (if doesn't exist, it should be given as an argument)
+--! @param netmask Netmask of the BGP peer  (if doesn't exist, it should be given as an argument)
+--! @return	Boolean whether operation succeeded
 function control.add_bgp_peer(as, ipdest, netmask)
 	if not as or not ipdest or not netmask then
 		if table.getn(arg) == 3 then
@@ -58,11 +58,9 @@ function control.add_bgp_peer(as, ipdest, netmask)
 	return true
 end
 
---- Add a network to being published by BGP
--- @class function
--- @name add_bgp_network
--- @param network network range to be published (if doesn't exist, it should be given as an argument)
--- @return Boolean whether operation succeeded
+--! @brief Add a network to being published by BGP
+--! @param network network range to be published (if doesn't exist, it should be given as an argument)
+--! @return Boolean whether operation succeeded
 function control.add_bgp_network(range)
 	if not range then
 		if table.getn(arg) == 1 then
@@ -80,11 +78,9 @@ function control.add_bgp_network(range)
 	return true
 end
 
---- Set the devices working on BGP mode
--- @class function
--- @name set_bgp_devices
--- @param devices Devices working on bgp mode (if doesn't exist, it should be given as an argument)
--- @return	Boolean whether operation succeeded
+--! @brief Set the devices working on BGP mode
+--! @param devices Devices working on bgp mode (if doesn't exist, it should be given as an argument)
+--! @return	Boolean whether operation succeeded
 function control.set_bgp_devices(devices)
 	if not devices then 
 		if table.getn(arg) == 1 then
@@ -102,11 +98,9 @@ function control.set_bgp_devices(devices)
 	return true
 end
 
---- Set the AS of the working node
--- @class function
--- @name set_bgp_as
--- @param as AS of the working node (if doesn't exist, it should be given as an argument)
--- @return	Boolean whether operation succeeded
+--! @brief Set the AS of the working node
+--! @param as AS of the working node (if doesn't exist, it should be given as an argument)
+--! @return	Boolean whether operation succeeded
 function control.set_bgp_as(as)
 	if not as then 
 		if table.getn(arg) == 1 then
@@ -124,9 +118,7 @@ function control.set_bgp_as(as)
 	return true
 end
 
---- Applies UCI configuration changes
--- @class function
--- @name apply_changes
+--! @brief Applies UCI configuration changes
 function control.apply_changes()
 	model.apply()
 end

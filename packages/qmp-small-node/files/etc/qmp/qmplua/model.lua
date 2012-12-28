@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+    Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +21,10 @@
     the file called "COPYING".
 --]]
 
+--! @file
+--! @brief access to the database
+
+
 local uci = require "luci.model.uci"
 local debug = require "qmp.debug"
 
@@ -27,12 +32,10 @@ model = {}
 
 model.file = 'qmp'
 
---- Get a section type or an option
--- @class function
--- @name get
--- @param section	UCI section name
--- @param option	UCI option (optional)
--- @return			UCI value
+--! @brief Get a section type or an option
+--! @param section	UCI section name
+--! @param option	UCI option (optional)
+--! @return			UCI value
 function model.get(section, option)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -47,14 +50,11 @@ function model.get(section, option)
 	end
 end
 
-
---- Create a new section and initialize it with data.
--- @class function 
--- @name add
--- @param type		UCI section type
--- @param name		UCI section name (optional)
--- @param values	Table of key - value pairs to initialize the section with (optional)
--- @return			Name of created section
+--! @bief Create a new section and initialize it with data.
+--! @param type		UCI section type
+--! @param name		UCI section name (optional)
+--! @param values	Table of key - value pairs to initialize the section with (optional)
+--! @return			Name of created section
 function model.add(type, name, values)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -70,22 +70,18 @@ function model.add(type, name, values)
 	end
 end
 
---- Create a new anonymous section and initialize it with data.
--- @class function 
--- @name add
--- @param type		UCI section type
--- @param values	Table of key - value pairs to initialize the section with (optional)
--- @return			Name of created section
+--! @brief Create a new anonymous section and initialize it with data.
+--! @param type		UCI section type
+--! @param values	Table of key - value pairs to initialize the section with (optional)
+--! @return			Name of created section
 function model.add_type(type, values)
 	return model.add(type, nil, values)
 end
 
---- Deletes a section or an option.
--- @class function
--- @name delete
--- @param section	UCI section name
--- @param option	UCI option (optional)
--- @return			Boolean whether operation succeeded
+--! @brief Deletes a section or an option.
+--! @param section	UCI section name
+--! @param option	UCI option (optional)
+--! @return			Boolean whether operation succeeded
 function model.delete(section, option)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -111,11 +107,9 @@ function model.delete(section, option)
 
 end
 
---- Deletes all the UCI sections of a given type
--- @class function
--- @name delete_type
--- @param type		UCI section type
--- @return			Boolean whether operation succeeded
+--! @brief Deletes all the UCI sections of a given type
+--! @param type		UCI section type
+--! @return			Boolean whether operation succeeded
 function model.delete_type(type)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -133,13 +127,11 @@ function model.delete_type(type)
 	end
 end
 
---- Set a value or create a named section.
--- @class function
--- @name set
--- @param section	UCI section name
--- @param option	UCI option or UCI section type
--- @param value		UCI value or nil if you want to create a section
--- @return			Boolean whether operation succeeded
+--! @brief Set a value or create a named section.
+--! @param section	UCI section name
+--! @param option	UCI option or UCI section type
+--! @param value	UCI value or nil if you want to create a section
+--! @return			Boolean whether operation succeeded
 function model.set(section, option, value)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -159,13 +151,11 @@ function model.set(section, option, value)
 	end
 end
 
---- Set given values as list.
--- @class function
--- @name set_list
--- @param section	UCI section name
--- @param option	UCI option
--- @param value		UCI value
--- @return			Boolean whether operation succeeded
+--! @brief Set given values as list.
+--! @param section	UCI section name
+--! @param option	UCI option
+--! @param value	UCI value
+--! @return			Boolean whether operation succeeded
 function model.set_list(section, option, value)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -185,11 +175,11 @@ function model.set_list(section, option, value)
 	end
 end
 
---- Get a table with the information of some sections of a given type 
--- @param type		UCI section type
--- @param index		UCI section type index (optional)
--- @param option	UCI option (optional)
--- @return			Table or UCI value
+--! @brief Get a table with the information of some sections of a given type 
+--! @param type		UCI section type
+--! @param index	UCI section type index (optional)
+--! @param option	UCI option (optional)
+--! @return			Table or UCI value
 function model.get_type(type, index, option)
 	local typeout = nil
 	if index then 
@@ -204,9 +194,9 @@ function model.get_type(type, index, option)
 	return typeout
 end
 
---- Get a table with all the sections of a given type
--- @param type		UCI section type
--- @return		Table 
+--! @brief Get a table with all the sections of a given type
+--! @param type	UCI section type
+--! @return		Table 
 function model.get_all_type(type)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -222,10 +212,10 @@ function model.get_all_type(type)
 	end
 end
 
---- Returns a table with the information of the section of a given type and index 
--- @param type		UCI section type
--- @param index		UCI section type index
--- @return		Table 
+--! @brief Returns a table with the information of the section of a given type and index 
+--! @param type		UCI section type
+--! @param index	UCI section type index
+--! @return	Table 
 function model.get_type_index(type, index)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -243,12 +233,11 @@ function model.get_type_index(type, index)
 	return typeout
 end
 
---- Get an option of the section of a given type and index 
---- Get a table with the information of some sections of a given type 
--- @param type		UCI section type
--- @param index		UCI section type index 
--- @param option	UCI option
--- @return		UCI value
+--! @brief Get a table with the information of some sections of a given type 
+--! @param type		UCI section type
+--! @param index	UCI section type index 
+--! @param option	UCI option
+--! @return			UCI value
 function model.get_type_option(type, index, option)
 	local status, c = pcall(model.raw)
 	if not status then 
@@ -264,12 +253,14 @@ function model.get_type_option(type, index, option)
 	end
 end
 
-
--- Return the index number from the given type
--- if option and value are specified then it only returns the section types with option=value
--- if not specified it returns all indexes
--- This index number can be used to call other functions like get_type_option(type,index,option)
--- @return	array
+--! @brief Return the index number from the given type.
+--! 	If option and value are specified then it only returns the section types with option=value.
+--! 	If not specified it returns all indexes.
+--! 	This index number can be used to call other functions like get_type_option(type,index,option).
+--! @param type		UCI section type
+--! @param option	UCI option to fetch
+--! @param value	The value that the parameter option should contain
+--! @return	array
 function model.get_indextype(type,option,value)
 	local status, c = pcall(model.raw)
 	if not status then
@@ -290,12 +281,9 @@ function model.get_indextype(type,option,value)
 	return index
 end
 
-
---- Commit the changed done with a UCI-Cursor
--- @class function
--- @name commit
--- @param c UCI-Cursor
--- @return Boolean whether operation succeeded 
+--! @brief Commit the changed done with a UCI-Cursor
+--! @param c UCI-Cursor
+--! @return Boolean whether operation succeeded 
 function model.commit(c)
 	if not c then
 		debug.logger(c)
@@ -305,10 +293,8 @@ function model.commit(c)
 	end
 end
 
---- Create a new UCI-Cursor
--- @class function
--- @name raw
--- @return UCI-Cursor or an error on failure
+--! @brief Create a new UCI-Cursor
+--! @return UCI-Cursor or an error on failure
 function model.raw()
 	local c = uci.cursor()
 	if c == nil then
@@ -318,23 +304,23 @@ function model.raw()
 	end
 end
 
---- Applies UCI configuration changes
--- @param cmd	Don't apply only return the command
+--! @brief Applies UCI configuration changes
+--! @param cmd	Don't apply only return the command
 function model.apply(cmd)
 	local c = uci.cursor()
 	c.apply(model.get_file(), cmd)
 end
 
---- Set the config file do you want to work with
--- @param f Name of a file found on the path /etc/config/
+--! @brief Set the config file do you want to work with
+--! @param f Name of a file found on the path /etc/config/
 function model.set_file(f)
 	if f then
 		model.file = f
 	end
 end
 
---- Get the currently configuration file
--- @return Name of the currently working configuration file found on the path /etc/config/
+--! @brief Get the currently configuration file
+--! @return Name of the currently working configuration file found on the path /etc/config/
 function model.get_file()
 	return model.file
 end

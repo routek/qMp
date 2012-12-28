@@ -1,7 +1,7 @@
 #!/usr/bin/lua
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
-
+    Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,30 +20,29 @@
     the file called "COPYING".
 --]]
 
+--! @file
+--! @brief quagga daemon functions
+
 local socket = require("socket")
 
 quagga = {}
 
---- Get the port used to connect to vtsyh for a given routing protocol enabled on quagga
--- @class function
--- @name get_vtsyh_port
--- @param type Name of a routing protocol
--- @return port for a vtsyh connection 
+--! @brief Get the port used to connect to vtsyh for a given routing protocol enabled on quagga
+--! @param type Name of a routing protocol
+--! @return port for a vtsyh connection 
 function quagga.get_vtsyh_port(type)
 	if type == 'bgp' then
 		return 2605
 	end
 end
 
---- Get a vtsyh connnection 
--- @class function
--- @name connect
--- @param type Name of a routing protocol
--- @param password Password to login on vtsyh
--- @param host IP address for the connecton [Default value: 127.0.0.1](optional)
--- @param port Port for the connection (optional) 
--- @timeout timeout The time where the connecton will expire [Default value: 2] (optional)
--- @return	Boolean whether operation succeeded
+--! @brief Get a vtsyh connnection 
+--! @param type Name of a routing protocol
+--! @param password Password to login on vtsyh
+--! @param host IP address for the connecton [Default value: 127.0.0.1](optional)
+--! @param port Port for the connection (optional) 
+--! @param timeout The time where the connecton will expire [Default value: 2] (optional)
+--! @return	Boolean whether operation succeeded
 function quagga.connect(type, password, host, port, timeout)
 	if type and password then
 		port = port or quagga.get_vtsyh_port(type)
@@ -75,12 +74,10 @@ function quagga.connect(type, password, host, port, timeout)
 	end
 end
 
---- Execute a Quagga command using the vtsyh console
--- @class function
--- @name command
--- @param command vtsyh command
--- @param command connection to a vtsyh console
--- @return	Boolean whether operation succeeded
+--! @brief Execute a Quagga command using the vtsyh console
+--! @param command vtsyh command
+--! @param command connection to a vtsyh console
+--! @return	Boolean whether operation succeeded
 function quagga.command(command)
 	if quagga.connection then 
 		assert(quagga.connection:send(command .. "\n"))
@@ -90,10 +87,8 @@ function quagga.command(command)
 	end
 end
 
---- Enable the config mode at the currently working connection with the vtsyh console
--- @class function
--- @name enable_config_mode
--- @return	Boolean whether operation succeeded
+--! @brief Enable the config mode at the currently working connection with the vtsyh console
+--! @return	Boolean whether operation succeeded
 function quagga.enable_config_mode()
 	if quagga.connection then
 		if quagga.command('configure terminal') then 
@@ -106,10 +101,8 @@ function quagga.enable_config_mode()
 	end
 end
 
---- Save the currently changes at the configuration file
--- @class function
--- @name write_file
--- @return	Boolean whether operation succeeded
+--! @brief Save the currently changes at the configuration file
+--! @return	Boolean whether operation succeeded
 function quagga.write_file()
 	if quagga.connection then
 		if quagga.command('write file') then 
@@ -122,11 +115,9 @@ function quagga.write_file()
 	end
 end
 
---- Set the hostname of the working node
--- @class function
--- @name set_hostname
--- @param name Hostname of the working node
--- @return	Boolean whether operation succeeded
+--! @brief Set the hostname of the working node
+--! @param name Hostname of the working node
+--! @return	Boolean whether operation succeeded
 function quagga.set_hostname(name)
 	if quagga.connection then
 		if quagga.command('hostname ' .. name) then 
@@ -139,11 +130,9 @@ function quagga.set_hostname(name)
 	end
 end
 
---- Set the AS of the working node
--- @class function
--- @name set_bgp_as
--- @param as AS of the working node 
--- @return	Boolean whether operation succeeded
+--! @brief Set the AS of the working node
+--! @param as AS of the working node 
+--! @return	Boolean whether operation succeeded
 function quagga.set_bgp_as(as)
 	if quagga.connection then
 		if quagga.command('router bgp ' .. as) then
@@ -157,12 +146,10 @@ function quagga.set_bgp_as(as)
 	
 end
 
---- Add a neighbor 
--- @class function
--- @name add_neighbor
--- @param ip IP of the neighbor
--- @param as AS of the neighbor
--- @return	Boolean whether operation succeeded
+--! @brief Add a neighbor 
+--! @param ip IP of the neighbor
+--! @param as AS of the neighbor
+--! @return	Boolean whether operation succeeded
 function quagga.add_neighbor(ip, as)
 	if quagga.connection then
 		if quagga.command('neighbor ' .. ip ' remote-as '.. as) then
@@ -175,11 +162,9 @@ function quagga.add_neighbor(ip, as)
 	end
 end
 
---- Add a network to publish
--- @class function
--- @name add_network
--- @param network Network range to be added
--- @return	Boolean whether operation succeeded
+--! @brief Add a network to publish
+--! @param network Network range to be added
+--! @return	Boolean whether operation succeeded
 function quagga.add_network(network)
 	if quagga.connection then
 		if quagga.command('network ' .. network) then
@@ -192,12 +177,10 @@ function quagga.add_network(network)
 	end
 end
 
---- Remove a neighbor 
--- @class function
--- @name remove_neighbor
--- @param ip IP of the neighbor
--- @param as AS of the neighbor
--- @return	Boolean whether operation succeeded
+--! @brief Remove a neighbor 
+--! @param ip IP of the neighbor
+--! @param as AS of the neighbor
+--! @return	Boolean whether operation succeeded
 function quagga.remove_neighbor(ip, as)
 	if quagga.connection then
 		if quagga.command('no neighbor ' .. ip ' remote-as '.. as) then
@@ -210,11 +193,9 @@ function quagga.remove_neighbor(ip, as)
 	end
 end
 
---- Remove a published network from the configuration file
--- @class function
--- @name remove_network
--- @param network Network range to be removed
--- @return	Boolean whether operation succeeded
+--! @brief Remove a published network from the configuration file
+--! @param network Network range to be removed
+--! @return	Boolean whether operation succeeded
 function quagga.remove_network(network)
 	if quagga.connection then
 		if quagga.command('no network ' .. network) then
@@ -227,11 +208,9 @@ function quagga.remove_network(network)
 	end
 end
 
---- Add a interfacedevice to the currently working routing mode
--- @class function
--- @name add_interface
--- @param interface Interfice to add at the configuration file
--- @return	Boolean whether operation succeeded
+--! @brief Add a interfacedevice to the currently working routing mode
+--! @param interface Interfice to add at the configuration file
+--! @return	Boolean whether operation succeeded
 function quagga.add_interface(interface)
 	if quagga.connection then
 		if quagga.command('interface ' .. interface) then
@@ -244,11 +223,9 @@ function quagga.add_interface(interface)
 	end
 end
 
---- Remove a interfacedevice to the currently working routing mode
--- @class function
--- @name remove_interface
--- @param interface Interfice to remove from the configuration file
--- @return	Boolean whether operation succeeded
+--! @brief Remove a interfacedevice to the currently working routing mode
+--! @param interface Interfice to remove from the configuration file
+--! @return	Boolean whether operation succeeded
 function quagga.remove_interface(interface)
 	if quagga.connection then
 		if quagga.command('no interface ' .. interface) then
@@ -261,11 +238,9 @@ function quagga.remove_interface(interface)
 	end
 end
 
---- Set id of the working node
--- @class function
--- @name set_router_id
--- @param id ID of the working node. Should be it's IP address
--- @return	Boolean whether operation succeeded
+--! @brief Set id of the working node
+--! @param id ID of the working node. Should be it's IP address
+--! @return	Boolean whether operation succeeded
 function quagga.set_router_id(id)
 	if quagga.connection then
 		if quagga.command('bgp router-id ' .. id) then
