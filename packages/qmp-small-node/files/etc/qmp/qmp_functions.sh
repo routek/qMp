@@ -39,10 +39,23 @@ qmp_get_llocal_for_dev() {
   ip a show dev $dev | grep inet6 | awk '{print $2}'
 }
 
+# returns primary device
+qmp_get_primary_device() {
+  local primary_mesh_device="$(uci get qmp.node.primary_device)"
+  [ -z "$primary_mesh_device" ] && 
+      {
+      if ip link show dev eth0 > /dev/null; then
+        primary_mesh_device="eth0"
+      else
+        primary_mesh_device="$(ip link show | egrep ^[0-9]?: | grep -v lo: | awk NR==1)"
+      fi
+      [ -z "$primary_mesh_device" ] && echo "CRITICAL: No primary network device found, please define qmp.node.primary_device" 
+      }
+  echo "$primary_mesh_device"
+}
 
 # arg1=<mesh|lan|wan>, returns the devices which have to be configured in such mode
 qmp_get_devices() {
-
   local devices=""
 
   if [ "$1" == "mesh" ]; then 
@@ -110,7 +123,6 @@ qmp_attach_device_to_interface() {
 }
 
 qmp_configure_rescue_ip() {
-	
 	local device=$1
 	[ -z "$device" ] && return 1
 	
@@ -130,7 +142,6 @@ qmp_configure_rescue_ip() {
 }
 
 qmp_get_ip6_slow() {
-
   local addr_prefix="$1"
   local addr="$(echo $addr_prefix | awk -F'/' '{print $1}')"
   local mask="$(echo $addr_prefix | awk -F'/' '{print $2}')"
@@ -496,9 +507,9 @@ qmp_configure_network() {
   done
 
 
-  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_primary_device)"
   local community_node_id
-  local LSB_PRIM_MAC="$( qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
+  local LSB_PRIM_MAC="$(qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
 
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
@@ -646,7 +657,8 @@ qmp_configure_bmx6() {
   fi
 
 
-  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_primary_device)"
+
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
@@ -766,7 +778,8 @@ LoadPlugin "olsrd_txtinfo.so.0.1"
 
 EOF
 
-  local primary_mesh_device="$(qmp_get_devices mesh | awk '{print $1}')"
+  local primary_mesh_device="$(qmp_get_primary_device)"
+  
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
@@ -870,14 +883,13 @@ qmp_set_hosts() {
 
 qmp_configure_system() {
 
-  local primary_device="$(uci get qmp.node.primary_device)"
-  [ -z "$primary_device" ] && primary_device="eth0"
+  local primary_mesh_device="$(qmp_get_primary_device)"
 
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
     community_node_id="$(uci get qmp.node.community_node_id)"
   else
-    community_node_id="$(qmp_get_mac_for_dev $primary_device | awk -F':' '{print $6}' )"
+    community_node_id="$(qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
   fi
 
   local community_id="$(uci get qmp.node.community_id)"
