@@ -65,6 +65,9 @@ function wifi.apply(dev)
 
 end
 
+--! @brief selects the template file to be used for the wifi-dev
+--! @param wdev the wifi-device
+--! @returns an array (device and iface). First is the virtual device template and second the physical iface template
 function wifi.template.filename(wdev)
 	-- chnanel_mode: HT40 = 10+/- | 802.11b = 10b | 802.11ag or HT20 = 10
 	-- mode = adhoc | ap | client
