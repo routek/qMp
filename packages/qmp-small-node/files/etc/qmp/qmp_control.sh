@@ -16,6 +16,10 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 QMP_PATH="/etc/qmp"
 
@@ -52,16 +56,22 @@ apply_netserver() {
 }
 
 configure_network() {
-	sleep 2
+	sleep 1
 	qmp_configure
 	/etc/init.d/network restart
+	ifup -a
 	#qmp_publish_lan
+	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
+	bmx6 -c --configReload || /etc/init.d/bmx6 restart
+	/etc/init.d/dnsmasq restart
 	apply_netserver
 	wifi
 }
 
 configure_system() {
+	sleep 1
 	qmp_configure_system
+	/etc/init.d/uhttpd restart
 }
 
 enable_ns_ppt() {

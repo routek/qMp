@@ -188,11 +188,15 @@ qmp_get_wifi_mac_devices() {
 # Returns the device name that corresponds to the MAC address
 # qmp_get_dev_from_mac 00:22:11:33:44:55
 qmp_get_dev_from_mac() {
-        ip link | grep $1 -i -B1 | grep -v \@ | egrep -v "ether|br|mon" | grep mtu | awk '{print $2}' | tr -d : | awk NR==1
+	echo "$(ip link | grep $1 -i -B1 | grep -v \@ | egrep -v "ether|br|mon" | grep mtu | awk '{print $2}' | tr -d : | awk NR==1)"
 }
 
+# Returns the mac address of the device
+# qmp_get_mac_for_dev eth0
 qmp_get_mac_for_dev() {
-	ip addr show dev $1 | grep -m 1 "link/ether" | awk '{print $2}'
+    mac="$(ip link show dev $1 | grep -m 1 "link/ether" | awk '{print $2}')"
+	[ -z "$mac" ] && mac="00:00:00:00:00:00"
+	echo "$mac"
 }
 
 #########################
