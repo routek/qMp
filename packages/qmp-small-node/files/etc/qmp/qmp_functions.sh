@@ -36,7 +36,7 @@ SOURCE_NETWORK=1
 
 qmp_get_llocal_for_dev() {
   local dev=$1
-  ip a show dev $dev | grep inet6 | awk '{print $2}'
+  ip a show dev $dev | awk '/inet6/{print $2}'
 }
 
 
