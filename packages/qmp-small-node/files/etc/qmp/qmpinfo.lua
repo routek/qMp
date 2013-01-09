@@ -164,7 +164,7 @@ end
 
 function qmpinfo.get_ipv4()
 	local ipv4 = {}
-	local ipv4_raw = util.exec("ip -4 a | grep inet | grep -v bmx6_ | awk '{print $2}'")
+	local ipv4_raw = util.exec("ip -4 a | awk '/inet/&&!/bmx6_/{print $2}'")
 	for _,v in ipairs(util.split(ipv4_raw)) do
 		if #util.trim(v) > 1 then
 			table.insert(ipv4,util.trim(v))
