@@ -286,7 +286,7 @@ qmp_get_ip6_fast() {
     mask="128"
   fi
 
-  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | grep IPV6= | awk -F'=' '{print $2}' )
+  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | awk -F'=' '/IPV6=/{print $2}' )
 
   local fake_prefix16="20a2" # original input is manipulated because ipv6calc complains about reserved ipv6 addresses
   local addr_prefix16="$(echo $addr_long | awk -F':' '{print $1}')"
