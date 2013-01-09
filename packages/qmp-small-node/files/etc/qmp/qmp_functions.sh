@@ -762,7 +762,7 @@ EOF
            local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
            local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
 	   local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
-           local mode="$(if echo $dev | grep -v ath | grep -v wlan > /dev/null 2>&1; then echo ether; else echo mesh; fi)"
+           local mode="$(if echo $dev | grep -v "\(ath\|wlan\)" > /dev/null 2>&1; then echo ether; else echo mesh; fi)"
            local mesh="mesh_${protocol_name}_${counter}"
            local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
            local ip6_addr="$( qmp_get_ip6_fast $(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128) )"
