@@ -47,7 +47,7 @@ qmp_get_primary_device() {
       if ip link show dev eth0 > /dev/null; then
         primary_mesh_device="eth0"
       else
-        primary_mesh_device="$(ip link show | egrep ^[0-9]?: | grep -v lo: | awk NR==1)"
+        primary_mesh_device="$(ip link show | egrep ^[0-9]?: | grep -v lo: | awk 'NR==1{sub(/:$/,"",$2); print $2}')"
       fi
       [ -z "$primary_mesh_device" ] && echo "CRITICAL: No primary network device found, please define qmp.node.primary_device" 
       }
