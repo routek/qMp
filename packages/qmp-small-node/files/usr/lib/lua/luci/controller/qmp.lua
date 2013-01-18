@@ -45,8 +45,9 @@ function index()
 	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 4).dependent=false
 
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
-	entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 1).dependent=false
-	entry({"qmp","tools","map"}, call("action_map"), "Map", 2).dependent=false
+	entry({"qmp","tools","tools"}, call("action_tools"), "Tools", 1).dependent=false           
+	entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
+	entry({"qmp","tools","map"}, call("action_map"), "Map", 3).dependent=false
 
 	entry({"qmp","about"}, call("action_status"), "About", 9).dependent=false
 end
@@ -57,8 +58,9 @@ function action_status()
 	local ipv4 = qmp.get_ipv4()
 	local hostname = qmp.get_hostname()
 	local uname = qmp.get_uname()
+	local version = qmp.get_version() 
 
-	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname})
+	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname,version=version})
 end
 
 function action_tools()
