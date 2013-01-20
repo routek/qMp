@@ -921,7 +921,7 @@ qmp_configure() {
   qmp_configure_network
   qmp_configure_bmx6
   qmp_configure_olsr6
+  qmp_configure_lan_v6
   qmp_configure_system
-
 }
 
