@@ -47,11 +47,72 @@ qmp_get_primary_device() {
       if ip link show dev eth0 > /dev/null; then
         primary_mesh_device="eth0"
       else
-        primary_mesh_device="$(ip link show | egrep ^[0-9]?: | grep -v lo: | awk NR==1)"
+        primary_mesh_device="$(ip link show | awk '!/lo:/&&/^[0-9]?:/{sub(/:$/,"",$2); print $2; exit}')"
       fi
       [ -z "$primary_mesh_device" ] && echo "CRITICAL: No primary network device found, please define qmp.node.primary_device" 
       }
   echo "$primary_mesh_device"
+}
+
+qmp_check_device() {
+	ip link show $1 1> /dev/null 2>/dev/null
+	return $?
+}
+
+qmp_set_vlan() {
+  local viface="$1" # lan/wan/meshX
+  local vid=$2 # 11/12
+  [ -z "$viface" ] || [ -z "$vid" ] && return
+
+  uci set network.${viface}_$vid=interface
+  uci set network.${viface}_$vid.proto=none
+  uci set network.${viface}_$vid.ifname=@$viface.$vid
+  uci commit network
+}
+
+qmp_get_virtual_iface() {
+  local device="$1"
+  local viface=""
+
+  # is lan?
+  if [ "$device" == "br-lan" ]; then
+    viface="lan"
+    echo $viface
+    return
+  fi
+
+  for l in $(qmp_get_devices lan); do 
+    if [ "$l" == "$device" ]; then 
+      viface="lan"
+      echo $viface
+      return
+    fi
+  done
+
+  [ -n "$viface" ] && { echo $viface; return; }
+
+  # id is the first and char and the numbers of the device [e]th[0] [w]lan[1]
+  local id_num=$(echo $device | tr -d "[A-z]")
+  local id_char=$(echo $device | cut -c 1)
+
+  # is wan
+  for w in $(qmp_get_devices wan); do 
+   if [ "$w" == "$device" ]; then
+     viface="wan_${id_char}${id_num}"
+     echo $viface
+     return
+   fi
+  done
+
+  # is mesh
+  for w in $(qmp_get_devices mesh); do 
+   if [ "$w" == "$device" ]; then
+     viface="mesh_${id_char}${id_num}"
+     break
+   fi
+  done
+  
+  echo "$viface" 
 }
 
 # arg1=<mesh|lan|wan>, returns the devices which have to be configured in such mode
@@ -99,6 +160,11 @@ qmp_get_rescue_ip() {
 	local rprefix=$(uci get qmp.networks.rescue_prefix24 2>/dev/null)
 	[ -z "$rprefix" ] && return 0
 
+	# if device is virtual, get the ifname
+	if qmp_uci_test network.$device.ifname; then
+	  device="$(uci get network.$device.ifname | tr -d @)"
+	fi
+
 	local mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
 	[ -z "$mac" ] && return 2
 	
@@ -132,12 +198,13 @@ qmp_configure_rescue_ip() {
 	echo "Rescue IP for device $device is $rip"	
 
 	local conf="network"
-
-	uci set $conf.${device}_rescue="interface"
-	qmp_attach_device_to_interface $device $conf ${device}_rescue
-	uci set $conf.${device}_rescue.proto="static"
-	uci set $conf.${device}_rescue.ipaddr="$rip"
-	uci set $conf.${device}_rescue.netmask="255.255.255.248"
+    	local viface="$(qmp_get_virtual_iface $device)"
+	
+	uci set $conf.${viface}="interface"
+	#qmp_attach_viface_to_interface $viface $conf ${viface}
+	uci set $conf.${viface}.proto="static"
+	uci set $conf.${viface}.ipaddr="$rip"
+	uci set $conf.${viface}.netmask="255.255.255.248"
 	uci commit $conf
 }
 
@@ -325,13 +392,6 @@ qmp_get_ip6_fast() {
 #  echo "qmp_get_ip6_fast: return addr_prefix=$addr_prefix addr_long=$addr_long  addr=$fake_long mask=$mask" 1>&2
 }
 
-
-
-
-
-
-
-
 qmp_calculate_ula96() {
 
   local prefix=$1
@@ -385,8 +445,6 @@ qmp_calculate_addr64() {
 
 }
 
-
-
 qmp_get_ula96() {
 
   local prefix=$1
@@ -403,11 +461,6 @@ qmp_get_ula96() {
       echo "$ula96/$mask"
   fi
 }
-
-
-
-
-
 
 qmp_get_addr64() {
 
@@ -440,9 +493,6 @@ qmp_configure_prepare() {
   echo "" > /etc/config/$conf
 
 }
-
-
-
 
 qmp_configure_network() {
 
@@ -498,14 +548,14 @@ qmp_configure_network() {
   uci set $conf.loopback.ipaddr="127.0.0.1"
   uci set $conf.loopback.netmask="255.0.0.0"
 
-  wan_offset=0
+  # WAN devices
   for i in $(qmp_get_devices wan) ; do
-    uci set $conf.wan${wan_offset}="interface"
-    qmp_attach_device_to_interface $i $conf wan${wan_offset}
-    uci set $conf.wan${wan_offset}.proto="dhcp"
-    let wan_offset=${wan_offset}+1
+    local viface="$(qmp_get_virtual_iface $i)"
+    uci set $conf.$viface="interface"
+    qmp_attach_device_to_interface $i $conf $viface
+    uci set $conf.$viface.proto="dhcp"
   done
-
+  
 
   local primary_mesh_device="$(qmp_get_primary_device)"
   local community_node_id
@@ -546,8 +596,19 @@ qmp_configure_network() {
 
     uci set dhcp.lan.start=$START
     uci set dhcp.lan.limit=$LIMIT
-    uci commit dhcp
 
+    local disable_dhcp=0
+    if qmp_uci_test qmp.networks.disable_lan_dhcp; then
+      disable_dhcp="$(uci get qmp.networks.disable_lan_dhcp)"
+    fi
+
+    if [ "$disable_dhcp" != "1" ]; then 
+      uci set dhcp.lan.ignore="0"
+    else
+      uci set dhcp.lan.ignore="1"
+    fi
+
+    # LAN device
     uci set $conf.lan="interface"
     local device
     for device in $(qmp_get_devices lan) ; do
@@ -568,55 +629,69 @@ qmp_configure_network() {
     for dev in $(qmp_get_devices mesh); do
 
         # If dev is empty, nothing to do
-        [ -z "$dev" ] && continue
+        [ -z "$dev" ] || ! qmp_check_device $dev && continue
 
         # Let's configure the mesh device
 	echo "Configuring "$dev" for Meshing"
 
 	# Check if the current device is configured as no-vlan
 	local use_vlan=1
-	for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices); do
+	for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices 2>/dev/null); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
-	
-	for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
+        local protocol_vids="$(uci get qmp.networks.mesh_protocol_vids 2>/dev/null)"
+        [ -z "$protocol_vids" ] && protocol_vids="olsr6:1 bmx6:2"
+
+	for protocol_vid in $protocol_vids; do
+
+	 # Calculating the VID offset for VLAN tag
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
          local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
          local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
          local vid="$(( $vid_offset + $vid_suffix ))"
+        
+	 # virtual interface
+         local viface=$(qmp_get_virtual_iface $dev)
 
-         local mesh="mesh_${protocol_name}_${counter}"
-         local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
+         # put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
+         local ip6_suffix="2002::${counter}${vid_suffix}" 
 	
 	 # Since all interfaces are defined somewhere (LAN, WAN or with Rescue IP), 
 	 # in case of not use vlan tag, device definition is not needed.
 	 # However for the moment only bmx6 support not-vlan interfaces
 	 if [ "$protocol_name" != "bmx6" ] || [ $use_vlan -eq 1 ]; then
-             uci set $conf.$mesh="interface"
-             uci set $conf.$mesh.ifname="$dev.$vid"
-             uci set $conf.$mesh.proto="static"
+             qmp_set_vlan $viface $vid
          fi
-
+         
 	 # Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
 	 if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
-             uci set $conf.$mesh.ip6addr="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+             local ip6="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
+             echo "Configuring $ip6 for $protocol_name"
+             uci set $conf.${viface}_$vid.proto=static
+             uci set $conf.${viface}_$vid.ip6addr="$ip6"
+         else
+             uci set network.${viface}_$vid.proto=none
+             uci set network.${viface}_$vid.auto=1
 	 fi
 
-         done
+       done
+
       # Configuring rescue IPs only if the device is not LAN nor WAN
        [ "$dev" != "br-lan" ] && {
 		isWan=0
 		for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
-		[ $isWan -eq 0 ] && qmp_configure_rescue_ip $dev
+		[ $isWan -eq 0 ] && {
+			qmp_configure_rescue_ip $dev
+			qmp_attach_device_to_interface $dev $conf $viface
+		}
 	}
 
        counter=$(( $counter + 1 ))
     done
   fi
 
-  uci commit $conf
-#  /etc/init.d/$conf restart
+  uci commit
 }
 
 
