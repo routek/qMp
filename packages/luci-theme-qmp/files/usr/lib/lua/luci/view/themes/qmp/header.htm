@@ -13,10 +13,14 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 
 -%>
 <%
+ 	package.path = package.path .. ";/etc/qmp/?.lua"
 	local sys  = require "luci.sys"
 	local http = require "luci.http"
 	local disp = require "luci.dispatcher"
+	local qmp = require "qmpinfo"
 
+	local qmpheader = "qMp "..qmp.get_version("branch").." r."..qmp.get_version("revision")..string.sub(qmp.get_version("build"),1,8)
+            
 	local hostname = sys.hostname()
 	local load1, load5, load15 = sys.loadavg()
 
@@ -63,6 +67,7 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
+<link rel="shortcut icon" href="/luci-static/qmp/favicon.ico" />
 <link rel="stylesheet" type="text/css" media="screen" href="<%=media%>/cascade.css" />
 <!--[if IE 6]><link rel="stylesheet" type="text/css" media="screen" href="<%=media%>/ie6.css" /><![endif]-->
 <!--[if IE 7]><link rel="stylesheet" type="text/css" media="screen" href="<%=media%>/ie7.css" /><![endif]-->
@@ -79,7 +84,7 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 <span id="skiplink2"><a href="#content"><%:Skip to content%></a></span>
 </p>
 <div class="hostinfo">
-	<%=hostname%> | <%=luci.version.distversion%> |
+	<%=hostname%> | <%=qmpheader%> | <%=luci.version.distversion%> |
 	<%:Load%>: <%="%.2f" % load1%> <%="%.2f" % load5%> <%="%.2f" % load15%>
 	<span id="xhr_poll_status" style="display:none" onclick="XHR.running() ? XHR.halt() : XHR.run()">
 		| <%:Auto Refresh%>:
@@ -89,7 +94,7 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 </div>
 <div id="header">
 	<div class="banner" style="background-color: #000; display: block; clear: both; height: 58px;">
-		<div style="float:left;padding-left:24px"><a href="http://qmp.cat"><img src="/luci-static/qmp/qmp_small.png" height="45px" alt="qMp" style="padding: 5px;" border="0"/></a></div>
+		<div style="float:left;padding-left:24px"><a href="http://qmp.cat" target="_blank"><img src="/luci-static/qmp/qmp_small.png" height="45px" alt="qMp" style="padding: 5px;" border="0"/></a></div>
         <div style="float:left; padding-top:20px;padding-left:5px;color:#ff9900"><h2>Quick Mesh Project</h2></div>
 	</div>
 </div>

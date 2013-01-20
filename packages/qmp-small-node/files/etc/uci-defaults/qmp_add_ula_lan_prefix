@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if ! uci get qmp.networks.lan_ula_prefix48 2>/dev/null; then
+	uci set qmp.networks.lan_ula_prefix48=fd00:1714:1714
+	uci commit
+fi
