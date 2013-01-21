@@ -251,11 +251,14 @@ qmp_configure_lan_v6() {
 	echo "Adding quick hack to solve bmx6 ipv6 throw rules problem"
 	if [ $(cat /etc/rc.local | grep -c ^#BMX6_ULA_LAN_IPV6_HACK) -lt 1 ]; then
 		sed -i -e "/^exit 0/d" /etc/rc.local
+		echo "" >> /etc/rc.local
 		echo "#BMX6_ULA_LAN_IPV6_HACK" >> /etc/rc.local
 		echo "ip -6 route add $ulan_net dev br-lan table 60" >> /etc/rc.local
+		echo "ip -6 rule add pref 5000 table 50" >> /etc/rc.local
 	fi
 
-	ip -6 route add $ulan_net dev br-lan table 60
+	ip -6 route add $ulan_net dev br-lan table 50
+	ip -6 rule add pref 5000 table 50
 		
 	echo "Done"
 }
