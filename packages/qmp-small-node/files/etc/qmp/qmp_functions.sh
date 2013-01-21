@@ -24,13 +24,14 @@
 #
 
 QMP_PATH="/etc/qmp"
-SOURCE_NETWORK=1
+SOURCE_FUNCTIONS=1
 
 #######################
 # Importing files
 ######################
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
+[ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
 
 # requires ip ipv6calc awk sed grep
 
