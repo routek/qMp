@@ -180,6 +180,7 @@ qmp_attach_device_to_interface() {
 	local device=$1
 	local conf=$2
 	local interface=$3
+	echo "Attaching device $device to interface $interface"
 	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$device/\1/p")"
 	if [ -n "$wifi_config" -a "wifi-iface" = "$(uci -q get wireless.$wifi_config)" ] ; then
 		uci set wireless.$wifi_config.network="$interface"
@@ -187,6 +188,7 @@ qmp_attach_device_to_interface() {
 	else
 		uci add_list $conf.$interface.ifname="$device"
 	fi
+	
 }
 
 qmp_configure_rescue_ip() {

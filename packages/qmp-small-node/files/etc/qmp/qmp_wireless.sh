@@ -33,8 +33,8 @@ QMPINFO="/etc/qmp/qmpinfo"
 # Importing files
 ######################
 SOURCE_WIRELESS=1
-
 . $QMP_PATH/qmp_common.sh
+[ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
 
 ###########################
 # Find wireless interface
@@ -157,14 +157,16 @@ qmp_configure_wifi_device() {
 	country="$(qmp_uci_get wireless.country)"
 	bssid="$(qmp_uci_get wireless.bssid)"
 	txpower="$(qmp_uci_get @wireless[$id].txpower)"
-
+	network="$(qmp_get_virtual_iface $device)"
+	
 	echo "------------------------"
-	echo "Mac: $mac"
-	echo "Mode: $mode"
-	echo "Driver: $driver"
-	echo "Channel: $channel"
-	echo "Country: $country"
-	echo "Name: $name"
+	echo "Mac      $mac"
+	echo "Mode     $mode"
+	echo "Driver   $driver"
+	echo "Channel  $channel"
+	echo "Country  $country"
+	echo "Network  $network"
+	echo "Name     $name"
 	echo "------------------------"
 
 	template="$TEMPLATE_BASE.$driver.$mode"
@@ -184,6 +186,7 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
 	 -e s/"#QMP_TXPOWER"/"$txpower"/ \
 	 -e s/"#QMP_INDEX"/"$index"/ \
+	 -e s/"#QMP_NETWORK"/"$network"/ \
 	 -e s/"#QMP_MODE"/"$mode"/ > $TMP/qmp_wireless_temp
 
 	qmp_uci_import $TMP/qmp_wireless_temp
