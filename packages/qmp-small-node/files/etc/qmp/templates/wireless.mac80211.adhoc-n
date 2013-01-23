@@ -16,6 +16,7 @@ list wireless.#QMP_DEVICE.ht_capab=TX-STBC
 list wireless.#QMP_DEVICE.ht_capab=RX-STBC1
 list wireless.#QMP_DEVICE.ht_capab=DSSS_CCK-40
 wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
+wireless.@wifi-iface[#QMP_INDEX].network=#QMP_NETWORK
 wireless.@wifi-iface[#QMP_INDEX].mode=adhoc
 wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
 wireless.@wifi-iface[#QMP_INDEX].bssid=#QMP_BSSID

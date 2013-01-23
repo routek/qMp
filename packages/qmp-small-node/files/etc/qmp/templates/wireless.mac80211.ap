@@ -1,4 +1,5 @@
 wireless.@wifi-iface[#QMP_INDEX].mode=ap
+wireless.@wifi-iface[#QMP_INDEX].network=#QMP_NETWORK
 wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
 wireless.@wifi-iface[#QMP_INDEX].encryption=none
 wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
