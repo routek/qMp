@@ -18,6 +18,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
+#	Pau Escrich <p4u@dabax.net>
 #	Simó Albert i Beltran
 #
 
@@ -48,7 +49,7 @@ disable_default_gw() {
 configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
-	wifi
+	/etc/init.d/network reload
 }
 
 apply_netserver() {
@@ -56,20 +57,15 @@ apply_netserver() {
 }
 
 configure_network() {
-	sleep 1
 	qmp_configure
-	/etc/init.d/network restart
-	ifup -a
-	#qmp_publish_lan
 	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
 	bmx6 -c --configReload || /etc/init.d/bmx6 restart
+	/etc/init.d/network reload
 	/etc/init.d/dnsmasq restart
 	apply_netserver
-	wifi
 }
 
 configure_system() {
-	sleep 1
 	qmp_configure_system
 	/etc/init.d/uhttpd restart
 }
