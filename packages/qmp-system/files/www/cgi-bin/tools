@@ -1,0 +1,36 @@
+#!/bin/sh
+
+echo "content-type: text/plain"
+echo ""
+echo "$QUERY_STRING" >> /tmp/debug
+QUERY_KEY="$(echo $QUERY_STRING | cut -d'&' -f1 | cut -d'=' -f2)"
+QUERY_TYPE="$(echo $QUERY_STRING | cut -d'&' -f2 | cut -d'=' -f2)"
+QUERY_DATA="$(echo $QUERY_STRING | cut -d'&' -f3 | cut -d'=' -f2 | sed s/'%3A'/':'/g)"
+
+echo "$QUERY_TYPE $QUERY_DATA" >> /tmp/debug
+
+KEY_F="$(uci get qmp.node.key)"
+[ -z "$KEY_F" ] && KEY_F="/tmp/qmp_key"
+KEY="$(cat $KEY_F)"
+[ "$KEY" != "$QUERY_KEY" ] && { echo "Invalid key"; exit 1; }
+
+
+tools_bwtest() {
+	[ ! -z "$QUERY_DATA" ] && /etc/qmp/qmpinfo bwtest $QUERY_DATA
+}
+
+tools_trace() {
+	[ -z "$(which mtr)" ] && { echo "Please, install mtr"; exit 1; }
+	[ ! -z "$QUERY_DATA" ] && { echo "<pre>"; mtr -6 --raw --no-dns --report $QUERY_DATA; echo "</pre>"; }
+}
+
+tools_ping() {
+	[ -z "$(which ping)" ] && { echo "Please, install ping"; exit 1; }
+	[ ! -z "$QUERY_DATA" ] && ping -c4 $QUERY_DATA -q | grep avg
+}
+
+[ "$QUERY_TYPE" == "bwtest" ] && tools_bwtest
+[ "$QUERY_TYPE" == "traceroute" ] && tools_trace
+[ "$QUERY_TYPE" == "ping" ] && tools_ping
+
+exit 0

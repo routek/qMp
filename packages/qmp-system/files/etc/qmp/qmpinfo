@@ -1,0 +1,167 @@
+#!/usr/bin/lua
+--[[
+    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+    The full GNU General Public License is included in this distribution in
+    the file called "COPYING".
+--]]
+
+package.path = package.path .. ";/etc/qmp/?.lua"
+
+qmp = require "qmpinfo"
+
+function print_help()
+	print("qMpinfo is a dummy script to get some information about the device")
+	print("Usage: qmpinfo <question> [options]")
+	print("Available questions:")
+	print("  modes <dev>      : supported modes by the wireless card")
+	print("  channels <dev>   : supported channels and supported HT40 type (+/-) ")
+	print("  txpower <dev>    : supported transmission powers")
+	print("  ipv4             : print all ipv4 from this computer (excluding localhost)")
+	print("  hostname         : print device hostname")
+	print("  bwtest <ipv6>    : perform a bandwidth test")
+	print("  nodes            : list all nodes on MESH network")
+	print("  links            : list direct connected nodes on MESH")
+	print("  version <option> : show version (options: full, build, branch, codename, release, revision)")
+	print("  key              : print qmp key")
+	print("")
+end
+
+function print_modes()
+	local data = qmp.get_modes(op1)
+	local output = ""
+	if data.b  then output = output .. "b " end
+	if data.g  then output = output .. "g " end
+	if data.a  then output = output .. "a " end
+	if data.n  then output = output .. "n " end
+	print(output)
+end
+
+function print_channels()
+	local partial
+	local output = ""
+	local data = qmp.get_channels(op1)
+	for _,d in ipairs(data) do
+		output = d.channel
+		if d.ht40p then output = output .. " ht40+" end
+		if d.ht40m then output = output .. " ht40-" end
+		if d.adhoc then output = output .. " adhoc" end
+		print(output)
+	end
+end
+
+function print_txpower()
+	local data = qmp.get_txpower(op1)
+	for _,v in ipairs(data) do
+		print(v)
+	end
+end
+
+function print_ipv4()
+	local ipv4 = qmp.get_ipv4()
+	for _,v in pairs(ipv4) do
+		print(v)
+	end
+end
+
+function print_hostname()
+	print(qmp.get_hostname())
+end
+
+function bw_test()
+        if #op1 < 5 then
+                print_help()
+                os.exit(1)
+        end
+
+        local bwt = qmpinfo.bandwidth_test(op1)
+        if bwt == nil then
+                print("Cannot connecto to "..op1.." netserver")
+        else
+                print ("Bandwidth: "..bwt.." Mbit/s")
+        end
+end
+
+function nodes()
+	for _,n in ipairs(qmpinfo.nodes()) do
+		if #n == 2 then
+			print(n[1].." "..n[2])
+		end
+	end
+end
+
+function links()
+	for _,n in ipairs(qmpinfo.links()) do
+		if #n == 2 then
+			print(n[1].." "..n[2])
+		end
+	end
+end
+
+function version()
+	local checkop = qmpinfo.get_version(op1)
+	if checkop == nil then
+		print("Wrong option!")
+		print("Usage: qmpinfo version <options>")
+		print("Options:")
+		print("  full     : full description")
+		print("  build    : build date")
+		print("  branch   : development branch")
+		print("  codename : release codename")
+		print("  release  : release number")
+		print("  revision : repository revision number")
+		print("")
+	else print(qmpinfo.get_version(op1))
+	end
+end
+
+function key()
+	print(qmpinfo.get_key())
+end
+
+if #arg < 1 then
+	print_help()
+	os.exit(1)
+end
+
+local question = arg[1]
+op1 = arg[2]
+
+if question == "modes" then
+	print_modes()
+elseif question == "channels" then
+	print_channels()
+elseif question == "txpower" then
+	print_txpower()
+elseif question == "ipv4" then
+	print_ipv4()
+elseif question == "hostname" then
+        print_hostname()
+elseif question == "bwtest" then
+        bw_test()
+elseif question == "nodes" then
+        nodes()
+elseif question == "key" then
+	key()
+elseif question == "links" then
+	links()
+elseif question == "version" then
+	version()
+else
+	print_help()
+end
+

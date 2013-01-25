@@ -1,0 +1,92 @@
+<!--
+
+ Copyright © 2012 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along
+ with this program. If not, see <http://www.gnu.org/licenses/>.
+
+ Contributors:
+	Simó Albert i Beltran
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>
+		Please wait...
+	</title>
+
+	<style type="text/css">
+
+		body{
+			background-color: #83B6EA;
+		}
+
+		div#progress_screen{
+			margin: 0 auto;
+			width: 500px;
+			border-radius: 4px;
+			background-color: rgba(255,255,255,0.4);
+			padding: 10px;
+		}
+
+		div#progress_screen p{
+			text-align: center;
+			font-size: 1.0em;
+		}
+
+		div#progress_wrapper{
+			position: relative;
+			width: 500px;
+			height: 25px;
+			background-color: #45A2FF;
+		}
+
+		div#progress_wrapper div#progress{
+			width: 0%;
+			height: 100%;
+			background-color: #0074FF;
+		}
+
+		.align-center { float:center; margin: 20px 0px 25px 45px; }
+
+	</style>
+	<script type="text/javascript">
+		var timer;
+		var tick = 1000;
+		var timeout = 20 * 1000;
+		var time = 0;
+		var progressElement;
+
+		var onLoad = function(){
+			progressElement = document.getElementById('progress');
+			timer = setInterval(function(){
+				time += tick;
+				progressElement.style.width = time*100.0/timeout+'%';
+				if (time >= timeout){
+					clearInterval(timer);
+					location.href=document.referrer;
+				}
+			}, tick);
+		}
+	</script>
+</head>
+<body onload="onLoad();">
+	<div id="progress_screen">
+		<img src="logo.png" class="align-center" />
+		<p>The configuration is being applied, please wait a moment...</p>
+		<div id="progress_wrapper"><div id="progress"></div></div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci delete firewall.@zone[1]
+uci delete firewall.@zone[0]
+uci delete firewall.@forwarding[0]
+uci delete firewall.@rule[1]
+uci delete firewall.@rule[1]
+uci set firewall.@defaults[0].forward=ACCEPT
+uci set firewall.@defaults[0].disable_ipv6=0
+uci commit
+
