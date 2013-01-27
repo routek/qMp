@@ -21,7 +21,6 @@
 ##############################
 # Global variables definition
 ##############################
-
 QMP_PATH="/etc/qmp"
 OWRT_WIRELESS_CONFIG="/etc/config/wireless"
 TEMPLATE_BASE="$QMP_PATH/templates/wireless" # followed by .driver.mode (wireless.mac80211.adhoc)
@@ -294,7 +293,8 @@ qmp_wifi_get_default() {
 
 		# we are using index var to put devices in different channels
 		index=$(echo $device | tr -d [A-z])
-
+		index=${index:-0}
+		
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
 		# this is the command line used to get available channels from a device
 		channels_cmd="$QMPINFO channels $device"
@@ -407,7 +407,6 @@ qmp_configure_wifi_initial() {
 		qmp_uci_set @wireless[$j].device $device
 		id_configured="$id_configured $j"
 	done
-
 	#Finally we are going to configure default parameters if they are not present
 	[ -z "$(qmp_uci_get wireless)" ] && qmp_uci_set wireless qmp
 	[ -z "$(qmp_uci_get wireless.driver)" ] && qmp_uci_set wireless.driver $(qmp_wifi_get_default driver)
