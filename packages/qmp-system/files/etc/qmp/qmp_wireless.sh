@@ -34,6 +34,7 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_WIRELESS=1
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
+[ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_functions.sh
 
 ###########################
 # Find wireless interface
@@ -239,8 +240,8 @@ qmp_configure_wifi() {
 #  - third parameter: is configured mode, only needed by chanel
 
 qmp_wifi_get_default() {
-	what="$1"
-	device="$2"
+	local what="$1"
+	local device="$2"
 
 	# MODE
 	# default mode depens on several things:
@@ -250,14 +251,14 @@ qmp_wifi_get_default() {
 
 	if [ "$what" == "mode" ]; then
 
-		devices=0
-		bg_devices=0
+		local devices=0
+		local bg_devices=0
 		for wd in $(qmp_get_wifi_devices); do
 			devices=$(( $devices + 1 ))
 			bg_devices=$(( $bg_devices + $($QMPINFO modes $wd | egrep "b|g" -c) ))
 		done
 
-		index=$(echo $device | tr -d [A-z])
+		local index=$(echo $device | tr -d [A-z])
 
 		#If only one device, using adhoc
 		if [ $devices -eq 1 ]; then
@@ -300,16 +301,51 @@ qmp_wifi_get_default() {
 		channels_cmd="$QMPINFO channels $device"
 		num_channels=$($channels_cmd | wc -l)
 
-		# number of channels for AP is 10 or the number of channels available if less
+		# number of channels for AP is 11 or the number of channels available if less
 		num_channels_ap=$num_channels
-		[ $num_channels_ap -gt 10 ] && num_channels_ap=10
+		[ $num_channels_ap -gt 11 ] && num_channels_ap=11
 
 		# channel AdHoc is the last available (qmp_tac = inverse order) plus index*2+1 (1 3 5 ...)
-		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${index}+${index}*2+1)"
+		[ "$mode" == "adhoc" ] || [ -z "$mode" ] && {
 
+			#this is global
+			ADHOC_INDEX=${ADHOC_INDEX:-0}
+			
+			channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${ADHOC_INDEX}+${ADHOC_INDEX}*2+1)"
+			
+			ADHOC_INDEX=$(($ADHOC_INDEX+1))
+			# c is the channel number, checking ig it is 802.11bg
+			# in such case it will be 1, 6 and 11 for performance and coexistence with other networks
+			c="$(echo $channel_info | cut -d' ' -f1)"
+			[ $c -lt 14 ] && {
+				qmp_log "Using adhoc device in 802.11bg mode"
+				if [ $c -lt 5 ]; then c=1                                                                                                 
+				else if [ $c -lt 9 ]; then c=6                                                                                            
+				else c=11
+				fi; fi
+			ADHOC_BG_USED="$c"
+			channel_info="$c $(echo $channel_info | cut -d' ' -f2-)"
+			}
+						
+		}
+		
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
-		[ "$mode" == "ap" ] && channel_info="$($channels_cmd | awk NR==\(\($(qmp_get_dec_node_id)+$index*3\)%$num_channels_ap\)+1)"
-
+		# channel is 1, 6 or 11 for coexistence and performance
+		[ "$mode" == "ap" ] && {
+			c=$(((($(qmp_get_dec_node_id)+$index*3) % $num_channels_ap) +1))
+			
+			if [ $c -lt 5 ]; then c=1
+			else if [ $c -lt 9 ]; then c=6
+			else c=11
+			fi; fi
+			
+			#if the resulting channel is used by adhoc, selecting another one
+			[ -n "$ADHOC_BG_USED" ] && [ $ADHOC_BG_USED -eq $c ] && \
+			( [ $c -lt 7 ] && c=$(($c+5)) || c=$(($c-5)) )
+			
+			channel_info="$($channels_cmd | awk NR==$c)"
+		}
+		
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
 			qmp_log "Warning, not usable channels found in device $device "
