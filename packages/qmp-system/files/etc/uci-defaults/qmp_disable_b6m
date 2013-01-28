@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Disabling b6m..."
+/etc/init.d/b6m-spread stop
+/etc/init.d/b6m-spread disable
