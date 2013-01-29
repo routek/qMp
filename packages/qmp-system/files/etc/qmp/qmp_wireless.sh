@@ -394,7 +394,7 @@ qmp_configure_wifi_initial() {
 			if [ "$configured_mac" == "$m" ]; then
 				#If we found configured device, we are going to check all needed parameters
 				found=1
-				device="$(qmp_get_dev_from_mac $m)"
+				device="$(qmp_get_dev_from_wifi_mac $m)"
 				id_configured="$id_configured $j"
 				echo "Found configured device: $m"
 			        [ -z "$(qmp_uci_get @wireless[$j].mode)" ] && qmp_uci_set @wireless[$j].mode $(qmp_wifi_get_default mode $device)
@@ -427,7 +427,7 @@ qmp_configure_wifi_initial() {
 
 	#Configuring devices not found before
 	for m in $to_configure; do
-		device=$(qmp_get_dev_from_mac $m)
+		device=$(qmp_get_dev_from_wifi_mac $m)
 		echo "Configuring device: $device | $m"
 		#Looking for a free slot to put new configuration
 		j=0

@@ -199,6 +199,14 @@ qmp_get_mac_for_dev() {
 	echo "$mac"
 }
 
+# Returns the mac addres for specific device,, only wifi devs are allowed. Useful when eth and wlan have same MAC
+# qmp_get_dev_from_wifi_mac 00:22:11:33:44:55
+qmp_get_dev_from_wifi_mac() {
+	mac="$(ip link | grep -A1 -E ": (wifi|wlan|wl).: " | grep -i $1 -B1 | cut -d' ' -f2 | tr -d "\n",:)"
+	[ -z "$mac" ] && mac="00:00:00:00:00:00"
+	echo "$mac"
+}
+
 #########################
 # Other kind of commands
 #########################
