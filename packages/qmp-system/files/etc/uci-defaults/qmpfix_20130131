@@ -1,0 +1,3 @@
+#!/bin/sh
+# Removes the wifi commnad introduced in rc.local for compatiblity with backfire
+sed s/^wifi$//g -i /etc/rc.local
