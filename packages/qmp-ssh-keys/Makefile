@@ -32,7 +32,7 @@ define Package/qmp-ssh-keys
 endef
 
 define Package/qmp-ssh-keys/description
- Developers/Adrministrators SSH keys
+ Developers/Administrators SSH keys
 endef
 
 define Build/Compile
