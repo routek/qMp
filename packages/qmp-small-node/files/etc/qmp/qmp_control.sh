@@ -49,7 +49,6 @@ apply_netserver() {
 configure_network() {
 	qmp_configure
 	/etc/init.d/network restart
-	ifup -a
 	/etc/init.d/olsrd restart
 	/etc/init.d/bmx6 restart
 	/etc/init.d/dnsmasq restart
