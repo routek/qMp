@@ -50,7 +50,7 @@ endef
 
 define Package/qmp-quagga
   $(call Package/qmp-quagga/Default)
-  DEPENDS:=+librt +qmp-quagga-vtysh +qmp-quagga-bgpd
+  DEPENDS:=+qmp-quagga-vtysh +qmp-quagga-bgpd
   MENU:=1
 endef
 
@@ -76,6 +76,7 @@ endef
 
 define Package/qmp-quagga-libzebra
   $(call Package/qmp-quagga/Default)
+  DEPENDS+=+librt
   TITLE:=zebra library
 endef
 
