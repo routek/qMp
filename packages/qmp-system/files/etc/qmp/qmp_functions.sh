@@ -621,11 +621,11 @@ qmp_configure_network() {
 
     # LAN device
     uci set $conf.lan="interface"
+    uci set $conf.lan.type="bridge"
     local device
     for device in $(qmp_get_devices lan) ; do
       qmp_attach_device_to_interface $device $conf lan
     done
-    uci set $conf.lan.type="bridge"
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr=$LAN_ADDR
     uci set $conf.lan.netmask=$LAN_MASK
