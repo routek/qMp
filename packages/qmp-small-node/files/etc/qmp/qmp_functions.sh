@@ -57,11 +57,10 @@ qmp_get_devices() {
                     if [ $brlan_enabled -eq 0 ]; then
                         dev="br-lan"
                         brlan_enabled=1
-                        break
                     else
                         dev=""
-                        break
                     fi
+                    break
                 fi
             done
         fi
