@@ -180,28 +180,36 @@ qmp_attach_device_to_interface() {
 	local device=$1
 	local conf=$2
 	local interface=$3
+	local intype="$(uci -qX get network.$interface.type)"
+	
 	echo "Attaching device $device to interface $interface"
 	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$device/\1/p")"
 	if [ -n "$wifi_config" -a "wifi-iface" = "$(uci -q get wireless.$wifi_config)" ] ; then
 		uci set wireless.$wifi_config.network="$interface"
 		uci commit wireless
 	else
-		uci add_list $conf.$interface.ifname="$device"
+		if [ "$intype" == "bridge" ]; then
+			uci add_list $conf.$interface.ifname="$device"
+		else
+			uci set $conf.$interface.ifname="$device"
+		fi
 	fi
 	
 }
 
 qmp_configure_rescue_ip() {
 	local device=$1
+		
 	[ -z "$device" ] && return 1
 	
 	local rip="$(qmp_get_rescue_ip $device)"
 	[ -z "$rip" ] && { echo "Cannot get rescue IP for device $device"; return 1; }
+
+	local viface="${2:-$(qmp_get_virtual_iface $device)}"
 	
-	echo "Rescue IP for device $device is $rip"	
+	echo "Rescue IP for device $device/$viface is $rip"	
 
 	local conf="network"
-    	local viface="$(qmp_get_virtual_iface $device)"
 	
 	uci set $conf.${viface}="interface"
 	#qmp_attach_viface_to_interface $viface $conf ${viface}
@@ -680,16 +688,25 @@ qmp_configure_network() {
 
        done
 
-      # Configuring rescue IPs only if the device is not LAN nor WAN
-       [ "$dev" != "br-lan" ] && {
-		isWan=0
-		for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
-		[ $isWan -eq 0 ] && {
-			qmp_configure_rescue_ip $dev
-			qmp_attach_device_to_interface $dev $conf $viface
-		}
+	# Configuring rescue IPs
+	local isWan=0
+	for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
+	
+	local isMesh=0                                                       
+	for m in $(qmp_get_devices mesh); do [ "$m" == "$dev" ] && isMesh=1; done
+		
+	[ $isWan -eq 1 ] || [ "$dev" == "br-lan" ] && {
+		# If it is WAN or LAN
+		qmp_configure_rescue_ip $dev ${viface}_rescue
+		qmp_attach_device_to_interface $dev $conf ${viface}_rescue
 	}
-
+	
+	[ $isMesh -eq 1 ] && [ $isWan -eq 0 ] && [ "$dev" != "br-lan" ] && {
+		# If it is only mesh device
+		qmp_configure_rescue_ip $dev
+		qmp_attach_device_to_interface $dev $conf $viface
+	}
+	
        counter=$(( $counter + 1 ))
     done
   fi
