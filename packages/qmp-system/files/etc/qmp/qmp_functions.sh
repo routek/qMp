@@ -508,23 +508,17 @@ qmp_configure_rescue_ip_device()
 	local viface="$3"
 
 	# Configuring rescue IPs
-	local isWan=0
-	for w in $(qmp_get_devices wan); do [ "$w" == "$dev" ] && isWan=1; done
-	
-	local isMesh=0
-	for m in $(qmp_get_devices mesh); do [ "$m" == "$dev" ] && isMesh=1; done
-		
-	[ $isWan -eq 1 ] || [ "$dev" == "br-lan" ] && {
+	if qmp_is_in "$dev" $(qmp_get_devices wan) || [ "$dev" == "br-lan" ]
+	then
 		# If it is WAN or LAN
 		qmp_configure_rescue_ip $dev ${viface}_rescue
 		qmp_attach_device_to_interface $dev $conf ${viface}_rescue
-	}
-	
-	[ $isMesh -eq 1 ] && [ $isWan -eq 0 ] && [ "$dev" != "br-lan" ] && {
+	elif qmp_is_in "$dev" $(qmp_get_devices mesh) && [ "$dev" != "br-lan" ]
+	then
 		# If it is only mesh device
 		qmp_configure_rescue_ip $dev
 		qmp_attach_device_to_interface $dev $conf $viface
-	}
+	fi
 }
 
 qmp_configure_prepare() {
