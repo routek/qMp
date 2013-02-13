@@ -486,6 +486,20 @@ qmp_get_addr64() {
 }
 
 
+qmp_is_in()
+{
+	local search="$1"
+	shift
+	local item
+	for item in $@
+	do
+		if [ "$search" == "$item" ]
+		then
+			return 0
+		fi
+	done
+	return 1
+}
 
 qmp_configure_rescue_ip_device()
 {
