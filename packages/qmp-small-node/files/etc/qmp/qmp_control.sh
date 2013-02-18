@@ -59,7 +59,6 @@ configure_network() {
 	sleep 1
 	qmp_configure
 	/etc/init.d/network restart
-	ifup -a
 	#qmp_publish_lan
 	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
 	bmx6 -c --configReload || /etc/init.d/bmx6 restart
