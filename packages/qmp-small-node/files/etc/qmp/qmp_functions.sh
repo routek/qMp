@@ -36,7 +36,7 @@ SOURCE_NETWORK=1
 
 qmp_get_llocal_for_dev() {
   local dev=$1
-  ip a show dev $dev | grep inet6 | awk '{print $2}'
+  ip a show dev $dev | awk '/inet6/{print $2}'
 }
 
 # returns primary device
@@ -331,7 +331,7 @@ qmp_get_ip6_fast() {
     mask="128"
   fi
 
-  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | grep IPV6= | awk -F'=' '{print $2}' )
+  local addr_long=$( ipv6calc -q  --in ipv6 $addr --showinfo -m 2>&1 | awk -F'=' '/IPV6=/{print $2}' )
 
   local fake_prefix16="20a2" # original input is manipulated because ipv6calc complains about reserved ipv6 addresses
   local addr_prefix16="$(echo $addr_long | awk -F':' '{print $1}')"
@@ -568,7 +568,7 @@ qmp_configure_network() {
     if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
 	LAN_MASK="255.255.0.0"
 	# Last byte of lan adress must be "1" to avoid overlappings
-	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/&.1:/1' | awk -F ":" '{print $1}')
+	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)\.[0-9]\{1,3\}/\1.1/1')
 
 	OFFSET=0
 	NUM_GRP=256
@@ -577,7 +577,7 @@ qmp_configure_network() {
 
 	[ $UCI_OFFSET -lt $NUM_GRP ] && OFFSET=$UCI_OFFSET
 
-	START=$(( $(printf %d 0x$community_node_id) * $NUM_GRP + $OFFSET ))
+	START=$(( 0x$community_node_id * $NUM_GRP + $OFFSET ))
 	LIMIT=$(( $NUM_GRP - $OFFSET ))
 
 	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
@@ -849,7 +849,7 @@ EOF
            local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
            local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
 	   local ifname="$dev.$(( $vid_offset + $vid_suffix ))"
-           local mode="$(if echo $dev | grep -v ath | grep -v wlan > /dev/null 2>&1; then echo ether; else echo mesh; fi)"
+           local mode="$(if echo $dev | grep -v "\(ath\|wlan\)" > /dev/null 2>&1; then echo ether; else echo mesh; fi)"
            local mesh="mesh_${protocol_name}_${counter}"
            local ip6_suffix="2002::${counter}${vid_suffix}" #put typical IPv6 prefix (2002::), otherwise ipv6 calc assumes mapped or embedded ipv4 address
            local ip6_addr="$( qmp_get_ip6_fast $(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128) )"
@@ -919,7 +919,7 @@ qmp_set_hosts() {
 	return
   fi
 
-  if [ $(cat /etc/hosts | grep qmpadmin | grep "^$ip" -c) -eq 0 ]; then
+  if [ $(cat /etc/hosts | grep -c "^$ip.*qmpadmin") -eq 0 ]; then
         cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
         echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
         cp /tmp/hosts.tmp /etc/hosts
