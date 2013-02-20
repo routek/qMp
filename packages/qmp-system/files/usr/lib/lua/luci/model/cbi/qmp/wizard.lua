@@ -42,13 +42,23 @@ local community_help
 community_help = m:field(DummyValue,"community_help")
 community_help:depends("_netmode","community")
 community_help.rawhtml = true
-community_help.default = "Community for static deployments (like community networks). Connected devices have a static IP range and are able to see each others.\
+community_help.default = "Community for static deployments (such as community networks). Connected devices have a static IP range and are able to see each others.\
    However there is no roaming between stations."
 
 netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming is used for quick deployments.<br/>Community for network communities"))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
 netmode.default="roaming"
+
+nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network. <br/>Leave blank for randomize."))
+nodeip_roaming:depends("_netmode","roaming")
+
+local ip = uciout:get("qmp","networks","bmx6_ipv4_address")
+if #ip < 7 then
+	ip = uciout:get("bmx6","general","tun4Address")
+end 
+
+nodeip_roaming.default=ip
 
 nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
 nodename:depends("_netmode","community")
@@ -120,7 +130,8 @@ function netmode.write(self, section, value)
 	local mode = netmode:formvalue(section)
 	local nodeip = nodeip:formvalue(section)
 	local nodemask = nodemask:formvalue(section)
-
+	local nodeip_roaming = nodeip_roaming:formvalue(section)
+	
 	if mode == "community" then
 		uciout:set("qmp","non_overlapping","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
@@ -138,6 +149,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","bmx6_ipv4_address","")
 		uciout:set("qmp","networks","olsr6_ipv4_address","")
 		uciout:set("qmp","networks","olsr6_ipv4_prefix24","10.201")
+		uciout:set("qmp","networks","bmx6_ipv4_address",nodeip_roaming)
 
 	end
 
