@@ -53,12 +53,15 @@ netmode.default="roaming"
 nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network. <br/>Leave blank for randomize."))
 nodeip_roaming:depends("_netmode","roaming")
 
-local ip = uciout:get("qmp","networks","bmx6_ipv4_address")
-if #ip < 7 then
-	ip = uciout:get("bmx6","general","tun4Address")
+local rip = uciout:get("qmp","networks","bmx6_ipv4_address")
+if rip == nil or #rip < 7 then
+	rip = uciout:get("bmx6","general","tun4Address")
+	if rip == nil or #rip < 7 then 
+		rip = ""
+	end
 end 
 
-nodeip_roaming.default=ip
+nodeip_roaming.default=rip
 
 nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
 nodename:depends("_netmode","community")
