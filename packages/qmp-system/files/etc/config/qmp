@@ -49,7 +49,7 @@ config 'qmp' 'networks'
 
         option 'bmx6_mesh_prefix48'  'fd02:0:0'
         option 'bmx6_ripe_prefix48'  '2012:0:0'        # suffix is autoconfigured based on community_node_id
-        option 'bmx6_ipv4_prefix24'  '10.202'
+        option 'bmx6_ipv4_prefix24'  '10.202.0'
 #       option 'bmx6_ipv4_address'   '10.202.9.01/24'  # if commented out then option is autoconfigured based on
                                                        # community_node_id and bmx6_ipv4_prefix
 	option 'bmx6_tablePrefTuns'  '7000'
