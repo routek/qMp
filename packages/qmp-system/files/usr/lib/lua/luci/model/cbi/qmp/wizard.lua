@@ -205,8 +205,7 @@ end
 
 function apply(self)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('qmpcontrol configure_network >> /tmp/log/qmp_control_network.log &')
-        luci.sys.call('qmpcontrol configure_wifi >> /tmp/log/qmp_control_wifi.log &')
+        luci.sys.call('(qmpcontrol configure_wifi ; qmpcontrol configure_network) &')
 end
 
 

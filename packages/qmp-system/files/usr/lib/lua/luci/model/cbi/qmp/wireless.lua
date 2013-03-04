@@ -56,10 +56,10 @@ country = s_wireless_main:option(Value,"country", translate("Country"))
 bssid = s_wireless_main:option(Value,"bssid","BSSID")
 
 -- Button Rescan Wifi devices
-confwifi = s_wireless_main:option(Button, "_confwifi", translate("Rescan and configure devices"))
+confwifi = s_wireless_main:option(Button, "_confwifi", translate("Reconfigure"),translate("Rescan and reconfigure all devices. This option requieres reboot. <br/>Use it just in case you have added or changed a device."))
 
 function confwifi.write(self, section)
-	luci.sys.call("qmpcontrol configure_wifi > /tmp/qmp_rescan_wifi_devices.output")
+	luci.sys.call("rm -f /qmp_configured; /etc/init.d/qmp_autoconf start")
 end
 
 
@@ -111,7 +111,7 @@ end
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_short.html")
-	luci.sys.call('/etc/qmp/qmp_control.sh configure_wifi > /tmp/qmp_control_wifi.log &')
+	luci.sys.call('(/etc/qmp/qmp_control.sh configure_wifi ; /etc/init.d/network reload)&')
 end
 
 
