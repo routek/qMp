@@ -1,0 +1,15 @@
+wireless.@wifi-iface[#QMP_INDEX].mode=ap
+wireless.@wifi-iface[#QMP_INDEX].network=#QMP_NETWORK
+wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
+wireless.@wifi-iface[#QMP_INDEX].encryption=none
+wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
+wireless.#QMP_DEVICE=wifi-device
+wireless.#QMP_DEVICE.type=mac80211
+wireless.#QMP_DEVICE.macaddr=#QMP_MAC
+wireless.#QMP_DEVICE.channel=#QMP_CHANNEL
+wireless.#QMP_DEVICE.diversity=1
+wireless.#QMP_DEVICE.txantenna=0
+wireless.#QMP_DEVICE.rxantenna=0
+wireless.#QMP_DEVICE.country=#QMP_COUNTRY
+wireless.#QMP_DEVICE.outdoor=1
+wireless.#QMP_DEVICE.txpower=#QMP_TXPOWER

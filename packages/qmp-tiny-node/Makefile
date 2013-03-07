@@ -25,7 +25,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=qmp-small-node
+PKG_NAME:=qmp-tiny-node
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Ratafia
@@ -34,41 +34,35 @@ QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/qmp-small-node
+define Package/qmp-tiny-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Required addons for small qMp mesh node
+  TITLE:=Basic addons for qMp node
   URL:=http://qmp.cat
   DEPENDS:= \
-	+qmp-tiny-node \
-	+ahcpd \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-	+firewall +synctincvpn \
-	+kmod-ipip \
-	+cgi-bin-zero \
-	+kmod-tun \
-	+kmod-dummy \
-	+b6m +b6m-spread
+  +qmp-system \
+  +uhttpd +luci +luci-lib-nixio \
+  +iwinfo \
+  +radvd \
+  +hostapd-mini +wpa-supplicant-mini \
+  +wireless-tools +iw +netperf \
+  +bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
+  +gwck-qmp +luci-theme-qmp \
+  +firewall \
+  +6in4 +6to4 \
+  +ip6tables +ip \
+  +kmod-ip6-tunnel +kmod-iptunnel6
 endef
 
 
-define Package/qmp-small-node/description
- Addons for small qmp nodes (4MByte flash)
-endef
-
-define Package/qmp-small-node/conffiles
+define Package/qmp-tiny-node/description
+ Required addons for qMp node (only needed and basic stuff)
 endef
 
 define Build/Prepare
+ mkdir -p $(PKG_BUILD_DIR)
 endef
 
-define Build/Configure
-endef
 
-define Build/Compile
-endef
+$(eval $(call BuildPackage,qmp-tiny-node))
 
-define Package/qmp-small-node/install
-endef
-
-$(eval $(call BuildPackage,qmp-small-node))

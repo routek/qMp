@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Removes the wifi commnad introduced in rc.local for compatiblity with backfire
+sed s/^wifi$//g -i /etc/rc.local
+
+# Adds rescue_prefix24 if it does not exist
+if ! uci get qmp.networks.rescue_prefix24; then
+	uci set qmp.networks.rescue_prefix24="169.254"
+	uci commit
+fi
+

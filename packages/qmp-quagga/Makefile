@@ -4,6 +4,9 @@
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 include $(TOPDIR)/rules.mk
 
@@ -39,8 +42,8 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/qmp-quagga/Default
-  SECTION:=net
-  CATEGORY:=Network
+  SECTION:=qMp
+  CATEGORY:=qMp
   SUBMENU:=Routing and Redirection
   DEPENDS:=qmp-quagga
   TITLE:=The Quagga Software Routing Suite
@@ -50,7 +53,7 @@ endef
 
 define Package/qmp-quagga
   $(call Package/qmp-quagga/Default)
-  DEPENDS:=+librt
+  DEPENDS:=+qmp-quagga-vtysh +qmp-quagga-bgpd
   MENU:=1
 endef
 
@@ -76,6 +79,7 @@ endef
 
 define Package/qmp-quagga-libzebra
   $(call Package/qmp-quagga/Default)
+  DEPENDS+=+librt
   TITLE:=zebra library
 endef
 

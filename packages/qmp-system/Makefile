@@ -25,7 +25,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=qmp-small-node
+PKG_NAME:=qmp-system
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Ratafia
@@ -34,32 +34,24 @@ QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/qmp-small-node
+define Package/qmp-system
+  TITLE:=Quick Mesh Project system files
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Required addons for small qMp mesh node
   URL:=http://qmp.cat
-  DEPENDS:= \
-	+qmp-tiny-node \
-	+ahcpd \
-	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-	+firewall +synctincvpn \
-	+kmod-ipip \
-	+cgi-bin-zero \
-	+kmod-tun \
-	+kmod-dummy \
-	+b6m +b6m-spread
+  DEPENDS:=
 endef
 
-
-define Package/qmp-small-node/description
- Addons for small qmp nodes (4MByte flash)
+define Package/qmp-system/description
+ System files for qMp node
 endef
 
-define Package/qmp-small-node/conffiles
+define Package/qmp-system/conffiles
+	/etc/config/qmp
 endef
 
 define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)
 endef
 
 define Build/Configure
@@ -68,7 +60,23 @@ endef
 define Build/Compile
 endef
 
-define Package/qmp-small-node/install
+define Package/qmp-system/install
+	$(CP) ./files/* $(1)/
+	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
+	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$COD,$(QMP_CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$REL,$(QMP_RELEASE),g' $(1)/etc/uci-defaults/qmp_banner
+	$(SED) 's,$$$$DATE,$(QMP_BUILDDATE),g' $(1)/etc/uci-defaults/qmp_banner
+	chmod 755 $(1)/etc/init.d/qmp_autoconf
+	date +%Y%m%d > $(1)/etc/qmp/qmp.version
+	echo "QMP_ID=qMp" > $(1)/etc/qmp/qmp.release
+	echo "QMP_CODENAME=$(QMP_CODENAME)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_RELEASE=$(QMP_RELEASE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BRANCH=$(BRANCH_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_REVISION=$(REV_GIT)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_BUILDDATE=$(QMP_BUILDDATE)" >> $(1)/etc/qmp/qmp.release
+	echo "QMP_DESCRIPTION=\"qMp $(QMP_CODENAME) $(QMP_RELEASE), $(BRANCH_GIT) rev.$(REV_GIT)-$(QMP_BUILDDATE)\"" >> $(1)/etc/qmp/qmp.release
 endef
 
-$(eval $(call BuildPackage,qmp-small-node))
+$(eval $(call BuildPackage,qmp-system))

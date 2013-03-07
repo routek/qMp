@@ -1,0 +1,102 @@
+#!/bin/sh /etc/rc.common
+#    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along
+#    with this program; if not, write to the Free Software Foundation, Inc.,
+#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+#    The full GNU General Public License is included in this distribution in
+#    the file called "COPYING".
+
+START=99
+STOP=99
+SERVICE_DAEMONIZE=1
+CONTROL_FILE="/qmp_configured"
+QMP_DIR="/etc/qmp"
+QMP_KEY="/tmp/qmp_key"
+
+log() {
+	echo "$@" > /dev/console
+	echo "$@"
+	echo "$@" > /tmp/qmp_autoconf.log
+}
+
+configure() {
+	log Starting qmp configuration...
+
+	log Waiting 10 seconds to be sure all is configured
+	sleep 10
+	
+	log [Configuring wireless]
+
+	#Generating default wifi configuration
+	country="$(uci get qmp.wireless.country 2>/dev/null)"
+	country="${country:-00}"
+
+	mv /etc/config/wireless /tmp/wireless.old
+	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
+	/etc/init.d/network reload
+
+	#To be sure channel is set...
+	iw reg set $country || iw reg set 00
+	
+	#Configuring wifi using QMP
+	. $QMP_DIR/qmp_wireless.sh
+	qmp_configure_wifi_initial
+	qmp_configure_wifi
+
+	#Reloading network to avoid problems with next functions
+	/etc/init.d/network reload
+	
+	#Configuring networking
+	echo "[Configuring networking]"
+	. $QMP_DIR/qmp_functions.sh
+	qmp_configure
+	#echo "Update hostname for: '$QMP_HOSTNAME'"
+	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
+
+	touch "$CONTROL_FILE"
+	[ -f "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
+}
+
+#This function is executed in each boot
+startup() {
+	# Set HostName
+	. $QMP_DIR/qmp_functions.sh
+	qmp_set_hosts
+
+	# Start/Stop netserver
+	$QMP_DIR/qmp_control.sh apply_netserver
+
+	# Generate current qmp key
+	logread | md5sum | awk '{print $1}' > $QMP_KEY
+}
+
+start() {
+	if [ ! -f "$CONTROL_FILE" ]; then
+		configure
+	else
+		log QMP configured. Remove $CONTROL_FILE to force reconfiguration
+	fi
+
+	startup
+}
+
+stop() {
+	log Nothing to do
+}
+
+restart() {
+	stop
+	start
+}

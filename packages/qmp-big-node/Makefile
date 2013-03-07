@@ -18,6 +18,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
+#	Pau Escrich <p4u@dabax.net>
 #	Simó Albert i Beltran
 #
 
@@ -33,28 +34,25 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-big-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Required addons for big qmp mesh nodes (8MByte flash or more)
+  TITLE:=Addons for big qMp mesh node (8MByte flash or more)
   URL:=http://qmp.cat
   DEPENDS:= \
 	+qmp-small-node \
-	+qmp-tinyproxy \
+	+qmp-tinyproxy +tinymce \
 	+babeld \
-	+openvpn \
-	+openssl-util \
-        +tcptraceroute6 \
+	+openssl-util +luci-ssl \
+	+tcptraceroute6 \
 	+iperf +mtr +netcat \
 	+tcpdump \
 	+lsof \
 	+hostapd \
 	+wget +horst \
 	+bmon +bwm +ebtables +pv \
-	+b6m \
 	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
 	+bmx6-qmp-quagga \
 	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
 	+ndisc6 +rdisc6 +rdnssd \
-	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
-	+cgi-bin-zero
+	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath
 endef
 
 define Package/qmp-big-node/description
