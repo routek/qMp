@@ -89,7 +89,7 @@ qmp_update_check() {
 	last_image="$(qmp_update_get_last_image_name $url/$images $filter)"
 	qmp_debug "The last image name is $last_image"
 
-	[ -z "$last_image" ] && qmp_error "I cannot found an image for your device $my_device in $url"
+	[ -z "$last_image" ] && qmp_error "I cannot find an image for your device $my_device in $url"
 
 	last_timestamp="$(qmp_update_extract_timestamp $last_image)"
 	current_timestamp="$(qmp_update_get_current_timestamp)"
@@ -116,8 +116,8 @@ qmp_update_upgrade_system() {
 		last_update_info="$(qmp_update_check)"
 		image_url="$(echo $last_update_info | awk '{print $1}')"
 		checksum="$(echo $last_update_info | awk '{print $2}')"
-		[ -z "$image_url" -o -z "$checksum" ] && { qmp_log "No new system image found"; return 1; }
-		[ -z "$checksum" ] && { qmp_error "Checksum not found!"; return 1; }
+		[ -z "$image_url" -o -z "$checksum" ] && qmp_log "No new system image found" && return 1
+		[ -z "$checksum" ] && qmp_error "Checksum not found!"
 		qmp_log "Found new system image at $image_url"
 	fi
 
@@ -152,9 +152,15 @@ qmp_update_upgrade_system() {
 
 	read -p "Do you want to upgrade system using image $image_url? [N,y] " a
 	if [ "$a" == "y" ]; then
+		echo "Upgrading..."
 		[ $(echo $image_url | grep Alix -c) -eq 1 ] && { echo "Detected Alix, applying sysupgrade patch..."; rm -rf /overlay/* 2>/dev/null; }
 		[ -n "$config" ] && sysupgrade -f $config $output_image
 		[ -z "$config" ] && sysupgrade -n $output_image
+	else
+		echo "Doing nothing..."
+		rm -f $output_image
+		return 1
 	fi
 
+	return 0
 }

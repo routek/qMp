@@ -87,8 +87,7 @@ unpublish_hna() {
 }
 
 upgrade() {
-	qmp_update_upgrade_system $1
-	hard_reboot
+	qmp_update_upgrade_system $1 && hard_reboot
 }
 
 hard_reboot() {
