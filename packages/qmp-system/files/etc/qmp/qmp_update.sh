@@ -116,7 +116,7 @@ qmp_update_upgrade_system() {
 		last_update_info="$(qmp_update_check)"
 		image_url="$(echo $last_update_info | awk '{print $1}')"
 		checksum="$(echo $last_update_info | awk '{print $2}')"
-		[ -z "$image_url" -o -z "$checksum" ] && qmp_log "No new system image found" && return 1
+		[ -z "$image_url" ] && qmp_log "No new system image found" && return 1
 		[ -z "$checksum" ] && qmp_error "Checksum not found!"
 		qmp_log "Found new system image at $image_url"
 	fi
