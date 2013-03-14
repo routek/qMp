@@ -25,46 +25,108 @@
 QMP_PATH="/etc/qmp"
 SOURCE_GW=1
 
+if [ -z "$SOURCE_OPENWRT_FUNCTIONS" ]
+then
+	. /lib/functions.sh
+	SOURCE_OPENWRT_FUNCTIONS=1
+fi
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
 
+qmp_exists_gateway()
+{
+	local config=$1
+	shift
+	local ignore=0
+	local exists
+
+	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "(ignore|bandwidth)" {a+=1} END {print a}')"
+	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|bandwidth\)=" | grep -c "^CONFIG_${config}_")
+
+	if [ "$args_key_values" != "$uci_key_values" ]
+	then
+		return
+	fi
+
+	while [ $# -ge 2 ]
+	do
+		if [ "$1" = "ignore" ]
+		then
+			ignore="$2"
+		else
+			config_get exists "$config" $1
+			if [ "$1" = "bandwidth" ]
+			then
+				if [ -z "$exists" ]
+				then
+					return
+				fi
+			elif [ "$exists" != "$2" ]
+			then
+				return
+			fi
+		fi
+		shift
+		shift
+	done
+
+	uci_set qmp "$config" ignore "$ignore"
+	uci_commit
+	qmp_gateway_found=true
+}
+
+qmp_set_gateway()
+{
+	config_load qmp
+	qmp_gateway_found=false
+	config_foreach qmp_exists_gateway gateway $@
+	if ! $qmp_gateway_found
+	then
+		local config
+		config="$(uci add qmp gateway)"
+		while [ $# -ge 2 ]
+		do
+			uci_set qmp "$config" "$1" "$2"
+			shift
+			shift
+		done
+		uci_commit
+	fi
+}
+
 qmp_gw_search_default_ipv4() {
-	qmp_uci_set tunnels qmp
-	qmp_uci_set tunnels.search_ipv4_tunnel 0.0.0.0/0
+	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0 bandwidth 100000
+	qmp_set_gateway ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0
 	qmp_gw_masq_wan 0
-	qmp_uci_del tunnels.offer_ipv4_tunnel
 }
 
 qmp_gw_search_default_ipv6() {
-	qmp_uci_set tunnels qmp
-	qmp_uci_set tunnels.search_ipv6_tunnel ::/0
+	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
+	qmp_set_gateway ignore 0 type search network ::/0
 	qmp_gw_masq_wan 0
-	qmp_uci_del tunnels.offer_ipv6_tunnel
 }
 
 qmp_gw_offer_default_ipv4() {
-	qmp_uci_set tunnels qmp
-	qmp_uci_set tunnels.offer_ipv4_tunnel 0.0.0.0/0
+	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway ignore 0 type offer network 0.0.0.0/0 bandwidth 100000
 	qmp_gw_masq_wan 1
-	qmp_uci_del tunnels.search_ipv4_tunnel
 }
 
 qmp_gw_offer_default_ipv6() {
-	qmp_uci_set tunnels qmp
-	qmp_uci_set tunnels.offer_ipv6_tunnel ::/0
+	qmp_set_gateway ignore 1 type search network ::/0
+	qmp_set_gateway ignore 0 type offer network ::/0 bandwidth 100000
 	qmp_gw_masq_wan 1
-	qmp_uci_del tunnels.search_ipv6_tunnel
 }
 
 qmp_gw_disable_default_ipv4() {
-	qmp_uci_del tunnels.offer_ipv4_tunnel
-	qmp_uci_del tunnels.search_ipv4_tunnel
+	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0 bandwidth 100000
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_disable_default_ipv6() {
-	qmp_uci_del tunnels.offer_ipv6_tunnel
-	qmp_uci_del tunnels.search_ipv6_tunnel
+	qmp_set_gateway ignore 1 type search network ::/0
+	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
 	qmp_gw_masq_wan 0
 }
 
@@ -127,7 +189,7 @@ qmp_gw_masq_wan() {
 
 qmp_gw_apply() {
 	qmp_configure_bmx6
-	bmx6 -c --configReload
+	bmx6 -c --configReload || /etc/init.d/bmx6 restart
 	/etc/init.d/firewall restart
 }
 
