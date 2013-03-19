@@ -36,7 +36,7 @@ roaming_help = m:field(DummyValue,"roaming_help")
 roaming_help:depends("_netmode","roaming")
 roaming_help.rawhtml = true
 roaming_help.default = "Roaming for quick deployments. Connected devices cannot see each other among different Mesh stations. \
-    However the devices can change between Access Points without loosing connectivity"
+    However the devices can change between Aprint("HOLAccess Points without loosing connectivity"
 
 local community_help
 community_help = m:field(DummyValue,"community_help")
@@ -48,7 +48,21 @@ community_help.default = "Community for static deployments (such as community ne
 netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Roaming is used for quick deployments.<br/>Community for network communities"))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
-netmode.default="roaming"
+
+local networkmode
+if uciout:get("qmp","non_overlapping","ignore") == "1" then
+	local ipv4 = uciout:get("qmp","networks","bmx6_ipv4_address")
+	local ipv4mask = string.find(ipv4,"/")
+	if ipv4mask ~= nil then
+		ipv4 = string.sub(ipv4,1,ipv4mask-1)
+	end
+	if ipv4 == uciout:get("qmp","networks","lan_address") then
+		networkmode="community"
+	end
+else
+	networkmode="roaming"
+end
+netmode.default=networkmode
 
 nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network. <br/>Leave blank for randomize."))
 nodeip_roaming:depends("_netmode","roaming")
@@ -66,6 +80,9 @@ nodeip_roaming.default=rip
 nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
 nodename:depends("_netmode","community")
 nodename.default="qMp"
+if uciout:get("qmp","node","community_id") ~= nil then
+	nodename.default=uciout:get("qmp","node","community_id")
+end
 
 nodeip = m:field(Value, "_nodeip", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network."))
 nodeip:depends("_netmode","community")
@@ -74,6 +91,11 @@ nodeip.default = "10.30."..util.trim(util.exec("echo $((($(date +%M)*$(date +%S)
 nodemask = m:field(Value, "_nodemask",translate("Network mask"),translate("Netmask to use with IPv4 address. This range will be used for end user connection (DHCP)."))
 nodemask:depends("_netmode","community")
 nodemask.default = "255.255.255.0"
+
+if networkmode == "community" then
+	nodeip.default=uciout:get("qmp","networks","lan_address")
+	nodemask.default=uciout:get("qmp","networks","lan_netmask")
+end
 
 -- Get list of devices {{ethernet}{wireless}}
 devices = qmpinfo.get_devices()
@@ -149,10 +171,13 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","lan_address","172.30.22.1")
 		uciout:set("qmp","networks","lan_netmask","255.255.0.0")
 		uciout:set("qmp","networks","bmx6_ipv4_prefix24","10.202.0")
-		uciout:set("qmp","networks","bmx6_ipv4_address","")
 		uciout:set("qmp","networks","olsr6_ipv4_address","")
 		uciout:set("qmp","networks","olsr6_ipv4_prefix24","10.201")
-		uciout:set("qmp","networks","bmx6_ipv4_address",nodeip_roaming)
+		if nodeip_roaming == nil then
+			uciout:set("qmp","networks","bmx6_ipv4_address","")
+		else
+			uciout:set("qmp","networks","bmx6_ipv4_address",nodeip_roaming)
+		end
 
 	end
 
