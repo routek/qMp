@@ -36,7 +36,7 @@ roaming_help = m:field(DummyValue,"roaming_help")
 roaming_help:depends("_netmode","roaming")
 roaming_help.rawhtml = true
 roaming_help.default = "Roaming for quick deployments. Connected devices cannot see each other among different Mesh stations. \
-    However the devices can change between Aprint("HOLAccess Points without loosing connectivity"
+    However the devices can change between Access Points without loosing connectivity"
 
 local community_help
 community_help = m:field(DummyValue,"community_help")
