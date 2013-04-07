@@ -32,17 +32,17 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_update.sh
 
 offer_default_gw() {
-	qmp_gw_offer_default
+	qmp_gw_default offer $1
 	qmp_gw_apply
 }
 
 search_default_gw() {
-	qmp_gw_search_default
+	qmp_gw_default search $1
 	qmp_gw_apply
 }
 
 disable_default_gw() {
-	qmp_gw_disable_default
+	qmp_gw_default disable $1
 	qmp_gw_apply
 }
 
@@ -100,18 +100,18 @@ help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
 	echo "Available functions:"
-	echo "  offer_default_gw   : Offers default gw to the network"
-	echo "  search_default_gw  : Search for a default gw in the network"
-	echo "  disable_default_gw : Disables the search/offer of default gw"
-	echo "  configure_wifi     : Configure and apply current wifi settings"
-	echo "  configure_network  : Configure and apply current network settings"
-	echo "  configure_system   : Configure and apply current system settings (qmp.node section and so on)"
-	echo "  publish_hna        : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
-	echo "  unpublish_hna      : Unpublish a current HNA: unpublish_hna <ID>"
-	echo "  apply_netserver    : Start/stop nerserver depending on qmp configuration"
-	echo "  enable_ns_ppt      : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
-	echo "  upgrade [URL]      : Upgrade system. By default to the last version, but image url can be provided to force"
-	echo "  hard_reboot        : Performs a hard reboot (using kernel sysrq)"
+	echo "  offer_default_gw [ipv4|ipv6]   : Offers default gw to the network IPv4 or IPv6, both versions if no value."
+	echo "  search_default_gw [ipv4|ipv6]  : Search for a default gw in the network IPv4 or IPv6, both versions if no value."
+	echo "  disable_default_gw [ipv4|ipv6] : Disables the search/offer of default gw IPv4 and/or IPv6"
+	echo "  configure_wifi                 : Configure and apply current wifi settings"
+	echo "  configure_network              : Configure and apply current network settings"
+	echo "  configure_system               : Configure and apply current system settings (qmp.node section and so on)"
+	echo "  publish_hna                    : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
+	echo "  unpublish_hna                  : Unpublish a current HNA: unpublish_hna <ID>"
+	echo "  apply_netserver                : Start/stop nerserver depending on qmp configuration"
+	echo "  enable_ns_ppt                  : Enable POE passtrought from NanoStation M2/5 devices. Be careful with this"
+	echo "  upgrade [URL]                  : Upgrade system. By default to the last version, but image url can be provided to force"
+	echo "  hard_reboot                    : Performs a hard reboot (using kernel sysrq)"
 	echo ""
 	exit 1
 }
