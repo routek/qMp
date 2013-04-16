@@ -46,7 +46,7 @@ define Package/qmp-tiny-node
   +radvd \
   +hostapd-mini +wpa-supplicant-mini \
   +wireless-tools +iw +netperf \
-  +bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
+  +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +luci-app-bmx6 \
   +gwck-qmp +luci-theme-qmp \
   +firewall \
   +6in4 +6to4 \
