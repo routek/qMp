@@ -34,7 +34,7 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_WIRELESS=1
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
-[ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 ###########################
 # Find wireless interface
