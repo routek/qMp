@@ -194,7 +194,7 @@ qmp_get_dev_from_mac() {
 # Returns the mac address of the device
 # qmp_get_mac_for_dev eth0
 qmp_get_mac_for_dev() {
-    mac="$(ip link show dev $1 | grep -m 1 "link/ether" | awk '{print $2}')"
+	mac="$(cat /sys/class/net/$1/address)"
 	[ -z "$mac" ] && mac="00:00:00:00:00:00"
 	echo "$mac"
 }
