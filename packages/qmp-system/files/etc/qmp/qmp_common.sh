@@ -17,6 +17,11 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
+
 SOURCE_COMMON=1
 #DEBUG="/tmp/qmp_common.debug"
 
