@@ -42,8 +42,8 @@ search_default_gw() {
 }
 
 disable_default_gw() {
-        qmp_gw_disable_default
-        qmp_gw_apply
+	qmp_gw_disable_default
+	qmp_gw_apply
 }
 
 configure_wifi() {
@@ -53,7 +53,7 @@ configure_wifi() {
 }
 
 apply_netserver() {
-        [ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
+	[ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
 }
 
 configure_network() {
