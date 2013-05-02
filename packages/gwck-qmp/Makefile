@@ -24,8 +24,8 @@ PKG_NAME:=gwck-qmp
 PKG_SOURCE_PROTO:=git
 
 PKG_SOURCE_URL:=git://qmp.cat/gwck.git
-PKG_REV:=cd29c7207036881f5e977b6c48dcc17fb625ef75
-PKG_VERSION:=r2013031301
+PKG_REV:=e927991d4db0d82dfb5a4ed8fe718a0a7283984b
+PKG_VERSION:=r2013050101
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -64,7 +64,7 @@ define Package/gwck-qmp/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/gwck_conf_qmp_ipv4 $(1)/etc/gwck/gwck_conf_qmp_ipv4
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/gwck_conf_qmp_ipv6 $(1)/etc/gwck/gwck_conf_qmp_ipv6
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/module/specific_routes $(1)/etc/gwck/module/specific_routes
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/module/bmx6 $(1)/etc/gwck/module/bmx6
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/gwck/module/qmp $(1)/etc/gwck/module/qmp
 endef
 
 

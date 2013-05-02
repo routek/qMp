@@ -1,0 +1,116 @@
+#
+# Update gateways configuration
+#
+# Copyright (C) 2013 Simó Albert i Beltran
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Change gateways configuration on /etc/config/qmp from:
+#
+# config 'qmp' 'tunnels'
+# 	option 'search_ipv4_tunnel'  '0.0.0.0/0'
+# #	option 'offer_ipv4_tunnel'  '0.0.0.0/0'
+# 	option 'search_ipv6_tunnel'  '::/0'
+# #	option 'offer_ipv6_tunnel'  '::/0'
+#
+# to:
+#
+# config 'gateway'
+# 	option 'ignore' '0'
+# #	option 'ignore' '1'
+#	option 'type' 'search'
+# 	option 'network' '::/0'
+#
+# config 'gateway'
+#	option 'ignore' '1'
+# #	option 'ignore' '0'
+#	option 'type' 'offer'
+# 	option 'network' '::/0'
+#	option 'bandwidth' '100000'
+#
+# config 'gateway'
+# 	option 'ignore' '0'
+# #	option 'ignore' '1'
+#	option 'type' 'search'
+#	option 'network' '0.0.0.0/0'
+# 	option 'maxPrefixLen' '0'
+#
+# config 'gateway'
+# 	option 'ignore' '1'
+# #	option 'ignore' '0'
+# 	option 'type' 'offer'
+#	option 'network' '0.0.0.0/0'
+#	option 'bandwidth' '100000'
+#
+# config 'gateway'
+# 	option 'type' 'search'
+#	option 'network' '10.0.0.0/8'
+# 	option 'maxPrefixLen' '8'
+#
+# config 'gateway'
+# 	option 'type' 'search'
+#	option 'network' '10.0.0.0/8'
+# 	option 'minPrefixLen' '16'
+#
+# See also: http://qmp.cat/issues/210
+
+
+[ -z "$SOURCE_GW" ] && . /etc/qmp/qmp_gw.sh
+
+translate_tunnel()
+{
+	local ipv="$1"
+	local extra_args_ignore=""
+	local extra_args_no_ignore=""
+	local tunnel_network
+	config_get tunnel_network tunnels search_ipv${ipv}_tunnel
+	if [ -n "$tunnel_network" ]
+	then
+		type_ignore="offer"
+		type_no_ignore="search"
+		extra_args_ignore="bandwidth 100000"
+		if [ "$ipv" = 4 ] && [ "$tunnel_network" = "0.0.0.0/0" ]
+		then
+			extra_args_no_ignore="maxPrefixLen 0"
+		fi
+	else
+		config_get tunnel_network tunnels offer_ipv${ipv}_tunnel
+		if [ -n "$tunnel_network" ]
+		then
+			type_ignore="search"
+			type_no_ignore="offer"
+			extra_args_no_ignore="bandwidth 100000"
+			if [ "$ipv" = 4 ] && [ "$tunnel_network" = "0.0.0.0/0" ]
+			then
+				extra_args_ignore="maxPrefixLen 0"
+			fi
+		fi
+	fi
+	if [ -n "$tunnel_network" ]
+	then
+		qmp_set_gateway ignore 1 type $type_ignore network $tunnel_network $extra_args_ignore
+		qmp_set_gateway ignore 0 type $type_no_ignore network $tunnel_network $extra_args_no_ignore
+	fi
+}
+
+if uci -q get qmp.tunnels > /dev/null
+then
+	config_load qmp
+	translate_tunnel 6
+	translate_tunnel 4
+	qmp_set_gateway type search network 10.0.0.0/8 maxPrefixLen 8
+	qmp_set_gateway type search network 10.0.0.0/8 minPrefixLen 16
+	uci delete qmp.tunnels
+fi

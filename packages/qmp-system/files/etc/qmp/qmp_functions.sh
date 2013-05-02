@@ -29,6 +29,11 @@ SOURCE_FUNCTIONS=1
 #######################
 # Importing files
 ######################
+if [ -z "$SOURCE_OPENWRT_FUNCTIONS" ]
+then
+	. /lib/functions.sh
+	SOURCE_OPENWRT_FUNCTIONS=1
+fi
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
@@ -791,6 +796,84 @@ qmp_configure_network() {
 }
 
 
+qmp_remove_qmp_bmx6_tunnels()
+{
+	if echo "$1" | grep -q "^qmp-[0-9]*$"
+	then
+		uci delete bmx6.$1
+	fi
+}
+
+qmp_unconfigure_bmx6_gateways()
+{
+	config_load bmx6
+	config_foreach qmp_remove_qmp_bmx6_tunnels tunInNet
+	config_foreach qmp_remove_qmp_bmx6_tunnels tunOut
+}
+
+
+qmp_translate_configuration()
+{
+	orig_config=$1
+	orig_section=$2
+	orig_option=$3
+
+	dest_config=$4
+	dest_section=$5
+	dest_option=${6:-$orig_option}
+
+	value="$(uci -q get $orig_config.$orig_section.$orig_option)"
+	if [ -n "$value" ]
+	then
+		uci set $dest_config.$dest_section.$dest_option="$value"
+	fi
+}
+
+qmp_add_qmp_bmx6_tunnels()
+{
+	local section=$1
+	local config=bmx6
+	local name="qmp_$gateway"
+	local ignore
+	config_get ignore "$section" ignore
+	if [ "$ignore" = "1" ]
+	then
+		return
+	fi
+	local type
+	config_get type "$section" type
+	if [ "$type" = "offer" ]
+	then
+		bmx6_type=tunInNet
+		uci set $config.$name="$bmx6_type"
+		qmp_translate_configuration qmp $section network $config $name $bmx6_type
+		qmp_translate_configuration qmp $section bandwidth $config $name
+	else
+		# if [ "$type" = "search" ]
+		bmx6_type=tunOut
+		uci set $config.$name="$bmx6_type"
+		uci set $config.$name.$bmx6_type="$name"
+		qmp_translate_configuration qmp	$section network $config $name
+		qmp_translate_configuration qmp $section gwName $config $name
+		qmp_translate_configuration qmp $section address $config $name
+		qmp_translate_configuration qmp $section minPrefixLen $config $name
+		qmp_translate_configuration qmp $section maxPrefixLen $config $name
+		qmp_translate_configuration qmp $section hysteresis $config $name
+		qmp_translate_configuration qmp $section bonus $config $name
+		qmp_translate_configuration qmp $section exportDistance $config $name
+	fi
+	
+	gateway="$(($gateway + 1))"
+}
+
+qmp_configure_bmx6_gateways()
+{
+	qmp_unconfigure_bmx6_gateways
+	config_load qmp
+	gateway=0
+	config_foreach qmp_add_qmp_bmx6_tunnels gateway
+}
+
 
 qmp_configure_bmx6() {
 #  set -x
@@ -890,31 +973,7 @@ qmp_configure_bmx6() {
     uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
   fi
 
-
-  if qmp_uci_test qmp.tunnels.search_ipv6_tunnel ; then
-    uci set $conf.tun6Out="tunOut"
-    uci set $conf.tun6Out.tunOut="tun6Out"
-    uci set $conf.tun6Out.network="$(uci get qmp.tunnels.search_ipv6_tunnel)"
-  fi
-
-  if qmp_uci_test qmp.tunnels.search_ipv4_tunnel ; then
-    uci set $conf.tun4Out="tunOut"
-    uci set $conf.tun4Out.tunOut="tun4Out"
-    uci set $conf.tun4Out.network="$(uci get qmp.tunnels.search_ipv4_tunnel)"
-
-  elif qmp_uci_test qmp.tunnels.offer_ipv4_tunnel ; then
-    uci set $conf.tunInRemote="tunInRemote"
-    uci set $conf.tunInRemote.tunInRemote="$(qmp_get_ula96 $(uci get qmp.networks.bmx6_mesh_prefix48):: $primary_mesh_device 2002::ffff )"
-
-    uci set $conf.tun4InNet="tunInNet"
-    uci set $conf.tun4InNet.tunInNet="$(uci get qmp.tunnels.offer_ipv4_tunnel)"
-    uci set $conf.tun4InNet.bandwidth="1000000"
-  fi
-
-  #Configuring the tunnel to search 10/8 networks
-  uci set $conf.nodes10="tunOut"
-  uci set $conf.nodes10.tunOut="nodes10"
-  uci set $conf.nodes10.network="10.0.0.0/8"
+  qmp_configure_bmx6_gateways
 
   uci commit $conf
 #  /etc/init.d/$conf restart
