@@ -26,7 +26,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-tiny-node
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Ratafia
 QMP_RELEASE:=2.0beta
@@ -41,17 +41,15 @@ define Package/qmp-tiny-node
   URL:=http://qmp.cat
   DEPENDS:= \
   +qmp-system \
-  +uhttpd +luci +luci-lib-nixio \
+  +uhttpd +luci +luci-app-bmx6 \
   +iwinfo \
   +radvd \
-  +hostapd-mini +wpa-supplicant-mini \
-  +wireless-tools +iw +netperf \
-  +bmx6-qmp +bmx6-qmp-uci-config +bmx6-qmp-json +bmx6-qmp-sms +bmx6-luci \
+  +wpad-mini \
+  +iw +netperf +mtr \
+  +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
   +gwck-qmp +luci-theme-qmp \
   +firewall \
-  +6in4 +6to4 \
-  +ip6tables +ip \
-  +kmod-ip6-tunnel +kmod-iptunnel6
+  +ip +iputils-ping \
 endef
 
 

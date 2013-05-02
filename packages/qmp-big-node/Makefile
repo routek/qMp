@@ -39,20 +39,12 @@ define Package/qmp-big-node
   DEPENDS:= \
 	+qmp-small-node \
 	+qmp-tinyproxy +tinymce \
-	+babeld \
 	+openssl-util +luci-ssl \
-	+tcptraceroute6 \
-	+iperf +mtr +netcat \
-	+tcpdump \
 	+lsof \
-	+hostapd \
-	+wget +horst \
-	+bmon +bwm +ebtables +pv \
-	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra \
-	+bmx6-qmp-quagga \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
-	+ndisc6 +rdisc6 +rdnssd \
-	+ipv6calc +iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath
+	+wget +bmon +bwm +ebtables +pv \
+	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra +bmx6-qmp-quagga \
+	+ndisc6 +rdisc6 \
+	+ipv6calc
 endef
 
 define Package/qmp-big-node/description

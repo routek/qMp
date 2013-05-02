@@ -41,13 +41,11 @@ define Package/qmp-small-node
   URL:=http://qmp.cat
   DEPENDS:= \
 	+qmp-tiny-node \
-	+ahcpd \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-	+firewall +synctincvpn \
-	+kmod-ipip \
+	+synctincvpn \
+	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
 	+cgi-bin-zero \
-	+kmod-tun \
-	+kmod-dummy \
+	+kmod-tun +kmod-ipip \
 	+b6m +b6m-spread
 endef
 
