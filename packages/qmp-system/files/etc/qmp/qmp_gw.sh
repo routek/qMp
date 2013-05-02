@@ -78,6 +78,17 @@ qmp_gw_default() {
 	fi
 }
 
+qmp_gw_add_interfaces_to_firewall_zone() {
+	local cfg=$1
+	local $virtual_interfaces
+	for interface in $(qmp_get_devices wan)
+	do
+		[ -n "$virtual_interfaces" ] && virtual_interfaces="$virtual_interfaces "
+		virtual_interfaces="$virtual_interfaces$(qmp_get_virtual_iface $interface)"
+	done
+	qmp_uci_set_raw firewall.$cfg.network="$virtual_interfaces"
+}
+
 qmp_gw_masq_wan() {
 	#First parameter is 1/0 (enable/disable masquerade). Default is 1
 	[ -z "$1" ] && masq=1 || masq=$1
@@ -108,7 +119,10 @@ qmp_gw_masq_wan() {
 		qmp_uci_set_raw firewall.@zone[$wan].output=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].forward=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].masq=$masq
+		cfg=@zone[$wan]
 	fi
+
+	qmp_gw_add_interfaces_to_firewall_zone $cfg
 }
 
 qmp_gw_apply() {
