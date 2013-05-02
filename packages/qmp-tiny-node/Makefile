@@ -49,7 +49,7 @@ define Package/qmp-tiny-node
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
   +gwck-qmp +luci-theme-qmp \
   +firewall \
-  +ip +iputils-ping \
+  +ip +iputils-ping
 endef
 
 
