@@ -17,6 +17,11 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
+
 SOURCE_COMMON=1
 #DEBUG="/tmp/qmp_common.debug"
 
@@ -177,12 +182,21 @@ qmp_debug() {
 
 # Returns the names of the wifi devices from the system
 qmp_get_wifi_devices() {
-	echo "$(ip link | grep  -E ": (wifi|wlan).: "| cut -d: -f2)"
+	awk 'NR>2 { gsub(/:$/,"",$1); print $1 }' /proc/net/wireless
 }
 
 # Returns the MAC address of the wifi devices
+# (get MAC addres of the physical wifi device, if exists)
 qmp_get_wifi_mac_devices() {
-	echo "$(ip link | grep -A1 -E ": (wifi|wlan).: " | grep link | cut -d' ' -f6)"
+	for device in $(qmp_get_wifi_devices)
+	do
+		if [ -s "/sys/class/net/$device/phy80211/macaddress" ]
+		then
+			cat "/sys/class/net/$device/phy80211/macaddress"
+		else
+			qmp_get_mac_for_dev $device
+		fi
+	done
 }
 
 # Returns the device name that corresponds to the MAC address
@@ -194,7 +208,7 @@ qmp_get_dev_from_mac() {
 # Returns the mac address of the device
 # qmp_get_mac_for_dev eth0
 qmp_get_mac_for_dev() {
-    mac="$(ip link show dev $1 | grep -m 1 "link/ether" | awk '{print $2}')"
+	mac="$(cat /sys/class/net/$1/address)"
 	[ -z "$mac" ] && mac="00:00:00:00:00:00"
 	echo "$mac"
 }
@@ -202,9 +216,14 @@ qmp_get_mac_for_dev() {
 # Returns the mac addres for specific device,, only wifi devs are allowed. Useful when eth and wlan have same MAC
 # qmp_get_dev_from_wifi_mac 00:22:11:33:44:55
 qmp_get_dev_from_wifi_mac() {
-	mac="$(ip link | grep -A1 -E ": (wifi|wlan|wl).: " | grep -i $1 -B1 | cut -d' ' -f2 | tr -d "\n",:)"
-	[ -z "$mac" ] && mac="00:00:00:00:00:00"
-	echo "$mac"
+	for device in $(qmp_get_wifi_devices)
+	do
+		if grep -q -i "^$1$" "/sys/class/net/$device/phy80211/macaddress" "/sys/class/net/$device/address" 2> /dev/null
+		then
+			echo $device
+			return
+		fi
+	done
 }
 
 #########################

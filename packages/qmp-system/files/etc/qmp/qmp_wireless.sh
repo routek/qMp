@@ -17,6 +17,10 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 ##############################
 # Global variables definition
@@ -34,7 +38,7 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_WIRELESS=1
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
-[ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 ###########################
 # Find wireless interface
