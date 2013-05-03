@@ -42,7 +42,6 @@ define Package/qmp-big-node
 	+openssl-util +luci-ssl \
 	+lsof \
 	+wget +bmon +bwm +ebtables +pv \
-	+qmp-quagga +qmp-quagga-bgpd +qmp-quagga-ospfd +qmp-quagga-zebra +bmx6-qmp-quagga \
 	+ndisc6 +rdisc6 \
 	+ipv6calc
 endef
