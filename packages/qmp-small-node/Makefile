@@ -43,7 +43,7 @@ define Package/qmp-small-node
 	+qmp-tiny-node \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+synctincvpn \
-	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
+	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath +tcpdump-mini \
 	+cgi-bin-zero \
 	+kmod-tun +kmod-ipip \
 	+b6m +b6m-spread
