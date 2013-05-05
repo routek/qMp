@@ -85,7 +85,7 @@ qmp_get_virtual_iface() {
     return
   fi
 
-  # is lan?
+   # is lan?
   if [ "$device" == "br-lan" ]; then
     viface="lan"
     echo $viface
@@ -103,7 +103,7 @@ qmp_get_virtual_iface() {
   [ -n "$viface" ] && { echo $viface; return; }
 
   # id is the first and char and the numbers of the device [e]th[0] [w]lan[1]
-  local id_num=$(echo $device | tr -d "[A-z]")
+  local id_num=$(echo $device | tr -d "[A-z]" | tr - _)
   local id_char=$(echo $device | cut -c 1)
 
   # is wan
@@ -192,21 +192,36 @@ qmp_attach_device_to_interface() {
 	local device=$1
 	local conf=$2
 	local interface=$3
-	local intype="$(uci -qX get network.$interface.type)"
-	
+	# local intype="$(qmp_uci_get_raw network.$interface.type)" <-- does not work ¿?
 	echo "Attaching device $device to interface $interface"
-	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$device/\1/p")"
-	if [ -n "$wifi_config" -a "wifi-iface" = "$(uci -q get wireless.$wifi_config)" ] ; then
-		uci set wireless.$wifi_config.network="$interface"
-		uci commit wireless
+
+	devcl="$(echo $device | cut -d- -f1)" # wlan0-1 -> wlan0
+	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$devcl/\1/p")"
+
+	# is it a wifi device?
+	if [ -n "$wifi_config" -a $(echo $(qmp_uci_get_raw wireless.$devcl) | grep -c wifi) -ge 1 ]; then
+		wifidev_i="$(echo $device | tr -d [A-z] | cut -d- -f2)" # wlan0-1 -> 1
+		wifidev_i=${wifidev_i:-0}
+		id="0"
+		for wc in $wifi_config ; do
+				if [ "$id" = "$wifidev_i" ]; then
+					echo " -> wireless.$wc attached to $interface"
+					uci set wireless.$wc.network="$interface"
+					uci commit wireless
+				fi
+				id=$(($id+1))
+		done	
+
+	# if it is not
 	else
-		if [ "$intype" == "bridge" ]; then
-			uci add_list $conf.$interface.ifname="$device"
-		else
-			uci set $conf.$interface.ifname="$device"
-		fi
+			if [ "$interface" == "lan" ]; then
+				uci add_list $conf.$interface.ifname="$device"
+				echo " -> $device attached to $interface bridge"
+			else
+				uci set $conf.$interface.ifname="$device"
+				echo " -> $device attached to $interface"
+			fi
 	fi
-	
 }
 
 qmp_configure_rescue_ip() {
@@ -956,9 +971,13 @@ qmp_configure_bmx6() {
 	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
 	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
 
-	    elif qmp_uci_test qmp.networks.bmx6_ipv4_prefix24 ; then
+	    else
 	      local ipv4_suffix24="$(( 0x$community_node_id % 0x100 ))"
-	      uci set $conf.general.tun4Address="$(uci get qmp.networks.bmx6_ipv4_prefix24).$ipv4_suffix24/32"
+	      local ipv4_prefix24="$(uci get qmp.networks.bmx6_ipv4_prefix24)"
+	      if [ $(echo -n "$ipv4_prefix24" | tr -d [0-9] | wc -c) -lt 2 ]; then
+	      	ipv4_prefix24="${ipv4_prefix24}.0"
+	      fi
+	      uci set $conf.general.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
 	    fi
 
 	    counter=$(( $counter + 1 ))
