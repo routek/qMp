@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if which mjpg_streamer; then
+	if which uhttpd; then
+		PORT="8080"
+	else
+		PORT="80"
+	fi
+	sed s/"exit 0"//g -i /etc/rc.local
+	echo "mjpg_streamer -i \"/usr/lib/input_uvc.so -y -d /dev/video0\" -o \"/usr/lib/output_http.so -p $PORT -w /www/webcam\" &" >> /etc/rc.local
+fi
+
