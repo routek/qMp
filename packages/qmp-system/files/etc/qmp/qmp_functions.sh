@@ -168,18 +168,30 @@ qmp_get_devices() {
 
 qmp_get_rescue_ip() {
 	local device=$1
+	local mac=""
 	[ -z "$device" ] && return 1
 
-	local rprefix=$(uci get qmp.networks.rescue_prefix24 2>/dev/null)
+	local rprefix=$(qmp_uci_get networks.rescue_prefix24 2>/dev/null)
 	[ -z "$rprefix" ] && return 0
 
 	# if device is virtual, get the ifname
 	if qmp_uci_test network.$device.ifname; then
-	  device="$(uci get network.$device.ifname | tr -d @)"
+	  local devvirt="$(qmp_uci_get_raw network.$device.ifname | tr -d @)"
+	  device=${devvirt:-$device}
 	fi
 
-	local mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
-	[ -z "$mac" ] && return 2
+	# is it a wireless device?
+	if qmp_uci_test wireless.$device.device; then
+		local radio="$(qmp_uci_get_raw wireless.$device.device)"
+		mac=$(qmp_uci_get_raw wireless.$radio.macaddr)
+	else
+		mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
+	fi
+
+	[ -z "$mac" ] && {
+		qmp_log Warning: MAC for $device cannot be found, using 55:55:55:55:55:55 for rescue IP
+		mac="55:55:55:55:55:55"
+	}
 	
 	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
 	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
@@ -192,33 +204,22 @@ qmp_attach_device_to_interface() {
 	local device=$1
 	local conf=$2
 	local interface=$3
-	# local intype="$(qmp_uci_get_raw network.$interface.type)" <-- does not work ¿?
+	local intype="$(qmp_uci_get_raw $conf.$interface.type)" 
 	echo "Attaching device $device to interface $interface"
 
-	devcl="$(echo $device | cut -d- -f1)" # wlan0-1 -> wlan0
-	local wifi_config="$(uci -qX show wireless | sed -n -e "s/wireless\.\([^\.]\+\)\.device=$devcl/\1/p")"
-
 	# is it a wifi device?
-	if [ -n "$wifi_config" -a $(echo $(qmp_uci_get_raw wireless.$devcl) | grep -c wifi) -ge 1 ]; then
-		wifidev_i="$(echo $device | tr -d [A-z] | cut -d- -f2)" # wlan0-1 -> 1
-		wifidev_i=${wifidev_i:-0}
-		id="0"
-		for wc in $wifi_config ; do
-				if [ "$id" = "$wifidev_i" ]; then
-					echo " -> wireless.$wc attached to $interface"
-					uci set wireless.$wc.network="$interface"
-					uci commit wireless
-				fi
-				id=$(($id+1))
-		done	
+	if qmp_uci_test wireless.$device; then
+		qmp_uci_set_raw wireless.$device.network="$interface"
+		uci commit wireless
+		echo " -> $device wireless attached to $interface"
 
 	# if it is not
 	else
-			if [ "$interface" == "lan" ]; then
-				uci add_list $conf.$interface.ifname="$device"
+			if [ "$intype" == "bridge" ]; then
+				qmp_uci_add_list_raw $conf.$interface.ifname="$device"
 				echo " -> $device attached to $interface bridge"
 			else
-				uci set $conf.$interface.ifname="$device"
+				qmp_uci_set_raw $conf.$interface.ifname="$device"
 				echo " -> $device attached to $interface"
 			fi
 	fi
@@ -585,7 +586,7 @@ qmp_configure_rescue_ip_device()
 	elif qmp_is_in "$dev" $(qmp_get_devices mesh) && [ "$dev" != "br-lan" ]
 	then
 		# If it is only mesh device
-		qmp_configure_rescue_ip $dev
+		qmp_configure_rescue_ip $dev 
 		qmp_attach_device_to_interface $dev $conf $viface
 	fi
 }
@@ -593,8 +594,9 @@ qmp_configure_rescue_ip_device()
 qmp_configure_prepare() {
 
   local conf=$1
-
-  echo "configuring /etc/config/$conf"
+  echo "-----------------------"
+  echo "Configuring networking"
+  echo "-----------------------"
 
   if ! [ -f /etc/config/$conf.orig ]; then
     echo "saving original config in: /etc/config/$conf.orig"
@@ -613,7 +615,7 @@ qmp_configure_network() {
   qmp_configure_prepare $conf
 
   if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids && qmp_uci_test qmp.networks.mesh_vid_offset; then
-    local vids="$(uci -q get qmp.networks.mesh_protocol_vids | awk -F':' -v RS=" " '{print $2 + '$(uci -q get qmp.networks.mesh_vid_offset)'}')"
+    local vids="$(qmp_uci_get networks.mesh_protocol_vids | awk -F':' -v RS=" " '{print $2 + '$(uci -q get qmp.networks.mesh_vid_offset)'}')"
   fi
 
   if [[ -n "$vids" ]] && qmp_is_routerstationpro ; then
@@ -622,7 +624,7 @@ qmp_configure_network() {
 
   elif qmp_uci_test qmp.interfaces.configure_switch ; then
 
-    local switch_device="$(uci get qmp.interfaces.configure_switch)"
+    local switch_device="$(qmp_uci_get interfaces.configure_switch)"
 
     uci set $conf.$switch_device="switch"
     uci set $conf.$switch_device.enable="1"
@@ -683,7 +685,7 @@ qmp_configure_network() {
   local LSB_PRIM_MAC="$(qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
 
   if qmp_uci_test qmp.node.community_node_id; then
-    community_node_id="$(uci get qmp.node.community_node_id)"
+    community_node_id="$(qmp_uci_get node.community_node_id)"
   elif ! [ -z "$primary_mesh_device" ] ; then
     community_node_id=$LSB_PRIM_MAC
   fi
@@ -692,12 +694,12 @@ qmp_configure_network() {
 
     # If it is enabled, apply the non-overlapping DHCP-range preset policy
 
-	LAN_MASK="$(uci get qmp.networks.lan_netmask)"
-	LAN_ADDR="$(uci get qmp.networks.lan_address)"
+	LAN_MASK="$(qmp_uci_get networks.lan_netmask)"
+	LAN_ADDR="$(qmp_uci_get networks.lan_address)"
 	START=2
 	LIMIT=253
 
-    if [ $(uci get qmp.non_overlapping.ignore) -eq 0 ]; then
+    if [ $(qmp_uci_get non_overlapping.ignore) -eq 0 ]; then
 	LAN_MASK="255.255.0.0"
 	# Last byte of lan adress must be "1" to avoid overlappings
 	LAN_ADDR=$(echo $LAN_ADDR | sed -e 's/\([0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)\.[0-9]\{1,3\}/\1.1/1')
@@ -705,14 +707,14 @@ qmp_configure_network() {
 	OFFSET=0
 	NUM_GRP=256
 
-	UCI_OFFSET="$(uci get qmp.non_overlapping.dhcp_offset)"
+	UCI_OFFSET="$(qmp_uci_get non_overlapping.dhcp_offset)"
 
 	[ $UCI_OFFSET -lt $NUM_GRP ] && OFFSET=$UCI_OFFSET
 
 	START=$(( 0x$community_node_id * $NUM_GRP + $OFFSET ))
 	LIMIT=$(( $NUM_GRP - $OFFSET ))
 
-	uci set dhcp.lan.leasetime="$(uci get qmp.non_overlapping.qmp_leasetime)"
+	uci set dhcp.lan.leasetime="$(qmp_uci_get non_overlapping.qmp_leasetime)"
     fi
 
     uci set dhcp.lan.start=$START
@@ -720,7 +722,7 @@ qmp_configure_network() {
 
     local disable_dhcp=0
     if qmp_uci_test qmp.networks.disable_lan_dhcp; then
-      disable_dhcp="$(uci get qmp.networks.disable_lan_dhcp)"
+      disable_dhcp="$(qmp_uci_get networks.disable_lan_dhcp)"
     fi
 
     if [ "$disable_dhcp" != "1" ]; then 
@@ -742,29 +744,32 @@ qmp_configure_network() {
     uci set $conf.lan.proto="static"
     uci set $conf.lan.ipaddr=$LAN_ADDR
     uci set $conf.lan.netmask=$LAN_MASK
-    uci set $conf.lan.dns="$(uci get qmp.networks.dns)"
+    uci set $conf.lan.dns="$(qmp_uci_get networks.dns)"
 
   fi
 
   # MESH DEVICES CONFIGURATION
   local counter=1
 
-  if uci get qmp.interfaces.mesh_devices && uci get qmp.networks.mesh_protocol_vids && uci get qmp.networks.mesh_vid_offset; then
+  if qmp_uci_test qmp.interfaces.mesh_devices && 
+	 qmp_uci_test qmp.networks.mesh_protocol_vids && 
+	 qmp_uci_test qmp.networks.mesh_vid_offset; then
+
     for dev in $(qmp_get_devices mesh); do
 
         # If dev is empty, nothing to do
-        [ -z "$dev" ] || ! qmp_check_device $dev && continue
+        [ -z "$dev" ] && continue
 
         # Let's configure the mesh device
 	echo "Configuring "$dev" for Meshing"
 
 	# Check if the current device is configured as no-vlan
 	local use_vlan=1
-	for no_vlan_int in $(uci get qmp.interfaces.no_vlan_devices 2>/dev/null); do
+	for no_vlan_int in $(qmp_uci_get interfaces.no_vlan_devices 2>/dev/null); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
 
-        local protocol_vids="$(uci get qmp.networks.mesh_protocol_vids 2>/dev/null)"
+        local protocol_vids="$(qmp_uci_get qmp.networks.mesh_protocol_vids 2>/dev/null)"
         [ -z "$protocol_vids" ] && protocol_vids="olsr6:1 bmx6:2"
 
 	for protocol_vid in $protocol_vids; do
@@ -772,7 +777,7 @@ qmp_configure_network() {
 	 # Calculating the VID offset for VLAN tag
          local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
          local vid_suffix="$(echo $protocol_vid | awk -F':' '{print $2}')"
-         local vid_offset="$(uci get qmp.networks.mesh_vid_offset)"
+         local vid_offset="$(qmp_uci_get networks.mesh_vid_offset)"
          local vid="$(( $vid_offset + $vid_suffix ))"
         
 	 # virtual interface
