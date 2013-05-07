@@ -46,6 +46,11 @@ disable_default_gw() {
 	qmp_gw_apply
 }
 
+reset_wifi() {
+	qmp_reset_wifi
+	configure_wifi
+}
+
 configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
@@ -102,10 +107,11 @@ help() {
 	echo "Available functions:"
 	echo "  offer_default_gw [ipv4|ipv6]   : Offers default gw to the network IPv4 or IPv6, both versions if no value."
 	echo "  search_default_gw [ipv4|ipv6]  : Search for a default gw in the network IPv4 or IPv6, both versions if no value."
-	echo "  disable_default_gw [ipv4|ipv6] : Disables the search/offer of default gw IPv4 and/or IPv6"
-	echo "  configure_wifi                 : Configure and apply current wifi settings"
-	echo "  configure_network              : Configure and apply current network settings"
-	echo "  configure_system               : Configure and apply current system settings (qmp.node section and so on)"
+	echo "  disable_default_gw [ipv4|ipv6] : Disables the search/offer of default GW IPv4 and/or IPv6"
+	echo "  configure_wifi                 : Configure all WiFi devices"
+	echo "  reset_wifi                     : Reset, rescan and configure all the WiFi devices"
+	echo "  configure_network              : Configure and apply network settings"
+	echo "  configure_system               : Configure and apply system settings (qmp.node section and so on)"
 	echo "  publish_hna                    : Publish an IP range (v4 or v6): publish_hna <IP/NETMASK> [ID]"
 	echo "  unpublish_hna                  : Unpublish a current HNA: unpublish_hna <ID>"
 	echo "  apply_netserver                : Start/stop nerserver depending on qmp configuration"
