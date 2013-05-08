@@ -221,12 +221,6 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_HTMODE"/"$htmode"/ \
 	 -e s/"#QMP_TXPOWER"/"$txpower"/ > $TMP/qmp_wifi_device
 
-	# List arguments (needed for HT capab)
-	cat $device_template | grep "^list " | sed s/"^list "//g | sed \
-	 -e s/"#QMP_RADIO"/"$radio"/ | while read l; do
-		qmp_uci_add_list_raw $l
-	done
-
 	qmp_prepare_wireless_iface $device
 
 	cat $iface_template | sed \
@@ -257,10 +251,16 @@ qmp_configure_wifi_device() {
 		 -e s/"#QMP_MODE"/"ap"/ >> $TMP/qmp_wifi_iface
 	}
 
-	qmp_uci_import $TMP/qmp_wifi_device
 	qmp_uci_import $TMP/qmp_wifi_iface
+	qmp_uci_import $TMP/qmp_wifi_device
 
+	# List arguments (needed for HT capab)
+	cat $device_template | grep "^list " | sed s/"^list "//g | sed \
+	 -e s/"#QMP_RADIO"/"$radio"/ | while read l; do
+		qmp_uci_add_list_raw $l
+	done
 
+	uci reorder wireless.$radio=0
 	#uci reorder wireless.@wifi-iface[$index]=16
 	uci commit wireless
 }
