@@ -3,5 +3,5 @@ wireless.#QMP_DEVICE.mode=adhoc
 wireless.#QMP_DEVICE.ssid=#QMP_SSID
 wireless.#QMP_DEVICE.bssid=#QMP_BSSID
 wireless.#QMP_DEVICE.network=#QMP_NETWORK
-wireless.#QMP_DEVICE.mcast_rate=#QMP_MRATE
+#wireless.#QMP_DEVICE.mcast_rate=#QMP_MRATE
 wireless.#QMP_DEVICE.ifname=#QMP_IFNAME
