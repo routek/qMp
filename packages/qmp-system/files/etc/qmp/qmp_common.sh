@@ -48,7 +48,9 @@ qmp_uci_get_raw() {
 }
 
 qmp_uci_set() {
-	uci -q set qmp.$1=$2 > /dev/null
+	section="$1"
+	shift
+	uci -q set qmp.$section="$@" > /dev/null
 	r=$?
 	uci commit
 	r=$(( $r + $? ))

@@ -20,6 +20,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
+#   Pau Escrich <p4u@dabax.net>
 #	Simó Albert i Beltran
 #
 
@@ -188,10 +189,7 @@ qmp_get_rescue_ip() {
 		mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
 	fi
 
-	[ -z "$mac" ] && {
-		qmp_log Warning: MAC for $device cannot be found, using 55:55:55:55:55:55 for rescue IP
-		mac="55:55:55:55:55:55"
-	}
+	[ -z "$mac" ] && return 1
 	
 	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
 	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
@@ -199,6 +197,68 @@ qmp_get_rescue_ip() {
 
 	echo "$rip"
 }
+
+qmp_configure_smart_network() {
+	echo "---------------------------------------"
+	echo "Starting smart networking configuration"
+	echo "---------------------------------------"
+	local mesh=""
+	local wan=""
+	local lan=""
+	local dev=""
+	local phydevs=""
+
+	for dev in $(ls /sys/class/net/); do
+		[ -e /sys/class/net/$dev/device ] && phydevs="$phydevs $dev\n"
+	done
+
+	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
+	echo "Network devices found in system: $phydevs"
+		
+	local is_eth0="$(echo -e "$phydevs" | grep -c eth0)"
+
+	[ $is_eth0 -gt 0 ] && {
+		lan="eth0"
+		phydevs="$(echo -e "$phydevs" | grep -v eth0)"
+	}
+
+	local j=0
+	local mode=""
+	for dev in $phydevs; do
+		# if there is not yet a LAN device
+		[ -z "$lan" ] && lan="$dev" && continue
+
+		# if it is a wifi device
+		[ -e "/sys/class/net/$dev/phy80211" ] && {
+			j=0
+			while qmp_uci_test qmp.@wireless[$j]; do
+				[ "$(qmp_uci_get @wireless[$j].device)" == "$dev" ] && {
+					mode="$(qmp_uci_get @wireless[$j].mode)"
+					[ "$mode" == "ap" ] && lan="$dev $lan" || mesh="$dev $mesh"
+					break
+				}
+				j=$(($j+1))
+			done
+		} && continue
+
+		# if there is already LAN device and it is not wifi, use as WAN
+		[ -z "$wan" ] && wan="$dev" && continue
+		
+		# else use as LAN and MESH
+		lan="$dev $lan"
+		mesh="$dev $mesh"
+	done
+	
+	echo "Using them as:"
+	echo "- LAN $lan"
+	echo "- MESH $mesh"
+	echo "- WAN $wan"
+
+	qmp_uci_set interfaces.lan_devices "$lan"
+	qmp_uci_set interfaces.mesh_devices "$mesh"
+	qmp_uci_set interfaces.wan_devices "$wan"
+}
+
 
 qmp_attach_device_to_interface() {
 	local device=$1
@@ -246,6 +306,8 @@ qmp_configure_rescue_ip() {
 	uci set $conf.${viface}.netmask="255.255.255.248"
 	uci commit $conf
 }
+
+
 
 qmp_is_routerstationpro() {
 	cat /proc/cpuinfo | grep -q "^machine[[:space:]]*: Ubiquiti RouterStation Pro$"
@@ -1165,6 +1227,10 @@ qmp_configure_system() {
 qmp_check_force_internet() {
 	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
 	[ "$(uci get qmp.networks.force_internet)" == "0" ] && qmp_gw_search_default
+}
+
+qmp_configure_initial() {
+	qmp_configure_smart_network
 }
 
 qmp_configure() {
