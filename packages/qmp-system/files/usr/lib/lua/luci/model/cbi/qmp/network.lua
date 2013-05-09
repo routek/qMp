@@ -80,7 +80,7 @@ no_vlan = eth_section:option(Value, "no_vlan_devices", translate("No VLAN device
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
+        luci.sys.call('qmpcontrol configure_network > /tmp/qmp_control_network.log &')
 end
 
 
