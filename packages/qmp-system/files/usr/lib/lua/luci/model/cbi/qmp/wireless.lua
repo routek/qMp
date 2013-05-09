@@ -44,10 +44,10 @@ end
 s_wireless_main = m:section(NamedSection, "wireless", "qmp", translate("Wireless general options"), "")
 s_wireless_main.addremove = False
 
--- Driver selection
-driver = s_wireless_main:option(ListValue, "driver", translate("Driver"))
-driver:value("mac80211","mac80211")
-driver:value("madwifi","madwifi")
+-- Driver selection (deprecated)
+--driver = s_wireless_main:option(ListValue, "driver", translate("Driver"))
+--driver:value("mac80211","mac80211")
+--driver:value("madwifi","madwifi")
 
 -- Country selection
 country = s_wireless_main:option(Value,"country", translate("Country"))
@@ -56,10 +56,11 @@ country = s_wireless_main:option(Value,"country", translate("Country"))
 bssid = s_wireless_main:option(Value,"bssid","BSSID")
 
 -- Button Rescan Wifi devices
-confwifi = s_wireless_main:option(Button, "_confwifi", translate("Reconfigure"),translate("Rescan and reconfigure all devices. This option requieres reboot. <br/>Use it just in case you have added or changed a device."))
+confwifi = s_wireless_main:option(Button, "_confwifi", translate("Reconfigure"),
+translate("Rescan and reconfigure all devices. <br/>Use it just in case you have added or changed a device."))
 
 function confwifi.write(self, section)
-	luci.sys.call("rm -f /qmp_configured; /etc/init.d/qmp_autoconf start")
+	luci.sys.call("qmpcontrol reset_wifi")
 end
 
 
@@ -81,16 +82,17 @@ for _,wdev in ipairs(wdevs) do
 
 	-- Mode
 	mode = s_wireless:option(ListValue,"mode","Mode")
-	mode:value("adhoc","Ad-Hoc")
+	mode:value("adhoc_ap","AdHoc + AP")
+	mode:value("adhoc","AdHoc")
 	mode:value("ap","Access Point")
 	mode:value("client","Client")
 	mode:value("none","Not used")
 
 	-- Name
-	s_wireless:option(Value,"name","Wireless name")
+	s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
 
 	-- Channel
-	channel = s_wireless:option(ListValue,"channel","Channel")
+	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to use in this device.\nSelect +/- for 40MHz channel. Select b for 802.11b only"))
 	mymode = m.uci:get("qmp",wdev,"mode")
 
 	for _,ch in ipairs(qmp.get_channels(mydev)) do
@@ -98,11 +100,12 @@ for _,wdev in ipairs(wdevs) do
 			channel:value(ch.channel, ch.channel)
 			if ch.ht40p then channel:value(ch.channel .. '+', ch.channel .. '+') end
 			if ch.ht40m then channel:value(ch.channel .. '-', ch.channel .. '-') end
+			if ch.channel < 15 then channel:value(ch.channel .. 'b', ch.channel .. 'b') end
 		end
 	end
 
 	-- Txpower
-	txpower = s_wireless:option(ListValue,"txpower","Power")
+	txpower = s_wireless:option(ListValue,"txpower","Power",translate("Choose the transmit power (each 4 number the power is doubled)"))
 	for _,t in ipairs(qmp.get_txpower(mydev)) do
 		txpower:value(t,t)
 	end
