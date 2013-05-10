@@ -20,6 +20,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
+#	Axel Neumann
 #   Pau Escrich <p4u@dabax.net>
 #	Simó Albert i Beltran
 #
@@ -654,27 +655,25 @@ qmp_configure_rescue_ip_device()
 }
 
 qmp_configure_prepare() {
-
   local conf=$1
-  echo "-----------------------"
-  echo "Configuring networking"
-  echo "-----------------------"
-
-  if ! [ -f /etc/config/$conf.orig ]; then
+   if ! [ -f /etc/config/$conf.orig ]; then
     echo "saving original config in: /etc/config/$conf.orig"
     cp /etc/config/$conf /etc/config/$conf.orig
   fi
 
   uci revert $conf
   echo "" > /etc/config/$conf
-
 }
 
 qmp_configure_network() {
 
   local conf="network"
 
-  qmp_configure_prepare $conf
+  echo "-----------------------"
+  echo "Configuring networking"
+  echo "-----------------------"
+
+ qmp_configure_prepare $conf
 
   if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids && qmp_uci_test qmp.networks.mesh_vid_offset; then
     local vids="$(qmp_uci_get networks.mesh_protocol_vids | awk -F':' -v RS=" " '{print $2 + '$(uci -q get qmp.networks.mesh_vid_offset)'}')"
@@ -703,9 +702,6 @@ qmp_configure_network() {
     uci set $conf.wan_ports.device="$switch_device"
     uci set $conf.wan_ports.ports="4 5t"
 
-
-
-
     if [[ -n "$vids" ]] ; then
 
        for vid in $vids; do
@@ -719,7 +715,6 @@ qmp_configure_network() {
 
        done
     fi
-
 
   fi
 
@@ -741,7 +736,6 @@ qmp_configure_network() {
     uci set $conf.$viface.proto="dhcp"
   done
   
-
   local primary_mesh_device="$(qmp_get_primary_device)"
   local community_node_id
   local LSB_PRIM_MAC="$(qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
