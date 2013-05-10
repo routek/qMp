@@ -22,21 +22,13 @@
 require("luci.sys")
 local http = require "luci.http"
 package.path = package.path .. ";/etc/qmp/?.lua"
-qmp = require "qmpinfo"
+qmpinfo = require "qmpinfo"
 
-device_names = {"wlan","ath","wifi"}
 
 m = Map("qmp", "Quick Mesh Project")
 
 local uci = luci.model.uci.cursor()
-local wdevs = {}
-for k,v in pairs(uci:get_all("qmp")) do
-	for _,n in ipairs(device_names) do
-		if v.device ~= nil and string.find(v.device,n) then
-			table.insert(wdevs,k)
-		end
-	end
-end
+local wdevs = qmpinfo.get_wifi_index()
 
 ---------------------------
 -- Section Wireless Main --
@@ -95,7 +87,7 @@ for _,wdev in ipairs(wdevs) do
 	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to use in this device.\nSelect +/- for 40MHz channel. Select b for 802.11b only"))
 	mymode = m.uci:get("qmp",wdev,"mode")
 
-	for _,ch in ipairs(qmp.get_channels(mydev)) do
+	for _,ch in ipairs(qmpinfo.get_channels(mydev)) do
 		if mymode ~= "adhoc" or ch.adhoc then
 			channel:value(ch.channel, ch.channel)
 			if ch.ht40p then channel:value(ch.channel .. '+', ch.channel .. '+') end
@@ -106,7 +98,7 @@ for _,wdev in ipairs(wdevs) do
 
 	-- Txpower
 	txpower = s_wireless:option(ListValue,"txpower","Power",translate("Choose the transmit power (each 4 number the power is doubled)"))
-	for _,t in ipairs(qmp.get_txpower(mydev)) do
+	for _,t in ipairs(qmpinfo.get_txpower(mydev)) do
 		txpower:value(t,t)
 	end
 end

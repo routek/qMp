@@ -391,17 +391,26 @@ qmp_wifi_get_default() {
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
 		# channel is 1, 6 or 11 for coexistence and performance
 		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" ] && {
-			c=$(((($(qmp_get_dec_node_id)+$index*3) % $num_channels_ap) +1))
+
+			AP_INDEX=${AP_INDEX:-0}
+
+			# if there is only one wifi device, configure a static channel (it will be used as adhoc_ap)
+			if [ $($QMPINFO devices wifi | wc -l) -eq 1 ]; then
+				c=1
+			else
+				c=$(((($(qmp_get_dec_node_id)+$AP_INDEX*3) % $num_channels_ap) +1))
+				AP_INDEX=$(($AP_INDEX+1))
+
+				if [ $c -lt 5 ]; then c=1
+				else if [ $c -lt 9 ]; then c=6
+				else c=11
+				fi; fi
 			
-			if [ $c -lt 5 ]; then c=1
-			else if [ $c -lt 9 ]; then c=6
-			else c=11
-			fi; fi
-			
-			#if the resulting channel is used by adhoc, selecting another one
-			[ -n "$ADHOC_BG_USED" ] && [ $ADHOC_BG_USED -eq $c ] && \
-			( [ $c -lt 7 ] && c=$(($c+5)) || c=$(($c-5)) )
-			
+				#if the resulting channel is used by adhoc, selecting another one
+				[ -n "$ADHOC_BG_USED" ] && [ $ADHOC_BG_USED -eq $c ] && \
+				( [ $c -lt 7 ] && c=$(($c+5)) || c=$(($c-5)) )
+			fi
+
 			channel_info="$($channels_cmd | awk NR==$c)"
 		}
 		

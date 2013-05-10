@@ -119,7 +119,7 @@ local function is_a(dev, what)
 	return false
 end
 
-for i,v in ipairs(devices[1]) do
+for i,v in ipairs(devices.eth) do
         tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("Lan")
@@ -139,7 +139,7 @@ end
 -- Wireless devices
 nodedevs_wifi = {}
 
-for i,v in ipairs(devices[2]) do
+for i,v in ipairs(devices.wifi) do
 	tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("AP")
