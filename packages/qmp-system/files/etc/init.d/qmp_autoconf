@@ -65,6 +65,11 @@ configure() {
 	#echo "Update hostname for: '$QMP_HOSTNAME'"
 	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
 
+	#Configure batman-adv
+	echo "[Configure batman-adv]"
+	. $QMP_DIR/qmp_batadv.sh
+	qmp_create_batadv
+
 	touch "$CONTROL_FILE"
 	[ -f "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
 }
