@@ -21,7 +21,7 @@
 QMP_PATH="/etc/qmp"
 
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] &&. $QMP_PATH/qmp_functions.sh
 
 QMP_VERSION="$QMP_PATH/qmp.version"
 
