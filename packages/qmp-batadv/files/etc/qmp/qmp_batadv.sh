@@ -28,7 +28,7 @@ then
 	SOURCE_OPENWRT_FUNCTIONS=1
 fi
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_NETWORK" ] && . $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 # Add Interface where BATMAN-adv connect
 # qmp_create_batadv_interface <mesh-device> [batX-device || bat0] [mesh-interface name || mesh_batadv]
