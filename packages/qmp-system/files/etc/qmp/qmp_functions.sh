@@ -351,7 +351,7 @@ qmp_configure_routerstationpro_switch() {
 
 	uci set network.mesh_ports_vid1="switch_vlan"
 	uci set network.mesh_ports_vid1.vlan="1"
-	uci set network.mesh_prots_vid1.vid="1"
+	uci set network.mesh_ports_vid1.vid="1"
 	uci set network.mesh_ports_vid1.device="eth1"
 	uci set network.mesh_ports_vid1.ports="0t 4"
       
