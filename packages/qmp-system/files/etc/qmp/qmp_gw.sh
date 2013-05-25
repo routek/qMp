@@ -34,7 +34,6 @@ qmp_gw_search_default_ipv4() {
 qmp_gw_search_default_ipv6() {
 	qmp_uci_set tunnels qmp
 	qmp_uci_set tunnels.search_ipv6_tunnel ::/0
-	qmp_gw_masq_wan 0
 	qmp_uci_del tunnels.offer_ipv6_tunnel
 }
 
@@ -48,7 +47,6 @@ qmp_gw_offer_default_ipv4() {
 qmp_gw_offer_default_ipv6() {
 	qmp_uci_set tunnels qmp
 	qmp_uci_set tunnels.offer_ipv6_tunnel ::/0
-	qmp_gw_masq_wan 1
 	qmp_uci_del tunnels.search_ipv6_tunnel
 }
 
@@ -61,7 +59,6 @@ qmp_gw_disable_default_ipv4() {
 qmp_gw_disable_default_ipv6() {
 	qmp_uci_del tunnels.offer_ipv6_tunnel
 	qmp_uci_del tunnels.search_ipv6_tunnel
-	qmp_gw_masq_wan 0
 }
 
 qmp_gw_default() {
