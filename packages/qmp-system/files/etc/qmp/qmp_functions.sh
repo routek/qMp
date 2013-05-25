@@ -75,9 +75,15 @@ qmp_get_virtual_iface() {
   local device="$1"
   local viface=""
 
-  if [ "$device" == "eth1" ] && qmp_is_routerstationpro ; then
-    echo "rsp_e1"
-    return
+  if qmp_is_routerstationpro; then
+    if [ "$device" == "eth1" ]; then
+      echo "rsp_e1"
+      return
+    fi
+    if [ "$device" == "eth1.1" ]; then
+      echo "rsp_e1_1"
+      return
+    fi
   fi
 
   # is lan?
@@ -156,6 +162,10 @@ qmp_get_devices() {
 
   if [ "$1" == "wan" ]; then
      devices="$(uci get qmp.interfaces.wan_devices 2>/dev/null)"
+  fi
+
+  if qmp_is_routerstationpro && [ "$1" == "wan" -o "$1" == "lan" ]; then
+     devices="$(echo $devices | sed -e "s/\beth1\b/eth1.1/g")"
   fi
 
   echo "$devices"
@@ -552,7 +562,7 @@ qmp_configure_rescue_ip_device()
 	# Configuring rescue IPs
 	if [ "$dev" == "eth1" ] && qmp_is_routerstationpro
 	then
-		if qmp_is_in "eth1" $(qmp_get_devices lan)
+		if qmp_is_in "eth1.1" $(qmp_get_devices lan)
 		then
 			return
 		fi
@@ -649,10 +659,6 @@ qmp_configure_network() {
   # WAN devices
   for i in $(qmp_get_devices wan) ; do
     local viface="$(qmp_get_virtual_iface $i)"
-    if [ "$i" == "eth1" ] && qmp_is_routerstationpro ; then
-      i="@$viface.1"
-      viface="${viface}_1"
-    fi
     uci set $conf.$viface="interface"
     qmp_attach_device_to_interface $i $conf $viface
     uci set $conf.$viface.proto="dhcp"
@@ -715,9 +721,6 @@ qmp_configure_network() {
     uci set $conf.lan.type="bridge"
     local device
     for device in $(qmp_get_devices lan) ; do
-      if [ "$device" == "eth1" ] && qmp_is_routerstationpro ; then
-        device="@$(qmp_get_virtual_iface eth1).1"
-      fi
       qmp_attach_device_to_interface $device $conf lan
     done
     uci set $conf.lan.proto="static"
