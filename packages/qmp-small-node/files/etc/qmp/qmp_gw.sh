@@ -22,7 +22,7 @@ QMP_PATH="/etc/qmp"
 SOURCE_GW=1
 
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_FUNCTIONS" ] &&. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 qmp_gw_search_default() {
 	qmp_uci_set tunnels qmp
