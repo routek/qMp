@@ -31,7 +31,7 @@ then
 	SOURCE_OPENWRT_FUNCTIONS=1
 fi
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 qmp_exists_gateway()
 {
