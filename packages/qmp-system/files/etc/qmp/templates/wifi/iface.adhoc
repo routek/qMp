@@ -1,5 +1,7 @@
-wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
-wireless.@wifi-iface[#QMP_INDEX].mode=adhoc
-wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
-wireless.@wifi-iface[#QMP_INDEX].bssid=#QMP_BSSID
-wireless.@wifi-iface[#QMP_INDEX].encryption=none
+wireless.#QMP_DEVICE.device=#QMP_RADIO
+wireless.#QMP_DEVICE.mode=adhoc
+wireless.#QMP_DEVICE.ssid=#QMP_SSID
+wireless.#QMP_DEVICE.bssid=#QMP_BSSID
+wireless.#QMP_DEVICE.network=#QMP_NETWORK
+#wireless.#QMP_DEVICE.mcast_rate=#QMP_MRATE
+wireless.#QMP_DEVICE.ifname=#QMP_IFNAME

@@ -18,61 +18,34 @@
     The full GNU General Public License is included in this distribution in
     the file called "COPYING".
 --]]
-
+package.path = package.path .. ";/etc/qmp/?.lua"
+qmpinfo = require "qmpinfo"                     
 require("luci.sys")
+
 local http = require "luci.http"
 m = Map("qmp", "Quick Mesh Project")
-
-ethernet_interfaces = { 'eth', 'ath', 'wlan' }
-wireless_interfaces = { 'ath', 'wlan' }
 
 eth_section = m:section(NamedSection, "interfaces", "qmp", "Interfaces", "Interfaces")
 eth_section.addremove = False
 
---wl_section = m:section(NamedSection, "interfaces", "qmp", "Wireless interfaces", "Wireless devices")
---wl_section.addremove = False
-
-
 -- Getting the physical (real) interfaces
--- interfaces matching with real_interfaces and without dot
--- ethernet interfaces will be stored in eth_int and wireless in wl_int
-eth_int = {}
-for i,d in ipairs(luci.sys.net.devices()) do
-	for i,r in ipairs(ethernet_interfaces) do
-		if string.find(d,r) ~= nil then
-			if string.find(d,"%.") == nil  then
-				table.insert(eth_int,d)
-			end
-		end
-	end
-end
-
-wl_int = {}
-for i,d in ipairs(luci.sys.net.devices()) do
-	for i,r in ipairs(wireless_interfaces) do
-		if string.find(d,r) ~= nil then
-			if string.find(d,"%.") == nil  then
-				table.insert(wl_int,d)
-			end
-		end
-	end
-end
+net_int = qmpinfo.get_devices().all
 
 -- Option: lan_devices
 lan = eth_section:option(MultiValue, "lan_devices", "LAN devices","These devices will be used for end-user connection (DHCP server)")
-for i,l in ipairs(eth_int) do
+for i,l in ipairs(net_int) do
 	lan:value(l,l)
 end
 
 -- Option wan_device
 wan = eth_section:option(MultiValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection (DHCP client)")
-for i,w in ipairs(eth_int) do
+for i,w in ipairs(net_int) do
 	wan:value(w,w)
 end
 
 -- Option mesh_devices
 mesh = eth_section:option(MultiValue, "mesh_devices", "MESH devices","These devices will be used for Mesh network")
-for i,l in ipairs(eth_int) do
+for i,l in ipairs(net_int) do
         mesh:value(l,l)
 end
 
@@ -80,7 +53,7 @@ no_vlan = eth_section:option(Value, "no_vlan_devices", translate("No VLAN device
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
+        luci.sys.call('qmpcontrol configure_network > /tmp/qmp_control_network.log &')
 end
 
 

@@ -22,27 +22,28 @@
 
 package.path = package.path .. ";/etc/qmp/?.lua"
 
-qmp = require "qmpinfo"
+qmpinfo = require "qmpinfo"
 
 function print_help()
 	print("qMpinfo is a dummy script to get some information about the device")
 	print("Usage: qmpinfo <question> [options]")
-	print("Available questions:")
-	print("  modes <dev>      : supported modes by the wireless card")
-	print("  channels <dev>   : supported channels and supported HT40 type (+/-) ")
-	print("  txpower <dev>    : supported transmission powers")
-	print("  ipv4             : print all ipv4 from this computer (excluding localhost)")
-	print("  hostname         : print device hostname")
-	print("  bwtest <ipv6>    : perform a bandwidth test")
-	print("  nodes            : list all nodes on MESH network")
-	print("  links            : list direct connected nodes on MESH")
-	print("  version <option> : show version (options: full, build, branch, codename, release, revision)")
-	print("  key              : print qmp key")
+	print("\nAvailable questions:")
+	print("	modes <dev>		: supported modes by the wireless card")
+	print("	channels <dev>		: supported channels and supported HT40 type (+/-) ")
+	print("	txpower <dev>		: supported transmission powers")
+	print("	devices [wifi|eth]	: print all physical network devices")
+	print("	ipv4			: print all ipv4 from this computer (excluding localhost)")
+	print("	hostname		: print device hostname")
+	print("	bwtest <ipv6>		: perform a bandwidth test")
+	print("	nodes			: list all nodes on MESH network")
+	print("	links			: list direct connected nodes on MESH")
+	print("	version <option>	: show version (full, build, branch, codename, release, revision)")
+	print("	key			: print qmp key")
 	print("")
 end
 
 function print_modes()
-	local data = qmp.get_modes(op1)
+	local data = qmpinfo.get_modes(op1)
 	local output = ""
 	if data.b  then output = output .. "b " end
 	if data.g  then output = output .. "g " end
@@ -54,7 +55,7 @@ end
 function print_channels()
 	local partial
 	local output = ""
-	local data = qmp.get_channels(op1)
+	local data = qmpinfo.get_channels(op1)
 	for _,d in ipairs(data) do
 		output = d.channel
 		if d.ht40p then output = output .. " ht40+" end
@@ -64,22 +65,37 @@ function print_channels()
 	end
 end
 
+function print_devices()
+	local _,v,devs
+	if op1 == nil then
+		devs = qmpinfo.get_devices().all
+	elseif op1 == "wifi" then
+		devs = qmpinfo.get_devices().wifi
+	else
+		devs = qmpinfo.get_devices().eth
+	end
+	
+	for _,v in ipairs(devs) do
+		print(v)
+	end
+end
+
 function print_txpower()
-	local data = qmp.get_txpower(op1)
+	local data = qmpinfo.get_txpower(op1)
 	for _,v in ipairs(data) do
 		print(v)
 	end
 end
 
 function print_ipv4()
-	local ipv4 = qmp.get_ipv4()
+	local ipv4 = qmpinfo.get_ipv4()
 	for _,v in pairs(ipv4) do
 		print(v)
 	end
 end
 
 function print_hostname()
-	print(qmp.get_hostname())
+	print(qmpinfo.get_hostname())
 end
 
 function bw_test()
@@ -147,6 +163,8 @@ elseif question == "channels" then
 	print_channels()
 elseif question == "txpower" then
 	print_txpower()
+elseif question == "devices" then
+	print_devices()
 elseif question == "ipv4" then
 	print_ipv4()
 elseif question == "hostname" then

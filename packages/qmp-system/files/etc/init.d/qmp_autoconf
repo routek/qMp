@@ -45,8 +45,9 @@ configure() {
 
 	mv /etc/config/wireless /tmp/wireless.old
 	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
-	/etc/init.d/network reload
-
+	wifi down
+	wifi up
+	
 	#To be sure channel is set...
 	iw reg set $country || iw reg set 00
 	
@@ -61,6 +62,7 @@ configure() {
 	#Configuring networking
 	echo "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
+	qmp_configure_initial
 	qmp_configure
 	#echo "Update hostname for: '$QMP_HOSTNAME'"
 	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
