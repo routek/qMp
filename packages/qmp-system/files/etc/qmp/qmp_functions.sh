@@ -208,16 +208,19 @@ qmp_get_rescue_ip() {
 	echo "$rip"
 }
 
+# Scan and configure the network devices (lan, mesh and wan)
+# if $1 is set to "force", it rescan all devices 
 qmp_configure_smart_network() {
 	echo "---------------------------------------"
 	echo "Starting smart networking configuration"
 	echo "---------------------------------------"
+	local force=$1
 	local mesh=""
 	local wan=""
 	local lan=""
 	local dev=""
 	local phydevs=""
-
+	
 	for dev in $(ls /sys/class/net/); do
 		[ -e /sys/class/net/$dev/device ] && phydevs="$phydevs $dev\n"
 	done
@@ -225,19 +228,36 @@ qmp_configure_smart_network() {
 	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
 	echo "Network devices found in system: $phydevs"
 		
-	local is_eth0="$(echo -e "$phydevs" | grep -c eth0)"
-
-	[ $is_eth0 -gt 0 ] && {
-		lan="eth0"
-		mesh="eth0"
-		phydevs="$(echo -e "$phydevs" | grep -v eth0)"
-	}
-
 	local j=0
 	local mode=""
+	local cnt
+	local cdev
 	for dev in $phydevs; do
-		# if there is not yet a LAN device
-		[ -z "$lan" ] && lan="$dev" && continue
+		
+		# If force is enabled, do not check if the device is already configured		
+		[ "$force" != "force" ] && {
+			cnt=0
+			# If it is already configured, doing nothing
+			for cdev in $(qmp_uci_get interfaces.lan); do
+				[ "$cdev" == "$dev" ] && lan="$lan $dev" && cnt=1
+			done
+			for cdev in $(qmp_uci_get interfaces.mesh); do
+				[ "$cdev" == "$dev" ] && mesh="$mesh $dev" && cnt=1
+			done
+			for cdev in $(qmp_uci_get interfaces.wan); do
+				[ "$cdev" == "$dev" ] && wan="$wan $dev" && cnt=1
+			done
+			[ $cnt -eq 1 ] && continue
+		}
+		
+		[ "$dev" == "eth0" ] && {
+			lan="$lan eth0"
+			mesh="$mesh eth0"
+			continue
+		}
+
+		## if there is not yet a LAN device, configuring as lan and mesh
+		##[ -z "$lan" ] && { lan="$dev"; mesh="$dev" && continue
 
 		# if it is a wifi device
 		[ -e "/sys/class/net/$dev/phy80211" ] && {
@@ -265,9 +285,9 @@ qmp_configure_smart_network() {
 	echo "- MESH $mesh"
 	echo "- WAN $wan"
 
-	qmp_uci_set interfaces.lan_devices "$lan"
-	qmp_uci_set interfaces.mesh_devices "$mesh"
-	qmp_uci_set interfaces.wan_devices "$wan"
+	qmp_uci_set interfaces.lan_devices "$(echo $lan | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.mesh_devices "$(echo $mesh | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.wan_devices "$(echo $wan | sed -e s/"^ "//g -e s/" $"//g)"
 }
 
 qmp_attach_device_to_interface() {
