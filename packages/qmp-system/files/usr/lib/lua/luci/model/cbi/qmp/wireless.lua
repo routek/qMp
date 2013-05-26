@@ -84,7 +84,7 @@ for _,wdev in ipairs(wdevs) do
 	s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
 
 	-- Channel
-	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to use in this device.\nSelect +/- for 40MHz channel. Select b for 802.11b only"))
+	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to be used in this device.<br/>Select +/- for 40MHz channel. Select b for 802.11b only"))
 	mymode = m.uci:get("qmp",wdev,"mode")
 
 	for _,ch in ipairs(qmpinfo.get_channels(mydev)) do
@@ -97,13 +97,14 @@ for _,wdev in ipairs(wdevs) do
 	end
 
 	-- WPA key
-	local key=s_wireless:option(Value,"key","WPA2 key", translate("WPA2 key for AP. Leave blank for leave it open (recomended)."))
+	local key=s_wireless:option(Value,"key","WPA2 key", 
+		translate("WPA2 key for AP (8 chars or more).<br/>Leave blank for make it OPEN (recomended)"))
 	key.default = ""
 	key:depends("mode","ap")
 	key:depends("mode","adhoc_ap")
 
 	-- Txpower
-	txpower = s_wireless:option(ListValue,"txpower","Power",translate("Choose the transmit power (each 4 number the power is doubled)"))
+	txpower = s_wireless:option(ListValue,"txpower","Power",translate("Choose the transmit power (each 4, the power is doubled)"))
 	for _,t in ipairs(qmpinfo.get_txpower(mydev)) do
 		txpower:value(t,t)
 	end

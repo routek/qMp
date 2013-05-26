@@ -182,7 +182,7 @@ qmp_configure_wifi_device() {
 	local txpower="$(qmp_uci_get @wireless[$id].txpower)"
 	local network="$(qmp_get_virtual_iface $device)"
 	local key="$(qmp_uci_get @wireless[$id].key)"	
-	[ -z "$key" ] && encrypt="none" || encrypt="psk2"
+	[ $(echo "$key" | wc -c) -lt 8 ] && encrypt="none" || encrypt="psk2"
 
 	local dev_id="$(echo $device | tr -d [A-z])"
 	dev_id=${dev_id:-$(date +%S)}
