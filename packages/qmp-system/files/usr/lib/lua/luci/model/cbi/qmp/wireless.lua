@@ -96,6 +96,12 @@ for _,wdev in ipairs(wdevs) do
 		end
 	end
 
+	-- WPA key
+	local key=s_wireless:option(Value,"key","WPA2 key", translate("WPA2 key for AP. Leave blank for leave it open (recomended)."))
+	key.default = ""
+	key:depends("mode","ap")
+	key:depends("mode","adhoc_ap")
+
 	-- Txpower
 	txpower = s_wireless:option(ListValue,"txpower","Power",translate("Choose the transmit power (each 4 number the power is doubled)"))
 	for _,t in ipairs(qmpinfo.get_txpower(mydev)) do
