@@ -318,7 +318,7 @@ qmp_wifi_get_default() {
 
 		#If only one device, using AP+ADHOC
 		if [ $devices -eq 1 ]; then
-			echo "adhoc_ap"
+			[ $bg_devices -eq 0 ] && echo "adhoc" || echo "adhoc_ap"
 		else
 
 		#If only one B/G device (2.4GHz) available, using it as AP+ADHOC
@@ -331,7 +331,6 @@ qmp_wifi_get_default() {
 		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
 			echo "adhoc"
 		else
-
 			echo "adhoc_ap"
 		fi;fi;fi
 
