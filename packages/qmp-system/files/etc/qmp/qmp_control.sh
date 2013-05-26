@@ -68,6 +68,7 @@ configure_network() {
 	/etc/init.d/network reload
 	/etc/init.d/dnsmasq restart
 	apply_netserver
+	qmp_restart_firewall
 }
 
 configure_system() {

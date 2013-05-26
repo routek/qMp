@@ -1217,6 +1217,9 @@ qmp_configure_system() {
   qmp_set_hosts
 }
 
+qmp_restart_firewall() {
+	/etc/init.d/firewall restart
+}
 
 qmp_check_force_internet() {
 	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
