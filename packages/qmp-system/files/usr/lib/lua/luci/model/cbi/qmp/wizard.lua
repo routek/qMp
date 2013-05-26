@@ -143,11 +143,24 @@ for i,v in ipairs(devices.wifi) do
 	tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("AP")
+	tmp.default = ""
 
 	if is_a(v,"lan_devices") then
+		-- If the device is in lan_devices, it is AP mode
 		tmp.default = "AP"
 	else
-		tmp.default = "Mesh"
+		-- Check if the device is adhoc_ap mode, then Mode=AP MeshAll=1
+		uciout:foreach("qmp","wireless", function (s)
+			if s.device == v then
+				if s.mode == "adhoc_ap" then
+					tmp.default = "AP"
+				end
+			end
+
+		end)
+
+		-- If it is not adhoc_ap it is only mesh
+		if tmp.default == "" then tmp.default = "Mesh" end
 	end
 
 	nodedevs_wifi[i] = {v,tmp}
@@ -211,10 +224,10 @@ function netmode.write(self, section, value)
 		devmode = v[2]:formvalue(section)
 		devname = v[1]
 
-		if devmode == "AP" then
-			lan_devices = lan_devices..devname.." "
-		elseif devmode == "Mesh" then
+		if (devmode == "AP" and meshall == "1") or devmode == "Mesh" then
 			mesh_devices = mesh_devices..devname.." "
+		elseif devmode == "AP" and meshall ~= "1" then
+			lan_devices = lan_devices..devname.." "
 		end
 
 		function setmode(s)
