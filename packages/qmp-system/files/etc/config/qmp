@@ -105,6 +105,7 @@ config 'gateway'
 	option 'maxPrefixLen' '24'
 	option 'hysteresis' '20'
 	option 'bonus' '10'
+	option 'minBandwidth' '10000'
 	option 'exportDistance' '10'
 
 config 'qmp' 'wireless'
