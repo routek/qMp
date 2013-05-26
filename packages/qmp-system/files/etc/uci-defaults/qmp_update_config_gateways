@@ -38,7 +38,6 @@
 # #	option 'ignore' '0'
 #	option 'type' 'offer'
 # 	option 'network' '::/0'
-#	option 'bandwidth' '100000'
 #
 # config 'gateway'
 # 	option 'ignore' '0'
@@ -52,7 +51,6 @@
 # #	option 'ignore' '0'
 # 	option 'type' 'offer'
 #	option 'network' '0.0.0.0/0'
-#	option 'bandwidth' '100000'
 #
 # config 'gateway'
 # 	option 'type' 'search'
@@ -80,7 +78,6 @@ translate_tunnel()
 	then
 		type_ignore="offer"
 		type_no_ignore="search"
-		extra_args_ignore="bandwidth 100000"
 		if [ "$ipv" = 4 ] && [ "$tunnel_network" = "0.0.0.0/0" ]
 		then
 			extra_args_no_ignore="maxPrefixLen 0"
@@ -91,7 +88,6 @@ translate_tunnel()
 		then
 			type_ignore="search"
 			type_no_ignore="offer"
-			extra_args_no_ignore="bandwidth 100000"
 			if [ "$ipv" = 4 ] && [ "$tunnel_network" = "0.0.0.0/0" ]
 			then
 				extra_args_ignore="maxPrefixLen 0"
