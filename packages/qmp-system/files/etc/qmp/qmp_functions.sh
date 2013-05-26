@@ -860,6 +860,7 @@ qmp_add_qmp_bmx6_tunnels()
 		qmp_translate_configuration qmp $section maxPrefixLen $config $name
 		qmp_translate_configuration qmp $section hysteresis $config $name
 		qmp_translate_configuration qmp $section bonus $config $name
+		qmp_translate_configuration qmp $section minBandwidth $config $name
 		qmp_translate_configuration qmp $section exportDistance $config $name
 	fi
 	
