@@ -40,7 +40,7 @@ qmp_exists_gateway()
 	local ignore=0
 	local exists
 
-	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "(ignore|bandwidth)" {a+=1} END {print a}')"
+	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "^(ignore|bandwidth)$" {a+=1} END {print a}')"
 	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|bandwidth\)=" | grep -c "^CONFIG_${config}_")
 
 	if [ "$args_key_values" != "$uci_key_values" ]
