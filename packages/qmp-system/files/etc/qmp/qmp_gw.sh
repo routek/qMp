@@ -31,7 +31,7 @@ then
 	SOURCE_OPENWRT_FUNCTIONS=1
 fi
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 qmp_exists_gateway()
 {
@@ -103,7 +103,6 @@ qmp_gw_search_default_ipv4() {
 qmp_gw_search_default_ipv6() {
 	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
 	qmp_set_gateway ignore 0 type search network ::/0
-	qmp_gw_masq_wan 0
 }
 
 qmp_gw_offer_default_ipv4() {
@@ -115,7 +114,6 @@ qmp_gw_offer_default_ipv4() {
 qmp_gw_offer_default_ipv6() {
 	qmp_set_gateway ignore 1 type search network ::/0
 	qmp_set_gateway ignore 0 type offer network ::/0 bandwidth 100000
-	qmp_gw_masq_wan 1
 }
 
 qmp_gw_disable_default_ipv4() {
@@ -127,7 +125,6 @@ qmp_gw_disable_default_ipv4() {
 qmp_gw_disable_default_ipv6() {
 	qmp_set_gateway ignore 1 type search network ::/0
 	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
-	qmp_gw_masq_wan 0
 }
 
 qmp_gw_default() {
