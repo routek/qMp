@@ -177,7 +177,6 @@ qmp_get_devices() {
   echo "$devices"
 }
 
-
 qmp_get_rescue_ip() {
 	local device=$1
 	local mac=""
@@ -271,7 +270,6 @@ qmp_configure_smart_network() {
 	qmp_uci_set interfaces.wan_devices "$wan"
 }
 
-
 qmp_attach_device_to_interface() {
 	local device=$1
 	local conf=$2
@@ -318,8 +316,6 @@ qmp_configure_rescue_ip() {
 	uci set $conf.${viface}.netmask="255.255.255.248"
 	uci commit $conf
 }
-
-
 
 qmp_is_routerstationpro() {
 	cat /proc/cpuinfo | grep -q "^machine[[:space:]]*: Ubiquiti RouterStation Pro$"
@@ -487,12 +483,6 @@ qmp_get_ip6_slow() {
 
   echo "$addr_out"
 }
-
-
-
-
-
-
 
 qmp_get_ip6_fast() {
 
@@ -933,15 +923,12 @@ qmp_add_qmp_bmx6_tunnels()
 		bmx6_type=tunOut
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$name"
-		qmp_translate_configuration qmp	$section network $config $name
-		qmp_translate_configuration qmp $section gwName $config $name
-		qmp_translate_configuration qmp $section address $config $name
-		qmp_translate_configuration qmp $section minPrefixLen $config $name
-		qmp_translate_configuration qmp $section maxPrefixLen $config $name
-		qmp_translate_configuration qmp $section hysteresis $config $name
-		qmp_translate_configuration qmp $section bonus $config $name
-		qmp_translate_configuration qmp $section minBandwidth $config $name
-		qmp_translate_configuration qmp $section exportDistance $config $name
+		local t
+		for t in network gwName address minPrefixLen maxPrefixLen hysteresis bonus \
+			tableRule minBandwidth exportDistance
+		do		
+			qmp_translate_configuration qmp	$section $t $config $name
+		done
 	fi
 	
 	gateway="$(($gateway + 1))"
