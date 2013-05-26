@@ -19,6 +19,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
+#   Pau Escrich <p4u@dabax.net>
 #	Simó Albert i Beltran
 #
 
