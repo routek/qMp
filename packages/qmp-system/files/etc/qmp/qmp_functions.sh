@@ -220,6 +220,7 @@ qmp_configure_smart_network() {
 
 	[ $is_eth0 -gt 0 ] && {
 		lan="eth0"
+		mesh="eth0"
 		phydevs="$(echo -e "$phydevs" | grep -v eth0)"
 	}
 
