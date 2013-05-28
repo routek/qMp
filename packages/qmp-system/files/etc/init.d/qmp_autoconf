@@ -31,6 +31,19 @@ log() {
 	echo "$@" > /tmp/qmp_autoconf.log
 }
 
+boothooks() {
+	local device="$(cat /tmp/sysinfo/board_name)"
+	local hooksdir="/etc/qmp/hooks/$device"
+
+	[ -d "$hooksdir" ] && {
+	for h in $hooksdir/*; do
+		echo "Executing hook: $h"
+		sh $h boot
+	done
+	}
+
+}
+
 configure() {
 	log Starting qmp configuration...
 
@@ -38,6 +51,9 @@ configure() {
 	sleep 10
 	
 	log [Configuring wireless]
+
+	#Execute hooks
+	boothooks
 
 	#Generating default wifi configuration
 	country="$(uci get qmp.wireless.country 2>/dev/null)"

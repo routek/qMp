@@ -111,7 +111,7 @@ qmp_get_virtual_iface() {
   [ -n "$viface" ] && { echo $viface; return; }
 
   # id is the first and char and the numbers of the device [e]th[0] [w]lan[1]
-  local id_num=$(echo $device | tr -d "[A-z]" | tr - _)
+  local id_num=$(echo $device | tr -d "[A-z]" | tr - _ | tr . _)
   local id_char=$(echo $device | cut -c 1)
 
   # is wan
@@ -686,6 +686,15 @@ qmp_configure_prepare() {
   echo "" > /etc/config/$conf
 }
 
+qmp_configure_prepare_network() {                                                         
+	local toRemove="$(uci show network | egrep "network.(lan|wan_|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
+	echo "Removing network configuration for: $toRemove"
+	for i in $toRemove; do
+		uci del network.$i
+	done
+	uci commit network
+}
+
 qmp_configure_network() {
 
   local conf="network"
@@ -694,7 +703,7 @@ qmp_configure_network() {
   echo "Configuring networking"
   echo "-----------------------"
 
- qmp_configure_prepare $conf
+ qmp_configure_prepare_network $conf
 
   if qmp_uci_test qmp.interfaces.mesh_devices && qmp_uci_test qmp.networks.mesh_protocol_vids && qmp_uci_test qmp.networks.mesh_vid_offset; then
     local vids="$(qmp_uci_get networks.mesh_protocol_vids | awk -F':' -v RS=" " '{print $2 + '$(uci -q get qmp.networks.mesh_vid_offset)'}')"
