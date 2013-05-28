@@ -1,8 +1,8 @@
 config 'qmp' 'interfaces'
 #	option 'configure_switch' 'eth0'               # (uncomment line if available, e.g. WGT634U)
-	option 'lan_devices' 'eth0 wlan1 dummy0'       # will be used for LAN
-	option 'wan_devices' 'eth1'                    # will be used for WAN
-	option 'mesh_devices' 'wlan0 wlan2 eth0 eth1'  # will be extended by vlan tag for by uses as Mesh
+	option 'lan_devices' ''       # will be used for LAN
+	option 'wan_devices' ''                    # will be used for WAN
+	option 'mesh_devices' ''  # will be extended by vlan tag for by uses as Mesh
 #	option 'no_vlan_devices' ''					   # interfaces which won't be vlan tagged
 
 config 'qmp' 'node'
@@ -47,47 +47,75 @@ config 'qmp' 'networks'
 	option 'netserver' '1'
 
 config 'gateway'
+	option 'name' 'inet6'
 	option 'type' 'search'
 	option 'network' '::/0'
 	option 'tableRule' '32767/253'
+	option 'maxPrefixLen' '0'
 
 config 'gateway'
+	option 'name' 'inet6'
 	option 'ignore' '1'
 	option 'type' 'offer'
 	option 'network' '::/0'
+	option 'bandwidth' '100000'
 
 config 'gateway'
+	option 'name' 'inet4'
 	option 'type' 'search'
 	option 'network' '0.0.0.0/0'
 	option 'maxPrefixLen' '0'
 	option 'tableRule' '32767/253'
 
 config 'gateway'
+	option 'name' 'inet4'
 	option 'ignore' '1'
 	option 'type' 'offer'
 	option 'network' '0.0.0.0/0'
-#	option 'bandwidth' '100000'
+	option 'bandwidth' '100000'
 
 config 'gateway'
+	option 'name' 'community6'
+	option 'type' 'search'
+	option 'network' '::/0'
+	option 'minPrefixLen' '32'
+	option 'maxPrefixLen' '48'
+
+config 'gateway'
+	option 'name' 'cloud6'
+	option 'type' 'search'
+	option 'network' '::/0'
+	option 'minPrefixLen' '48'
+
+config 'gateway'
+	option 'name' 'community'
 	option 'type' 'search'
 	option 'network' '10.0.0.0/8'
 	option 'maxPrefixLen' '8'
 
 config 'gateway'
+	option 'name' 'community'
+	option 'type' 'offer'
+	option 'network' '10.0.0.0/8'
+	option 'bandwidth' '100000'
+	option 'ignore' '1'
+
+config 'gateway'
+	option 'name' 'cloud'
 	option 'type' 'search'
 	option 'network' '10.0.0.0/8'
-	option 'minPrefixLen' '16'
+	option 'minPrefixLen' '24'
 
 config 'gateway'
 	option 'ignore' '1'
 	option 'type' 'search'
 	option 'network' '::/0'
-	option 'gwName' 'qMp-d6'
+	option 'gwName' 'qMp-example'
 
 config 'gateway'
 	option 'ignore' '1'
 	option 'type' 'search'
-	option 'gwName' 'qMp-ab'
+	option 'gwName' 'qMp-example'
 	option 'network' '10.1.0.0/16'
 	option 'address' '10.2.2.2/32'
 	option 'minPrefixLen' '16'
