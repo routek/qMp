@@ -101,8 +101,15 @@ qmp_update_check() {
 }
 
 qmp_update_save_config() {
+	local d
+	local preserve=""
+	# Checking if the preserve files/directory exist
+	for d in $@; do
+		[ -e "$d" ] && preserve="$preserve $d"
+	done
+	
 	cd /
-	tar czf /tmp/qmp_saved_config.tar.gz $@
+	tar czf /tmp/qmp_saved_config.tar.gz $preserve
 	[ $? -ne 0 ] && qmp_error "Cannot save config: $@"
 	echo "/tmp/qmp_saved_config.tar.gz"
 }
