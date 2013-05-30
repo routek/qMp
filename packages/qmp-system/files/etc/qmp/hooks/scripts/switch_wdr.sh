@@ -1,8 +1,8 @@
 #!/bin/sh
-# Stage = [boot|pre|post]
+# Stage = [birth|firstboot|anyboot|preconf|postconf]
 STAGE="$1"
 
-[ "$STAGE" == "boot" ] && {
+[ "$STAGE" == "birth" ] && {
 
 echo "Configuring TPlink WDR switch [INET|LAN|LAN|LAN|MESH]"
 
@@ -38,4 +38,11 @@ uci set network.@switch_vlan[2].ports="0t 5t"
 uci set network.@switch_vlan[2].vid=12
 
 uci commit network
+
+uci set qmp.interfaces.lan_devices="eth0.1"
+uci set qmp.interfaces.mesh_devices="eth0.12"
+uci set qmp.interfaces.wan_devices="eth0.2"
+uci set qmp.interfaces.no_vlan_devices="eth0.12"
+uci set qmp.interfaces.ignore_devices="eth0"
+uci commit qmp
 }
