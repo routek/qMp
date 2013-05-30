@@ -33,14 +33,15 @@ net_int = qmpinfo.get_devices().all
 
 -- Option: lan_devices
 lan = eth_section:option(MultiValue, "lan_devices", "LAN devices","These devices will be used for end-user connection (DHCP server)")
+local i,l
 for i,l in ipairs(net_int) do
 	lan:value(l,l)
 end
 
 -- Option wan_device
 wan = eth_section:option(MultiValue, "wan_devices", "WAN devices","These devices will be used for internet or any other gateway connection (DHCP client)")
-for i,w in ipairs(net_int) do
-	wan:value(w,w)
+for i,l in ipairs(net_int) do
+	wan:value(l,l)
 end
 
 -- Option mesh_devices
@@ -51,9 +52,11 @@ end
 
 no_vlan = eth_section:option(Value, "no_vlan_devices", translate("No VLAN devices"),translate("Devices we want to use without VLAN tagging (not recommended)"))
 
+ignore_devs = eth_section:option(Value, "ignore_devices", translate("Ignored devices"),translate("Devices are not taken into account for qMp autoconfiguration"))
+
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('qmpcontrol configure_network > /tmp/qmp_control_network.log &')
+	luci.sys.call('qmpcontrol configure_network > /tmp/qmp_control_network.log &')
 end
 
 

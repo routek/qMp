@@ -42,21 +42,44 @@ function qmpinfo.get_devices()
 	phydevs.wifi = {}
 	phydevs.all = {}
 	phydevs.eth = {}
+	local ignored = util.split(uci:get("qmp","interfaces","ignore_devices") or "")
 	
+	uci:foreach('network','switch_vlan', function (s)
+			local name = uci:get("network",s[".name"],"device")
+			local vlan = uci:get("network",s[".name"],"vid")
+			if name ~= nil and vlan ~= nil then
+				table.insert(phydevs.eth,name..'.'..vlan)
+				table.insert(phydevs.all,name..'.'..vlan) 
+				table.insert(ignored,name)
+			end
+		end)
+
 	local sysnet = "/sys/class/net/"
 	for d in nixio.fs.dir(sysnet) do
 		if nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then 
 			if string.find(d,"%.") == nil and string.find(d,"ap") == nil then
-				if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
-	                		table.insert(phydevs.wifi,d)
-				else
-					table.insert(phydevs.eth,d) 
+
+				local ignore = false
+				local _,id
+				for _,id in ipairs(ignored) do
+					if id == d then
+						ignore = true
+						break
+					end
 				end
-				
-				table.insert(phydevs.all,d) 
+				if not ignore then
+
+					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
+		                table.insert(phydevs.wifi,d)
+					else
+						table.insert(phydevs.eth,d) 
+					end
+					table.insert(phydevs.all,d) 
+				end
 			end
 		end
 	end
+
 	return phydevs
 end
 
