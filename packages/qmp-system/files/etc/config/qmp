@@ -1,9 +1,10 @@
 config 'qmp' 'interfaces'
-#	option 'configure_switch' 'eth0'               # (uncomment line if available, e.g. WGT634U)
-	option 'lan_devices' ''       # will be used for LAN
-	option 'wan_devices' ''                    # will be used for WAN
-	option 'mesh_devices' ''  # will be extended by vlan tag for by uses as Mesh
-#	option 'no_vlan_devices' ''					   # interfaces which won't be vlan tagged
+#	option 'configure_switch' ''		# (deprecated) (uncomment line if available, e.g. WGT634U)
+	option 'lan_devices' ''				# will be used for LAN
+	option 'wan_devices' ''				# will be used for WAN
+	option 'mesh_devices' ''			# will be extended by vlan tag for by uses as Mesh
+#	option 'no_vlan_devices' ''			# interfaces which won't be vlan tagged
+#	option 'ignore_devices' ''			# interfaces to ignore
 
 config 'qmp' 'node'
 	option 'primary_device' 'eth0'
@@ -16,7 +17,7 @@ config 'qmp' 'update'
 	option 'images' 'IMAGES'
 	option 'devices' 'DEVICES'
 	option 'filter' 'sysupgrade'
-	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear/* /etc/config/b6m-spread'
+	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear /etc/config/b6m-spread /etc/qmp/.birth'
 
 config 'qmp' 'non_overlapping'
 	# Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device

@@ -47,6 +47,38 @@ exechooks() {
 	}
 }
 
+prepare_wifi() {
+	# Wifi is complicated...
+
+	mv /etc/config/wireless /tmp/wireless.old
+
+	# It is a quick hack, because each time ath9k is loaded the phyX counter increases
+	# and openwrt wifi scripts take the device namw (i.e wlan0) from this counter
+	# It only works for ath9k	
+	rmmod ath9k
+	insmod ath9k
+	sleep 1
+
+	local index=0
+	iw phy | grep Wiphy | awk '{print $2}' | while read d
+		do
+			iw phy $d set name $index
+			index=$(($index+1))
+		done
+
+	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
+	wifi down
+	wifi up
+
+	log WiFi devices:
+	log --------------------------------------------------
+	log $(iwinfo | egrep "ESSID|Mode|Type")
+	log --------------------------------------------------
+
+	#To be sure channel is set...
+	iw reg set $country || iw reg set 00
+}
+
 configure() {
 	log Redirecting stderr to $QMP_LOG
 	exec 2>>$QMP_LOG
@@ -67,32 +99,8 @@ configure() {
 	country="${country:-00}"
 	log Using countrycode $country
 
-	mv /etc/config/wireless /tmp/wireless.old
-
-	# Wifi is complicated... 
-	rmmod ath9k
-	insmod ath9k
-	sleep 1
-	# It is a quick hack, because each time ath9k is loaded the phyX counter increases
-	# and openwrt wifi scripts take it for selectin the wlan name (i.e wlan3)
-	iw phy | grep Wiphy | awk '{print $2}' | while read d
-		do
-			iw phy $d set name qmp0	
-		done
-
-	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
-	wifi down
-	wifi up
-
-	log WiFi devices:
-	log --------------------------------------------------
-	log $(iwinfo | egrep "ESSID|Mode|Type")
-	log --------------------------------------------------
-
-	#To be sure channel is set...
-	iw reg set $country || iw reg set 00
-	
 	#Configuring wifi using QMP
+	prepare_wifi
 	. $QMP_DIR/qmp_wireless.sh
 	qmp_configure_wifi_initial
 	qmp_configure_wifi

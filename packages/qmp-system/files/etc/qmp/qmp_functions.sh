@@ -183,7 +183,7 @@ qmp_get_rescue_ip() {
 	[ -z "$device" ] && return 1
 
 	local rprefix=$(qmp_uci_get networks.rescue_prefix24 2>/dev/null)
-	rprefix=${rprefix:-169.254.0}
+	rprefix=${rprefix:-169.254}
 	
 	# if device is virtual, get the ifname
 	if qmp_uci_test network.$device.ifname; then
@@ -220,9 +220,18 @@ qmp_configure_smart_network() {
 	local lan=""
 	local dev=""
 	local phydevs=""
-	
+	local ignore_devs="$(qmp_uci_get interfaces.ignore_devices)"	
+
 	for dev in $(ls /sys/class/net/); do
-		[ -e /sys/class/net/$dev/device ] && phydevs="$phydevs $dev\n"
+		[ -e /sys/class/net/$dev/device ] && {
+			local id 
+			local ignore=0
+			# Check if device is in the ignore list
+			for id in $ignore_devs; do
+				[ "$id" == "$dev" ] && ignore=1
+			done
+			[ $ignore -eq 0 ] && phydevs="$phydevs $dev\n"
+	}
 	done
 
 	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
@@ -285,9 +294,15 @@ qmp_configure_smart_network() {
 	echo "- MESH $mesh"
 	echo "- WAN $wan"
 
-	qmp_uci_set interfaces.lan_devices "$(echo $lan | sed -e s/"^ "//g -e s/" $"//g)"
-	qmp_uci_set interfaces.mesh_devices "$(echo $mesh | sed -e s/"^ "//g -e s/" $"//g)"
-	qmp_uci_set interfaces.wan_devices "$(echo $wan | sed -e s/"^ "//g -e s/" $"//g)"
+	# Join found devices and already configured ones
+	lan_devices=$(echo "$(qmp_uci_get interfaces.lan_devices) $lan" | tr ' ' '\n' | sort -u)
+	wan_devices=$(echo "$(qmp_uci_get interfaces.wan_devices) $wan" | tr ' ' '\n' | sort -u)
+	mesh_devices=$(echo "$(qmp_uci_get interfaces.mesh_devices) $mesh" | tr ' ' '\n' | sort -u)
+
+	# Writes the devices to the config
+	qmp_uci_set interfaces.lan_devices "$(echo $lan_devices | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.mesh_devices "$(echo $mesh_devices | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.wan_devices "$(echo $wan_devices | sed -e s/"^ "//g -e s/" $"//g)"
 }
 
 qmp_attach_device_to_interface() {
@@ -1205,12 +1220,12 @@ qmp_configure_system() {
 
   local community_node_id
   if qmp_uci_test qmp.node.community_node_id; then
-    community_node_id="$(uci get qmp.node.community_node_id)"
+    community_node_id="$(qmp_uci_get node.community_node_id)"
   else
     community_node_id="$(qmp_get_mac_for_dev $primary_mesh_device | awk -F':' '{print $6}' )"
   fi
 
-  local community_id="$(uci get qmp.node.community_id)"
+  local community_id="$(qmp_uci_get node.community_id)"
   [ -z "$community_id" ] && community_id="qmp"
 
   # set hostname
@@ -1233,20 +1248,23 @@ qmp_restart_firewall() {
 }
 
 qmp_check_force_internet() {
-	[ "$(uci get qmp.networks.force_internet)" == "1" ] && qmp_gw_offer_default
-	[ "$(uci get qmp.networks.force_internet)" == "0" ] && qmp_gw_search_default
+	[ "$(qmp_uci_get networks.force_internet)" == "1" ] && qmp_gw_offer_default
+	[ "$(qmp_uci_get networks.force_internet)" == "0" ] && qmp_gw_search_default
 }
 
 qmp_configure_initial() {
+	qmp_hooks_exec firstboot
 	qmp_configure_smart_network
 }
 
 qmp_configure() {
+  qmp_hooks_exec preconf
   qmp_check_force_internet
   qmp_configure_network
   qmp_configure_bmx6
   qmp_configure_olsr6
   qmp_configure_lan_v6
   qmp_configure_system
+  qmp_hooks_exec postconf
 }
 
