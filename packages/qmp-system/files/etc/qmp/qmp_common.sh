@@ -229,6 +229,25 @@ qmp_get_dev_from_wifi_mac() {
 }
 
 #########################
+# Hooks related functions
+#########################
+
+qmp_hooks_exec() {
+    local stage="$1"
+    local device="$(cat /tmp/sysinfo/board_name)"
+    [ -z "$stage" -o -z "$device" ] && return 1
+    local hooksdir="/etc/qmp/hooks/$device"
+
+    [ -d "$hooksdir" ] && {
+    for h in $hooksdir/*; do
+        echo "Executing hook $h in stage $stage"
+        sh $h $stage
+    done
+    }
+}
+
+
+#########################
 # Other kind of commands
 #########################
 
