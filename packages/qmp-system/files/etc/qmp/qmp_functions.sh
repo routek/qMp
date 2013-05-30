@@ -183,8 +183,8 @@ qmp_get_rescue_ip() {
 	[ -z "$device" ] && return 1
 
 	local rprefix=$(qmp_uci_get networks.rescue_prefix24 2>/dev/null)
-	[ -z "$rprefix" ] && return 0
-
+	rprefix=${rprefix:-169.254.0}
+	
 	# if device is virtual, get the ifname
 	if qmp_uci_test network.$device.ifname; then
 	  local devvirt="$(qmp_uci_get_raw network.$device.ifname | tr -d @)"
@@ -196,11 +196,11 @@ qmp_get_rescue_ip() {
 		local radio="$(qmp_uci_get_raw wireless.$device.device)"
 		mac=$(qmp_uci_get_raw wireless.$radio.macaddr)
 	else
-		mac=$(ip addr show dev $device | grep -m 1 "link/ether" | awk '{print $2}')
+		mac=$(ip addr show dev $device 2>/dev/null| grep -m 1 "link/ether" | awk '{print $2}')
 	fi
 
-	[ -z "$mac" ] && return 1
-	
+	mac=${mac:-FF:FF:FF:FF:FF:FF}
+		
 	#local xoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f5))
 	local yoctet=$(printf "%d\n" 0x$(echo $mac | cut -d: -f6))
 	local rip="$rprefix.$yoctet.1"
@@ -351,7 +351,7 @@ qmp_configure_routerstationpro_switch() {
 
 	uci set network.mesh_ports_vid1="switch_vlan"
 	uci set network.mesh_ports_vid1.vlan="1"
-	uci set network.mesh_ports_vid1.vid="1"
+	uci set network.mesh_prots_vid1.vid="1"
 	uci set network.mesh_ports_vid1.device="eth1"
 	uci set network.mesh_ports_vid1.ports="0t 4"
       
@@ -997,16 +997,6 @@ qmp_configure_bmx6() {
 
   uci set $conf.ipVersion=ipVersion
   uci set $conf.ipVersion.ipVersion="6"
-  if value="$(uci get qmp.networks.bmx6_throwRules)" ; then
-    uci set $conf.ipVersion.throwRules="$value"
-  fi
-  if value="$(uci get qmp.networks.bmx6_tablePrefTuns)"; then
-    uci set $conf.ipVersion.tablePrefTuns="$value"
-  fi
-  if value=$(uci get qmp.networks.bmx6_tableTuns); then
-    uci set $conf.ipVersion.tableTuns="$value"
-  fi
-
 
   local primary_mesh_device="$(qmp_get_primary_device)"
 
