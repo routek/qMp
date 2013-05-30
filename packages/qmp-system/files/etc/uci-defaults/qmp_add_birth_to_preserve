@@ -1,0 +1,12 @@
+#!/bin/sh
+birth="/etc/qmp/.birth"
+preserve="$(uci get qmp.update.preserve)"
+found=0
+for p in $preserve; do
+	[ "$p" == "$birth" ] && { found=1; break; }
+done
+
+[ $found -eq 0 ] && { 
+	uci set qmp.update.preserve="$preserve $birth"
+	uci commit qmp
+}
