@@ -328,12 +328,19 @@ qmp_wifi_get_default() {
 			echo "adhoc_ap"
 		else
 
-		#If only one B/G device and only two devices, using the non B/G one as adhoc
+		#If only one B/G device of two devices, using the non B/G one as adhoc
 		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
 			echo "adhoc"
 		else
+		
+		#If more than one device BG, using first for ADHOC+AP and the others for ADHOC
+		if [ $devices -gt 1 ]; then
+			[ $index == 0 ] && echo "adhoc_ap" || echo "adhoc"
+		else
+		
+		#This should never happend
 			echo "adhoc_ap"
-		fi;fi;fi
+		fi;fi;fi;fi
 
 	# CHANNEL
 	# Default channel depends on the card and on configured mode
