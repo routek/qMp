@@ -236,29 +236,33 @@ qmp_configure_smart_network() {
 
 	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
 	echo "Network devices found in system: $phydevs"
-		
+
+	lan_devices="$(qmp_uci_get interfaces.lan_devices)"
+	wan_devices="$(qmp_uci_get interfaces.wan_devices)"
+	mesh_devices="$(qmp_uci_get interfaces.mesh_devices)"
+
 	local j=0
 	local mode=""
 	local cnt
 	local cdev
 	for dev in $phydevs; do
-		
+
 		# If force is enabled, do not check if the device is already configured		
 		[ "$force" != "force" ] && {
 			cnt=0
 			# If it is already configured, doing nothing
-			for cdev in $(qmp_uci_get interfaces.lan); do
+			for cdev in $lan_devices; do
 				[ "$cdev" == "$dev" ] && lan="$lan $dev" && cnt=1
 			done
-			for cdev in $(qmp_uci_get interfaces.mesh); do
+			for cdev in $mesh_devices; do
 				[ "$cdev" == "$dev" ] && mesh="$mesh $dev" && cnt=1
 			done
-			for cdev in $(qmp_uci_get interfaces.wan); do
+			for cdev in $wan_devices; do
 				[ "$cdev" == "$dev" ] && wan="$wan $dev" && cnt=1
 			done
 			[ $cnt -eq 1 ] && continue
 		}
-		
+
 		[ "$dev" == "eth0" ] && {
 			lan="$lan eth0"
 			mesh="$mesh eth0"
@@ -294,15 +298,10 @@ qmp_configure_smart_network() {
 	echo "- MESH $mesh"
 	echo "- WAN $wan"
 
-	# Join found devices and already configured ones
-	lan_devices=$(echo "$(qmp_uci_get interfaces.lan_devices) $lan" | tr ' ' '\n' | sort -u)
-	wan_devices=$(echo "$(qmp_uci_get interfaces.wan_devices) $wan" | tr ' ' '\n' | sort -u)
-	mesh_devices=$(echo "$(qmp_uci_get interfaces.mesh_devices) $mesh" | tr ' ' '\n' | sort -u)
-
 	# Writes the devices to the config
-	qmp_uci_set interfaces.lan_devices "$(echo $lan_devices | sed -e s/"^ "//g -e s/" $"//g)"
-	qmp_uci_set interfaces.mesh_devices "$(echo $mesh_devices | sed -e s/"^ "//g -e s/" $"//g)"
-	qmp_uci_set interfaces.wan_devices "$(echo $wan_devices | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.lan_devices "$(echo $lan | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.mesh_devices "$(echo $mesh | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.wan_devices "$(echo $wan | sed -e s/"^ "//g -e s/" $"//g)"
 }
 
 qmp_attach_device_to_interface() {
@@ -703,7 +702,7 @@ qmp_configure_prepare() {
 
 qmp_configure_prepare_network() {                                                         
 	local toRemove="$(uci show network | egrep "network.(lan|wan_|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
-	echo "Removing network configuration for: $toRemove"
+	echo "Removing network configuration for: $toRemove" | tr '\n' ' '
 	for i in $toRemove; do
 		uci del network.$i
 	done
