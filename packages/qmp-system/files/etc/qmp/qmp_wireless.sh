@@ -228,7 +228,7 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_RADIO"/"$radio"/ \
 	 -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_IFNAME"/"$device"/ \
-	 -e s/"#QMP_SSID"/"$name"/ \
+	 -e s/"#QMP_SSID"/"$(echo "$name" | sed -e 's|/|\\/|g')"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
 	 -e s/"#QMP_NETWORK"/"$network"/ \
 	 -e s/"#QMP_ENC"/"$encrypt"/ \
