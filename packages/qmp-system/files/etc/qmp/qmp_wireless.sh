@@ -181,7 +181,7 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_MAC"/"$mac"/ \
 	 -e s/"#QMP_CHANNEL"/"$channel"/ \
 	 -e s/"#QMP_COUNTRY"/"$country"/ \
-	 -e s/"#QMP_SSID"/"$name"/ \
+	 -e s/"#QMP_SSID"/"$(echo "$name" | sed -e 's|/|\\/|g')"/ \
 	 -e s/"#QMP_HTMODE"/"$htmode"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
 	 -e s/"#QMP_TXPOWER"/"$txpower"/ \
