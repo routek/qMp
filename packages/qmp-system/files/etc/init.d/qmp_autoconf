@@ -22,63 +22,119 @@ START=99
 STOP=99
 SERVICE_DAEMONIZE=1
 CONTROL_FILE="/qmp_configured"
+BIRTH_FILE="/etc/qmp/.birth"
 QMP_DIR="/etc/qmp"
 QMP_KEY="/tmp/qmp_key"
+QMP_LOG="/root/qmp_autoconf.log"
 
 log() {
 	echo "$@" > /dev/console
 	echo "$@"
-	echo "$@" > /tmp/qmp_autoconf.log
+	echo "$@" >> $QMP_LOG
 }
 
-configure() {
-	log Starting qmp configuration...
+exechooks() {
+	local stage="$1"
+	stage=${stage:-anyboot}
+	local device="$(cat /tmp/sysinfo/board_name)"
+	local hooksdir="/etc/qmp/hooks/$device"
 
-	log Waiting 10 seconds to be sure all is configured
-	sleep 10
-	
-	log [Configuring wireless]
+	[ -n "$device" ] && [ -d "$hooksdir" ] && {
+	for h in $hooksdir/*; do
+		echo "Executing hook: $h"
+		sh $h $stage
+	done
+	}
+}
 
-	#Generating default wifi configuration
-	country="$(uci get qmp.wireless.country 2>/dev/null)"
-	country="${country:-00}"
+prepare_wifi() {
+	# Wifi is complicated...
 
 	mv /etc/config/wireless /tmp/wireless.old
+
+	# It is a quick hack, because each time ath9k is loaded the phyX counter increases
+	# and openwrt wifi scripts take the device namw (i.e wlan0) from this counter
+	# It only works for ath9k	
+	rmmod ath9k
+	insmod ath9k
+	sleep 1
+
+	local index=0
+	iw phy | grep Wiphy | awk '{print $2}' | while read d
+		do
+			iw phy $d set name $index
+			index=$(($index+1))
+		done
+
 	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
-	/etc/init.d/network reload
+	wifi down
+	wifi up
+
+	log WiFi devices:
+	log --------------------------------------------------
+	log $(iwinfo | egrep "ESSID|Mode|Type")
+	log --------------------------------------------------
 
 	#To be sure channel is set...
 	iw reg set $country || iw reg set 00
+}
+
+configure() {
+	log Redirecting stderr to $QMP_LOG
+	exec 2>>$QMP_LOG
+	log Starting qmp configuration...
+	log Waiting 10 seconds to be sure all is configured
+	sleep 10
 	
+	# Execute birth hooks if it is the first boot of the device
+	[ ! -e "$BIRTH_FILE" ] && exechooks birth && touch "$BIRTH_FILE"
+
+	# Execute firstboot hooks 
+	log "[Executing hooks]"
+	exechooks firstboot
+
+	#Generating default wifi configuration
+	log "[Configuring wifi]"
+	country="$(uci get qmp.wireless.country 2>/dev/null)"
+	country="${country:-00}"
+	log Using countrycode $country
+
 	#Configuring wifi using QMP
+	prepare_wifi
 	. $QMP_DIR/qmp_wireless.sh
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 
 	#Reloading network to avoid problems with next functions
+	log Reloading network
 	/etc/init.d/network reload
 	
 	#Configuring networking
-	echo "[Configuring networking]"
+	log "[Configuring networking]"
 	. $QMP_DIR/qmp_functions.sh
+	qmp_configure_initial
 	qmp_configure
-	#echo "Update hostname for: '$QMP_HOSTNAME'"
-	#echo "$QMP_HOSTNAME" > /proc/sys/kernel/hostname
 
 	#Configure batman-adv
 	echo "[Configure batman-adv]"
 	. $QMP_DIR/qmp_batadv.sh
 	qmp_create_batadv
 
+	log ==================================================
+	log                   Rebooting
+	log ==================================================
 	touch "$CONTROL_FILE"
-	[ -f "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
+	[ -e "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
 }
 
-#This function is executed in each boot
+# This function is executed in each boot
 startup() {
 	# Set HostName
 	. $QMP_DIR/qmp_functions.sh
 	qmp_set_hosts
+
+	# Run hooks
+	exechooks anyboot
 
 	# Start/Stop netserver
 	$QMP_DIR/qmp_control.sh apply_netserver
@@ -88,7 +144,7 @@ startup() {
 }
 
 start() {
-	if [ ! -f "$CONTROL_FILE" ]; then
+	if [ ! -e "$CONTROL_FILE" ]; then
 		configure
 	else
 		log QMP configured. Remove $CONTROL_FILE to force reconfiguration

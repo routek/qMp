@@ -31,7 +31,7 @@ then
 	SOURCE_OPENWRT_FUNCTIONS=1
 fi
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
-[ -z "$SOURCE_NETWORK" ] &&. $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
 
 qmp_exists_gateway()
 {
@@ -40,8 +40,8 @@ qmp_exists_gateway()
 	local ignore=0
 	local exists
 
-	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "(ignore|bandwidth)" {a+=1} END {print a}')"
-	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|bandwidth\)=" | grep -c "^CONFIG_${config}_")
+	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "^(ignore|(minB|b)andwidth)$" {a+=1} END {print a}')"
+	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|\(minB\|b\)andwidth\)=" | grep -c "^CONFIG_${config}_")
 
 	if [ "$args_key_values" != "$uci_key_values" ]
 	then
@@ -55,13 +55,7 @@ qmp_exists_gateway()
 			ignore="$2"
 		else
 			config_get exists "$config" $1
-			if [ "$1" = "bandwidth" ]
-			then
-				if [ -z "$exists" ]
-				then
-					return
-				fi
-			elif [ "$exists" != "$2" ]
+			if [ "$exists" != "$2" ]
 			then
 				return
 			fi
@@ -95,39 +89,36 @@ qmp_set_gateway()
 }
 
 qmp_gw_search_default_ipv4() {
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0 bandwidth 100000
-	qmp_set_gateway ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
+	qmp_set_gateway ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0 tableRule 32767/253
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_search_default_ipv6() {
-	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
+	qmp_set_gateway ignore 1 type offer network ::/0
 	qmp_set_gateway ignore 0 type search network ::/0
-	qmp_gw_masq_wan 0
 }
 
 qmp_gw_offer_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 0 type offer network 0.0.0.0/0 bandwidth 100000
+	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0 tableRule 32767/253
+	qmp_set_gateway ignore 0 type offer network 0.0.0.0/0
 	qmp_gw_masq_wan 1
 }
 
 qmp_gw_offer_default_ipv6() {
 	qmp_set_gateway ignore 1 type search network ::/0
-	qmp_set_gateway ignore 0 type offer network ::/0 bandwidth 100000
-	qmp_gw_masq_wan 1
+	qmp_set_gateway ignore 0 type offer network ::/0
 }
 
 qmp_gw_disable_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0 bandwidth 100000
+	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0 tableRule 32767/253
+	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_disable_default_ipv6() {
 	qmp_set_gateway ignore 1 type search network ::/0
-	qmp_set_gateway ignore 1 type offer network ::/0 bandwidth 100000
-	qmp_gw_masq_wan 0
+	qmp_set_gateway ignore 1 type offer network ::/0
 }
 
 qmp_gw_default() {

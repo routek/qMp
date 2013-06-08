@@ -1,0 +1,1 @@
+../scripts/switch_wdr.sh

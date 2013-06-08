@@ -39,7 +39,7 @@ define Package/qmp-system
   SECTION:=net
   CATEGORY:=qMp
   URL:=http://qmp.cat
-  DEPENDS:=
+  DEPENDS:=+luci-lib-core +luci-lib-nixio +luci-lib-sys +luci-lib-web
 endef
 
 define Package/qmp-system/description

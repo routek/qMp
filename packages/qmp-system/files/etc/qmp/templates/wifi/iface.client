@@ -1,4 +1,8 @@
-wireless.@wifi-iface[#QMP_INDEX].mode=sta
-wireless.@wifi-iface[#QMP_INDEX].ssid=#QMP_SSID
-wireless.@wifi-iface[#QMP_INDEX].encryption=none
-wireless.@wifi-iface[#QMP_INDEX].device=#QMP_DEVICE
+wireless.#QMP_DEVICE.device=#QMP_RADIO
+wireless.#QMP_DEVICE.mode=sta
+wireless.#QMP_DEVICE.ssid=#QMP_SSID
+wireless.#QMP_DEVICE.network=#QMP_NETWORK
+wireless.#QMP_DEVICE.encryption=#QMP_ENC    
+wireless.#QMP_DEVICE.key=#QMP_KEY  
+wireless.#QMP_DEVICE.ifname=#QMP_IFNAME
+

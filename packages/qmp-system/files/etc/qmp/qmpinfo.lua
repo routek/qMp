@@ -24,14 +24,67 @@
 
 --]]
 
-iwinfo = require "iwinfo"
-util = require "luci.util"
-sys = require "luci.sys"
-
-qmpinfo = {}
+local iwinfo = require "iwinfo"
+local util = require "luci.util"
+local sys = require "luci.sys"
+local nixio = require "nixio"
+local uci = luci.model.uci.cursor()
+local qmpinfo = {}
 local i,d
 
+-- returns all the physical devices as a table
+--  in table.wifi only the wifi ones
+--  in table.eth only the non-wifi ones
+
 function qmpinfo.get_devices()
+	local d
+	local phydevs = {}
+	phydevs.wifi = {}
+	phydevs.all = {}
+	phydevs.eth = {}
+	local ignored = util.split(uci:get("qmp","interfaces","ignore_devices") or "")
+	
+	uci:foreach('network','switch_vlan', function (s)
+			local name = uci:get("network",s[".name"],"device")
+			local vlan = uci:get("network",s[".name"],"vid")
+			if name ~= nil and vlan ~= nil then
+				table.insert(phydevs.eth,name..'.'..vlan)
+				table.insert(phydevs.all,name..'.'..vlan) 
+				table.insert(ignored,name)
+			end
+		end)
+
+	local sysnet = "/sys/class/net/"
+	for d in nixio.fs.dir(sysnet) do
+		if nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then 
+			if string.find(d,"%.") == nil and string.find(d,"ap") == nil then
+
+				local ignore = false
+				local _,id
+				for _,id in ipairs(ignored) do
+					if id == d then
+						ignore = true
+						break
+					end
+				end
+				if not ignore then
+
+					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
+		                table.insert(phydevs.wifi,d)
+					else
+						table.insert(phydevs.eth,d) 
+					end
+					table.insert(phydevs.all,d) 
+				end
+			end
+		end
+	end
+
+	return phydevs
+end
+
+-- deprecated	
+function qmpinfo.get_devices_old()
 
 	ethernet_interfaces = { 'eth' }
 	wireless_interfaces = { 'ath', 'wlan' }
@@ -201,6 +254,18 @@ function qmpinfo.bandwidth_test(ip)
         end
 
         return result
+end
+
+function qmpinfo.get_wifi_index()
+	local k,v
+	local windex = {}
+	for k,v in pairs(uci:get_all("qmp")) do
+			if v.device ~= nil and v.mac ~= nil then
+				table.insert(windex,k)
+			end
+	end
+	
+	return windex
 end
 
 function qmpinfo.nodes()

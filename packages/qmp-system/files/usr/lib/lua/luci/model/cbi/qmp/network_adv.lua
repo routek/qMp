@@ -30,46 +30,44 @@ eth_section = m:section(NamedSection, "networks", "qmp", "Interfaces", "Interfac
 eth_section.addremove = False
 
 -- Option: DNS
-eth_section:option(Value, "dns", "Nameservers","Define the nameservers to use")
+eth_section:option(Value, "dns", "Nameservers",translate("Define the nameservers to use."))
 
 -- Option: lan addresses
-eth_section:option(Value, "lan_address", "LAN address","IPv4 address for LAN interfaces")
+eth_section:option(Value, "lan_address", "LAN address",translate("IPv4 address for LAN interfaces."))
 
 -- Option: lan addresses
-eth_section:option(Value, "lan_netmask", "LAN netmask","IPv4 netmask for LAN interfaces")
+eth_section:option(Value, "lan_netmask", "LAN netmask",translate("IPv4 netmask for LAN interfaces."))
 
 -- Option: publish lan
-eth_section:option(Flag, "publish_lan", "Publish LAN", "Publish LAN network through the mesh")
+--eth_section:option(Flag, "publish_lan", "Publish LAN", "Publish LAN network through the mesh")
 
 -- Option: disable dhcp
-eth_section:option(Flag, "disable_lan_dhcp", "Disable LAN DHCP", "Disable DHCP server in LAN network (not recommended)")
+eth_section:option(Flag, "disable_lan_dhcp", "Disable DHCP from LAN",
+translate("Disable DHCP server in LAN network (not recommended)."))
 
 -- Option bmx6_ipv4_address
-eth_section:option(Value, "bmx6_ipv4_address", "IPv4 address for BMX6","IPv4 address used for BMX6 (main address)")
-
--- Option olsr6_ipv4_address
-eth_section:option(Value, "olsr6_ipv4_address", "IPv4 address for OLSR","IPv4 address used for BMX6 (main address)")
-
--- Option: olsr6_ipv4_prefix24
-eth_section:option(Value, "olsr6_ipv4_prefix24", "IPv4 prefix for OLSR","IPv4 prefix used for OLSR network (used if olsr6_ipv4_address not defined)")
+eth_section:option(Value, "bmx6_ipv4_address", "Main IPv4 address",
+translate("IPv4 address used for bmx6 (main address). Leave blank to randomize."))
 
 -- Option: bmx6_ipv4_prefix24
-eth_section:option(Value, "bmx6_ipv4_prefix24", "IPv4 prefix for BMX6","IPv4 prefix used for BMX6 network (used if bmx6_ipv4_address not defined)")
+eth_section:option(Value, "bmx6_ipv4_prefix24", "Random-IPv4 prefix 24",
+translate("Used to calculate the IP if it is not defined in the field before (example: 10.40.50)."))
 
 -- Option: bmx6_ripe_prefix48
-eth_section:option(Value, "bmx6_ripe_prefix48", "IPv6 prefix for BMX6","IPv6 prefix used for BMX6 network")
-
--- Option: olsr6_ripe_prefix48
-eth_section:option(Value, "olsr6_ripe_prefix48", "IPv6 prefix for OLSR","IPv6 prefix used for OLSR network")
+eth_section:option(Value, "bmx6_ripe_prefix48", "Main IPv6 prefix",
+translate("If you have a global IPv6 48bits prefix, specify it here. Otherwise leave it blank."))
 
 
 -- Option: netserver
-nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test","If enabled all nodes will be able to perform bandwidth tests with your node")
+nts = eth_section:option(ListValue, "netserver", "Permit bandwidth test",
+translate("If enabled all nodes will be able to perform bandwidth tests with your node"))
+
 nts:value("0","no")
 nts:value("1","yes")
 
 -- Option force_internet
-fint = eth_section:option(ListValue, "force_internet", "Force internet","Just use it if you want force the system to share/unshare internet")
+fint = eth_section:option(ListValue, "force_internet", "Force internet",
+translate("Usese it if you want force the system to share/unshare Internet (not recommended)"))
 fint:value("","disabled")
 fint:value("1","yes")
 fint:value("0","no")
@@ -78,18 +76,21 @@ fint:value("0","no")
 -- Non overlapping
 ---------------------------
 
-overlapping_section = m:section(NamedSection, "non_overlapping", "qmp", "DHCP overlapping configuration", "DHCP overlapping configuration")
+overlapping_section = m:section(NamedSection, "non_overlapping", "qmp", 
+translate("DHCP roaming", "DHCP roaming IPv4 overlapping configuration"))
 overlapping_section.addremove = False
 
-ignore = overlapping_section:option(ListValue, "ignore", "Overlapping dhcp","If enabled each node will give a different DHCP range")
+ignore = overlapping_section:option(ListValue, "ignore", 
+translate("DHCP roaming","If yes, the DHCP roaming will be enabled. Each mesh node will give a different /24 to the LAN clients from the same /16."))
 ignore:value("1","no")
 ignore:value("0","yes")
 
 -- Option: dhcp_offset
-overlapping_section:option(Value, "dhcp_offset", "DHCP offset","DHCP offset to calculate the first IP to give")
+overlapping_section:option(Value, "dhcp_offset", "DHCP offset",
+translate("Offset to calculate the first IP to give throw DHCP"))
 
 -- Option: Leassetime
-overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime","Leassetime for DHCP")
+overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime",translate("Leassetime for DHCP"))
 
 
 --------------------------

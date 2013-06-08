@@ -64,7 +64,8 @@ else
 end
 netmode.default=networkmode
 
-nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network. <br/>Leave blank for randomize."))
+nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),
+translate("Main IPv4 address. This IP must be unique in the Mesh network. <br/>Leave blank for randomize."))
 nodeip_roaming:depends("_netmode","roaming")
 
 local rip = uciout:get("qmp","networks","bmx6_ipv4_address")
@@ -77,18 +78,23 @@ end
 
 nodeip_roaming.default=rip
 
-nodename = m:field(Value, "_nodename", translate("Node name"),translate("The name of this node"))
+nodename = m:field(Value, "_nodename", translate("Node name"),
+translate("The name of this node. Two random hex-digits will be added at the end."))
+
 nodename:depends("_netmode","community")
 nodename.default="qMp"
 if uciout:get("qmp","node","community_id") ~= nil then
 	nodename.default=uciout:get("qmp","node","community_id")
 end
 
-nodeip = m:field(Value, "_nodeip", translate("IP address"),translate("Main IPv4 address. This IP must be unique in the Mesh network."))
+nodeip = m:field(Value, "_nodeip", translate("IP address"),
+translate("Main IPv4 address. This IP must be unique in the Mesh network. If will be used for LAN end users."))
+
 nodeip:depends("_netmode","community")
 nodeip.default = "10.30."..util.trim(util.exec("echo $((($(date +%M)*$(date +%S)%254)+1))"))..".1"
 
-nodemask = m:field(Value, "_nodemask",translate("Network mask"),translate("Netmask to use with IPv4 address. This range will be used for end user connection (DHCP)."))
+nodemask = m:field(Value, "_nodemask",translate("Network mask"),
+translate("Netmask to use with the IPv4 address specified before. This mask will be used for LAN end users."))
 nodemask:depends("_netmode","community")
 nodemask.default = "255.255.255.0"
 
@@ -113,7 +119,7 @@ local function is_a(dev, what)
 	return false
 end
 
-for i,v in ipairs(devices[1]) do
+for i,v in ipairs(devices.eth) do
         tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("Lan")
@@ -133,15 +139,28 @@ end
 -- Wireless devices
 nodedevs_wifi = {}
 
-for i,v in ipairs(devices[2]) do
+for i,v in ipairs(devices.wifi) do
 	tmp = m:field(ListValue, "_" .. v, v)
 	tmp:value("Mesh")
 	tmp:value("AP")
+	tmp.default = ""
 
 	if is_a(v,"lan_devices") then
+		-- If the device is in lan_devices, it is AP mode
 		tmp.default = "AP"
 	else
-		tmp.default = "Mesh"
+		-- Check if the device is adhoc_ap mode, then Mode=AP MeshAll=1
+		uciout:foreach("qmp","wireless", function (s)
+			if s.device == v then
+				if s.mode == "adhoc_ap" then
+					tmp.default = "AP"
+				end
+			end
+
+		end)
+
+		-- If it is not adhoc_ap it is only mesh
+		if tmp.default == "" then tmp.default = "Mesh" end
 	end
 
 	nodedevs_wifi[i] = {v,tmp}
@@ -205,16 +224,20 @@ function netmode.write(self, section, value)
 		devmode = v[2]:formvalue(section)
 		devname = v[1]
 
-		if devmode == "AP" then
-			lan_devices = lan_devices..devname.." "
-		elseif devmode == "Mesh" then
+		if (devmode == "AP" and meshall == "1") or devmode == "Mesh" then
 			mesh_devices = mesh_devices..devname.." "
+		elseif devmode == "AP" and meshall ~= "1" then
+			lan_devices = lan_devices..devname.." "
 		end
 
 		function setmode(s)
 			if s.device == devname then
-				if devmode == "AP" then uciout:set("qmp",s['.name'],"mode","ap") end
-				if devmode == "Mesh" then uciout:set("qmp",s['.name'],"mode","adhoc") end
+				if devmode == "AP" and meshall == "1" then 
+					uciout:set("qmp",s['.name'],"mode","adhoc_ap")
+				elseif devmode == "AP" then
+					uciout:set("qmp",s['.name'],"mode","ap")
+				else
+					uciout:set("qmp",s['.name'],"mode","adhoc") end
 			end
 		end
 		uciout:foreach("qmp","wireless",setmode)

@@ -48,7 +48,9 @@ qmp_uci_get_raw() {
 }
 
 qmp_uci_set() {
-	uci -q set qmp.$1=$2 > /dev/null
+	section="$1"
+	shift
+	uci -q set qmp.$section="$@" > /dev/null
 	r=$?
 	uci commit
 	r=$(( $r + $? ))
@@ -68,7 +70,7 @@ qmp_uci_set_raw() {
 }
 
 qmp_uci_del() {
-	uci -q del qmp.$1
+	uci -q delete qmp.$1
 	r=$?
 	uci commit
 	r=$(( $r + $? ))
@@ -78,7 +80,7 @@ qmp_uci_del() {
 }
 
 qmp_uci_del_raw() {
-        uci -q del $@
+        uci -q delete $@
 	r=$?
 	uci commit
 	r=$(( $r + $? ))
@@ -149,7 +151,7 @@ qmp_uci_import() {
 }
 
 qmp_uci_test() {
-	option=$1
+	option=$@
 	u="$(uci get $option > /dev/null 2>&1)"
 	r=$?
 	return $r
@@ -182,7 +184,7 @@ qmp_debug() {
 
 # Returns the names of the wifi devices from the system
 qmp_get_wifi_devices() {
-	awk 'NR>2 { gsub(/:$/,"",$1); print $1 }' /proc/net/wireless
+	awk 'NR>2 { gsub(/:$/,"",$1); print $1 }' /proc/net/wireless | grep -v -e "wlan[0-9]-[0-9]"
 }
 
 # Returns the MAC address of the wifi devices
@@ -216,7 +218,7 @@ qmp_get_mac_for_dev() {
 # Returns the mac addres for specific device,, only wifi devs are allowed. Useful when eth and wlan have same MAC
 # qmp_get_dev_from_wifi_mac 00:22:11:33:44:55
 qmp_get_dev_from_wifi_mac() {
-	for device in $(qmp_get_wifi_devices)
+	for device in $(qmp_get_wifi_devices | sort)
 	do
 		if grep -q -i "^$1$" "/sys/class/net/$device/phy80211/macaddress" "/sys/class/net/$device/address" 2> /dev/null
 		then
@@ -225,6 +227,25 @@ qmp_get_dev_from_wifi_mac() {
 		fi
 	done
 }
+
+#########################
+# Hooks related functions
+#########################
+
+qmp_hooks_exec() {
+    local stage="$1"
+    local device="$(cat /tmp/sysinfo/board_name)"
+    [ -z "$stage" -o -z "$device" ] && return 1
+    local hooksdir="/etc/qmp/hooks/$device"
+
+    [ -d "$hooksdir" ] && {
+    for h in $hooksdir/*; do
+        echo "Executing hook $h in stage $stage"
+        sh $h $stage
+    done
+    }
+}
+
 
 #########################
 # Other kind of commands
