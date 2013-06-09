@@ -87,7 +87,11 @@ for _,wdev in ipairs(wdevs) do
 	mode:value("none","Not used")
 
 	-- Name
-	s_wireless:option(Value,"name","Wireless name")
+	local essid = s_wireless:option(Value,"name","Wireless name")
+	-- maxlength is documented but not implemented
+	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
+	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
+	essid.maxlength = 32
 
 	-- Channel
 	channel = s_wireless:option(ListValue,"channel","Channel")
