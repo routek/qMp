@@ -159,7 +159,7 @@ PRIVATE_NETWORKS="$IPLOCAL 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
 		stop)
 			iptables -t nat -D PREROUTING -i br-lan -j captive-portal	
 			iptables -t nat -F captive-portal
-			iptables -t nat -X cpative-portal
+			iptables -t nat -X captive-portal
 		;;
 		start)	
 
