@@ -81,7 +81,11 @@ for _,wdev in ipairs(wdevs) do
 	mode:value("none","Not used")
 
 	-- Name
-	s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
+	local essid = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
+	-- maxlength is documented but not implemented
+	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
+	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
+	essid.maxlength = 32
 
 	-- Channel
 	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to be used in this device.<br/>Select +/- for 40MHz channel. Select b for 802.11b only"))
