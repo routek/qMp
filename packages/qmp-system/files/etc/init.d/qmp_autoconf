@@ -115,10 +115,12 @@ configure() {
 	qmp_configure_initial
 	qmp_configure
 
-	#Configure batman-adv
-	echo "[Configure batman-adv]"
-	. $QMP_DIR/qmp_batadv.sh
-	qmp_create_batadv
+	if [ -e "$QMP_DIR/qmp_batadv.sh" ]; then
+		#Configure batman-adv
+		echo "[Configure batman-adv]"
+		. $QMP_DIR/qmp_batadv.sh
+		qmp_create_batadv
+	fi
 
 	log ==================================================
 	log                   Rebooting

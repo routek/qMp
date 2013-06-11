@@ -126,7 +126,9 @@ qmp_create_batadv() {
 	local meshInterface
 	[ -z "$2" ] && meshInterface='mesh_batadv' || meshInterface="$2"
 
-	qmp_create_batadv_interface $meshDevice $batDevice $meshInterface
-	qmp_add_batadv_interface $lanInterface $batDevice
-	qmp_config_batadv $meshInterface
+	if [ ! $(qmp_uci_get batadv.ignore) -eq 1 ]; then
+		qmp_create_batadv_interface $meshDevice $batDevice $meshInterface
+		qmp_add_batadv_interface $lanInterface $batDevice
+		qmp_config_batadv $meshInterface
+	fi
 }
