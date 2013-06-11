@@ -42,7 +42,7 @@ define Package/qmp-small-node
   DEPENDS:= \
 	+qmp-tiny-node \
 	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
-	+synctincvpn \
+	+synctincvpn +altermap-agent \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath +tcpdump-mini \
 	+cgi-bin-zero \
 	+kmod-tun +kmod-ipip \
