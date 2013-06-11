@@ -1,0 +1,11 @@
+#!/bin/sh
+# Copyleft 2012 Gui Iribarren <gui@altermundi.net>
+# This is free software, licensed under the GNU General Public License v3.
+
+. /lib/altermap/functions.sh
+
+agent_scripts="/lib/altermap/agent/"
+
+for hook in $agent_scripts/* ; do
+  [ -x "$hook" ] && ( . $hook ; run_hook )
+done
