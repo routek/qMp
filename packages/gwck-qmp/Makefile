@@ -25,7 +25,7 @@ PKG_SOURCE_PROTO:=git
 
 PKG_SOURCE_URL:=git://qmp.cat/gwck.git
 PKG_REV:=ba65137b304a9fd5134581181c11affa612741a3
-PKG_VERSION:=r2013061301
+PKG_VERSION:=r2013061302
 
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
@@ -42,7 +42,7 @@ define Package/gwck-qmp
   URL:=http://qmp.net/projects/gwck
   MAINTAINER:=Simó Albert i Beltran <sim6@graciasensefils.net>
   MENU:=1
-  DEPENDS:=+fping +bmx6-qmp
+  DEPENDS:=+fping +bmx6
 endef
 
 define Package/gwck-qmp/description
