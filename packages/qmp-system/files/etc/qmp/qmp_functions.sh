@@ -921,6 +921,8 @@ qmp_unconfigure_bmx6_gateways()
 {
 	config_load bmx6
 	config_foreach qmp_remove_qmp_bmx6_tunnels tunInNet
+	config_foreach qmp_remove_qmp_bmx6_tunnels tunDev
+	config_foreach qmp_remove_qmp_bmx6_tunnels tunIn
 	config_foreach qmp_remove_qmp_bmx6_tunnels tunOut
 }
 
@@ -957,9 +959,10 @@ qmp_add_qmp_bmx6_tunnels()
 	config_get type "$section" type
 	if [ "$type" = "offer" ]
 	then
-		bmx6_type=tunInNet
+		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
-		qmp_translate_configuration qmp $section network $config $name $bmx6_type
+		uci set $config.$name.$bmx6_type="$name"
+		qmp_translate_configuration qmp $section network $config $name
 		qmp_translate_configuration qmp $section bandwidth $config $name
 	else
 		# if [ "$type" = "search" ]
@@ -1056,6 +1059,9 @@ qmp_configure_bmx6() {
 	      local bmx6_ipv4_address="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -d / -f1)"
 	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
 	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+	      uci set $conf.D=tunDev
+	      uci set $conf.D.tunDev=D
+	      uci set $conf.D.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
 
 	    else
 	      local ipv4_suffix24="$(( 0x$community_node_id % 0x100 ))"
@@ -1064,6 +1070,10 @@ qmp_configure_bmx6() {
 	      	ipv4_prefix24="${ipv4_prefix24}.0"
 	      fi
 	      uci set $conf.general.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
+	      uci set $conf.D=tunDev
+	      uci set $conf.D.tunDev=D
+	      uci set $conf.D.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
+
 	    fi
 
 	    counter=$(( $counter + 1 ))
@@ -1076,6 +1086,9 @@ qmp_configure_bmx6() {
 
   if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
     uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+    uci set $conf.D=tunDev
+    uci set $conf.D.tunDev=D
+    uci set $conf.D.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
   fi
 
   qmp_configure_bmx6_gateways
