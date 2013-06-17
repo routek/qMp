@@ -6,13 +6,6 @@
 * License: GPL
 * Copyright (c) 2001-2004 Ethan Galstad (nagios@nagios.org)
 * Copyright (c) 2006-2013 OpenWRT.org
-* ======================================================
-* Mike Gore 25 Aug 2005
-*    Modified for standalone operation - without usage2,usage4, etc
-*    Removed printf(_( style and replaced with printf(
-*    added standalone COPYRIGHT string and print_revision()
-*    Added ability to set MAC address
-* ======================================================
 *
 * License Information:
 *
@@ -30,23 +23,19 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 *
-* $Id: check_dhcp.c,v 1.7 2005/01/25 18:11:21 harpermann Exp $
-*
 *****************************************************************************/
 
-const char *COPYRIGHT= "\
-* CHECK_DHCP.C\n \
+const char *COPYRIGHT= " \
 *\n \
-* Program: DHCP plugin for Nagios\n \
 * License: GPL\n \
 * Copyright (c) 2001-2004 Ethan Galstad (nagios@nagios.org)\n \
 * Copyright (c) 2006-2013 OpenWRT.org \n \
 * ====================================================== \n \
 * Mike Gore 25 Aug 2005 \n \
-*    Modified for standalone operation - without usage2,usage4, etc \n \
+*    Modified for standalone operation \n \
 * ====================================================== \n \
 * Pau Escrich Jun 2013 \n \
-*    Ported to OpenWRT \n \
+*    Added -b option and ported to OpenWRT \n \
 * ====================================================== \n \
 *\n \
 ** License Information:\n \
@@ -65,13 +54,13 @@ const char *COPYRIGHT= "\
 * along with this program; if not, write to the Free Software\n \
 * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n \
 *\n \
-* $Id: check_dhcp.c,v 1.7 2005/01/25 18:11:21 harpermann Exp $\n \
+* $Id: dhcpdiscover.c,v 2$\n \
 *"; 
 
-const char *progname = "check_dhcp";
-const char *revision = "$Revision: 1.7 $";
-const char *copyright = "2001-2004";
-const char *email = "nagiosplug-devel@lists.sourceforge.net";
+const char *progname = "dhcpdiscover";
+const char *revision = "$Revision: 2$";
+const char *copyright = "2006-2013";
+const char *email = "p4u@dabax.net";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,9 +221,11 @@ typedef struct requested_server_struct{
 
 unsigned char client_hardware_address[MAX_DHCP_CHADDR_LENGTH]="";
 unsigned int my_client_mac[MAX_DHCP_CHADDR_LENGTH];
-unsigned int banned_mac[MAX_DHCP_CHADDR_LENGTH];
 int mymac = 0;
-int bnmac = 0;
+
+struct in_addr banned_ip;
+int banned = 0;
+char baddr[16];
 
 char network_interface_name[8]="eth0";
 
@@ -299,9 +290,12 @@ int main(int argc, char **argv){
 	if(process_arguments(argc,argv)!=OK){
 		printf("Could not parse arguments");
 		}
-
-	if(bnmac)
-		printf("Banned MAC: %x:%x\n", banned_mac[0],  banned_mac[1]);
+		
+	// Set banned addr in string format in global var baddr
+	if ( banned ) {
+		inet_ntop(AF_INET, &(banned_ip), baddr, INET_ADDRSTRLEN);
+		if(verbose) printf("Banned addr:%s\n",baddr);
+		}
 
 	/* create socket for DHCP communications */
 	dhcp_socket=create_dhcp_socket();
@@ -575,6 +569,17 @@ int get_dhcp_offer(int sock){
 		result=OK;
 		result=receive_dhcp_packet(&offer_packet,sizeof(offer_packet),sock,dhcpoffer_timeout,&source);
 		
+		// checks if the source address is the banned one
+	    char saddr[16];
+	    inet_ntop(AF_INET, &(source.sin_addr), saddr, INET_ADDRSTRLEN);
+	    
+	    if (banned && strcmp(saddr,baddr) == 0) {
+		    printf("DHCP offer comming from the banned addr %s, ignoring it\n",baddr);
+		    result = 1;
+	    }
+
+
+		
 		if(result!=OK){
 			if (verbose)
 				printf("Result=ERROR\n");
@@ -693,7 +698,7 @@ int receive_dhcp_packet(void *buffer, int buffer_size, int sock, int timeout, st
 		bzero(&source_address,sizeof(source_address));
 		address_size=sizeof(source_address);
         recv_result=recvfrom(sock,(char *)buffer,buffer_size,MSG_PEEK,(struct sockaddr *)&source_address,&address_size);
-		printf("Source addr:%d\n",source_address);
+		
 		if (verbose)
 			printf("recv_result_1: %d\n",recv_result);
                 recv_result=recvfrom(sock,(char *)buffer,buffer_size,0,(struct sockaddr *)&source_address,&address_size);
@@ -888,7 +893,6 @@ int add_dhcp_offer(struct in_addr source,dhcp_packet *offer_packet){
 	new_offer->renewal_time=dhcp_renewal_time;
 	new_offer->rebinding_time=dhcp_rebinding_time;
 
-
 	if (verbose) {
 		printf("Added offer from server @ %s",inet_ntoa(new_offer->server_address));
 		printf(" of IP address %s\n",inet_ntoa(new_offer->offered_address));
@@ -1058,7 +1062,7 @@ int call_getopt(int argc, char **argv){
 		{"timeout",        required_argument,0,'t'},
 		{"interface",      required_argument,0,'i'},
 		{"mac",      	   required_argument,0,'m'},
-		{"bannedmac",      required_argument,0,'b'},
+		{"bannedip",       required_argument,0,'b'},
 		{"verbose",        no_argument,      0,'v'},
 		{"version",        no_argument,      0,'V'},
 		{"help",           no_argument,      0,'h'},
@@ -1109,19 +1113,15 @@ int call_getopt(int argc, char **argv){
 			}
 			mymac = 1;
 			break;
-		case 'b': /* Banned MAC */
-			ret = sscanf(optarg,"%x:%x:%x:%x:%x:%x", 
-				banned_mac+0,
-				banned_mac+1,
-				banned_mac+2,
-				banned_mac+3,
-				banned_mac+4,
-				banned_mac+5);
-			if(ret != 6)
-				usage("Invalid MAC address\n");
-			else
-				bnmac = 1;
+		case 'b': /* Banned IP */
+			if(inet_aton(optarg,&ipaddress)) {
+				banned_ip = ipaddress;
+				banned = 1;
+			}
+			else 
+				printf("Banned IP not specified, ignoring -b");
 			break;
+		
 		case 's': /* DHCP server address */
 			if(inet_aton(optarg,&ipaddress))
 				add_requested_server(ipaddress);
@@ -1327,11 +1327,9 @@ void print_help(void){
 
 	print_revision(progname,revision);
 
-	printf("Copyright (c) 2001-2004 Ethan Galstad (nagios@nagios.org)\n\n");
-	printf("Copyright (c) 2006-2013 OpenWRT.org\n\n");
 	printf(COPYRIGHT, copyright, email);
 	
-	printf("This program checks the existence and more details of a DHCP server\n\n");
+	printf("\n\nThis program checks the existence and more details of a DHCP server\n\n");
 
 	print_usage();
 
@@ -1342,8 +1340,8 @@ void print_help(void){
    IP address that should be offered by at least one DHCP server\n\
  -m, --mac=MACADDRESS\n\
    Client MAC address to use for sending packets\n\
- -b, --bannedmac=MACADDRESS\n\
-  Server MAC address not taked into account\n\
+ -b, --bannedip=IPADDRESS\n\
+   Server IP address to ignore\n\
  -t, --timeout=INTEGER\n\
    Seconds to wait for DHCPOFFER before timeout occurs\n\
  -i, --interface=STRING\n\
@@ -1353,14 +1351,16 @@ void print_help(void){
  -h, --help\n\
    Print detailed help screen\n\
  -V, --version\n\
-   Print version information\n");
+   Print version information\n\n\
+Example: sudo ./dhcpdiscover -i eth0 -b 192.168.1.1\n\
+");
 }
 
 
 void print_usage(void)
 {
 	printf("\
-Usage: %s [-s serverip] [-r requestedip] [-m clientmac ] [-b bannedmac] [-t timeout] [-i interface]\n\
+Usage: %s [-s serverip] [-r requestedip] [-m clientmac ] [-b bannedip] [-t timeout] [-i interface]\n\
                   [-v]",progname);
 }
 
