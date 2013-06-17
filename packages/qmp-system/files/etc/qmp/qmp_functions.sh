@@ -1059,9 +1059,9 @@ qmp_configure_bmx6() {
 	      local bmx6_ipv4_address="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -d / -f1)"
 	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
 	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
-	      uci set $conf.D=tunDev
-	      uci set $conf.D.tunDev=D
-	      uci set $conf.D.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+	      uci set $conf.tmain=tunDev
+	      uci set $conf.tmain.tunDev=tmain
+	      uci set $conf.tmain.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
 
 	    else
 	      local ipv4_suffix24="$(( 0x$community_node_id % 0x100 ))"
@@ -1070,9 +1070,9 @@ qmp_configure_bmx6() {
 	      	ipv4_prefix24="${ipv4_prefix24}.0"
 	      fi
 	      uci set $conf.general.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
-	      uci set $conf.D=tunDev
-	      uci set $conf.D.tunDev=D
-	      uci set $conf.D.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
+	      uci set $conf.tmain=tunDev
+	      uci set $conf.tmain.tunDev=tmain
+	      uci set $conf.tmain.tun4Address="$ipv4_prefix24.$ipv4_suffix24/32"
 
 	    fi
 
@@ -1086,9 +1086,9 @@ qmp_configure_bmx6() {
 
   if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
     uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
-    uci set $conf.D=tunDev
-    uci set $conf.D.tunDev=D
-    uci set $conf.D.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+    uci set $conf.tmain=tunDev
+    uci set $conf.tmain.tunDev=tmain
+    uci set $conf.tmain.tun6Address="$(qmp_uci_get networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
   fi
 
   qmp_configure_bmx6_gateways
