@@ -234,7 +234,11 @@ qmp_get_dev_from_wifi_mac() {
 
 qmp_hooks_exec() {
     local stage="$1"
-    local device="$(cat /tmp/sysinfo/board_name)"
+	local device="none"
+	
+	[ -e /tmp/sysinfo/board_name ] && device="$(cat /tmp/sysinfo/board_name 2>/dev/null)" \
+		|| device=$(cat /proc/cpuinfo | grep vendor_id | cut -d: -f2 | tr -d ' ')
+    
     [ -z "$stage" -o -z "$device" ] && return 1
     local hooksdir="/etc/qmp/hooks/$device"
 

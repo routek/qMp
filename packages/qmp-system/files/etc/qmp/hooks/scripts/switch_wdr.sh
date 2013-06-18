@@ -2,16 +2,21 @@
 # Stage = [birth|firstboot|anyboot|preconf|postconf]
 STAGE="$1"
 
-[ "$STAGE" == "birth" ] && {
+[ "$STAGE" == "firstboot" ] && {
+
+[ "$(uci -q get network.@switch[0].name)" == "eth0" ] && {
+	echo "Switch already configured"
+	exit 0
+	}
 
 echo "Configuring TPlink WDR switch [INET|LAN|LAN|LAN|MESH]"
 
-uci delete network.@switch[0]
+uci -q delete network.@switch[0]
 uci add network switch
 
-uci delete network.@switch_vlan[2]
-uci delete network.@switch_vlan[1]
-uci delete network.@switch_vlan[0]
+uci -q delete network.@switch_vlan[2]
+uci -q delete network.@switch_vlan[1]
+uci -q delete network.@switch_vlan[0]
 
 uci add network switch_vlan > /dev/null
 uci add network switch_vlan > /dev/null
@@ -38,11 +43,4 @@ uci set network.@switch_vlan[2].ports="0t 5t"
 uci set network.@switch_vlan[2].vid=12
 
 uci commit network
-
-uci set qmp.interfaces.lan_devices="eth0.1"
-uci set qmp.interfaces.mesh_devices="eth0.12"
-uci set qmp.interfaces.wan_devices="eth0.2"
-uci set qmp.interfaces.no_vlan_devices="eth0.12"
-uci set qmp.interfaces.ignore_devices="eth0"
-uci commit qmp
 }

@@ -34,17 +34,9 @@ log() {
 }
 
 exechooks() {
-	local stage="$1"
-	stage=${stage:-anyboot}
-	local device="$(cat /tmp/sysinfo/board_name)"
-	local hooksdir="/etc/qmp/hooks/$device"
-
-	[ -n "$device" ] && [ -d "$hooksdir" ] && {
-	for h in $hooksdir/*; do
-		echo "Executing hook: $h"
-		sh $h $stage
-	done
-	}
+	local stage=${1:-anyboot}
+	. $QMP_DIR/qmp_common.sh
+	qmp_hooks_exec $stage
 }
 
 prepare_wifi() {
@@ -55,8 +47,8 @@ prepare_wifi() {
 	# It is a quick hack, because each time ath9k is loaded the phyX counter increases
 	# and openwrt wifi scripts take the device namw (i.e wlan0) from this counter
 	# It only works for ath9k	
-	rmmod ath9k
-	insmod ath9k
+	rmmod ath9k 2>/dev/null
+	insmod ath9k 2>/dev/null
 	sleep 1
 
 	local index=0

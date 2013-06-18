@@ -701,7 +701,7 @@ qmp_configure_prepare() {
 }
 
 qmp_configure_prepare_network() {                                                         
-	local toRemove="$(uci show network | egrep "network.(lan|wan_|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
+	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
 	echo "Removing network configuration for: $toRemove" | tr '\n' ' '
 	for i in $toRemove; do
 		uci del network.$i
