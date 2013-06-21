@@ -47,9 +47,9 @@ prepare_wifi() {
 	# It is a quick hack, because each time ath9k is loaded the phyX counter increases
 	# and openwrt wifi scripts take the device namw (i.e wlan0) from this counter
 	# It only works for ath9k	
-	rmmod ath9k 2>/dev/null
-	insmod ath9k 2>/dev/null
-	sleep 1
+	#rmmod ath9k 2>/dev/null
+	#insmod ath9k 2>/dev/null
+	#sleep 1
 
 	local index=0
 	iw phy | grep Wiphy | awk '{print $2}' | while read d
@@ -107,11 +107,10 @@ configure() {
 	qmp_configure_initial
 	qmp_configure
 
-	log ==================================================
-	log                   Rebooting
-	log ==================================================
+	log Rebooting
+
 	touch "$CONTROL_FILE"
-	[ -e "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
+	[ -f "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
 }
 
 # This function is executed in each boot
