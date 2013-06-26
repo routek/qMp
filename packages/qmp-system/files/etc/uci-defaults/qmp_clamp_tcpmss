@@ -23,7 +23,7 @@
 #	Simó Albert i Beltran
 #
 
-if cat /etc/firewall.user | grep -q -e "^# Clamp MSS TCP rule to fix MTU problems"; then exit 0; fi
+if grep -q -e "^# Clamp MSS TCP rule to fix MTU problems" /etc/firewall.user; then exit 0; fi
 
 cat << EOF >> /etc/firewall.user
 # Clamp MSS TCP rule to fix MTU problems
