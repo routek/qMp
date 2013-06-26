@@ -20,7 +20,7 @@
 #    the file called "COPYING".
 #
 
-if cat /etc/firewall.user | grep -e "^# Clamp MSS TCP rule to fix MTU problems"; then exit 0; fi
+if cat /etc/firewall.user | grep -q -e "^# Clamp MSS TCP rule to fix MTU problems"; then exit 0; fi
 
 cat << EOF >> /etc/firewall.user
 # Clamp MSS TCP rule to fix MTU problems
