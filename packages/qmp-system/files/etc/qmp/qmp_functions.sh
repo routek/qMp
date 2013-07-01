@@ -220,31 +220,41 @@ qmp_configure_smart_network() {
 	local lan=""
 	local dev=""
 	local phydevs=""
-	local ignore_devs="$(qmp_uci_get interfaces.ignore_devices)"	
+	local ignore_devs=""
+	
+	[ "$force" != "force" ] && {
+		ignore_devs="$(qmp_uci_get interfaces.ignore_devices)"
+	}
 
 	for dev in $(ls /sys/class/net/); do
 		[ -e /sys/class/net/$dev/device ] && {
 			local id 
 			local ignore=0
+			
 			# Check if device is in the ignore list
-			for id in $ignore_devs; do
-				[ "$id" == "$dev" ] && ignore=1
-			done
+				for id in $ignore_devs; do
+					[ "$id" == "$dev" ] && ignore=1
+				done
+
 			[ $ignore -eq 0 ] && phydevs="$phydevs $dev\n"
-	}
+		}
 	done
 
 	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
 	echo "Network devices found in system: $phydevs"
 
-	lan_devices="$(qmp_uci_get interfaces.lan_devices)"
-	wan_devices="$(qmp_uci_get interfaces.wan_devices)"
-	mesh_devices="$(qmp_uci_get interfaces.mesh_devices)"
+	# if force is not enabled, we are not changing the existing lan/wan/mesh (only adding new ones)
+	[ "$force" != "force" ] && {
+		lan="$(qmp_uci_get interfaces.lan_devices)"
+		wan="$(qmp_uci_get interfaces.wan_devices)"
+		mesh="$(qmp_uci_get interfaces.mesh_devices)"
+	}
 
 	local j=0
 	local mode=""
 	local cnt
 	local cdev
+
 	for dev in $phydevs; do
 
 		# If force is enabled, do not check if the device is already configured		
@@ -252,13 +262,13 @@ qmp_configure_smart_network() {
 			cnt=0
 			# If it is already configured, doing nothing
 			for cdev in $lan_devices; do
-				[ "$cdev" == "$dev" ] && lan="$lan $dev" && cnt=1
+				[ "$cdev" == "$dev" ] && cnt=1
 			done
 			for cdev in $mesh_devices; do
-				[ "$cdev" == "$dev" ] && mesh="$mesh $dev" && cnt=1
+				[ "$cdev" == "$dev" ] && cnt=1
 			done
 			for cdev in $wan_devices; do
-				[ "$cdev" == "$dev" ] && wan="$wan $dev" && cnt=1
+				[ "$cdev" == "$dev" ] && cnt=1
 			done
 			[ $cnt -eq 1 ] && continue
 		}
@@ -302,6 +312,7 @@ qmp_configure_smart_network() {
 	qmp_uci_set interfaces.lan_devices "$(echo $lan | sed -e s/"^ "//g -e s/" $"//g)"
 	qmp_uci_set interfaces.mesh_devices "$(echo $mesh | sed -e s/"^ "//g -e s/" $"//g)"
 	qmp_uci_set interfaces.wan_devices "$(echo $wan | sed -e s/"^ "//g -e s/" $"//g)"
+	qmp_uci_set interfaces.ignore_devices "$ignore_devs"
 }
 
 qmp_attach_device_to_interface() {
