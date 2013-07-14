@@ -227,7 +227,7 @@ qmp_configure_smart_network() {
 	}
 
 	for dev in $(ls /sys/class/net/); do
-		[ -e /sys/class/net/$dev/device ] && {
+		[ -e /sys/class/net/$dev/device ] || [ dev == "eth0" ] && {
 			local id 
 			local ignore=0
 			
