@@ -60,13 +60,15 @@ qmp_uci_set() {
 }
 
 qmp_uci_set_raw() {
-	uci -q set $@ > /dev/null
+	local a=$(echo "$@" | cut -d= -f1)
+	local b=$(echo "$@" | cut -d= -f2)
+	[ -n "$b" ] && uci -q set $a="$b" || uci -q set $@ 2>/dev/null
 	r=$?
 	uci commit
 	r=$(( $r + $? ))
 	[ $r -ne 0 ] && logger -t qMp "UCI returned an error (uci set $@)"
 	qmp_debug "qmp_uci_set_raw: uci -q set $@"
-        return $r
+	return $r
 }
 
 qmp_uci_del() {
@@ -151,8 +153,7 @@ qmp_uci_import() {
 }
 
 qmp_uci_test() {
-	option=$@
-	u="$(uci get $option > /dev/null 2>&1)"
+	u="$(uci -q get $@ 2>&1)"
 	r=$?
 	return $r
 }
@@ -287,3 +288,18 @@ qmp_get_netid_from_network() {
  echo "$(ipcalc.sh $1 $2 | grep NETWORK | cut -d= -f2)"
 }
 
+# TO-EXPLAIN
+qmp_is_in()
+{
+	local search="$1"
+	shift
+	local item
+	for item in $@
+	do
+		if [ "$search" == "$item" ]
+		then
+			return 0
+		fi
+	done
+	return 1
+}
