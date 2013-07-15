@@ -270,7 +270,7 @@ qmp_configure_dhcp() {
 	leasetime=${leasetime:-1h}
 	
 	# If DHCP non overlapping enabled, configuring it (this is the layer3 roaming)
-    if [ $(qmp_uci_get non_overlapping.ignore) -eq 0 ]; then
+	if [ "$(qmp_uci_get non_overlapping.ignore)" == "0" ]; then
 		echo "Configuring DHCP non-overlapping (roaming mode)"
 		local num_grp=256
 		local uci_offset="$(qmp_uci_get non_overlapping.dhcp_offset)"
@@ -280,16 +280,20 @@ qmp_configure_dhcp() {
 		start=$(( 0x$community_node_id * $num_grp + $offset ))
 		limit=$(( $num_grp - $offset ))
 	fi
-	
+
+	# Setting values
+	echo "Setting up DHCP server in LAN interface"
 	qmp_uci_set_raw dhcp.lan="dhcp"
 	qmp_uci_set_raw dhcp.lan.interface="lan"
 	qmp_uci_set_raw dhcp.lan.leasetime="$leasetime"
 	qmp_uci_set_raw dhcp.lan.start="$start"
-    qmp_uci_set_raw dhcp.lan.limit="$limit"
+	qmp_uci_set_raw dhcp.lan.limit="$limit"
 
-	if qmp_uci_test qmp.networks.disable_lan_dhcp; then
-      qmp_uci_set_raw dhcp.lan.ignore="0"
-    else
-      qmp_uci_set_raw dhcp.lan.ignore="1"
-    fi
+	# If disable_lan_dhcp=1 disable DHCP server
+	if [ "$(qmp_uci_get networks.disable_lan_dhcp)" == "1" ]; then
+		echo "DHCP server disabled in LAN interface"
+		qmp_uci_set_raw dhcp.lan.ignore="1"
+	else
+		qmp_uci_set_raw dhcp.lan.ignore="0"
+	fi
 }
