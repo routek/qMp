@@ -133,7 +133,7 @@ start() {
 	if [ ! -e "$CONTROL_FILE" ]; then
 		configure
 	else
-		log QMP configured. Remove $CONTROL_FILE to force reconfiguration
+		echo "qMp already configured. Remove $CONTROL_FILE to force reconfiguration"
 	fi
 
 	startup
