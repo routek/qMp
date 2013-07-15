@@ -30,6 +30,15 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_NET=1
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
 
+qmp_configure_prepare_network() {                                                         
+	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
+	echo "Removing current network configuration"
+	for i in $toRemove; do
+		uci del network.$i
+	done
+	uci commit network
+}
+
 qmp_enable_netserver() {
 	qmp_uci_set networks.netserver 1
 	killall -9 netserver
@@ -251,3 +260,36 @@ qmp_configure_lan_v6() {
 	echo "Done"
 }
 
+# apply the non-overlapping DHCP-range preset policy
+# qmp_configure_dhcp <node_id>
+qmp_configure_dhcp() {
+	local community_node_id="$1"
+	local start=2
+	local limit=253
+	local leasetime="$(qmp_uci_get non_overlapping.qmp_leasetime)"
+	leasetime=${leasetime:-1h}
+	
+	# If DHCP non overlapping enabled, configuring it (this is the layer3 roaming)
+    if [ $(qmp_uci_get non_overlapping.ignore) -eq 0 ]; then
+		echo "Configuring DHCP non-overlapping (roaming mode)"
+		local num_grp=256
+		local uci_offset="$(qmp_uci_get non_overlapping.dhcp_offset)"
+		uci_offset=${uci_offset:-2}
+		local offset=0
+		[ $uci_offset -lt $num_grp ] && offset=$uci_offset
+		start=$(( 0x$community_node_id * $num_grp + $offset ))
+		limit=$(( $num_grp - $offset ))
+	fi
+	
+	qmp_uci_set_raw dhcp.lan="dhcp"
+	qmp_uci_set_raw dhcp.lan.interface="lan"
+	qmp_uci_set_raw dhcp.lan.leasetime="$leasetime"
+	qmp_uci_set_raw dhcp.lan.start="$start"
+    qmp_uci_set_raw dhcp.lan.limit="$limit"
+
+	if qmp_uci_test qmp.networks.disable_lan_dhcp; then
+      qmp_uci_set_raw dhcp.lan.ignore="0"
+    else
+      qmp_uci_set_raw dhcp.lan.ignore="1"
+    fi
+}
