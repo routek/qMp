@@ -84,6 +84,7 @@ qmp_update_check() {
 	device_hash="$(qmp_update_get_local_hash)"
 
 	my_device="$(qmp_update_get_my_device $url/$devices $device_hash $filter)"
+	[ -z "$my_device" ] && qmp_error "I am sorry, I cannot find an image for your device in $url"
 	qmp_debug "My device is $my_device"
 
 	last_image="$(qmp_update_get_last_image_name $url/$images $filter)"
