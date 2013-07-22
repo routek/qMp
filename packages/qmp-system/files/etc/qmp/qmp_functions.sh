@@ -757,6 +757,8 @@ qmp_configure_network() {
     qmp_uci_set_raw network.$viface="interface"
     qmp_attach_device_to_interface $i $viface
     qmp_uci_set_raw network.$viface.proto="dhcp"
+    metric="$(qmp_uci_get network.wan_metric)"
+    qmp_uci_set_raw network.$viface.metric="${metric:-2048}"
   done
   
   # Set some important variables

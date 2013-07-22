@@ -1,0 +1,40 @@
+#
+# Remove tableRule '32767/253' from search gateways.
+#
+# Copyright (C) 2013 Simó Albert i Beltran
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+# Remove tableRule '32767/253' from search gateways.
+# See also: http://qmp.cat/issues/136
+
+qmp_remove_tablerule()
+{
+	local config=$1
+
+	config_get type "$config" type
+	config_get network "$config" network
+	config_get maxPrefixLen "$config" maxPrefixLen
+ 
+	if [ "$type" == "search" -a "$maxPrefixLen" == "0" -a \( "$network" == "0.0.0.0/0" -o "$network" == "fc00::/7" -o "$network" == "::/0" \) ]
+	then
+		uci_remove qmp "$config" tableRule "32767/2531"
+	fi
+}
+
+config_load qmp
+config_foreach qmp_remove_tablerule gateway
+

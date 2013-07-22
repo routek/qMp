@@ -39,6 +39,7 @@ config 'qmp' 'networks'
 	option 'bmx6_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
 	option 'bmx6_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
 #	option 'bmx6_ipv4_address'	 '' # specify it if you want to have a specific IPv4 address
+#	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
 
 # Deprecated
 #	option 'bmx6_tablePrefTuns'  '7000'
@@ -51,7 +52,6 @@ config 'gateway'
 	option 'name' 'inet6'
 	option 'type' 'search'
 	option 'network' 'fc00::/7'
-	option 'tableRule' '32767/253'
 	option 'maxPrefixLen' '0'
 
 config 'gateway'
@@ -66,7 +66,6 @@ config 'gateway'
 	option 'type' 'search'
 	option 'network' '0.0.0.0/0'
 	option 'maxPrefixLen' '0'
-	option 'tableRule' '32767/253'
 
 config 'gateway'
 	option 'name' 'inet4'
