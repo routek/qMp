@@ -57,6 +57,10 @@ configure() {
 
 	#Reloading network to avoid problems with next functions
 	/etc/init.d/network reload
+	if /etc/init.d/gwck enabled
+	then
+		/etc/init.d/gwck restart
+	fi
 	
 	#Configuring networking
 	echo "[Configuring networking]"

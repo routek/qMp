@@ -50,6 +50,10 @@ configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	/etc/init.d/network reload
+	if /etc/init.d/gwck enabled
+	then
+		/etc/init.d/gwck restart
+	fi
 }
 
 apply_netserver() {
@@ -61,6 +65,10 @@ configure_network() {
 	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
 	bmx6 -c --configReload || /etc/init.d/bmx6 restart
 	/etc/init.d/network reload
+	if /etc/init.d/gwck enabled
+	then
+		/etc/init.d/gwck restart
+	fi
 	/etc/init.d/dnsmasq restart
 	apply_netserver
 }
