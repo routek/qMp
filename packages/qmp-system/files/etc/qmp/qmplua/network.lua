@@ -19,6 +19,10 @@
 
     The full GNU General Public License is included in this distribution in
     the file called "COPYING".
+
+ Contributors:
+	Simó Albert i Beltran
+
 --]]
 
 
@@ -113,7 +117,7 @@ end
 
 --! @brief Restart the network daemon
 function network.restart_daemon()
-	os.execute('/etc/init.d/network restart')
+	os.execute('/etc/init.d/network restart; /etc/init.d/gwck enabled && /etc/init.d/gwck restart')
 end
 
 return network
