@@ -17,6 +17,10 @@
 
     The full GNU General Public License is included in this distribution in
     the file called "COPYING".
+
+ Contributors:
+	Simó Albert i Beltran
+
 --]]
 
 require("luci.sys")
