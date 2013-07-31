@@ -868,11 +868,12 @@ qmp_configure_network() {
 
 
 qmp_remove_qmp_bmx6_tunnels()
-{
-	if echo "$1" | grep -q "^qmp-[0-9]*$"
+{	
+	if echo "$1" | grep -q "^qmp_"
 	then
 		uci delete bmx6.$1
 	fi
+	uci commit bmx6
 }
 
 qmp_unconfigure_bmx6_gateways()
@@ -905,14 +906,18 @@ qmp_translate_configuration()
 qmp_add_qmp_bmx6_tunnels()
 {
 	local section=$1
+	local name="$section"
 	local config=bmx6
-	local name="qmp_$gateway"
 	local ignore
+	
 	config_get ignore "$section" ignore
-	if [ "$ignore" = "1" ]
-	then
-		return
-	fi
+	
+	[ "$ignore" = "1" ] && return
+	
+	[ -z "$name" ] && name="qmp_$gateway" || name="qmp_$name"
+	
+	qmp_log Configuring gateway $name
+	
 	local type
 	config_get type "$section" type
 	if [ "$type" = "offer" ]
@@ -921,21 +926,21 @@ qmp_add_qmp_bmx6_tunnels()
 		# Future configuration
 		#bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
-		uci set $config.$name.$bmx6_type="$name"
-		qmp_translate_configuration qmp $section network $config $name $bmx6_type
+		uci set $config.$name.$bmx6_type="$section"
+		qmp_translate_configuration gateways $section network $config $name $bmx6_type
 		# Future configuration
-		#qmp_translate_configuration qmp $section network $config $name
-		qmp_translate_configuration qmp $section bandwidth $config $name
+		#qmp_translate_configuration gateways $section network $config $name
+		qmp_translate_configuration gateways $section bandwidth $config $name
 	else
 		# if [ "$type" = "search" ]
 		bmx6_type=tunOut
 		uci set $config.$name="$bmx6_type"
-		uci set $config.$name.$bmx6_type="$name"
+		uci set $config.$name.$bmx6_type="$section"
 		local t
 		for t in network gwName address minPrefixLen maxPrefixLen hysteresis bonus \
 			tableRule minBandwidth exportDistance
 		do		
-			qmp_translate_configuration qmp	$section $t $config $name
+			qmp_translate_configuration gateways $section $t $config $name
 		done
 	fi
 	
@@ -945,9 +950,10 @@ qmp_add_qmp_bmx6_tunnels()
 qmp_configure_bmx6_gateways()
 {
 	qmp_unconfigure_bmx6_gateways
-	config_load qmp
+	config_load gateways
 	gateway=0
 	config_foreach qmp_add_qmp_bmx6_tunnels gateway
+	uci commit bmx6
 }
 
 

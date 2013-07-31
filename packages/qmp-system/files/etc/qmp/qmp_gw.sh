@@ -43,10 +43,7 @@ qmp_exists_gateway()
 	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "^(ignore|(minB|b)andwidth)$" {a+=1} END {print a}')"
 	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|\(minB\|b\)andwidth\)=" | grep -c "^CONFIG_${config}_")
 
-	if [ "$args_key_values" != "$uci_key_values" ]
-	then
-		return
-	fi
+	[ "$args_key_values" != "$uci_key_values" ] && return
 
 	while [ $# -ge 2 ]
 	do
@@ -64,23 +61,23 @@ qmp_exists_gateway()
 		shift
 	done
 
-	uci_set qmp "$config" ignore "$ignore"
+	uci_set gateways "$config" ignore "$ignore"
 	uci_commit
 	qmp_gateway_found=true
 }
 
 qmp_set_gateway()
 {
-	config_load qmp
+	config_load gateways
 	qmp_gateway_found=false
 	config_foreach qmp_exists_gateway gateway $@
 	if ! $qmp_gateway_found
 	then
 		local config
-		config="$(uci add qmp gateway)"
+		config="$(uci add gateways gateway)"
 		while [ $# -ge 2 ]
 		do
-			uci_set qmp "$config" "$1" "$2"
+			uci_set gateways "$config" "$1" "$2"
 			shift
 			shift
 		done
