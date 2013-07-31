@@ -17,6 +17,10 @@
 #
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
+#
+# Contributors:
+#	Simó Albert i Beltran
+#
 
 START=99
 STOP=99
@@ -100,6 +104,10 @@ configure() {
 	#Reloading network to avoid problems with next functions
 	log Reloading network
 	/etc/init.d/network reload
+	if /etc/init.d/gwck enabled
+	then
+		/etc/init.d/gwck restart
+	fi
 	
 	#Configuring networking
 	log "[Configuring networking]"

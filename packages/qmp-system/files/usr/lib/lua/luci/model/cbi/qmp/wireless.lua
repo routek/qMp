@@ -17,6 +17,10 @@
 
     The full GNU General Public License is included in this distribution in
     the file called "COPYING".
+
+ Contributors:
+	Simó Albert i Beltran
+
 --]]
 
 require("luci.sys")
@@ -117,7 +121,7 @@ end
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_short.html")
-	luci.sys.call('(/etc/qmp/qmp_control.sh configure_wifi ; /etc/init.d/network reload)&')
+	luci.sys.call('(/etc/qmp/qmp_control.sh configure_wifi ; /etc/init.d/network reload; /etc/init.d/gwck enabled && /etc/init.d/gwck restart)&')
 end
 
 
