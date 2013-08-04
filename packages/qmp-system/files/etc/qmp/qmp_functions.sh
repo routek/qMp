@@ -917,14 +917,10 @@ qmp_add_qmp_bmx6_tunnels()
 	config_get type "$section" type
 	if [ "$type" = "offer" ]
 	then
-		bmx6_type=tunInNet
-		# Future configuration
-		#bmx6_type=tunIn
+		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$name"
-		qmp_translate_configuration qmp $section network $config $name $bmx6_type
-		# Future configuration
-		#qmp_translate_configuration qmp $section network $config $name
+		qmp_translate_configuration qmp $section network $config $name
 		qmp_translate_configuration qmp $section bandwidth $config $name
 	else
 		# if [ "$type" = "search" ]
