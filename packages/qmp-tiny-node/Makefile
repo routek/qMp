@@ -45,7 +45,7 @@ define Package/qmp-tiny-node
   +iwinfo \
   +radvd \
   +wpad-mini \
-  +iw +netperf +mtr \
+  +iw +mtr \
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
   +gwck-qmp +luci-theme-qmp \
   +firewall \
