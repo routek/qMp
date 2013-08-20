@@ -35,87 +35,61 @@ fi
 
 qmp_exists_gateway()
 {
-	local config=$1
+	qmp_uci_test gateways.$1
+	return $?
+}
+
+# set a gateway with given name and values
+# <name> <search|offer> [arg1name arg1value] [arg2name arg2value] ...
+qmp_set_gateway()
+{
+	local name="$1"
 	shift
-	local ignore=0
-	local exists
-
-	args_key_values="$(echo $@ | awk -v RS=' ' 'NR % 2 == 1 && $0 !~ "^(ignore|(minB|b)andwidth)$" {a+=1} END {print a}')"
-	uci_key_values=$(env | grep -v -e "^CONFIG_${config}_\(TYPE\|ignore\|\(minB\|b\)andwidth\)=" | grep -c "^CONFIG_${config}_")
-
-	[ "$args_key_values" != "$uci_key_values" ] && return
-
+	local type="$1"
+	shift
+	
+	qmp_uci_set_raw gateways.$name=$type
+		
 	while [ $# -ge 2 ]
 	do
-		if [ "$1" = "ignore" ]
-		then
-			ignore="$2"
-		else
-			config_get exists "$config" $1
-			if [ "$exists" != "$2" ]
-			then
-				return
-			fi
-		fi
+		qmp_uci_set_raw gateways.$name.$1="$2"
 		shift
 		shift
 	done
-
-	uci_set gateways "$config" ignore "$ignore"
-	uci_commit
-	qmp_gateway_found=true
-}
-
-qmp_set_gateway()
-{
-	config_load gateways
-	qmp_gateway_found=false
-	config_foreach qmp_exists_gateway gateway $@
-	if ! $qmp_gateway_found
-	then
-		local config
-		config="$(uci add gateways gateway)"
-		while [ $# -ge 2 ]
-		do
-			uci_set gateways "$config" "$1" "$2"
-			shift
-			shift
-		done
-		uci_commit
-	fi
+	qmp_uci_commit gateways
 }
 
 qmp_gw_search_default_ipv4() {
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
-	qmp_set_gateway ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway inet4 offer ignore 1 network 0.0.0.0/0
+	qmp_set_gateway inet4 search ignore 0 network 0.0.0.0/0 maxPrefixLen 0
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_search_default_ipv6() {
-	qmp_set_gateway ignore 1 type offer network ::/0
-	qmp_set_gateway ignore 0 type search network ::/0 maxPrefixLen 0
+	qmp_set_gateway inet6 offer ignore 1 network ::/0
+	qmp_set_gateway inet6 search ignore 0 network ::/0 maxPrefixLen 0
 }
 
 qmp_gw_offer_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 0 type offer network 0.0.0.0/0
+	qmp_set_gateway inet4 search ignore 1 network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway inet4 offer ignore 0 network 0.0.0.0/0
 	qmp_gw_masq_wan 1
 }
 
 qmp_gw_offer_default_ipv6() {
-	qmp_set_gateway ignore 1 type search network ::/0 maxPrefixLen 0
-	qmp_set_gateway ignore 0 type offer network ::/0
+	qmp_set_gateway inet6 search ignore 1 network ::/0 maxPrefixLen 0
+	qmp_set_gateway inet6 offer ignore 0 network ::/0
 }
 
 qmp_gw_disable_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
+	qmp_set_gateway inet4 search ignore 1 network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway inet4 offer ignore 1 network 0.0.0.0/0
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_disable_default_ipv6() {
-	qmp_set_gateway ignore 1 type search network ::/0 maxPrefixLen 0
-	qmp_set_gateway ignore 1 type offer network ::/0
+	qmp_set_gateway inet6 search ignore 1 network ::/0 maxPrefixLen 0
+	qmp_set_gateway inet6 offer ignore 1 network ::/0
 }
 
 qmp_gw_default() {

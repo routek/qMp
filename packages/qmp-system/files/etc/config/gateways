@@ -1,52 +1,43 @@
 
-config gateway inet6
-	option type 'search'
+config search 'inet6'
 	option network '::/0'
 	option maxPrefixLen '0'
 
-config gateway inet4
-	option type 'search'
+config search 'inet4'
 	option network '0.0.0.0/0'
 	option maxPrefixLen '0'
 	option ignore '1'
 
-config gateway inet4of
+config offer 'inet4'
 	option ignore '1'
-	option type 'offer'
 	option network '0.0.0.0/0'
 	option bandwidth '100000'
 
-config gateway community6
-	option type 'search'
+config search 'community6'
 	option network '::/0'
 	option minPrefixLen '32'
 	option maxPrefixLen '48'
 
-config gateway cloud6
-	option type 'search'
+config search 'cloud6'
 	option network '::/0'
 	option minPrefixLen '48'
 
-config gateway community
-	option type 'search'
+config search 'community'
 	option network '10.0.0.0/8'
 	option maxPrefixLen '8'
 	option ignore '1'
 
-config gateway communityof
-	option type 'offer'
+config offer 'community'
 	option network '10.0.0.0/8'
 	option bandwidth '100000'
-	option ignore '0'
+	option ignore '1'
 
-config gateway cloud
-	option type 'search'
+config search 'cloud'
 	option network '10.0.0.0/8'
 	option minPrefixLen '24'
 
-config gateway example
+config search 'example'
 	option ignore '1'
-	option type 'search'
 	option gwName 'qMp-example'
 	option network '10.1.0.0/16'
 	option address '10.2.2.2/32'
@@ -57,7 +48,7 @@ config gateway example
 	option minBandwidth '10000'
 	option exportDistance '10'
 
-config gateway inet6of
-	option type 'offer'
+config offer 'inet6'
 	option network '::/0'
 	option ignore '1'
+

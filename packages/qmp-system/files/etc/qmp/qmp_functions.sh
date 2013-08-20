@@ -918,18 +918,13 @@ qmp_add_qmp_bmx6_tunnels()
 	
 	qmp_log Configuring gateway $name
 	
-	local type
-	config_get type "$section" type
+	local type="$(qmp_uci_get_raw gateways.$name)"
 	if [ "$type" = "offer" ]
 	then
-		bmx6_type=tunInNet
-		# Future configuration
-		#bmx6_type=tunIn
+		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
-		uci set $config.$name.$bmx6_type="$section"
-		qmp_translate_configuration gateways $section network $config $name $bmx6_type
-		# Future configuration
-		#qmp_translate_configuration gateways $section network $config $name
+		uci set $config.$name.$bmx6_type="$name"
+		qmp_translate_configuration gateways $section network $config $name
 		qmp_translate_configuration gateways $section bandwidth $config $name
 	else
 		# if [ "$type" = "search" ]
