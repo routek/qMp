@@ -61,6 +61,10 @@ configure_wifi() {
 	fi
 }
 
+configure_gw() {
+	qmp_gw_apply
+}
+
 apply_netserver() {
 	[ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
 }
@@ -168,6 +172,7 @@ help() {
 	echo " configure_system 		: Configure and apply system settings (qmp.node section and so on)"
 	echo " configure_wifi			: Configure all WiFi devices"
 	echo " reset_wifi			: Reset, rescan and configure all the WiFi devices"
+	echo " configure_gw			: Configure and apply gateways settings"
 	
 	echo ""
 	echo "Safe configuration:"
