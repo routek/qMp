@@ -3,46 +3,55 @@ config gateway inet6
 	option type 'search'
 	option network '::/0'
 	option maxPrefixLen '0'
+	option ignore '0'
+
+config gateway inet6_offer
+	option type 'offer'
+	option network '::/0'
+	option ignore '1'
 
 config gateway inet4
 	option type 'search'
 	option network '0.0.0.0/0'
 	option maxPrefixLen '0'
-	option ignore '1'
+	option ignore '0'
 
-config gateway inet4of
-	option ignore '1'
+config gateway inet4_offer
 	option type 'offer'
 	option network '0.0.0.0/0'
 	option bandwidth '100000'
+	option ignore '1'
+		
+config gateway cloud
+	option type 'search'
+	option network '10.0.0.0/8'
+	option minPrefixLen '24'
+	option ignore '0'
+
+config gateway cloud6
+	option type 'search'
+	option network '::/0'
+	option minPrefixLen '48'
+	option ignore '0'
+
+config gateway community
+	option type 'search'
+	option network '10.0.0.0/8'
+	option maxPrefixLen '8'
+	option ignore '0'
 
 config gateway community6
 	option type 'search'
 	option network '::/0'
 	option minPrefixLen '32'
 	option maxPrefixLen '48'
+	option ignore '0'
 
-config gateway cloud6
-	option type 'search'
-	option network '::/0'
-	option minPrefixLen '48'
-
-config gateway community
-	option type 'search'
-	option network '10.0.0.0/8'
-	option maxPrefixLen '8'
-	option ignore '1'
-
-config gateway communityof
+config gateway community_offer
 	option type 'offer'
 	option network '10.0.0.0/8'
 	option bandwidth '100000'
-	option ignore '0'
-
-config gateway cloud
-	option type 'search'
-	option network '10.0.0.0/8'
-	option minPrefixLen '24'
+	option ignore '1'
 
 config gateway example
 	option ignore '1'
@@ -56,8 +65,3 @@ config gateway example
 	option bonus '10'
 	option minBandwidth '10000'
 	option exportDistance '10'
-
-config gateway inet6of
-	option type 'offer'
-	option network '::/0'
-	option ignore '1'
