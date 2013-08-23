@@ -922,7 +922,6 @@ qmp_add_qmp_bmx6_tunnels()
 	config_get type "$section" type
 	if [ "$type" = "offer" ]
 	then
-		
 		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$section"
