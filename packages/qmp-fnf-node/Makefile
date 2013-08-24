@@ -41,7 +41,7 @@ define Package/qmp-fnf-node
   URL:=http://thefnf.org
   DEPENDS:= \
   +qmp-system \
-  +uhttpd +luci-mod-admin-core +luci-app-bmx6 +libiwinfo-lua \
+  +uhttpd +luci-mod-admin-full +luci-app-bmx6 +libiwinfo-lua \
   +iwinfo \
   +radvd \
   +wpad-mini \
