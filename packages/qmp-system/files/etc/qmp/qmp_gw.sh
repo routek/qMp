@@ -56,36 +56,36 @@ qmp_set_gateway()
 
 
 qmp_gw_search_default_ipv4() {
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
-	qmp_set_gateway ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0
+	qmp_set_gateway inet4_offer ignore 1
+	qmp_set_gateway inet4 ignore 0 type search network 0.0.0.0/0 maxPrefixLen 0 tableRule 32767/253
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_search_default_ipv6() {
-	qmp_set_gateway ignore 1 type offer network ::/0
-	qmp_set_gateway ignore 0 type search network ::/0 maxPrefixLen 0
+	qmp_set_gateway inet6_offer ignore 1
+	qmp_set_gateway inet6 ignore 0 type search network ::/0 maxPrefixLen 0 tableRule 32767/253
 }
 
 qmp_gw_offer_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 0 type offer network 0.0.0.0/0
+	qmp_set_gateway inet4 ignore 1 
+	qmp_set_gateway inet4_offer ignore 0 type offer network 0.0.0.0/0
 	qmp_gw_masq_wan 1
 }
 
 qmp_gw_offer_default_ipv6() {
-	qmp_set_gateway ignore 1 type search network ::/0 maxPrefixLen 0
-	qmp_set_gateway ignore 0 type offer network ::/0
+	qmp_set_gateway inet6 ignore 1
+	qmp_set_gateway inet6_offer ignore 0 type offer network ::/0 maxPrefixLen 0
 }
 
 qmp_gw_disable_default_ipv4() {
-	qmp_set_gateway ignore 1 type search network 0.0.0.0/0 maxPrefixLen 0
-	qmp_set_gateway ignore 1 type offer network 0.0.0.0/0
+	qmp_set_gateway inet4 ignore 1 
+	qmp_set_gateway inet_offer ignore 1
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_disable_default_ipv6() {
-	qmp_set_gateway ignore 1 type search network ::/0 maxPrefixLen 0
-	qmp_set_gateway ignore 1 type offer network ::/0
+	qmp_set_gateway inet6 ignore 1 
+	qmp_set_gateway inet6_offer ignore 1
 }
 
 qmp_gw_default() {

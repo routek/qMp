@@ -76,12 +76,12 @@ fint:value("0","no")
 -- Non overlapping
 ---------------------------
 
-overlapping_section = m:section(NamedSection, "non_overlapping", "qmp", 
-translate("DHCP roaming", "DHCP roaming IPv4 overlapping configuration"))
+overlapping_section = m:section(NamedSection, "roaming", "qmp", 
+translate("Roaming", "Layer3 Roaming"))
 overlapping_section.addremove = False
 
 ignore = overlapping_section:option(ListValue, "ignore", 
-translate("DHCP roaming","If yes, the DHCP roaming will be enabled. Each mesh node will give a different /24 to the LAN clients from the same /16."))
+translate("Roaming","If yes, the roaming will be enabled. Each mesh node will give a different /24 to the LAN clients from the same /16."))
 ignore:value("1","no")
 ignore:value("0","yes")
 
@@ -99,7 +99,7 @@ overlapping_section:option(Value, "qmp_leasetime", "DHCP leassetime",translate("
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_network > /tmp/qmp_control_network.log &')
+        luci.sys.call('/etc/qmp/qmp_control.sh configure_all > /tmp/qmp_control_network.log &')
 end
 
 

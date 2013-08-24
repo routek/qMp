@@ -19,16 +19,17 @@ config 'qmp' 'update'
 	option 'filter' 'sysupgrade'
 	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear /etc/config/b6m-spread /etc/qmp/.birth'
 
-config 'qmp' 'non_overlapping'
+config 'qmp' 'roaming'
 	# Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
 	option 'ignore'              '0'
 	option 'dhcp_offset'         '2'
 	option 'qmp_leasetime'       '1h'
 
+	
 config 'qmp' 'networks'
 	option 'dns'                 '141.1.1.1 85.126.4.170 202.83.95.227'
 	option 'lan_address'         '172.30.22.1'
-	option 'lan_netmask'         '255.255.255.0'
+	option 'lan_netmask'         '255.255.0.0'
 	#option 'publish_lan'	     '0' # deprecated
 	option 'mesh_protocol_vids'  'olsr6:1 bmx6:2' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
 	option 'mesh_vid_offset'     '10'
@@ -38,92 +39,9 @@ config 'qmp' 'networks'
 	option 'bmx6_mesh_prefix48'  'fd02:0:0'
 	option 'bmx6_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
 	option 'bmx6_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
-#	option 'bmx6_ipv4_address'	 '' # specify it if you want to have a specific IPv4 address
+#	option 'bmx6_ipv4_address'   '' # specify it if you want to have a specific IPv4 address
 #	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
-
-# Deprecated
-#	option 'bmx6_tablePrefTuns'  '7000'
-#	option 'bmx6_tableTuns'      '70'
-#	option 'bmx6_throwRules'     '1'
-
 	option 'netserver' '1'
-
-config 'gateway'
-	option 'name' 'inet6'
-	option 'type' 'search'
-	option 'network' 'fc00::/7'
-	option 'maxPrefixLen' '0'
-
-config 'gateway'
-	option 'name' 'inet6'
-	option 'ignore' '1'
-	option 'type' 'offer'
-	option 'network' '::/0'
-	option 'bandwidth' '100000'
-
-config 'gateway'
-	option 'name' 'inet4'
-	option 'type' 'search'
-	option 'network' '0.0.0.0/0'
-	option 'maxPrefixLen' '0'
-
-config 'gateway'
-	option 'name' 'inet4'
-	option 'ignore' '1'
-	option 'type' 'offer'
-	option 'network' '0.0.0.0/0'
-	option 'bandwidth' '100000'
-
-config 'gateway'
-	option 'name' 'community6'
-	option 'type' 'search'
-	option 'network' '::/0'
-	option 'minPrefixLen' '32'
-	option 'maxPrefixLen' '48'
-
-config 'gateway'
-	option 'name' 'cloud6'
-	option 'type' 'search'
-	option 'network' '::/0'
-	option 'minPrefixLen' '48'
-
-config 'gateway'
-	option 'name' 'community'
-	option 'type' 'search'
-	option 'network' '10.0.0.0/8'
-	option 'maxPrefixLen' '8'
-
-config 'gateway'
-	option 'name' 'community'
-	option 'type' 'offer'
-	option 'network' '10.0.0.0/8'
-	option 'bandwidth' '100000'
-	option 'ignore' '1'
-
-config 'gateway'
-	option 'name' 'cloud'
-	option 'type' 'search'
-	option 'network' '10.0.0.0/8'
-	option 'minPrefixLen' '24'
-
-config 'gateway'
-	option 'ignore' '1'
-	option 'type' 'search'
-	option 'network' '::/0'
-	option 'gwName' 'qMp-example'
-
-config 'gateway'
-	option 'ignore' '1'
-	option 'type' 'search'
-	option 'gwName' 'qMp-example'
-	option 'network' '10.1.0.0/16'
-	option 'address' '10.2.2.2/32'
-	option 'minPrefixLen' '16'
-	option 'maxPrefixLen' '24'
-	option 'hysteresis' '20'
-	option 'bonus' '10'
-	option 'minBandwidth' '10000'
-	option 'exportDistance' '10'
 
 config 'qmp' 'wireless'
 	option 'driver'  'mac80211'

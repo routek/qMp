@@ -50,7 +50,7 @@ netmode:value("community","community")
 netmode:value("roaming","roaming")
 
 local networkmode
-if uciout:get("qmp","non_overlapping","ignore") == "1" then
+if uciout:get("qmp","roaming","ignore") == "1" then
 	local ipv4 = uciout:get("qmp","networks","bmx6_ipv4_address")
 	local ipv4mask = string.find(ipv4,"/")
 	if ipv4mask ~= nil then
@@ -177,7 +177,7 @@ function netmode.write(self, section, value)
 	local nodeip_roaming = nodeip_roaming:formvalue(section)
 	
 	if mode == "community" then
-		uciout:set("qmp","non_overlapping","ignore","1")
+		uciout:set("qmp","roaming","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
 		uciout:set("qmp","networks","lan_address",nodeip)
 		uciout:set("qmp","networks","bmx6_ipv4_address",ip.IPv4(nodeip,nodemask):string())
@@ -185,7 +185,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","node","community_id",name)
 
 	else
-		uciout:set("qmp","non_overlapping","ignore","0")
+		uciout:set("qmp","roaming","ignore","0")
 		uciout:set("qmp","networks","publish_lan","0")
 		uciout:set("qmp","networks","lan_address","172.30.22.1")
 		uciout:set("qmp","networks","lan_netmask","255.255.0.0")
