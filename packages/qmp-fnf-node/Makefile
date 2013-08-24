@@ -58,6 +58,10 @@ define Package/qmp-fnf-node/description
  Required addons for qMp fnf node (only needed and basic stuff)
 endef
 
+define Package/qmp-fnf-node/install
+	$(CP) ./files/* $(1)/
+endef
+
 define Build/Prepare
  mkdir -p $(PKG_BUILD_DIR)
 endef
