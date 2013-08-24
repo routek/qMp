@@ -1,0 +1,2 @@
+#!/bin/sh
+[ ! -f "/etc/config/qmp" ] && cp -f /etc/qmp/qmp.default-config /etc/config/qmp
