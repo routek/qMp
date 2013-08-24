@@ -1,0 +1,45 @@
+#!/usr/bin/lua
+-- It prints the crc16 hash from the given string as arg1
+-- if not arg1 it takes the eth0 mac address.
+-- Output format is:
+--  <hash>
+--  <first 8bit hash>
+--  <last 8bit hash>
+
+local bit = require "nixio".bit
+local fs  = require "nixio.fs"
+local math = require "math"
+
+function hash(str)
+	local crc;
+	
+	local function initCrc()
+		crc = 0xffff;
+	end
+	
+	local function updCrc(byte)
+		crc = bit.bxor(crc, byte);
+		for i=1,8 do
+			local j = bit.band(crc, 1);
+			crc = bit.rshift(crc, 1);
+			if j ~= 0 then
+				crc = bit.bxor(crc, 0x8408);
+			end
+		end
+	end
+
+	local function getCrc(str)
+		initCrc();
+		for i = 1, #str  do
+			updCrc(str:byte(i));
+		end
+		return crc;
+	end
+	return getCrc(str);
+end
+
+local mac = arg[1] or fs.readfile("/sys/class/net/eth0/address")
+local h = hash(mac)
+print(h)
+print(math.floor(h / 256) .. '\n' .. h % 256)
+
