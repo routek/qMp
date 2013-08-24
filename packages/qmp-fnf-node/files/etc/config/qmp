@@ -1,0 +1,54 @@
+config 'qmp' 'interfaces'
+#	option 'configure_switch' ''		# (deprecated) (uncomment line if available, e.g. WGT634U)
+	option 'lan_devices' ''				# will be used for LAN
+	option 'wan_devices' ''				# will be used for WAN
+	option 'mesh_devices' ''			# will be extended by vlan tag for by uses as Mesh
+#	option 'no_vlan_devices' ''			# interfaces which won't be vlan tagged
+#	option 'ignore_devices' ''			# interfaces to ignore
+
+config 'qmp' 'node'
+	option 'primary_device' 'eth0'
+	option 'community_id' 'kcfn'
+	option 'community_node_id' ''
+	option 'key' '/tmp/qmp_key'
+
+config 'qmp' 'update'
+	option 'url' 'http://fw.thefnf.org/us-mo'
+	option 'images' 'IMAGES'
+	option 'devices' 'DEVICES'
+	option 'filter' 'sysupgrade'
+	option 'preserve' '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear /etc/config/b6m-spread /etc/qmp/.birth'
+
+config 'qmp' 'roaming'
+	# Each node assings a non-overlapping DHCP IPv4 ranges over a /16 network on lan device
+	option 'ignore'              '1'
+	option 'dhcp_offset'         '2'
+	option 'qmp_leasetime'       '1h'
+
+	
+config 'qmp' 'networks'
+	option 'dns'                 '4.2.2.1'
+	option 'lan_address'         '172.30.22.1'
+	option 'lan_netmask'         '255.255.0.0'
+	#option 'publish_lan'	     '0' # deprecated
+	option 'mesh_protocol_vids'  'bmx6:2' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
+	option 'mesh_vid_offset'     '10'
+	option 'rescue_prefix24'     '169.254' # rescue network prefix, the 16 missing bits are taken from device MAC 
+	option 'olsr6_mesh_prefix48' 'fd01:0:0'
+	option 'olsr6_ripe_prefix48' '2011:0:0'
+	option 'bmx6_mesh_prefix48'  'fd02:0:0'
+	option 'bmx6_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
+	option 'bmx6_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
+#	option 'bmx6_ipv4_address'   '' # specify it if you want to have a specific IPv4 address
+#	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
+	option 'netserver' '1'
+
+config 'qmp' 'wireless'
+	option 'driver'  'mac80211'
+	option 'country' 'US'
+	option 'bssid'   '02:CA:FF:EE:BA:BE'
+
+config 'wireless'
+	option 'channel' '148+'
+
+
