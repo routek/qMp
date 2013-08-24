@@ -46,10 +46,6 @@ define Package/qmp-system/description
  System files for qMp node
 endef
 
-define Package/qmp-system/conffiles
-	/etc/config/qmp
-endef
-
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 endef
@@ -62,7 +58,6 @@ endef
 
 define Package/qmp-system/install
 	$(CP) ./files/* $(1)/
-	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp.orig
 	$(SED) 's,$$$$BRANCH,$(BRANCH_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$REV,$(REV_GIT),g' $(1)/etc/uci-defaults/qmp_banner
 	$(SED) 's,$$$$COD,$(QMP_CODENAME),g' $(1)/etc/uci-defaults/qmp_banner
