@@ -53,20 +53,24 @@ define Package/qmp-fnf-node
   +tcpdump-mini +igmpproxy +bwm +collectd
 endef
 
-
 define Package/qmp-fnf-node/description
  Required addons for qMp fnf node (only needed and basic stuff)
-endef
-
-define Package/qmp-fnf-node/install
-	$(INSTALL_DIR) $(1)/etc/config
-	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp
 endef
 
 define Build/Prepare
  mkdir -p $(PKG_BUILD_DIR)
 endef
 
+define Build/Configure
+endef
+
+define Build/Compile
+endef
+
+define Package/qmp-fnf-node/install
+	$(INSTALL_DIR) $(1)/etc/config
+	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp
+endef
 
 $(eval $(call BuildPackage,qmp-fnf-node))
 
