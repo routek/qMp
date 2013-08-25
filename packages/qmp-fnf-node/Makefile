@@ -50,7 +50,7 @@ define Package/qmp-fnf-node
   +luci-theme-qmp \
   +firewall \
   +ip +iputils-ping6 \
-  +tcpdump-mini +igmpproxy +bwm
+  +tcpdump-mini +igmpproxy +bwm +collectd
 endef
 
 
@@ -59,7 +59,8 @@ define Package/qmp-fnf-node/description
 endef
 
 define Package/qmp-fnf-node/install
-	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/etc/config
+	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp
 endef
 
 define Build/Prepare
