@@ -256,6 +256,17 @@ qmp_hooks_exec() {
 # Other kind of commands
 #########################
 
+# Returns the crc16 from the mac of the primary mac device 
+# If no parameter it returns the entire hash
+# If parameter = 1 or 2, returns the first/second 8bit module 256
+qmp_get_crc16() {
+	local mac="$(qmp_get_mac_for_dev $(qmp_uci_get node.primary_device))"
+	local crc16="$(lua /usr/bin/crc16 $mac)"
+	[ "$1" == "1" ] && echo -e "$crc16" | awk NR==2 && return
+	[ "$1" == "2" ] && echo -e "$crc16" | awk NR==3 && return
+	echo -e "$crc16" | awk NR==1
+}
+
 # Print the content of the parameters in reverse order (separed by spaces)
 qmp_reverse_order() {
 	echo "$@" | awk '{for (i=NF; i>0; i--) printf("%s ",$i);print ""}'

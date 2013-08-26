@@ -62,13 +62,18 @@ qmp_get_primary_device() {
   echo "$primary_mesh_device"
 }
 
-# qmp_get_id [dec]
+# qmp_get_id [8bit]
 qmp_get_id() {  
-  community_node_id="$(qmp_uci_get node.community_node_id)"
+  local community_node_id="$(qmp_uci_get node.community_node_id)"
   [ -z "$community_node_id" ] && \
-    community_node_id="$(qmp_get_mac_for_dev $(qmp_get_primary_device) | awk -F':' '{print $6}' )"
+    community_node_id="$(qmp_get_crc16)"
+  [ "$1" == "8bit" ] && echo "$(( 0x$community_node_id % 0x100 ))" || echo "$community_node_id"
+}
 
-  [ "$1" == "dec" ] && echo "$(( 0x$community_node_id % 0x100 ))" || echo "$community_node_id"
+# qmp_get_id_ip <1,2>
+qmp_get_id_ip() {
+  [ "$1" == "1" ] && echo "$(qmp_get_crc16 1)"
+  [ "$1" == "2" ] && echo "$(qmp_get_crc16 2)"
 }
 
 qmp_check_device() {
@@ -702,7 +707,7 @@ qmp_configure_lan() {
   local dns="$(qmp_uci_get networks.dns)"
   local lan_mask="$(qmp_uci_get networks.lan_netmask)"
   local lan_addr="$(qmp_uci_get networks.lan_address)"
-  
+ 
   # If the lan address is empty in the configuration
   [ -z "$lan_addr" ] && {
     [ $(qmp_uci_get roaming.ignore) -eq 0 ] && {
@@ -710,7 +715,7 @@ qmp_configure_lan() {
       lan_mask="255.255.0.0"
       qmp_log No LAN ip address configured, roaming mode enabled, autoconfiguring $lan_addr/$lan_mask
     } || {
-      lan_addr="10.0.$(qmp_get_id dec).1"
+      lan_addr="10.$(qmp_get_id_ip 1).$(qmp_get_id_ip 2).1"
       lan_mask="255.255.255.0"
       qmp_uci_set networks.bmx6_ipv4_address $lan_addr/24
       qmp_log No LAN ip address configured, community mode enabled, autoconfiguring $lan_addr/$lan_mask
@@ -1005,7 +1010,7 @@ qmp_configure_bmx6() {
 	      uci set $conf.tmain.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
 
 	    else
-	      local ipv4_suffix24="$(qmp_get_id dec)"
+	      local ipv4_suffix24="$(qmp_get_id 8bit)"
 	      local ipv4_prefix24="$(qmp_uci_get networks.bmx6_ipv4_prefix24)"
 	      if [ $(echo -n "$ipv4_prefix24" | tr -d [0-9] | wc -c) -lt 2 ]; then
 	      	ipv4_prefix24="${ipv4_prefix24}.0"
@@ -1168,7 +1173,7 @@ qmp_configure_system() {
     local community_node_id=$(qmp_get_id)
     qmp_uci_set node.community_node_id $community_node_id
   fi
-    
+
   local community_id="$(qmp_uci_get node.community_id)"
   [ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
 
