@@ -49,6 +49,6 @@ config 'qmp' 'wireless'
 	option 'bssid'   '02:CA:FF:EE:BA:BE'
 
 config 'wireless'
-	option 'channel' '148+'
+	option 'channel' '149+'
 
 
