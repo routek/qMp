@@ -48,7 +48,7 @@ function hash(str)
 	return getCrc(str);
 end
 
-local mac = arg[1] or fs.readfile("/sys/class/net/eth0/address")
+local mac = arg[1] or string.lower(fs.readfile("/sys/class/net/eth0/address")):gsub("\n$", "")
 local h = hash(mac)
 print(dec_hex(h))
 print(math.floor(h / 256) .. '\n' .. h % 256)
