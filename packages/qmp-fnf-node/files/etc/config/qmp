@@ -2,13 +2,13 @@ config 'qmp' 'interfaces'
 #	option 'configure_switch' ''		# (deprecated) (uncomment line if available, e.g. WGT634U)
 	option 'lan_devices' ''				# will be used for LAN
 	option 'wan_devices' ''				# will be used for WAN
-	option 'mesh_devices' ''			# will be extended by vlan tag for by uses as Mesh
+	option 'mesh_devices' 'eth1'		# will be extended by vlan tag for by uses as Mesh
 #	option 'no_vlan_devices' ''			# interfaces which won't be vlan tagged
 #	option 'ignore_devices' ''			# interfaces to ignore
 
 config 'qmp' 'node'
 	option 'primary_device' 'eth0'
-	option 'community_id' 'kcfn'
+	option 'community_id' 'kcfn-'
 	option 'community_node_id' ''
 	option 'key' '/tmp/qmp_key'
 
@@ -28,8 +28,8 @@ config 'qmp' 'roaming'
 	
 config 'qmp' 'networks'
 	option 'dns'                 '4.2.2.1'
-	option 'lan_address'         '172.30.22.1'
-	option 'lan_netmask'         '255.255.0.0'
+	option 'lan_address'         ''
+	option 'lan_netmask'         '255.255.255.0'
 	#option 'publish_lan'	     '0' # deprecated
 	option 'mesh_protocol_vids'  'bmx6:2' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
 	option 'mesh_vid_offset'     '10'
@@ -50,5 +50,4 @@ config 'qmp' 'wireless'
 
 config 'wireless'
 	option 'channel' '149+'
-	option 'mode' 'adhoc'
 	option 'name' 'kcfn'
