@@ -251,9 +251,8 @@ qmp_hooks_exec() {
     }
 }
 
-
 #########################
-# Other kind of commands
+# ID/IP commands
 #########################
 
 # Returns the crc16 from the mac of the primary mac device 
@@ -266,6 +265,25 @@ qmp_get_crc16() {
 	[ "$1" == "2" ] && echo -e "$crc16" | awk NR==3 && return
 	echo -e "$crc16" | awk NR==1
 }
+
+# qmp_get_id [8bit]
+qmp_get_id() {  
+  local community_node_id="$(qmp_uci_get node.community_node_id)"
+  [ -z "$community_node_id" ] && \
+    community_node_id="$(qmp_get_crc16)"
+  [ "$1" == "8bit" ] && echo "$(( 0x$community_node_id % 0x100 ))" || echo "$community_node_id"
+}
+
+# qmp_get_id_ip <1,2>
+qmp_get_id_ip() {
+  [ "$1" == "1" ] && echo "$(qmp_get_crc16 1)"
+  [ "$1" == "2" ] && echo "$(qmp_get_crc16 2)"
+}
+
+
+#########################
+# Other kind of commands
+#########################
 
 # Print the content of the parameters in reverse order (separed by spaces)
 qmp_reverse_order() {

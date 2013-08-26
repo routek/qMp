@@ -62,20 +62,7 @@ qmp_get_primary_device() {
   echo "$primary_mesh_device"
 }
 
-# qmp_get_id [8bit]
-qmp_get_id() {  
-  local community_node_id="$(qmp_uci_get node.community_node_id)"
-  [ -z "$community_node_id" ] && \
-    community_node_id="$(qmp_get_crc16)"
-  [ "$1" == "8bit" ] && echo "$(( 0x$community_node_id % 0x100 ))" || echo "$community_node_id"
-}
-
-# qmp_get_id_ip <1,2>
-qmp_get_id_ip() {
-  [ "$1" == "1" ] && echo "$(qmp_get_crc16 1)"
-  [ "$1" == "2" ] && echo "$(qmp_get_crc16 2)"
-}
-
+# check if a device exists
 qmp_check_device() {
 	ip link show $1 1> /dev/null 2>/dev/null
 	return $?
@@ -907,17 +894,19 @@ qmp_add_qmp_bmx6_tunnels()
 	
 	[ "$ignore" = "1" ] && return
 	
+	local type="$(qmp_uci_get_raw gateways.$name.type)"
+	qmp_log Configuring gateway $name of type $type
 	[ -z "$name" ] && name="qmp_$gateway" || name="qmp_$name"
-	
-	qmp_log Configuring gateway $name
-	
-	local type="$(qmp_uci_get_raw gateways.$name)"
-	if [ "$type" = "offer" ]
+
+	if [ "$type" == "offer" ]
 	then
 		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$name"
-		qmp_translate_configuration gateways $section network $config $name
+		for t in network address bandwidth
+		do		
+			qmp_translate_configuration gateways $section $t $config $name
+		done
 	else
 		bmx6_type=tunOut
 		uci set $config.$name="$bmx6_type"

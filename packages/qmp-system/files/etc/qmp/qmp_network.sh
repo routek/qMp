@@ -224,7 +224,7 @@ qmp_radvd_enable_route() {
 }
 
 qmp_configure_lan_v6() {
-	echo "Starting ULA LAN configuration"
+	qmp_log "Starting ULA LAN configuration"
 
 	local prefix="$(qmp_uci_get networks.lan_ula_prefix48)"
 	[ -z "$prefix" ] && { echo "No lan ULA prefix configured, skiping LAN IPv6 ULA configuration"; return; }
@@ -234,7 +234,7 @@ qmp_configure_lan_v6() {
 	if [ -z "$dev" ]; then 
 		lanid="$(cat /var/log/*.log | md5sum | awk '{print $1}' | cut -c1-4)"
 	else
-		lanid="$(qmp_get_mac_for_dev $dev | tr -d : | cut -c9-12)"
+		lanid="$(qmp_get_id)"
 	fi
 
 	if [ $(echo $prefix | grep :: -c) -eq 0 ]; then
