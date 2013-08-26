@@ -3,7 +3,7 @@ config 'qmp' 'interfaces'
 	option 'lan_devices' ''				# will be used for LAN
 	option 'wan_devices' ''				# will be used for WAN
 	option 'mesh_devices' 'eth1'		# will be extended by vlan tag for by uses as Mesh
-#	option 'no_vlan_devices' ''			# interfaces which won't be vlan tagged
+	option 'no_vlan_devices' 'br-lan eth0 eth1'	# interfaces which won't be vlan tagged
 #	option 'ignore_devices' ''			# interfaces to ignore
 
 config 'qmp' 'node'
