@@ -10,6 +10,16 @@ local bit = require "nixio".bit
 local fs  = require "nixio.fs"
 local math = require "math"
 
+function dec_hex(n)
+	local B,K,out,I,D=16,"0123456789abcdef","",0
+	while n>0 do
+		I=I+1
+		n,D=math.floor(n/B),math.mod(n,B)+1
+		out=string.sub(K,D,D)..out
+		end
+	return out
+end
+
 function hash(str)
 	local crc;
 	
@@ -40,6 +50,6 @@ end
 
 local mac = arg[1] or fs.readfile("/sys/class/net/eth0/address")
 local h = hash(mac)
-print(h)
+print(dec_hex(h))
 print(math.floor(h / 256) .. '\n' .. h % 256)
 
