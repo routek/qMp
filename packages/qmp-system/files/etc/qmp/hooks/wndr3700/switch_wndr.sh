@@ -1,0 +1,1 @@
+../scripts/switch_wndr.sh
