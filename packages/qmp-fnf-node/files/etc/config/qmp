@@ -50,5 +50,5 @@ config 'qmp' 'wireless'
 
 config 'wireless'
 	option 'channel' '149+'
-
-
+	option 'mode' 'adhoc'
+	option 'name' 'kcfn'
