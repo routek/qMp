@@ -41,6 +41,7 @@ define Package/qmp-big-node
 	+qmp-tinyproxy +tinymce \
 	+openssl-util +luci-ssl \
 	+lsof \
+	+olsrd +olsrd-mod-txtinfo +olsrd-mod-httpinfo +olsrd-mod-watchdog +olsrd-mod-arprefresh \
 	+wget +bmon +bwm +ebtables +pv \
 	+ndisc6 +rdisc6 \
 	+ipv6calc

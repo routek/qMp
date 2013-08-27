@@ -37,12 +37,12 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-tiny-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Basic addons for qMp node
+  TITLE:=Basic addons for default qMp node
   URL:=http://qmp.cat
   DEPENDS:= \
   +qmp-system \
   +uhttpd +luci-mod-admin-core +luci-app-bmx6 \
-  +iwinfo \
+  +iwinfo +luci-mod-admin-full \
   +radvd \
   +wpad-mini \
   +iw +netperf +mtr \
