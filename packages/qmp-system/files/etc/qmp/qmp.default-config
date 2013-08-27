@@ -16,7 +16,7 @@ config 'qmp' 'interfaces'
 	option mesh_devices ''
 	
 	# Devices that will be excluded of the VLAN tagging.
-	option no_vlan_devices' ''
+	option no_vlan_devices ''
 	
 	# Devices that will be ignored (to manage them manually).
 	option ignore_devices ''
@@ -96,9 +96,13 @@ config 'qmp' 'networks'
 	option mesh_vid_offset '10'
 	option mesh_protocol_vids 'olsr6:1 bmx6:2' 
 	
+	
 	# IPv6 prefix for internal mesh usage (ULA).
 	option bmx6_mesh_prefix48  'fd02:0:0'
 	option olsr6_mesh_prefix48 'fd01:0:0'
+	
+	# IPv6 ULA/LAN prefix (48bits).
+	option lan_ula_prefix48 'fd00:1714:1714'
 	
 	# IPv6 prefix for public internet (48 bits). 
 	# Suffix is autoconfigured based on primary device MAC.
