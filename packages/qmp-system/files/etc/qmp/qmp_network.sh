@@ -30,6 +30,26 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_NET=1
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
 
+# Adds the iptables mss clamping rule for descovering maximum MSS
+# <device> [remove]
+qmp_set_mss_clamping() {
+        local dev="$1"
+        local rm="$2"
+        local fw="/etc/firewall.user"
+        local rule="iptables -A FORWARD -p tcp -o $dev -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu"
+
+        [ -z "$dev" ] && return
+
+        if [ "$rm" == "remove" ]; then
+                sed -i /"${rule}"/d $fw
+
+        else if [ $(cat $fw | grep "$rule" -c) -eq 0 ]; then
+                qmp_log Adding TCP ClampMSS rule for $dev
+                echo "$rule" >> $fw
+        fi;fi
+}
+
+
 qmp_configure_prepare_network() {                                                         
 	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
 	echo "Removing current network configuration"

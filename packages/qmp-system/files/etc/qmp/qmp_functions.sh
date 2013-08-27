@@ -738,6 +738,7 @@ qmp_configure_lan() {
   local device
   for device in $(qmp_get_devices lan) ; do
     qmp_attach_device_to_interface $device lan
+    qmp_set_mss_clamping $device remove
   done
 }
 
@@ -771,13 +772,14 @@ qmp_configure_network() {
 
   # WAN devices
   for i in $(qmp_get_devices wan) ; do
-	echo "Configuring $i in WAN mode"
+    echo "Configuring $i in WAN mode"
     local viface="$(qmp_get_virtual_iface $i)"
     qmp_uci_set_raw network.$viface="interface"
     qmp_attach_device_to_interface $i $viface
     qmp_uci_set_raw network.$viface.proto="dhcp"
     metric="$(qmp_uci_get network.wan_metric)"
     qmp_uci_set_raw network.$viface.metric="${metric:-2048}"
+    qmp_set_mss_clamping $i
   done
   
   # LAN devices configuration
