@@ -1,0 +1,6 @@
+if uci get qmp.non_overlapping 2>/dev/null; then
+        echo "Changing non_overlapping entry for roaming"
+        uci show qmp.non_overlapping | sed s/non_overlapping/roaming/g | while read o; do uci set $o; done
+        uci del qmp.non_overlapping
+        uci commit qmp
+fi
