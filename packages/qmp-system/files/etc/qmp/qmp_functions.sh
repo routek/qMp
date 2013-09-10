@@ -779,6 +779,7 @@ qmp_configure_network() {
     qmp_uci_set_raw network.$viface.proto="dhcp"
     metric="$(qmp_uci_get network.wan_metric)"
     qmp_uci_set_raw network.$viface.metric="${metric:-2048}"
+    qmp_gw_masq_wan 1
     qmp_set_mss_clamping $i
   done
   

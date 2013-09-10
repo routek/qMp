@@ -143,6 +143,8 @@ qmp_gw_masq_wan() {
 	fi
 
 	qmp_gw_add_interfaces_to_firewall_zone $cfg
+	
+	uci commit firewall
 }
 
 qmp_gw_apply() {
