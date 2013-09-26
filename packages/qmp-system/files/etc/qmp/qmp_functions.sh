@@ -39,6 +39,7 @@ fi
 . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
+[ -z "$SOURCE_SYS" ] && . $QMP_PATH/qmp_system.sh
 
 # requires ip ipv6calc awk sed grep
 
@@ -818,53 +819,6 @@ qmp_configure_bmx6() {
 #  /etc/init.d/$conf restart
 }
 
-qmp_set_hosts() {
-  echo "Configuring /etc/hosts file with qmpadmin entry"
-
-  local ip=$(uci get bmx6.general.tun4Address | cut -d'/' -f1)
-  local hn=$(uci get system.@system[0].hostname)
-
-  if [ -z "$ip" -o -z "$hn" ]; then
- 	echo "Cannot get IP or HostName"
-	return
-  fi
-
-  if [ $(cat /etc/hosts | grep -c "^$ip.*qmpadmin") -eq 0 ]; then
-        cat /etc/hosts | grep -v qmpadmin > /tmp/hosts.tmp
-        echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
-        cp /tmp/hosts.tmp /etc/hosts
-  fi
-
-  echo "done"
-}
-
-qmp_configure_system() {
-
-  if qmp_uci_test qmp.node.community_node_id; then
-    local community_node_id=$(qmp_get_id)
-  else
-    local community_node_id=$(qmp_get_id)
-    qmp_uci_set node.community_node_id $community_node_id
-  fi
-
-  local community_id="$(qmp_uci_get node.community_id)"
-  [ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
-
-  # set hostname
-  uci set system.@system[0].hostname=${community_id}${community_node_id}
-  uci commit system
-  echo "${community_id}${community_node_id}" > /proc/sys/kernel/hostname
-
-  # enable IPv6 in httpd:
-  uci set uhttpd.main.listen_http="80"
-  uci set uhttpd.main.listen_https="443"
-  uci commit uhttpd
-  /etc/init.d/uhttpd restart
-
-  # configuring hosts
-  qmp_set_hosts
-}
-
 qmp_restart_firewall() {
 	/etc/init.d/firewall restart
 }
@@ -881,6 +835,7 @@ qmp_configure_initial() {
 
 qmp_configure() {
   qmp_configure_system
+  qmp_set_services
   qmp_hooks_exec preconf
   qmp_check_force_internet
   qmp_configure_network

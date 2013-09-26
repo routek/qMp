@@ -43,6 +43,7 @@ function index()
 	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
 	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "WiFi", 3).dependent=false
 	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 4).dependent=false
+	entry({"qmp","configuration","services"}, cbi("qmp/services"), "Services", 5).dependent=false
 
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
 	entry({"qmp","tools","tools"}, call("action_tools"), "Tools", 1).dependent=false           

@@ -30,6 +30,7 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_wireless.sh
 . $QMP_PATH/qmp_network.sh
 . $QMP_PATH/qmp_update.sh
+. $QMP_PATH/qmp_system.sh
 
 offer_default_gw() {
 	qmp_gw_default offer $1
@@ -65,13 +66,12 @@ configure_gw() {
 	qmp_gw_apply
 }
 
-apply_netserver() {
-	[ "$(qmp_uci_get networks.netserver)" == "1" ] && qmp_enable_netserver || qmp_disable_netserver
+apply_services() {
+	qmp_set_services
 }
 
 configure_network() {
 	qmp_configure
-	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
 	bmx6 -c --configReload || /etc/init.d/bmx6 restart
 	/etc/init.d/network reload
 	if /etc/init.d/gwck enabled
@@ -79,12 +79,12 @@ configure_network() {
 		/etc/init.d/gwck restart
 	fi
 	/etc/init.d/dnsmasq restart
-	apply_netserver
 	qmp_restart_firewall
 }
 
 configure_system() {
 	qmp_configure_system
+	apply_services
 	/etc/init.d/uhttpd restart
 }
 
@@ -118,7 +118,6 @@ configure_all() {
 	configure_system
 	configure_wifi
 	configure_network	
-	apply_netserver
 }
 
 safe_apply() {
@@ -190,7 +189,7 @@ help() {
 
 	echo ""
 	echo "Other:"
-	echo " apply_netserver  		: Start/stop nerserver depending on qmp configuration"
+	echo " apply_services			: Start/stop services depending on qmp configuration"
 	echo " enable_ns_ppt			: Enable POE passtrought from NanoStation M2/5 devices. Be careful with this option!"
 	echo " upgrade [URL]			: Upgrade system. By default to the last version, but image url can be provided to force"
 	echo " hard_reboot			: Performs a hard reboot (using kernel sysrq)"

@@ -30,6 +30,7 @@ QMPINFO="/etc/qmp/qmpinfo"
 SOURCE_NET=1
 [ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
 [ -z "$SOURCE_FUNCTIONS" ] && . $QMP_PATH/qmp_functions.sh
+[ -z "$SOURCE_SYS" ] && . $QMP_PATH/qmp_system.sh
 
 # Adds the iptables mss clamping rule for descovering maximum MSS
 # <device> [remove]
@@ -58,17 +59,6 @@ qmp_configure_prepare_network() {
 		uci del network.$i
 	done
 	uci commit network
-}
-
-qmp_enable_netserver() {
-	qmp_uci_set networks.netserver 1
-	killall -9 netserver
-	netserver -6 -p 12865
-}
-
-qmp_disable_netserver() {
-	qmp_uci_set networks.netserver 0
-	killall -9 netserver || true
 }
 
 ## DISABLED

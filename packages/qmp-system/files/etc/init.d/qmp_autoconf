@@ -124,14 +124,12 @@ configure() {
 # This function is executed in each boot
 startup() {
 	# Set HostName
-	. $QMP_DIR/qmp_functions.sh
+	. $QMP_DIR/qmp_system.sh
 	qmp_set_hosts
-
+	[ $(qmp_uci_get services.bwtest) -eq 1 ] && qmp_enable_netserver
+	
 	# Run hooks
 	exechooks anyboot
-
-	# Start/Stop netserver
-	$QMP_DIR/qmp_control.sh apply_netserver
 
 	# Generate current qmp key
 	logread | md5sum | awk '{print $1}' > $QMP_KEY
