@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if ! uci get b6m-spread.general.interval 2>/dev/null; then
+	uci set b6m-spread.general.interval=60
+fi
+
