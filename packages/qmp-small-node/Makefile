@@ -53,9 +53,6 @@ define Package/qmp-small-node/description
  Addons for small qmp nodes (4MByte flash)
 endef
 
-define Package/qmp-small-node/conffiles
-endef
-
 define Build/Configure
 endef
 
@@ -69,6 +66,5 @@ endef
 define Package/qmp-small-node/install
     $(INSTALL_DIR) $(1)/etc/qmp
 endef
-
 
 $(eval $(call BuildPackage,qmp-small-node))

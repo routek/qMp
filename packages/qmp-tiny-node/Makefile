@@ -61,6 +61,12 @@ define Build/Prepare
  mkdir -p $(PKG_BUILD_DIR)
 endef
 
+define Build/Configure
+endef
+
+define Build/Compile
+endef
+
 define Package/qmp-tiny-node/install
 	$(INSTALL_DIR) $(1)/etc/qmp
 endef
