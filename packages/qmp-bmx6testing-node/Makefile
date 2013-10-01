@@ -45,7 +45,6 @@ define Package/qmp-bmx6testing-node
   +ip +iputils-ping6 
 endef
 
-
 define Package/qmp-bmx6testing-node/description
  Basic addons for bmx6 testing and developing
 endef
@@ -54,6 +53,8 @@ define Build/Prepare
  mkdir -p $(PKG_BUILD_DIR)
 endef
 
+define Package/qmp-bmx6testing-node/install
+    $(INSTALL_DIR) $(1)/etc/qmp
+endef
 
 $(eval $(call BuildPackage,qmp-bmx6testing-node))
-

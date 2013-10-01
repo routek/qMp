@@ -50,4 +50,12 @@ define Package/qmp-big-node/description
  Addons for big qmp nodes (8MByte flash or more)
 endef
 
+define Build/Prepare
+ mkdir -p $(PKG_BUILD_DIR)
+endef
+
+define Package/qmp-big-node/install
+    $(INSTALL_DIR) $(1)/etc/qmp
+endef
+
 $(eval $(call BuildPackage,qmp-big-node))
