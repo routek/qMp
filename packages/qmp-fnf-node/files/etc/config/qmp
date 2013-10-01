@@ -1,5 +1,4 @@
 config 'qmp' 'interfaces'
-#	option 'configure_switch' ''		# (deprecated) (uncomment line if available, e.g. WGT634U)
 	option 'lan_devices' ''				# will be used for LAN
 	option 'wan_devices' ''				# will be used for WAN
 	option 'mesh_devices' 'eth1'		# will be extended by vlan tag for by uses as Mesh
@@ -25,23 +24,28 @@ config 'qmp' 'roaming'
 	option 'dhcp_offset'         '2'
 	option 'qmp_leasetime'       '1h'
 
-	
+config 'qmp' 'services'
+	option vpn 0
+	option captive_portal 0
+	option b6m 1
+	option altermap 1
+	option gwck 0
+	option auto_upgrade 0
+	option mesh_dns 0
+	option bwtest 1
+
 config 'qmp' 'networks'
 	option 'dns'                 '4.2.2.1'
 	option 'lan_address'         ''
 	option 'lan_netmask'         '255.255.255.0'
-	#option 'publish_lan'	     '0' # deprecated
-	option 'mesh_protocol_vids'  'bmx6:2' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
-	option 'mesh_vid_offset'     '10'
+	option 'mesh_protocol_vids'  'bmx6:12' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
 	option 'rescue_prefix24'     '169.254' # rescue network prefix, the 16 missing bits are taken from device MAC 
-	option 'olsr6_mesh_prefix48' 'fd01:0:0'
-	option 'olsr6_ripe_prefix48' '2011:0:0'
 	option 'bmx6_mesh_prefix48'  'fd02:0:0'
 	option 'bmx6_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
 	option 'bmx6_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
 #	option 'bmx6_ipv4_address'   '' # specify it if you want to have a specific IPv4 address
-#	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
-	option 'netserver' '1'
+	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
+
 
 config 'qmp' 'wireless'
 	option 'driver'  'mac80211'
