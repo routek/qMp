@@ -7,6 +7,7 @@ wireless.#QMP_RADIO.hwmode=auto
 wireless.#QMP_RADIO.htmode=#QMP_HTMODE
 wireless.#QMP_RADIO.txpower=#QMP_TXPOWER
 wireless.#QMP_RADIO.noscan=1
+wireless.#QMP_RADIO.distance=5000
 list wireless.#QMP_RADIO.ht_capab=SHORT-GI-20
 list wireless.#QMP_RADIO.ht_capab=SHORT-GI-40
 list wireless.#QMP_RADIO.ht_capab=RX-STBC1
