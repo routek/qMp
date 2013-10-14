@@ -119,7 +119,7 @@ config 'qmp' 'networks'
 	option bmx6_ripe_prefix48  '2012:0:0'
 	
 	# Metric for WAN interfaces (dhcp client).
-	option wan_metric '2048' 
+	# option wan_metric '2048' 
 
 # -----------------------------
 # Wireless general configuration
@@ -128,3 +128,4 @@ config 'qmp' 'wireless'
 	option driver 'mac80211'
 	option country 'SP'
 	option bssid '02:CA:FF:EE:BA:BE'
+
