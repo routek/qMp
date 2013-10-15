@@ -1,0 +1,13 @@
+#!/bin/sh
+if ! uci -q get qmp.services >/dev/null; then 
+        uci set qmp.services=qmp
+        uci set qmp.services.vpn=0
+        uci set qmp.services.captive_portal=0
+        uci set qmp.services.b6m=1
+        uci set qmp.services.altermap=1
+        uci set qmp.services.gwck=1
+        uci set qmp.services.auto_upgrade=0
+        uci set qmp.services.mesh_dns=0
+        uci set qmp.services.bwtest=1
+        uci commit qmp
+fi
