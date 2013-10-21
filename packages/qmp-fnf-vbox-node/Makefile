@@ -34,10 +34,10 @@ QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/qmp-fnf-node
+define Package/qmp-fnf-vbox-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Addons for qMp fnf node to run out of the box in vbox
+  TITLE:=vbox mods for qmp-fnf-node
   URL:=http://thefnf.org
   DEPENDS:= \
   +qmp-system \
