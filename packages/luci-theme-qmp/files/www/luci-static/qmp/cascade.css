@@ -336,8 +336,27 @@ html #menubar a:visited.warning {
 	list-style: none;
 }
 
+html #modemenu > li > a.active:link,
+html #modemenu > li >  a.active:visited {
+	background-color: grey;
+}
+
 #mainmenu {
 	clear: left;
+}
+
+html #mainmenu > li > a:link.active,
+html #mainmenu > li > a:visited.active,
+html #mainmenu > li > a:link,
+html #mainmenu > li > a:link.preactive,
+html #mainmenu > li > a:visited.preactive,
+html #mainmenu > li > a:visited {
+	background-color: grey;
+}
+
+html #mainmenu > li:hover > a.preactive,
+html #mainmenu > li:hover > a {
+	background-color: black;
 }
 
 #savemenu {
