@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if dmesg | grep VirtualBox; then
+	rm /etc/rc.d/S99qmp_autoconf
+	ln -s /etc/init.d/qmp_autoconf_no_wireless /etc/rc.d/S99qmp_autoconf
+else
+	echo "I'm a real node!"
+fi

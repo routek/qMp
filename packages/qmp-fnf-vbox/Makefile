@@ -25,7 +25,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=qmp-fnf-vbox-node
+PKG_NAME:=qmp-fnf-vbox
 PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Ratafia
@@ -34,7 +34,7 @@ QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/qmp-fnf-vbox-node
+define Package/qmp-fnf-vbox
   SECTION:=net
   CATEGORY:=qMp
   TITLE:=vbox mods for qmp-fnf-node
@@ -53,7 +53,7 @@ define Package/qmp-fnf-vbox-node
   +tcpdump-mini +igmpproxy +bwm +collectd
 endef
 
-define Package/qmp-fnf-vbox-node/description
+define Package/qmp-fnf-vbox/description
  Required addons for qMp fnf node (only needed and basic stuff)
 endef
 
@@ -67,9 +67,10 @@ endef
 define Build/Compile
 endef
 
-define Package/qmp-fnf-vbox-node/install
+define Package/qmp-fnf-vbox/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(CP) ./files/etc/config/qmp $(1)/etc/config/qmp
+	$(CP) ./files/* $(1)/
+	chmod 755 $(1)/etc/init.d/qmp_autoconf_no_wireless
 endef
 
-$(eval $(call BuildPackage,qmp-fnf-vbox-node))
+$(eval $(call BuildPackage,qmp-fnf-vbox))
