@@ -11,6 +11,9 @@ You may obtain a copy of the License at
 
 $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 
+Contributors:
+	Simó Albert i Beltran
+
 -%>
 <%
  	package.path = package.path .. ";/etc/qmp/?.lua"
@@ -93,9 +96,9 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 	</span>
 </div>
 <div id="header">
-	<div class="banner" style="background-color: #000; display: block; clear: both; height: 58px;">
-		<div style="float:left;padding-left:24px"><a href="http://qmp.cat" target="_blank"><img src="/luci-static/qmp/qmp_small.png" height="45px" alt="qMp" style="padding: 5px;" border="0"/></a></div>
-        <div style="float:left; padding-top:20px;padding-left:5px;color:#ff9900"><h2>Quick Mesh Project</h2></div>
+	<div class="banner">
+		<a href="http://qmp.cat" target="_blank"><img src="/luci-static/qmp/qmp_small.png" height="45px" alt="qMp"/></a>
+		<h2>Quick Mesh Project</h2>
 	</div>
 </div>
 
@@ -126,6 +129,15 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 
 <div id="menubar">
 <h2 class="navigation"><a id="navigation" name="navigation"><%:navigation Navigation%></a></h2>
+
+<% if #categories > 1 then %>
+	<ul id="modemenu">
+	<% for i, r in ipairs(categories) do %>
+		<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a></li>
+	<% end %>
+	</ul>
+<% end %>
+
 <ul id="mainmenu" class="dropdowns">
 	<%
 		local childs = disp.node_childs(cattree)
@@ -145,14 +157,6 @@ $Id: header.htm 7810 2011-10-28 15:15:27Z jow $
 	%>
 	<li></li>
 </ul>
-
-<% if #categories > 1 then %>
-	<ul id="modemenu">
-	<% for i, r in ipairs(categories) do %>
-		<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a></li>
-	<% end %>
-	</ul>
-<% end %>
 
 <%
 if tree.nodes[category] and tree.nodes[category].ucidata then

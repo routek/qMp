@@ -1,3 +1,25 @@
+/*
+	LuCI qMp Theme
+
+	Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+	Contributors:
+		Simó Albert i Beltran
+*/
+
 @charset "utf-8";
 
 @media all {
@@ -178,10 +200,9 @@ ul.dropdowns ul ul ul li:hover ul {
 div.hostinfo {
 	float: left;
 	margin: 0;
-	width: 100%;
 	font-size: 80%;
 	padding: 0.5em 0;
-    background-color: #000;
+	background-color: #000;
 }
 
 #xhr_poll_status {
@@ -198,12 +219,36 @@ div.hostinfo {
 	color: #00FF00;
 }
 
+.banner {
+	background-color: #000;
+	display: block;
+	clear: both;
+	height: 58px;
+}
+
+.banner > a {
+	float:left;
+	padding-left:24px;
+}
+
+.banner > a > img {
+	padding: 5px;
+	border: 0;
+}
+
+.banner > h2 {
+	float:left;
+	padding-top:20px;
+	padding-left:5px;
+	color:#ff9900;
+}
+
 #menubar {
+	clear: left;
 	position: relative;
-	width: 100%;
 	background: #000000;
 	color: #ffffff;
-    float: left;
+	float: left;
 }
 #menubar ul.dropdowns {
 	min-height: 1.8em;
@@ -273,19 +318,45 @@ html #menubar a:visited.warning {
 	font-weight: bold;
 }
 
+#header {
+	float: right;
+	margin-right: 0.5em;
+}
+
 #modemenu {
 	width: auto;
 	background: #000000;
 	color: #ffffff;
 	list-style: none;
-	margin-right: 1px;
-	margin-left: 2em;
-	float: right;
+	margin-left: 1px;
 }
 
 #modemenu li {
-	float: right;
+	float: left;
 	list-style: none;
+}
+
+html #modemenu > li > a.active:link,
+html #modemenu > li >  a.active:visited {
+	background-color: grey;
+}
+
+#mainmenu {
+	clear: left;
+}
+
+html #mainmenu > li > a:link.active,
+html #mainmenu > li > a:visited.active,
+html #mainmenu > li > a:link,
+html #mainmenu > li > a:link.preactive,
+html #mainmenu > li > a:visited.preactive,
+html #mainmenu > li > a:visited {
+	background-color: grey;
+}
+
+html #mainmenu > li:hover > a.preactive,
+html #mainmenu > li:hover > a {
+	background-color: black;
 }
 
 #savemenu {
