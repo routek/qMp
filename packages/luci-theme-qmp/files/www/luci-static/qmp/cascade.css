@@ -200,7 +200,7 @@ div.hostinfo {
 	width: 100%;
 	font-size: 80%;
 	padding: 0.5em 0;
-    background-color: #000;
+	background-color: #000;
 }
 
 #xhr_poll_status {
@@ -222,7 +222,7 @@ div.hostinfo {
 	width: 100%;
 	background: #000000;
 	color: #ffffff;
-    float: left;
+	float: left;
 }
 #menubar ul.dropdowns {
 	min-height: 1.8em;
