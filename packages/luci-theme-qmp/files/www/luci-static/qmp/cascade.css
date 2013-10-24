@@ -217,6 +217,30 @@ div.hostinfo {
 	color: #00FF00;
 }
 
+.banner {
+	background-color: #000;
+	display: block;
+	clear: both;
+	height: 58px;
+}
+
+.banner > a {
+	float:left;
+	padding-left:24px;
+}
+
+.banner > a > img {
+	padding: 5px;
+	border: 0;
+}
+
+.banner > h2 {
+	float:left;
+	padding-top:20px;
+	padding-left:5px;
+	color:#ff9900;
+}
+
 #menubar {
 	position: relative;
 	width: 100%;
