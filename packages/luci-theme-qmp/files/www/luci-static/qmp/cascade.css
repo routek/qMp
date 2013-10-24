@@ -200,7 +200,6 @@ ul.dropdowns ul ul ul li:hover ul {
 div.hostinfo {
 	float: left;
 	margin: 0;
-	width: 100%;
 	font-size: 80%;
 	padding: 0.5em 0;
 	background-color: #000;
@@ -245,8 +244,8 @@ div.hostinfo {
 }
 
 #menubar {
+	clear: left;
 	position: relative;
-	width: 100%;
 	background: #000000;
 	color: #ffffff;
 	float: left;
@@ -319,19 +318,26 @@ html #menubar a:visited.warning {
 	font-weight: bold;
 }
 
+#header {
+	float: right;
+	margin-right: 0.5em;
+}
+
 #modemenu {
 	width: auto;
 	background: #000000;
 	color: #ffffff;
 	list-style: none;
-	margin-right: 1px;
-	margin-left: 2em;
-	float: right;
+	margin-left: 1px;
 }
 
 #modemenu li {
-	float: right;
+	float: left;
 	list-style: none;
+}
+
+#mainmenu {
+	clear: left;
 }
 
 #savemenu {

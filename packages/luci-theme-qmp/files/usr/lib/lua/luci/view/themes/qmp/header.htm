@@ -129,6 +129,15 @@ Contributors:
 
 <div id="menubar">
 <h2 class="navigation"><a id="navigation" name="navigation"><%:navigation Navigation%></a></h2>
+
+<% if #categories > 1 then %>
+	<ul id="modemenu">
+	<% for i, r in ipairs(categories) do %>
+		<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a></li>
+	<% end %>
+	</ul>
+<% end %>
+
 <ul id="mainmenu" class="dropdowns">
 	<%
 		local childs = disp.node_childs(cattree)
@@ -148,14 +157,6 @@ Contributors:
 	%>
 	<li></li>
 </ul>
-
-<% if #categories > 1 then %>
-	<ul id="modemenu">
-	<% for i, r in ipairs(categories) do %>
-		<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a></li>
-	<% end %>
-	</ul>
-<% end %>
 
 <%
 if tree.nodes[category] and tree.nodes[category].ucidata then
