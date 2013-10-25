@@ -1,0 +1,203 @@
+#!/bin/sh
+#    Copyright (C) 2013 Pau Escrich <p4u@dabax.net>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along
+#    with this program; if not, write to the Free Software Foundation, Inc.,
+#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+#    The full GNU General Public License is included in this distribution in
+#    the file called "COPYING".
+
+# Configuration variables                                     
+MDNS_DIR="/etc/mdns"                                                
+HOSTF="$MDNS_DIR/hosts"                                            
+MY_DOMAINS="$MDNS_DIR/public"                                     
+DOMAINS4="qmp"
+DOMAINS6="qm6"
+SMSF="/var/run/bmx6/sms/sendSms/mdns"                                       
+SMSR="/var/run/bmx6/sms/rcvdSms"                                            
+DNSMASQ="/etc/dnsmasq.conf"                                     
+DNSMASQ_PID="/var/run/dnsmasq.pid"
+PERIOD="10"
+
+# Optional
+IPV4=""
+IPV6=""
+
+start() {
+	if ! cat /etc/crontabs/root | grep mdns > /dev/null; then
+		echo "/$PERIOD * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
+		/etc/init.d/cron enable
+		/etc/init.d/cron start
+	fi
+	/etc/init.d/mdns reload
+}
+
+stop() {
+	sed -i -e '/.*\/etc\/init\.d\/mdns reload > \/tmp\/log\/mdns\.log$/d' /etc/crontabs/root
+	/etc/init.d/cron restart
+}
+
+reload() {
+	init
+	publish_my_domains
+	get_domains
+	finish	
+}
+
+refresh() { 
+	reload
+}
+
+# Code
+
+error() {
+	echo "ERROR: $@"
+	exit 1
+}
+
+log() {
+	echo -e "-> $@"
+}
+
+init() {
+	log "preparing bmx6"
+	bmx6 -c --syncSms mdns
+	[ $? -ne 0 ] && error "cannot configure bmx6 daemon"
+
+	cat $DNSMASQ | egrep "^addn-hosts=$HOSTF" -q || {
+		log "adding addn-host entry to dnsmasq config file"
+		echo "addn-hosts=$HOSTF" >> $DNSMASQ
+		log "restarting dnsmasq daemon"
+		/etc/init.d/dnsmasq restart
+	}
+	ps | grep dnsmasq -q || error "dnsmasq not running"
+	
+	log "cleaning files"
+	[ -f $SMSF ] && rm -f $SMSF
+	touch $SMSF
+	
+	[ -f $HOSTF ] && rm -f $HOSTF
+	touch $HOSTF	
+	
+	[ ! -d $MDNS_DIR ] && mkdir -p $MDNS_DIR
+	touch $MY_DOMAINS
+}
+
+check_domain() {
+		local v="$1"
+		local d="$2"
+		local valid=1
+		local domains=""
+
+		[ $v == "4" ] && domains="$DOMAINS4"
+		[ $v == "6" ] && domains="$DOMAINS6"
+		[ $v == "all" ] && domains="$DOMAINS4 $DOMAINS6"
+	
+		for D in $domains; do
+			echo "$d" | egrep "\.$D"$ -q && valid=0 && break
+		done 
+		
+		return $valid
+}
+
+get_my_domains() {
+	local v=${1:-4}
+	local my_domains=""
+	local domains=""
+	local d
+
+	for d in $(cat $MY_DOMAINS); do
+		check_domain $v $d && my_domains="$d $my_domains"
+	done
+
+	[ "$v" == "4" ] && domains="$DOMAINS4"
+	[ "$v" == "6" ] && domains="$DOMAINS6"
+
+	for d in $domains; do
+		my_domains="$(cat /proc/sys/kernel/hostname).$d $my_domains"
+	done
+	
+	echo $my_domains
+}
+
+get_my_ip4() {
+	[ -z $IPV4 ] && \
+	bmx6 -cp | grep tun4Address | awk '{print $2}' | awk -F / '{print $1}' || \
+	echo "$IPV4"
+}
+
+get_my_ip6() {
+	[ -z $IPV4 ] && \
+	bmx6 -cp | grep tun6Address | awk '{print $2}' | awk -F / '{print $1}' || \
+	echo "$IPV6"
+}
+
+publish_my_domains() {
+	local d domains
+	
+	local ip4="$(get_my_ip4)"
+	local ip6="$(get_my_ip6)"
+
+	[ -z "$ip4$ip6" ] && error "cannot get ip address"
+
+	[ -n "$ip4" ] && {
+		domains="$(get_my_domains 4)"
+		log "publishing own IPv4 domains: $domains"
+		echo "$ip4 $domains" >> $SMSF
+		echo "$ip4 $domains" >> $HOSTF
+	}
+
+	[ -n "$ip6" ] && {
+		domains="$(get_my_domains 6)"
+		log "publishing own IPv6 domains: $domains"
+		echo "$ip6 $domains" >> $SMSF
+		echo "$ip6 $domains" >> $HOSTF
+	}
+}
+
+get_domains() {
+	local f d domline ip line n i
+
+	ls $SMSR/*:mdns 2>/dev/null >/dev/null && {
+
+	  # for each received file	
+	  for f in $SMSR/*:mdns; do
+		n=$(cat $f | wc -l)
+			
+		# for each line inside the file
+		for i in $(seq $n); do
+			line=$(cat $f | awk "NR==$i")
+
+			ip="$(echo $line | awk '{print $1}')"
+			[ -z $ip ] && continue
+		
+			domains=""
+			# for each domain (first is IP)
+			for d in $(echo "$line" | awk '{$1=""; print $0}'); do
+				check_domain all $d && domains="$d $domains"
+			done
+
+			[ -n "$domains" ] && echo "$ip $domains" >> $HOSTF
+			log "added remote domains $domains= $ip"
+	  done
+  done 
+
+	  } || log "not published domains found in the network"
+}
+
+finish() {
+	kill -SIGHUP $(cat $DNSMASQ_PID)
+}
+
+$@

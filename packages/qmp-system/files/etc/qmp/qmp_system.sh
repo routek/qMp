@@ -34,13 +34,21 @@ SOURCE_SYS=1
 
 qmp_configure_system() {
 
-	if qmp_uci_test qmp.node.community_node_id; then
-		local community_node_id=$(qmp_get_id)
+	if [ -n "$(qmp_uci_get node.community_node_id)" ]; then
+		local community_node_id=$(qmp_uci_get node.community_node_id)
 	else
-		local community_node_id=$(qmp_get_id)
+		local community_node_id=$(qmp_get_id_hostname)
 		qmp_uci_set node.community_node_id $community_node_id
 	fi
-
+	
+	# check if community_node_id is hexadecimal and get last 4 characters
+	community_node_id="$(echo -n $community_node_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
+	
+	[ $(echo -n $community_node_id | wc -c) -lt 4 ] && {
+		qmp_log "Warning, community_node_id not defined properly, using failsafe 0000"
+		community_node_id=0000
+	}
+	
 	local community_id="$(qmp_uci_get node.community_id)"
 	[ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
 
@@ -147,8 +155,9 @@ qmp_set_services() {
 			true
 		}
 		
-		[ "$s" == "mesh_dns" ] && {
-			true
+		[ "$s" == "mesh_dns" ] && [ -e /etc/init.d/mdns ] && {
+			[ $(qmp_uci_get services.$s) -eq 1 ] && \ 
+			qmp_enable_service mdns || qmp_disable_service mdns
 		}
 		
 		[ "$s" == "bwtest" ] && [ -n "$(which netserver)" ] && {

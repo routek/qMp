@@ -280,6 +280,12 @@ qmp_get_id_ip() {
   [ "$1" == "2" ] && echo "$(qmp_get_crc16 2)"
 }
 
+# qmp_get_id_hostname
+# returns the two last bytes of the primary MAC address
+qmp_get_id_hostname() {
+	local mac="$(qmp_get_mac_for_dev $(qmp_uci_get node.primary_device))"
+	echo "$mac" | awk -F: '{print tolower($5)tolower($6)}'
+}
 
 #########################
 # Other kind of commands
