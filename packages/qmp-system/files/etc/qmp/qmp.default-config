@@ -47,7 +47,7 @@ config 'qmp' 'services'
 	option altermap 1
 	option gwck 1
 	option auto_upgrade 0
-	option mesh_dns 0
+	option mesh_dns 1
 	option bwtest 1
 
 # -----------------------------

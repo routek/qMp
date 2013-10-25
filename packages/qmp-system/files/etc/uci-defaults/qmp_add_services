@@ -7,7 +7,7 @@ if ! uci -q get qmp.services >/dev/null; then
         uci set qmp.services.altermap=1
         uci set qmp.services.gwck=1
         uci set qmp.services.auto_upgrade=0
-        uci set qmp.services.mesh_dns=0
+        uci set qmp.services.mesh_dns=1
         uci set qmp.services.bwtest=1
         uci commit qmp
 fi

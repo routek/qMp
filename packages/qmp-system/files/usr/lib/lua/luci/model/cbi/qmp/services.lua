@@ -57,6 +57,11 @@ local bwt = section:option(Flag, "bwtest", translate("Bandwidth test"),
 translate("If enabled, the node will be available to perform bandwidth test from other locations"))
 bwt.default=0
 
+-- Option: mdns
+local mdns = section:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),                                                                                                       
+translate("A distributed DNS system to publish and get domain names (i.e myNode01.qmp)"))
+mdns.default=0
+
 function m.on_commit(self,map)
 	luci.sys.call('/etc/qmp/qmp_control.sh apply_services > /tmp/qmp_apply_services.log &')
 	http.redirect("/luci-static/resources/qmp/wait_short.html")
