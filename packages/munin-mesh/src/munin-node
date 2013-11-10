@@ -135,9 +135,9 @@ config_if() {
   echo "down.max 100"
 }
 fetch_if() {
-  IINFO=$(grep "$1:" /proc/net/dev | cut -d: -f2 | sed -e 's/  / /g')
-  echo "down.value" $(echo $IINFO | cut -d\  -f1)
-  echo "up.value" $(echo $IINFO | cut -d\  -f9)
+  IINFO=$(grep "$1:" /proc/net/dev | cut -d: -f2)
+  echo "down.value" $(echo $IINFO | awk '{print $2}')
+  echo "up.value" $(echo $IINFO | awk '{print $10}')
 }
 config_if_err() {
   echo "graph_order rcvd trans"
@@ -156,9 +156,9 @@ config_if_err() {
   echo "trans.warning 1"
 }
 fetch_if_err() {
-  IINFO=$(grep "$1:" /proc/net/dev | cut -d: -f2 | sed -e 's/  / /g')
-  echo "rcvd.value" $(echo $IINFO | cut -d\  -f3)
-  echo "trans.value" $(echo $IINFO | cut -d\  -f11)
+  IINFO=$(grep "$1:" /proc/net/dev | cut -d: -f2)
+  echo "rcvd.value" $(echo $IINFO | awk '{print $4}')
+  echo "trans.value" $(echo $IINFO | awk '{print $12}')
 }
 config_load() {
   echo "graph_title Load average
