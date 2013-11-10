@@ -11,3 +11,8 @@ if ! uci -q get qmp.services >/dev/null; then
         uci set qmp.services.bwtest=1
         uci commit qmp
 fi
+
+if ! uci -q get qmp.services.munin >/dev/null; then
+		uci set qmp.services.munin=1
+		uci commit qmp
+fi

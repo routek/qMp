@@ -33,34 +33,39 @@ translate("The Management VPN is used to control the nodes in remote from a cent
 vpn.default=0
 
 -- Option: Captive Portal
-local cp = section:option(Flag, "captive_portal", translate("Captive Portal"),                                                                                                       
+local cp = section:option(Flag, "captive_portal", translate("Captive Portal"),
 translate("The captive portal is a small http proxy used to show a HTML page the first time someone connects to the node's Access Point"))          
 cp.default=0
 
 -- Option: b6m
-local b6m = section:option(Flag, "b6m", translate("BMX6 map"),                                                                                                       
+local b6m = section:option(Flag, "b6m", translate("BMX6 map"),
 translate("The b6m is a real time descentralized geopositioning map based on OpenStreetMaps (Internet access only required for the OSM but not for the status/topology)"))
 b6m.default=0
 
 -- Option: altermap
-local alt = section:option(Flag, "altermap", translate("Altermap"),                                                                                                       
+local alt = section:option(Flag, "altermap", translate("Altermap"),
 translate("AlterMap is a centralized geopositioning map. Internet and the previous creation of the node in the map page are required (http://map.qmp.cat)"))
 alt.default=0
 
 -- Option: gwck
-local gwck = section:option(Flag, "gwck", translate("Gateway Checker"),                                                                                                       
+local gwck = section:option(Flag, "gwck", translate("Gateway Checker"),
 translate("GWCK is a tool automatic discover and publish Internet access among the Mesh network"))
 gwck.default=0
 
 -- Option: bwtest
-local bwt = section:option(Flag, "bwtest", translate("Bandwidth test"),                                                                                                       
+local bwt = section:option(Flag, "bwtest", translate("Bandwidth test"),
 translate("If enabled, the node will be available to perform bandwidth test from other locations"))
 bwt.default=0
 
 -- Option: mdns
-local mdns = section:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),                                                                                                       
+local mdns = section:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),
 translate("A distributed DNS system to publish and get domain names (i.e myNode01.qmp)"))
 mdns.default=0
+
+-- Option: munin
+local munin = section:option(Flag, "munin", translate("Munin agent"),
+translate("Munin agent (listen on port 4949) for monitorization and statistics"))
+munin.default=0
 
 function m.on_commit(self,map)
 	luci.sys.call('/etc/qmp/qmp_control.sh apply_services > /tmp/qmp_apply_services.log &')

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+config() {
+echo "graph_title Dhcp leases"
+echo "graph_args --base 1000 -l 0 "
+echo "graph_vlabel Number of active dhcp leases"
+echo "graph_category mesh"
+echo "graph_info This graph shows the number active dhcp leases"
+echo "leases.label leases"
+echo "leases.draw LINE1"
+echo "leases.info DHCP leases"
+}
+
+
+print() {
+	echo "leases.value $(cat /tmp/dhcp.leases  | wc -l)"
+}
+
+
+if [ "$1" == "config" ]
+  then
+    config
+  else
+    print
+fi

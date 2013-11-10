@@ -1,0 +1,65 @@
+#!/bin/sh /etc/rc.common
+#
+# Munin-node init script
+# It uses netcat or socat to listen in port 4949
+#
+# Copyright (C) 2011 Pau Escrich <pau@dabax.net>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+START=99
+
+MUNIN_BIN="/usr/sbin/munin-node"
+PID="/var/run/munin-node"
+PORT="4949"
+NC_BIN="/usr/bin/netcat"
+SOCAT_BIN="/usr/bin/socat"
+
+start()
+	{
+	if [ ! -f "$PID" ]; then
+		if [ -x $SOCAT_BIN ]; then
+			$SOCAT_BIN TCP4-LISTEN:$PORT,fork,reuseaddr EXEC:$MUNIN_BIN &
+			echo $! > /var/run/munin-node
+		
+		elif [ -x $NC_BIN ]; then
+			mkfifo /tmp/munin.fifo 2>/dev/null
+			(while [ -e /var/run/munin-node ]; do
+				$NC_BIN -l -p $PORT -w 30 < /tmp/munin.fifo | $MUNIN_BIN > /tmp/munin.fifo
+				[ $? -ne 0 ] && break
+			done) &
+			echo $! > /var/run/munin-node
+			
+		else
+			echo "Cannot found socat nor netcat, exiting.."
+			exit 0
+		fi
+	else
+		echo "Munin already running"
+	fi
+	}
+
+stop()
+	{
+	kill -9 $(cat $PID) 2>/dev/null
+	rm -f $PID
+	}
+
+restart()
+{
+	stop
+	start
+}
+

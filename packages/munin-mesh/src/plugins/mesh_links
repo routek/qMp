@@ -1,0 +1,50 @@
+#!/bin/sh
+
+config() {
+	echo "graph_title Mesh link quality"
+	echo "graph_args --base 1000 -l 0 "
+	echo "graph_vlabel Link quality to neighbours"
+	echo "graph_category mesh"
+	echo "graph_info This graph shows the link quality to the neighbours"
+
+	i=1
+	for n in $(qmpinfo links | awk '{print $1}')
+	  do
+	    echo "${i}rx.label $n"
+	    echo "${i}rx.type DERIVE"
+	    #echo "${i}rx.draw LINE$i"
+	    echo "${i}rx.info rx $n"
+	    echo "${i}rx.max 100"
+	    echo "${i}rx.min 0"
+	     
+	    echo "${i}tx.label $n"
+	    echo "${i}rx.type DERIVE"
+	    #echo "${i}tx.draw LINE$i"
+	    echo "${i}tx.info tx $n"
+	    echo "${i}tx.max 100"
+	    echo "${i}tx.min 0"
+	  
+	    i=$(($i+1))
+	  done
+}
+
+
+print() {
+	for t in rx tx
+	  do
+	    i=1
+	    for v in $(cat /var/run/bmx6/json/links | sed s/","/"\n"/g | grep "${t}Rate" | cut -d: -f2)
+	      do
+	        echo "$i${t}.value $v"
+	        i=$(($i+1))
+	     done
+	  done
+}
+
+
+if [ "$1" == "config" ]
+  then
+    config
+  else
+    print
+fi

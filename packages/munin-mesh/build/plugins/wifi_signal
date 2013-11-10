@@ -1,0 +1,45 @@
+#!/bin/sh
+
+IFACES="wlan0"
+
+config() {
+	echo "graph_title Signal avarage"
+	echo "graph_args --base 1000 -l 0 "
+	echo "graph_vlabel Signal avarage in dBm"
+	echo "graph_category wifi"
+	echo "graph_info This graph shows the signal average of the connected stations"
+	n=1
+	for i in $IFACES
+	  do
+	    echo "$i.label $i"
+	    echo "$i.draw LINE$n"
+	    echo "$i.info Signal of $i"
+	    n=$(($n+1))
+	  done
+
+}
+
+
+signal_avg() {                                                
+	signals=$(iw $1 station dump | grep "signal avg" | awk '{print $3}')
+	total=0
+	stations=0
+	for n in $signals; do total=$(($total+$n)); stations=$(($stations+1)); done
+	[ $stations -gt 0 ] &&  echo "$(($total/$stations))"
+}
+
+
+print() {
+	for i in $IFACES
+	  do
+	    echo "$i.value $(signal_avg $i)"
+	  done
+}
+
+if [ "$1" == "config" ]
+then
+  config
+else
+  print
+fi
+            

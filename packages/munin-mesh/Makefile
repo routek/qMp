@@ -1,4 +1,4 @@
-#    Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
+#   Copyright (C) 2013 Pau Escrich <p4u@dabax.net>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,55 +17,50 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 #
-# Contributors:
-#	Pau Escrich <p4u@dabax.net>
-#	Simó Albert i Beltran
-#
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=qmp-small-node
+PKG_NAME:=munin-mesh
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Ratafia
-QMP_RELEASE:=2.0beta
-QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/qmp-small-node
-  SECTION:=net
+define Package/munin-mesh
+  TITLE:=Munin mesh agent for qMp
+  SECTION:=qMp
   CATEGORY:=qMp
-  TITLE:=Required addons for small qMp mesh node
   URL:=http://qmp.cat
-  DEPENDS:= \
-	+qmp-tiny-node \
-	+synctincvpn +altermap-agent \
-	+iputils-arping +iputils-clockdiff +tcpdump-mini \
-	+cgi-bin-zero \
-	+kmod-tun +kmod-ipip \
-	+b6m +b6m-spread \
-	+munin-mesh
+  DEPENDS:=netcat
 endef
 
-
-define Package/qmp-small-node/description
- Addons for small qmp nodes (4MByte flash)
+define Package/munin-mesh/description
+	Munin mesh agent for qMp
 endef
 
 define Build/Configure
 endef
 
 define Build/Compile
+	@rm -rf ./build || true
+	@cp -r ./src ./build
 endef
 
-define Build/Prepare
- mkdir -p $(PKG_BUILD_DIR)
+define Package/munin-mesh/install
+	$(INSTALL_DIR) $(1)/etc/munin-plugins
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/rc.d/
+
+	$(CP) ./build/plugins/* $(1)/etc/munin-plugins/
+	chmod 755 $(1)/etc/munin-plugins/*
+	$(CP) ./build/munin-node $(1)/usr/sbin/
+	chmod 755 $(1)/usr/sbin/munin-node
+	$(CP) ./build/munin $(1)/etc/init.d/
+	chmod 755 $(1)/etc/init.d/munin
+
+	ln -s ../init.d/munin $(1)/etc/rc.d/S99munin
 endef
 
-define Package/qmp-small-node/install
-    $(INSTALL_DIR) $(1)/etc/qmp
-endef
-
-$(eval $(call BuildPackage,qmp-small-node))
+$(eval $(call BuildPackage,munin-mesh))

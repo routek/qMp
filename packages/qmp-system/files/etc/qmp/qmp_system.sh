@@ -164,6 +164,12 @@ qmp_set_services() {
 			[ $(qmp_uci_get services.$s) -eq 1 ] && \
 			qmp_enable_netserver || qmp_disable_netserver
 		}
-	done
+
+		[ "$s" == "munin" ] && [ -e /etc/init.d/munin ] && {
+			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			qmp_enable_service munin || qmp_disable_service munin
+		}
+
+		done
 	uci commit qmp
 }

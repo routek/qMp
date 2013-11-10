@@ -1,0 +1,29 @@
+#!/bin/sh
+
+config() {
+echo "graph_title Mesh nodes"
+echo "graph_args --base 1000 -l 0 "
+echo "graph_vlabel Number of mesh nodes"
+echo "graph_category mesh"
+echo "graph_info This graph shows the number of nodes and the direct neighbours of the mesh network"
+echo "nodes.label nodes"
+echo "nodes.draw LINE1"
+echo "nodes.info Mesh nodes"
+echo "links.label links"  
+echo "links.draw LINE2"  
+echo "links.info Mesh links (neighbours)"
+}
+
+
+print() {
+	echo "nodes.value $(qmpinfo nodes | wc -l)"
+	echo "links.value $(qmpinfo links | wc -l)"
+}
+
+
+if [ "$1" == "config" ]
+  then
+    config
+  else
+    print
+fi
