@@ -32,7 +32,7 @@ define Package/munin-mesh
   SECTION:=qMp
   CATEGORY:=qMp
   URL:=http://qmp.cat
-  DEPENDS:=netcat
+  DEPENDS:=+netcat
 endef
 
 define Package/munin-mesh/description
