@@ -1,0 +1,12 @@
+#!/bin/sh
+gateways="/etc/config/gateways"
+preserve="$(uci get qmp.update.preserve)"
+found=0
+for p in $preserve; do
+        [ "$p" == "$gateways" ] && { found=1; break; }
+done
+
+[ $found -eq 0 ] && {
+        uci set qmp.update.preserve="$preserve $gateways"
+        uci commit qmp
+}
