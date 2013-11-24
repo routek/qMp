@@ -40,9 +40,11 @@ gw_section.addremove = true
 gw_section.anonymous = false
 
 -- DEFAULT PARAMETERS
+-- for better user interaction, should be 1 to enable and 0 to disable
+ignore = gw_section:option(Flag,"ignore", "ignore", "Check to ignore or uncheck to activate this rule")
+ignore.default=1
 type = gw_section:option(Value,"type", "type")
 network = gw_section:option(Value,"network", "network")
-ignore = gw_section:option(Value,"ignore", "ignore", "Ignore or enable this gateway rule (values: 0 or 1)")
 
 -- OPTIONAL PARAMETERS (not using all BMX6 tun options)
 local gwoptions = {
