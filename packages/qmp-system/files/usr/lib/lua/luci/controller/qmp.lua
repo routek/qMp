@@ -39,11 +39,12 @@ function index()
 
 	entry({"qmp","configuration"}, cbi("qmp/wizard"), "Configuration", 4).dependent=false
 	entry({"qmp","configuration","wizard"}, cbi("qmp/wizard"), "Wizard", 1).dependent=false
-	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 2).dependent=false
+	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 2).dependent=false
+	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 3).dependent=false
 	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
-	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "WiFi", 3).dependent=false
-	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 4).dependent=false
+	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "WiFi", 4).dependent=false
 	entry({"qmp","configuration","services"}, cbi("qmp/services"), "Services", 5).dependent=false
+	entry({"qmp","configuration","gateways"}, cbi("qmp/gateways"), "Gatewayss", 6).dependent=false
 
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
 	entry({"qmp","tools","tools"}, call("action_tools"), "Tools", 1).dependent=false           
