@@ -8,9 +8,9 @@ echo "Configuring TPlink WDR switch networking"
 iseth=0
 
 devs="$(uci get qmp.interfaces.lan_devices) \
-	  $(uci get qmp.interfaces.wan_devices) \
-      $(uci get qmp.interfaces.mesh_devices) \
-      $(uci get qmp.interfaces.ignore_devices)"
+ $(uci get qmp.interfaces.wan_devices) \
+ $(uci get qmp.interfaces.mesh_devices) \
+ $(uci get qmp.interfaces.ignore_devices)"
 
 for d in $devs
 	do
