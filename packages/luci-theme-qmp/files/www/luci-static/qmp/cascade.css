@@ -204,11 +204,12 @@ div.category {
 }
 
 div.hostinfo {
-	float: left;
+	float: center;
 	margin: 0;
 	font-size: 80%;
 	padding: 0.5em 0;
 	background-color: #000;
+	color: grey;
 }
 
 #xhr_poll_status {
