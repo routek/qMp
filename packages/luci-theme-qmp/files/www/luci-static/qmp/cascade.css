@@ -197,6 +197,12 @@ ul.dropdowns ul ul ul li:hover ul {
 	background-color: white;
 }
 
+div.category {
+	float:right
+	margin-left:30px;
+	font-size:80%;
+}
+
 div.hostinfo {
 	float: left;
 	margin: 0;
@@ -249,6 +255,9 @@ div.hostinfo {
 	background: #000000;
 	color: #ffffff;
 	float: left;
+	border-width: 1px 1px 1px 1px;
+	border-color: #555555;
+	border-style: solid; 
 }
 #menubar ul.dropdowns {
 	min-height: 1.8em;
@@ -286,7 +295,7 @@ html #menubar a:visited {
 	background: #000000;
 	color: #ffffff;
 	text-decoration: none;
-	font-size: 80%;
+	font-size: 95%;
 	font-weight: normal;
 }
 
@@ -297,8 +306,8 @@ html #menubar a:link:active,
 html #menubar a:visited:active,
 #menubar a:link:focus,
 #menubar a:visited:focus {
-	background: #000000;
-	color: #ffff00;
+	background: #655555;
+	color: #ffa900;
 	font-weight: normal;
 }
 
@@ -306,14 +315,13 @@ html #menubar a:link.active,
 html #menubar a:visited.active,
 html #menubar a:link.preactive,
 html #menubar a:visited.preactive {
-	background: #000000;
-	color: #ffff00;
-	font-weight: bold;
+	background: #251A0F;
+	color: #ff9400;
 }
 
 html #menubar a:link.warning,
 html #menubar a:visited.warning {
-	background: #000000;
+	background: #ffffff;
 	color: red;
 	font-weight: bold;
 }
@@ -338,7 +346,7 @@ html #menubar a:visited.warning {
 
 html #modemenu > li > a.active:link,
 html #modemenu > li >  a.active:visited {
-	background-color: grey;
+	background-color: blank;
 }
 
 #mainmenu {
@@ -351,7 +359,7 @@ html #mainmenu > li > a:link,
 html #mainmenu > li > a:link.preactive,
 html #mainmenu > li > a:visited.preactive,
 html #mainmenu > li > a:visited {
-	background-color: grey;
+	background-color: black;
 }
 
 html #mainmenu > li:hover > a.preactive,

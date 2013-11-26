@@ -128,15 +128,8 @@ Contributors:
 %>
 
 <div id="menubar">
-<h2 class="navigation"><a id="navigation" name="navigation"><%:navigation Navigation%></a></h2>
 
-<% if #categories > 1 then %>
-	<ul id="modemenu">
-	<% for i, r in ipairs(categories) do %>
-		<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a></li>
-	<% end %>
-	</ul>
-<% end %>
+<h2 class="navigation"><a id="navigation" name="navigation"><%:navigation Navigation%></a></h2>
 
 <ul id="mainmenu" class="dropdowns">
 	<%
@@ -157,6 +150,23 @@ Contributors:
 	%>
 	<li></li>
 </ul>
+
+<div id="categorybar" class="category" style="float:right;margin-left:30px;">
+<% if #categories > 1 then %>
+	<ul id="modemenu" class="category">
+	<% for i, r in ipairs(categories) do %>
+	<% local title = tree.nodes[r].title %>
+	<% if title == "Administration" then %>
+		<% title = "OpenWRT" %>
+	<% end %>
+	<% if title == "qMp" then %>
+		<% title = "qMp/Mesh" %>
+	<% end %>
+	<li><a<%=ifattr(request[1] == r, "class", "active")%> href="<%=controller%>/<%=r%>/"><%=striptags(translate(title))%></a></li>
+	<% end %>                                                                                                                                                   
+        </ul>                                                                                                                                                       
+<% end %>
+</div>
 
 <%
 if tree.nodes[category] and tree.nodes[category].ucidata then
