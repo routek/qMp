@@ -50,13 +50,13 @@ type:value("search","search")
 type:value("offer","offer")
 type.optional = false
 
-network = gw_section:option(Value,"network", "<b>"..translate("Network").."</b>",translate("network to be searched (mandatory!). NETWORK/PREFIX should be specified, for example 10.0.0.0/8 or 0.0.0.0/0"))
+network = gw_section:option(Value,"network", "<b>"..translate("Network").."</b>",translate("network to be offered/searched. NETWORK/PREFIX must be specified, for example 10.0.0.0/8 or 0.0.0.0/0"))
 network.optional = false
 
 -- OPTIONAL PARAMETERS (not using all BMX6 tun options)
 local gwoptions = {
 	{["name"]="address", ["help"]=""},
-	{["name"]="gwName", ["help"]="hostname of remote tunnel endpoint"},
+	{["name"]="gwName", ["help"]="force your node to choose a specific gateway by specifying its hostname (such as qMp0012)"},
 	{["name"]="minPrefixLen", ["help"]="minimum prefix length for accepting advertised tunnel network (value 129 = network prefix length)"},
 	{["name"]="maxPrefixLen", ["help"]="maximum prefix length for accepting advertised tunnel network (value 129 = network prefix length)"},
 	{["name"]="srcNet", ["help"]="additional source address range to be routed via tunnel ({NETWORK}/{PREFIX-LENGTH})"},
