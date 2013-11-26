@@ -35,16 +35,23 @@ uci:foreach('gateways','gateway', function (s)
             	end
             end)
 
-gw_section = m:section(TypedSection, "gateway", "Gateways","Configuration of the network prefixes to search and to offer in the mesh.")
+gw_section = m:section(TypedSection, "gateway", translate("Gateways"),translate("Network announcements (i.e publish your home LAN) and network searches (i.e look for an Internet connection)."))
 gw_section.addremove = true
 gw_section.anonymous = false
 
 -- DEFAULT PARAMETERS
--- for better user interaction, should be 1 to enable and 0 to disable
-ignore = gw_section:option(Flag,"ignore", "ignore", "Check to ignore or uncheck to activate this rule")
-ignore.default=1
-type = gw_section:option(Value,"type", "type")
-network = gw_section:option(Value,"network", "network")
+ignore = gw_section:option(Flag,"ignore", "<b>"..translate("Enabled").."</b>", translate("Enable this rule"))
+ignore.default="0"
+ignore.disabled="1"
+ignore.enabled="0"
+
+type = gw_section:option(ListValue,"type", "<b>"..translate("Type").."</b>",translate("offer = announce some specific network in the mesh, search = look for some specific network"))
+type:value("search","search")
+type:value("offer","offer")
+type.optional = false
+
+network = gw_section:option(Value,"network", "<b>"..translate("Network").."</b>",translate("network to be searched (mandatory!). NETWORK/PREFIX should be specified, for example 10.0.0.0/8 or 0.0.0.0/0"))
+network.optional = false
 
 -- OPTIONAL PARAMETERS (not using all BMX6 tun options)
 local gwoptions = {
@@ -68,8 +75,10 @@ local gwoptions = {
 
 for _,o in ipairs(gwoptions) do
 	if o.name ~= nil then
-		value = gw_section:option(Value, o.name, o.name, o.help)
+		value = gw_section:option(Value, o.name, translate(o.name), translate(o.help))
 		value.optional = true
+		value.rmempty = true
+		value:depends("type","search")
 	end
 end
 
