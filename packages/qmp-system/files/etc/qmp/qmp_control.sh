@@ -31,6 +31,7 @@ QMP_PATH="/etc/qmp"
 . $QMP_PATH/qmp_network.sh
 . $QMP_PATH/qmp_update.sh
 . $QMP_PATH/qmp_system.sh
+. $QMP_PATH/qmp_guifi.sh
 
 offer_default_gw() {
 	qmp_gw_default offer $1
@@ -86,6 +87,11 @@ configure_system() {
 	qmp_configure_system
 	apply_services
 	/etc/init.d/uhttpd restart
+}
+
+guifi_oneclick() {
+	[ -z "$1" ] && echo " Use: $0 guifi_oneclick <url>"
+	qmp_guifi_apply $1
 }
 
 enable_ns_ppt() {
@@ -172,6 +178,7 @@ help() {
 	echo " configure_wifi			: Configure all WiFi devices"
 	echo " reset_wifi			: Reset, rescan and configure all the WiFi devices"
 	echo " configure_gw			: Configure and apply gateways settings"
+	echo " guifi_oneclick [URL]		: Configure node based on Guifi.net website data"
 	
 	echo ""
 	echo "Safe configuration:"
@@ -201,6 +208,6 @@ help() {
 
 [ -z "$1" ] && help
 
-echo "executing function $1"
-$@
+echo "executing function $1..."
 
+$@ # 2>/dev/null || echo " Command not found.\n" && help
