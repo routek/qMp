@@ -1,0 +1,68 @@
+<%+header%>
+
+<script type="text/javascript">
+
+function option(url,key,option) {
+	var output = document.getElementById("output_field");
+	if (url) if (output) {
+		toggle("confirm",0);   // Hide button
+		toggle("cancel",0);    // Hide button
+		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:midle;"/&gt; ';
+		output.style.display = 'block';
+		XHR.get("/cgi-bin/guifi",[ key , option , url ] ,
+		function(x) {
+			var text = new String(x.responseText);
+			output.innerHTML="&lt;pre&gt;&lt;font color='#0a0'&gt;"+text+"&lt;/font&gt;&lt;/pre&gt;";
+			if ( !(text.indexOf("ERROR") >= 0) ) {
+				switch (option) {
+				case "apply":
+					window.setTimeout('this.toggle("confirm",1)',150);   // Unhide button
+					window.setTimeout('this.toggle("cancel",1)',200);    // Unhide button
+					document.getElementById("guifidiv").style.height = '270px';
+					break;
+				case "cancel":
+					output.innerHTML="";
+					document.getElementById("guifidiv").style.height = '75px';
+					break;
+				case "confirm":
+					window.setTimeout('window.location="/luci-static/resources/qmp/wait_long.html"',1000);
+					document.getElementById("guifidiv").style.height = '140px';
+					break;
+				}
+				//var lines=output.innerHTML.split(/\r\n|\r|\n/).length;
+			}
+		} )
+	}
+}
+function toggle(id,state){
+	var element = document.getElementById(id);
+	if (state) element.style.visibility="visible"
+	else element.style.visibility="hidden";
+	return 0;	
+}
+
+</script>
+
+<h2>Quick Mesh Project</h2>
+
+<div class="cbi-map">
+<form>
+<fieldset class="cbi-section">
+<legend><%:Configuration for a guifi.net Mesh network in one (or two) click(s)%></legend>
+<img src="/luci-static/qmp/guifi-logo.png" alt="Guifi.net"/>
+
+<br /><br />
+	<div id="guifidiv" style="clear:both; height:75px; ">
+	<strong>Specify the guifi.net URL of the device:</strong>
+	<input type="text" id="guifi" name="guifi" />
+	<input type="button" id="apply" value="Apply" onclick="option(this.form.guifi.value,'<%=key%>','apply')" style="padding:0 5px;" />
+	<span id="output_field" style="display:block;text-align:left;padding:10px;"></span>
+	<input type="button" id="confirm" value="Confirm" onclick="option(this.form.guifi.value,'<%=key%>','confirm')" style="visibility:hidden;margin:10px;padding:0 5px;" />
+	<input type="button" id="cancel" value="Cancel" onclick="option(this.form.guifi.value,'<%=key%>','cancel')" style="visibility:hidden;" />
+	</div>
+</fieldset>
+</form>
+</div>
+
+<%+footer%>
+
