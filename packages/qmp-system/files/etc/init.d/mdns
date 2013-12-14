@@ -38,7 +38,7 @@ IPV6=""
 
 start() {
 	if ! cat /etc/crontabs/root | grep mdns > /dev/null; then
-		echo "/$PERIOD * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
+		echo "*\\${PERIOD} * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
 		/etc/init.d/cron enable
 		/etc/init.d/cron start
 	fi
@@ -117,20 +117,47 @@ get_my_domains() {
 	local v=${1:-4}
 	local my_domains=""
 	local domains=""
-	local d
-
+	local d t
+	
 	for d in $(cat $MY_DOMAINS); do
-		check_domain $v $d && my_domains="$d $my_domains"
+		echo "$d" | grep -q ^# && continue
+		echo "$d" | grep -q -v @ && my_tmp_domains="$d $my_tmp_domains"
 	done
 
 	[ "$v" == "4" ] && domains="$DOMAINS4"
 	[ "$v" == "6" ] && domains="$DOMAINS6"
 
+	for t in $my_tmp_domains; do
+		for d in $domains; do
+			my_domains="$t.$d $my_domains"
+		done
+	done
+	
 	for d in $domains; do
 		my_domains="$(cat /proc/sys/kernel/hostname).$d $my_domains"
 	done
-	
+
 	echo $my_domains
+}
+
+get_myext_domains() {
+	local ext_domains=""
+	local d ip domain
+	local my_ext_domains=""
+		
+	for d in $(cat $MY_DOMAINS); do                                 
+		echo "$d" | grep -q ^# && continue
+		echo "$d" | grep -q @ && ext_domains="$d $ext_domains"
+	done
+	
+	for d in $ext_domains; do
+		ip="$(echo $d | grep @ | cut -d@ -f2)"
+		domain="$(echo $d | grep @ | cut -d@ -f1)"
+		[ -z "$ip" -o -z "$domain" ] && continue
+		my_ext_domains="$ip $domain\n$my_ext_domains"
+	done
+	
+	echo -e "$my_ext_domains"
 }
 
 get_my_ip4() {
@@ -146,7 +173,7 @@ get_my_ip6() {
 }
 
 publish_my_domains() {
-	local d domains
+	local d domains ext_domains
 	
 	local ip4="$(get_my_ip4)"
 	local ip6="$(get_my_ip6)"
@@ -166,6 +193,12 @@ publish_my_domains() {
 		echo "$ip6 $domains" >> $SMSF
 		echo "$ip6 $domains" >> $HOSTF
 	}
+	
+	ext_domains="$(get_myext_domains)"
+	log "publishing own external domains:\n$ext_domains"
+	echo -e "$ext_domains" >> $SMSF
+	echo -e "$ext_domains" >> $HOSTF
+	
 }
 
 get_domains() {
