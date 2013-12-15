@@ -30,8 +30,8 @@ ONECLICK_FILE="/tmp/guifi_oneclick"
 ONECLICK_PATTERN="qMp Guifi-oneclick"
 ONECLICK_URL="/view/unsolclic"
 ONECLICK_URL_BASE="http://guifi.net/guifi/device/"
-ONECLICK_VARS="name model ip mask zone"
-ONECLICK_ZONES="GSF='GSF:140-' SantMarti='P9SF:DEF' SantsCorts='GS:124+' Raval='RAV:136' StAndreu='SAND:DEF' Vllcrc='VALLC:140-'"
+ONECLICK_VARS="nodename devname devmodel ip mask zone"
+ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
 
 
 qmp_guifi_get_url() {
@@ -162,27 +162,28 @@ qmp_guifi_configure() {
 
 	# GET NODE DEVICE NAME - ZONE ID - ZONE CHANNEL
 	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local name="`grep "name" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
-        local var aux zone_id zone_channel
-	for var in $ONECLICK_ZONES; do
-		aux="`echo $var | grep "$zone" | awk '{FS="="; print $2}' | tr -d "'"`"
-		zone_id="`echo $aux | awk '{FS=":"; print $1}'`"
-		zone_channel="`echo $aux | awk '{FS=":"; print $2}'`"
-		[ ! -z $zone_id ] && zone_id="$zone_id-" && break
-	done
+	# GET CHANNEL (140- by default)
+        local var zone_channel
+        for var in $ONECLICK_ZONES; do
+                zone_channel="`echo $var | grep $zone | awk '{FS="="; print $2}' | tr -d "'"`"
+                [ ! -z $zone_channel ] && break;
+        done
+        [ -z $zone_channel ] && zone_channel="140-"
 
 	# SET NODE NAME
-	uci set qmp.node.community_id="$zone_id$name-"
+	# TO DO: SET ZONE ID IN NAME
+	uci set qmp.node.community_id="$devname-"
 
         ## TO DO : select AD-HOC RADIO(S) to set SSID and CHANNEL
 	#...
 
 	# SET SSID
-#	echo " set SSID: guifi.net-$zone_id$name"
+#	echo " set SSID: guifi.net/$nodename"
 
-	# SET CHANNEL 140- IF NULL
-	[ -z $zone_channel ] && zone_channel="NULL 140-"
+	# SET CHANNEL
 #	echo " set channel: $zone_channel"
 
 	echo;
