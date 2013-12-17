@@ -72,7 +72,7 @@ apply_services() {
 
 configure_network() {
 	qmp_configure
-	bmx6 -c --configReload || /etc/init.d/bmx6 restart
+	qmp_bmx6_reload
 	/etc/init.d/network reload
 	if /etc/init.d/gwck enabled
 	then
