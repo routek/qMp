@@ -59,7 +59,7 @@ apply_netserver() {
 configure_network() {
 	qmp_configure
 	[ -f "/etc/init.d/olsrd" ] && /etc/init.d/olsrd restart
-	bmx6 -c --configReload || /etc/init.d/bmx6 restart
+	qmp_bmx6_reload
 	/etc/init.d/network reload
 	/etc/init.d/dnsmasq restart
 	apply_netserver
