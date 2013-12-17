@@ -263,3 +263,26 @@ qmp_configure_lan_v6() {
 	echo "Done"
 }
 
+qmp_bmx6_reload() {
+	local restart_bmx6=false
+
+	local bmx6_name="$(bmx6 -c status | awk 'END{split($4,f,"."); print f[1]}')"
+	local current_hostname="$(cat /proc/sys/kernel/hostname)"
+	if [ "$current_hostname" != "$bmx6_name" ]
+	then
+        	restart_bmx6=true
+	fi
+
+	if ! $restart_bmx6
+	then
+		if ! bmx6 -c --configReload
+		then
+			restart_bmx6=true
+		fi
+	fi
+	
+	if $restart_bmx6
+	then
+		/etc/init.d/bmx6 restart
+	fi
+}
