@@ -85,6 +85,7 @@ configure_network() {
 configure_system() {
 	qmp_configure_system
 	apply_services
+	qmp_bmx6_reload
 	/etc/init.d/uhttpd restart
 }
 
