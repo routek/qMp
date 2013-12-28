@@ -18,7 +18,7 @@ function option(url,key,option) {
 				case "apply":
 					window.setTimeout('this.toggle("confirm",1)',150);   // Unhide button
 					window.setTimeout('this.toggle("cancel",1)',200);    // Unhide button
-					document.getElementById("guifidiv").style.height = '270px';
+					document.getElementById("guifidiv").style.height = '290px';
 					break;
 				case "cancel":
 					output.innerHTML="";
@@ -29,6 +29,8 @@ function option(url,key,option) {
 					document.getElementById("guifidiv").style.height = '140px';
 					break;
 				}
+			}
+			else {
 				//var lines=output.innerHTML.split(/\r\n|\r|\n/).length;
 			}
 		} )

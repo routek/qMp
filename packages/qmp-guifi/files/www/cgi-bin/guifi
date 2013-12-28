@@ -1,8 +1,5 @@
 #!/bin/sh
 
-QMP_PATH="/etc/qmp"
-
-[ -z "$SOURCE_GUIFI_ONECLICK" ] && . $QMP_PATH/qmp_guifi.sh
 GUIFI_TEMP=/tmp/guifi_oneclick
 
 echo "content-type: text/plain"
@@ -22,31 +19,32 @@ KEY="$(cat $KEY_F)"
 
 guifi_apply() {
 	[ ! -z "$QUERY_DATA" ] && {
-		ONECLICK_CGI=1
-		qmp_guifi_get_url $QUERY_DATA $GUIFI_TEMP
-		echo;
-		qmp_guifi_check $GUIFI_TEMP
-		echo;
-		qmp_guifi_print $GUIFI_TEMP
-		ONECLICK_CGI=0
+		export ONECLICK_CGI=1
+		/etc/qmp/qmp_guifi.sh get_url $QUERY_DATA $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh check $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh print $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 
+		export ONECLICK_CGI=0
 	}
 }
 
 guifi_cancel() {
 	[ -f $GUIFI_TEMP ] && rm -r $GUIFI_TEMP
-	ONECLICK_CGI=0
+	export ONECLICK_CGI=0
 }
 
 guifi_confirm() {
 	[ ! -z "$QUERY_DATA" ] && {
-		ONECLICK_CGI=1
-		# qmp_guifi_get_url $QUERY_DATA $GUIFI_TEMP
+		# /etc/qmp/qmp_guifi.sh get_url $QUERY_DATA $GUIFI_TEMP
 		# echo;
-		qmp_guifi_check $GUIFI_TEMP
-		echo;
-		qmp_guifi_configure $GUIFI_TEMP
+		export ONECLICK_CGI=1
+		/etc/qmp/qmp_guifi.sh check $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh configure $GUIFI_TEMP
 		[ -f $GUIFI_TEMP ] && rm -r $GUIFI_TEMP
-		ONECLICK_CGI=0
+		export ONECLICK_CGI=0
 	}
 }
 

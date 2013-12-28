@@ -39,7 +39,6 @@ function index()
 
 	entry({"qmp","configuration"}, cbi("qmp/wizard"), "Configuration", 4).dependent=false
 	entry({"qmp","configuration","wizard"}, cbi("qmp/wizard"), "Wizard", 1).dependent=false
-	entry({"qmp","configuration","wizard","guifi"}, call("action_guifi"), "Guifi-oneclick", 1).dependent=false
 	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 2).dependent=false
 	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 3).dependent=false
 	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
@@ -64,13 +63,6 @@ function action_status()
 	local version = qmp.get_version() 
 
 	luci.template.render("qmp/overview",{ipv4=ipv4,hostname=hostname,uname=uname,version=version})
-end
-
-function action_guifi()
-	package.path = package.path .. ";/etc/qmp/?.lua"
-	local qmp = require "qmpinfo"
-	local key = qmp.get_key()
-	luci.template.render("qmp/guifi",{key=key})
 end
 
 function action_tools()

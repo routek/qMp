@@ -25,17 +25,18 @@ QMP_PATH="/etc/qmp"
 
 QMP_VERSION="$QMP_PATH/qmp.version"
 
-ONECLICK_CGI=0
+[ -z $ONECLICK_CGI ] && ONECLICK_CGI=0
 ONECLICK_FILE="/tmp/guifi_oneclick"
 ONECLICK_PATTERN="qMp Guifi-oneclick"
 ONECLICK_URL="/view/unsolclic"
 ONECLICK_URL_BASE="http://guifi.net/guifi/device/"
-ONECLICK_VARS="nodename devname devmodel ip mask zone"
-ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
+ONECLICK_VARS="nodename devname devmodel ssid ip mask zone"
+#ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
 
 
-qmp_guifi_get_url() {
+get_url() {
 	echo "Getting oneclick config:"
+
 	if [ -z $1 ]; then
 		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No URL specified."; exit 1;
 		else qmp_error "No URL specified. USE: 'qmp_guifi_get <${ONECLICK_URL_BASE}#####/> <FILE>'"
@@ -53,6 +54,8 @@ qmp_guifi_get_url() {
 		else qmp_error "No temporary file specified. USE: 'qmp_guifi_get <${ONECLICK_URL_BASE}#####/> <FILE>'"
 		fi
 	}
+
+	# CHECK IF ID OR URL GIVEN
 
 	# CHECK IF UNSOLCLIC OR DEVICE URL GIVEN
 	local oneclick_url
@@ -73,8 +76,9 @@ qmp_guifi_get_url() {
 	return 0
 }
 
-qmp_guifi_check() {
+check() {
 	echo "Checking oneclick config:"
+
 	[ -z $1 ] && {
 		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given."; exit 1;
 		else qmp_error "No file given. USE: 'qmp_guifi_check <FILE>'";
@@ -106,7 +110,7 @@ qmp_guifi_check() {
 	return 0
 }
 
-qmp_guifi_print() {
+print() {
 	echo "Showing variables:"
 	[ -z $1 ] && {
 		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given"; exit 1;
@@ -118,7 +122,6 @@ qmp_guifi_print() {
 		else qmp_error "File $1 not found."
 		fi
 	}
-	
 	local var
 	for var in $ONECLICK_VARS; do
 		echo " $var='`grep "$var" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`'"
@@ -127,8 +130,9 @@ qmp_guifi_print() {
 	return 0
 }
 
-qmp_guifi_configure() {
+configure() {
 	echo "Configuring the node, please wait..."
+
 	[ -z $1 ] && {
 		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given"; exit 1;
 		else qmp_error "No file given: USE: 'qmp_guifi_configure <FILE>'"
@@ -164,14 +168,15 @@ qmp_guifi_configure() {
 	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	#local ssid="`grep "ssid" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
 	# GET CHANNEL (140- by default)
-        local var zone_channel
-        for var in $ONECLICK_ZONES; do
-                zone_channel="`echo $var | grep $zone | awk '{FS="="; print $2}' | tr -d "'"`"
-                [ ! -z $zone_channel ] && break;
-        done
-        [ -z $zone_channel ] && zone_channel="140-"
+        #local var zone_channel
+        #for var in $ONECLICK_ZONES; do
+        #        zone_channel="`echo $var | grep $zone | awk '{FS="="; print $2}' | tr -d "'"`"
+        #        [ ! -z $zone_channel ] && break;
+        #done
+        #[ -z $zone_channel ] && zone_channel="140-"
 
 	# SET NODE NAME
 	# TO DO: SET ZONE ID IN NAME
@@ -181,7 +186,8 @@ qmp_guifi_configure() {
 	#...
 
 	# SET SSID
-#	echo " set SSID: guifi.net/$nodename"
+	## TO DO: if "guifi.net" is not in $ssid then ssid=guifi.net/$nodename
+#	echo " set SSID: $ssid"
 
 	# SET CHANNEL
 #	echo " set channel: $zone_channel"
@@ -189,35 +195,35 @@ qmp_guifi_configure() {
 	echo;
 	uci commit
 	sleep 1
-	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/bmx6 restart
+	qmpcontrol configure_network ; qmpcontrol configure_wifi # ; /etc/init.d/bmx6 restart
 	return 0
 }
 
-qmp_guifi_apply() {
+oneclick() {
 	[ ! -z $1 ] && oneclick_url=$1 || exit 1
 	[ ! -z $2 ] && oneclick_file=$2 || oneclick_file=$ONECLICK_FILE
 	
 	# GETTING ONECLICK CONFIG
-	qmp_guifi_get_url $oneclick_url $oneclick_file
-	[ $? -ne 0 ] && qmp_error "Unexpected error in qmp_guifi_get function"
+	get_url $oneclick_url $oneclick_file
+	[ $? -ne 0 ] && qmp_error "Unexpected error in qmpguifi get_url function"
 	echo;
 	
 	# CHECKING DOWNLOADED CONFIG
-	qmp_guifi_check $oneclick_file
-	[ $? -ne 0 ] && qmp_error "Unexpected error in qmp_guifi_check function"
+	check $oneclick_file
+	[ $? -ne 0 ] && qmp_error "Unexpected error in qmpguifi check function"
 	echo;
 
 	# PRINTING CONFIG VARIABLES
-	qmp_guifi_print $oneclick_file
-	[ $? -ne 0 ] && qmp_error "Unexpected error in qmp_guifi_print function"
+	print $oneclick_file
+	[ $? -ne 0 ] && qmp_error "Unexpected error in qmpguifi print function"
 	echo;
 	
 	# CONFIGURING QMP SYSTEM
 	read -p "Do you want to configure your node with this settings? [N,y]" a
 	echo;
 	if [ "$a" == "y" ]; then
-		qmp_guifi_configure $oneclick_file
-		[ $? -ne 0 ] && qmp_error "Unexpected in qmp_guifi_configure function"
+		configure $oneclick_file
+		[ $? -ne 0 ] && qmp_error "Unexpected in qmpguifi configure function"
 		echo "Configuration done!"; echo;
 		rm -f $oneclick_file
 		return 0
@@ -227,4 +233,20 @@ qmp_guifi_apply() {
 		return 1
 	fi
 }
+
+help() {
+	echo "Use: $0 <function> [params]"
+	echo ""
+	echo "get_url [URL]       : Get oneclick file."
+	echo "check [FILE]        : Check if valid onelick file."
+	echo "print [FILE]        : Print oneclick file values."
+	echo "configure [FILE]    : Configure node with oneclick file values (recommended to check file before)."
+	echo "-"
+	echo "oneclick [URL]      : Do all configuration based on Guifi.net website data."
+	echo ""
+	exit 1
+}
+
+[ -z "$1" ] && help
+$@
 
