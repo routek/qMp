@@ -13,25 +13,20 @@ function option(url,key,option) {
 		function(x) {
 			var text = new String(x.responseText);
 			output.innerHTML="&lt;pre&gt;&lt;font color='#0a0'&gt;"+text+"&lt;/font&gt;&lt;/pre&gt;";
+			document.getElementById("guifidiv").style.height = 'auto';
 			if ( !(text.indexOf("ERROR") >= 0) ) {
 				switch (option) {
 				case "apply":
 					window.setTimeout('this.toggle("confirm",1)',150);   // Unhide button
 					window.setTimeout('this.toggle("cancel",1)',200);    // Unhide button
-					document.getElementById("guifidiv").style.height = '290px';
 					break;
 				case "cancel":
 					output.innerHTML="";
-					document.getElementById("guifidiv").style.height = '75px';
 					break;
 				case "confirm":
 					window.setTimeout('window.location="/luci-static/resources/qmp/wait_long.html"',1000);
-					document.getElementById("guifidiv").style.height = '140px';
 					break;
 				}
-			}
-			else {
-				//var lines=output.innerHTML.split(/\r\n|\r|\n/).length;
 			}
 		} )
 	}
