@@ -30,32 +30,28 @@ ONECLICK_FILE="/tmp/guifi_oneclick"
 ONECLICK_PATTERN="qMp Guifi-oneclick"
 ONECLICK_URL="/view/unsolclic"
 ONECLICK_URL_BASE="http://guifi.net/guifi/device/"
-ONECLICK_VARS="nodename devname devmodel ssid ip mask zone"
+ONECLICK_VARS="nodename devname devmodel ip mask zone"
 #ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
 
 
 get_url() {
 	echo "Getting oneclick config:"
 
-	if [ -z $1 ]; then
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No URL specified."; exit 1;
-		else qmp_error "No URL specified. USE: 'qmp_guifi_get <${ONECLICK_URL_BASE}#####/> <FILE>'"
-		fi
-	else
+	[ -z $1 ] && {
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No URL specified."; exit 1; } ||
+		qmp_error "No URL specified. USE: '$0 get_url [${ONECLICK_URL_BASE}#####/] [FILE]'"
+	} || {
 		echo $1 | grep -q "^http://" 2>/dev/null
+		## TO DO CHECK IF ID OR URL IS GIVEN
 		[ $? -ne 0 ] && {
-			if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: Wrong URL specified."; exit 1;
-			else qmp_error "Wrong URL specified. USE 'qmp_guifi_get <${ONECLICK_URL_BASE}#####/> <FILE>'"
-			fi
+			[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: Wrong URL specified."; exit 1; } ||
+			qmp_error "Wrong URL specified. USE: '$0 get_url [${ONECLICK_URL_BASE}#####/] [FILE]'"
 		}
-	fi
+	}	
 	[ -z $2 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No temporary file specified."; exit 1;
-		else qmp_error "No temporary file specified. USE: 'qmp_guifi_get <${ONECLICK_URL_BASE}#####/> <FILE>'"
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No temporary file specified."; exit 1; } ||
+		qmp_error "No temporary file specified. USE: '$0 get_url [${ONECLICK_URL_BASE}#####/] [FILE]'"
 	}
-
-	# CHECK IF ID OR URL GIVEN
 
 	# CHECK IF UNSOLCLIC OR DEVICE URL GIVEN
 	local oneclick_url
@@ -64,9 +60,8 @@ get_url() {
 
 	wget -q $oneclick_url -O $2 2>/dev/null	
 	[ $? -ne 0 ] && rm -f $file && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: Error downloading $oneclick_url"; exit 1;
-		else qmp_error "Error downloading $oneclick_url"
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: Error downloading $oneclick_url"; exit 1; } ||
+		qmp_error "Error downloading $oneclick_url"
 	}
 	
 	# REMOVING "<br />" (to change output format edit guifi·net drupal module unsolclic file guifi/firmware/qmp.inc.php)
@@ -80,30 +75,26 @@ check() {
 	echo "Checking oneclick config:"
 
 	[ -z $1 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given."; exit 1;
-		else qmp_error "No file given. USE: 'qmp_guifi_check <FILE>'";
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No file given."; exit 1; } ||
+		qmp_error "No file given. USE: $0 check [FILE] "
 	}
 	[ ! -f $1 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: File $1 not found."; exit 1;
-		else qmp_error "File $1 not found.";
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: File $1 not found."; exit 1; } ||
+		qmp_error "File $1 not found."
 	}
 
 	# CHECK IF VALID UNSOLCLIC CONFIG
 	grep -q "$ONECLICK_PATTERN" $1 2>/dev/null
 	[ $? -ne 0 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: Not valid unsolclic file. Check file or URL."; exit 1;
-		else qmp_error "Not valid unsolclic file. Check file or URL.";
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: Not valid unsolclic file. Check file or URL."; exit 1; } ||
+		qmp_error "Not valid unsolclic file. Check file or URL."
 	} 
 	
 	# CHECK IF HAS MESH RADIO
 	local meshradio=`grep "meshradio" $1 | awk '{FS="="; print $2}' | tr -d "'"`
 	[ "$meshradio" == "no" ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No Mesh radio found. Revise your device configuration in the guifi.net website."; exit 1;
-		else qmp_error "No Mesh radio found. Revise your device configuration in the guifi.net website."	
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No Mesh radio found. Revise your device configuration in the guifi.net website."; exit 1; } ||
+		qmp_error "No Mesh radio found. Revise your device configuration in the guifi.net website."
 	}
 	
 	echo "Done!"
@@ -113,14 +104,13 @@ check() {
 print() {
 	echo "Showing variables:"
 	[ -z $1 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given"; exit 1;
-		else qmp_error "No file given. USE: 'qmp_guifi_print <FILE>'"
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No file given"; exit 1; } || 
+		qmp_error "No file given. USE: '$0 print [FILE]'"
 	}
 	[ ! -f $1 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: File $1 not found."; exit 1;
-		else qmp_error "File $1 not found."
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: File $1 not found."; exit 1; } ||
+		qmp_error "File $1 not found."
+		
 	}
 	local var
 	for var in $ONECLICK_VARS; do
@@ -134,9 +124,8 @@ configure() {
 	echo "Configuring the node, please wait..."
 
 	[ -z $1 ] && {
-		if [ $ONECLICK_CGI -eq 1 ]; then echo "ERROR: No file given"; exit 1;
-		else qmp_error "No file given: USE: 'qmp_guifi_configure <FILE>'"
-		fi
+		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No file given"; exit 1; } ||
+		qmp_error "No file given: USE: '$0 configure [FILE]'"
 	}
 
 	# SET COMMUNITY MODE, DHCP AND PUBLISH LAN
@@ -168,29 +157,23 @@ configure() {
 	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	#local ssid="`grep "ssid" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-
-	# GET CHANNEL (140- by default)
-        #local var zone_channel
-        #for var in $ONECLICK_ZONES; do
-        #        zone_channel="`echo $var | grep $zone | awk '{FS="="; print $2}' | tr -d "'"`"
-        #        [ ! -z $zone_channel ] && break;
-        #done
-        #[ -z $zone_channel ] && zone_channel="140-"
+	local ssid="`grep "ssid" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
 	# SET NODE NAME
-	# TO DO: SET ZONE ID IN NAME
+	# TO DO: SET ZONE ID IN NAME (OR NOT)
 	uci set qmp.node.community_id="$devname-"
 
-        ## TO DO : select AD-HOC RADIO(S) to set SSID and CHANNEL
-	#...
-
-	# SET SSID
-	## TO DO: if "guifi.net" is not in $ssid then ssid=guifi.net/$nodename
-#	echo " set SSID: $ssid"
-
-	# SET CHANNEL
-#	echo " set channel: $zone_channel"
+        # Select radio mode to set SSID
+	local j=0
+	local mode ssid
+	while qmp_uci_test qmp.@wireless[$j]; do
+		mode=$(uci get qmp.@wireless[$j].mode)
+		echo $mode | grep -q "adhoc" 2>/dev/null
+		[ $? -eq 0 ] && ssid="guifi.net/${nodename}"
+		[ "$mode" == "ap" ] && ssid="qMp-AP"
+		uci set qmp.@wireless[$j].name=$ssid
+		j=$(( $j + 1 ))
+	done
 
 	echo;
 	uci commit
@@ -221,30 +204,30 @@ oneclick() {
 	# CONFIGURING QMP SYSTEM
 	read -p "Do you want to configure your node with this settings? [N,y]" a
 	echo;
-	if [ "$a" == "y" ]; then
+	[ "$a" == "y" ] && {
 		configure $oneclick_file
 		[ $? -ne 0 ] && qmp_error "Unexpected in qmpguifi configure function"
 		echo "Configuration done!"; echo;
 		rm -f $oneclick_file
 		return 0
-	else
+	} || {
 		echo "Doing nothing."; echo;
 		rm -f $oneclick_file
 		return 1
-	fi
+	}
 }
 
 help() {
 	echo "Use: $0 <function> [params]"
 	echo ""
-	echo "get_url [URL]       : Get oneclick file."
-	echo "check [FILE]        : Check if valid onelick file."
-	echo "print [FILE]        : Print oneclick file values."
-	echo "configure [FILE]    : Configure node with oneclick file values (recommended to check file before)."
+	echo "get_url [URL] [FILE]  : Get oneclick file."
+	echo "check [FILE]          : Check if valid onelick file."
+	echo "print [FILE]          : Print oneclick file values."
+	echo "configure [FILE]      : Configure node with oneclick file values (recommended to check file before)."
 	echo "-"
-	echo "oneclick [URL]      : Do all configuration based on Guifi.net website data."
+	echo "oneclick [URL]        : Do all configuration based on Guifi.net website data."
 	echo ""
-	exit 1
+	exit 1;
 }
 
 [ -z "$1" ] && help
