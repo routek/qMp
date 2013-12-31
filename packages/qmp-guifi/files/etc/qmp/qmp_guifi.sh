@@ -30,7 +30,7 @@ ONECLICK_FILE="/tmp/guifi_oneclick"
 ONECLICK_PATTERN="qMp Guifi-oneclick"
 ONECLICK_URL="/view/unsolclic"
 ONECLICK_URL_BASE="http://guifi.net/guifi/device/"
-ONECLICK_VARS="nodename devname devmodel ip mask zone"
+ONECLICK_VARS="nodename devname devmodel ipv4 netmask zoneid"
 #ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
 
 
