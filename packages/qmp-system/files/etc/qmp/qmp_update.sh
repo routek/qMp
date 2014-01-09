@@ -50,7 +50,7 @@ qmp_update_get_my_device() {
 qmp_update_get_last_image_name() {
 	images_url=$1
 	filter=$2
-	qmp_update_get_url $images_url | grep "$filter" | grep "$my_device" | awk '{print $2}' | sort -n -r | awk NR==1
+	qmp_update_get_url $images_url | egrep "$filter" | grep "$my_device" | awk '{print $2}' | sort -n -r | awk NR==1
 }
 
 qmp_update_get_checksum_from_image() {
