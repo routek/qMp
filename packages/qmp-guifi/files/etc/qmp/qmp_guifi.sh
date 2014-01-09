@@ -175,6 +175,9 @@ configure() {
 		j=$(( $j + 1 ))
 	done
 
+	# Set filter to update with image that includes 'qmp-guifi' package
+	uci set qmp.update.filter="qMp-Guifi*sysupgrade"
+
 	echo;
 	uci commit
 	sleep 1
