@@ -1,0 +1,55 @@
+#!/bin/sh
+
+GUIFI_TEMP=/tmp/guifi_oneclick
+
+echo "content-type: text/plain"
+echo ""
+echo "$QUERY_STRING" >> /tmp/debug
+QUERY_KEY="$(echo $QUERY_STRING | cut -d'&' -f1 | cut -d'=' -f2)"
+QUERY_TYPE="$(echo $QUERY_STRING | cut -d'&' -f2 | cut -d'=' -f2)"
+QUERY_DATA="$(echo $QUERY_STRING | cut -d'&' -f3 | cut -d'=' -f2 | sed s/'%3A'/':'/g | sed s/'%2F'/'\/'/g)"
+
+echo "$QUERY_TYPE $QUERY_DATA" >> /tmp/debug
+
+KEY_F="$(uci get qmp.node.key)"
+[ -z "$KEY_F" ] && KEY_F="/tmp/qmp_key"
+KEY="$(cat $KEY_F)"
+[ "$KEY" != "$QUERY_KEY" ] && { echo "Invalid key"; exit 1; }
+
+
+guifi_apply() {
+	[ ! -z "$QUERY_DATA" ] && {
+		export ONECLICK_CGI=1
+		/etc/qmp/qmp_guifi.sh get_url $QUERY_DATA $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh check $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh print $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 
+		export ONECLICK_CGI=0
+	}
+}
+
+guifi_cancel() {
+	[ -f $GUIFI_TEMP ] && rm -r $GUIFI_TEMP
+	export ONECLICK_CGI=0
+}
+
+guifi_confirm() {
+	[ ! -z "$QUERY_DATA" ] && {
+		# /etc/qmp/qmp_guifi.sh get_url $QUERY_DATA $GUIFI_TEMP
+		# echo;
+		export ONECLICK_CGI=1
+		/etc/qmp/qmp_guifi.sh check $GUIFI_TEMP
+		[ $? -ne 0 ] && exit 1 || echo;
+		/etc/qmp/qmp_guifi.sh configure $GUIFI_TEMP
+		[ -f $GUIFI_TEMP ] && rm -r $GUIFI_TEMP
+		export ONECLICK_CGI=0
+	}
+}
+
+[ "$QUERY_TYPE" == "apply" ] && guifi_apply
+[ "$QUERY_TYPE" == "cancel" ] && guifi_cancel
+[ "$QUERY_TYPE" == "confirm" ] && guifi_confirm
+
+exit 0

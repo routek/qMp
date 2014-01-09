@@ -202,6 +202,6 @@ help() {
 
 [ -z "$1" ] && help
 
-echo "executing function $1"
-$@
+echo "executing function $1..."
 
+$@ # 2>/dev/null || echo " Command not found.\n" && help
