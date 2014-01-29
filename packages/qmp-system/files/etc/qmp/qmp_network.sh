@@ -34,21 +34,20 @@ SOURCE_NET=1
 
 # Adds the iptables mss clamping rule for descovering maximum MSS
 # <device> [remove]
-qmp_set_mss_clamping() {
-        local dev="$1"
-        local rm="$2"
-        local fw="/etc/firewall.user"
-        local rule="iptables -A FORWARD -p tcp -o $dev -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu"
-
-        [ -z "$dev" ] && return
-
-        if [ "$rm" == "remove" ]; then
-                sed -i /"${rule}"/d $fw
-
-        else if [ $(cat $fw | grep "$rule" -c) -eq 0 ]; then
-                qmp_log Adding TCP ClampMSS rule for $dev
-                echo "$rule" >> $fw
-        fi;fi
+qmp_set_mss_clamping_and_masq() {
+    local dev="$1"
+    local rm="$2"
+    local fw="/etc/firewall.user"
+    for rule in "iptables -A FORWARD -p tcp -o $dev -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu" \
+                "iptables -t nat -A POSTROUTING -o $dev ! -d 10.0.0.0/8 -j MASQUERADE"; do
+	  [ -z "$dev" ] && return
+	  if [ "$rm" == "remove" ]; then
+	    sed -i /"${rule}"/d $fw
+      else if [ $(cat $fw | grep "$rule" -c) -eq 0 ]; then
+        qmp_log "Adding TCP ClampMSS rule for $dev"
+        echo "$rule" >> $fw
+      fi;fi
+    done
 }
 
 # Prepare config files
@@ -321,7 +320,7 @@ qmp_configure_lan() {
   local device
   for device in $(qmp_get_devices lan) ; do
     qmp_attach_device_to_interface $device lan
-    qmp_set_mss_clamping $device remove
+    qmp_set_mss_clamping_and_masq $device remove
   done
 }
 
@@ -336,7 +335,7 @@ qmp_configure_wan() {
 		metric="$(qmp_uci_get network.wan_metric)"
 		[ -n "$metric" ] && qmp_uci_set_raw network.$viface.metric="$metric"
 		qmp_gw_masq_wan 1
-		qmp_set_mss_clamping $i
+		qmp_set_mss_clamping_and_masq $i
 	done
 
 }
