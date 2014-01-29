@@ -130,7 +130,12 @@ qmp_gw_masq_wan() {
 		qmp_uci_set_cfg firewall.$cfg.output=ACCEPT
 		qmp_uci_set_cfg firewall.$cfg.forward=ACCEPT
 		qmp_uci_set_cfg firewall.$cfg.name=wan
-		qmp_uci_set_cfg firewall.$cfg.masq=$masq
+
+		#seems that the openwrt firewall masquerade is not
+		#compatible with the NAT applied by qMp in firewall.user
+		#so for the moment we better disable it
+		#qmp_uci_set_cfg firewall.$cfg.masq=$masq
+
 		qmp_uci_set_cfg firewall.$cfg.mtu_fix=1
 		qmp_uci_commit firewall
 
@@ -139,7 +144,7 @@ qmp_gw_masq_wan() {
 		qmp_uci_set_raw firewall.@zone[$wan].input=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].output=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].forward=ACCEPT
-		qmp_uci_set_raw firewall.@zone[$wan].masq=$masq
+		#qmp_uci_set_raw firewall.@zone[$wan].masq=$masq
 		qmp_uci_set_raw firewall.$cfg.mtu_fix=1
 		cfg=@zone[$wan]
 	fi
