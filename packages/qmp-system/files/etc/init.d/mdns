@@ -31,14 +31,13 @@ SMSF="/var/run/bmx6/sms/sendSms/mdns"
 SMSR="/var/run/bmx6/sms/rcvdSms"                                            
 DNSMASQ="/etc/dnsmasq.conf"                                     
 DNSMASQ_PID="/var/run/dnsmasq.pid"
-PERIOD="10"
 # Optional
 IPV4=""
 IPV6=""
 
 start() {
 	if ! cat /etc/crontabs/root | grep mdns > /dev/null; then
-		echo "*\\${PERIOD} * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
+		echo "10 * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
 		/etc/init.d/cron enable
 		/etc/init.d/cron start
 	fi
