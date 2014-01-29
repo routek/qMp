@@ -2,6 +2,10 @@
 
 [ -f /etc/config/mini_snmpd ] && {
 	uci set mini_snmpd.@mini_snmpd[0].enabled=1
-	uci set mini_snmpd.@mini_snmpd[0].interfaces="br-lan wlan0"
+	if uci get mini_snmpd.@mini_snmpd[0].interfaces | egrep 'br-lan|wlan0'
+		then
+		uci add_list mini_snmpd.@mini_snmpd[0].interfaces="br-lan"
+		uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
+	fi
 	uci commit
 }
