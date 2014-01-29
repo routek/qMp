@@ -1,0 +1,7 @@
+#!/bin/sh
+
+[ -f /etc/config/mini_snmpd ] && {
+	uci set mini_snmpd.@mini_snmpd[0].enabled=1
+	uci set mini_snmpd.@mini_snmpd[0].interfaces="br-lan wlan0"
+	uci commit
+}

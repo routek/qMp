@@ -46,7 +46,7 @@ define Package/qmp-small-node
 	+cgi-bin-zero \
 	+kmod-tun +kmod-ipip \
 	+b6m +b6m-spread \
-	+munin-mesh
+	+munin-mesh +mini-snmpd
 endef
 
 
