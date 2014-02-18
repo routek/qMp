@@ -28,6 +28,7 @@ MY_DOMAINS="$MDNS_DIR/public"
 DOMAINS4="qmp"
 DOMAINS6="qm6"
 SMSF="/var/run/bmx6/sms/sendSms/mdns"                                       
+SMSTMP="/tmp/sms-mdns.tmp"
 SMSR="/var/run/bmx6/sms/rcvdSms"                                            
 DNSMASQ="/etc/dnsmasq.conf"                                     
 DNSMASQ_PID="/var/run/dnsmasq.pid"
@@ -47,6 +48,7 @@ start() {
 stop() {
 	sed -i -e '/.*\/etc\/init\.d\/mdns reload > \/tmp\/log\/mdns\.log$/d' /etc/crontabs/root
 	/etc/init.d/cron restart
+	[ -f $SMSF ] && rm -f $SMSF
 }
 
 reload() {
@@ -85,9 +87,6 @@ init() {
 	ps | grep dnsmasq -q || error "dnsmasq not running"
 	
 	log "cleaning files"
-	[ -f $SMSF ] && rm -f $SMSF
-	touch $SMSF
-	
 	[ -f $HOSTF ] && rm -f $HOSTF
 	touch $HOSTF	
 	
@@ -182,22 +181,23 @@ publish_my_domains() {
 	[ -n "$ip4" ] && {
 		domains="$(get_my_domains 4)"
 		log "publishing own IPv4 domains: $domains"
-		echo "$ip4 $domains" >> $SMSF
+		echo "$ip4 $domains" >> $SMSTMP
 		echo "$ip4 $domains" >> $HOSTF
 	}
 
 	[ -n "$ip6" ] && {
 		domains="$(get_my_domains 6)"
 		log "publishing own IPv6 domains: $domains"
-		echo "$ip6 $domains" >> $SMSF
+		echo "$ip6 $domains" >> $SMSTMP
 		echo "$ip6 $domains" >> $HOSTF
 	}
 	
 	ext_domains="$(get_myext_domains)"
 	log "publishing own external domains:\n$ext_domains"
-	echo -e "$ext_domains" >> $SMSF
+	echo -e "$ext_domains" >> $SMSTMP
 	echo -e "$ext_domains" >> $HOSTF
 	
+	cp -f $SMSTMP $SMSF
 }
 
 get_domains() {
