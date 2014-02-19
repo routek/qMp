@@ -123,6 +123,9 @@ startup() {
 
 	# Generate current qmp key
 	logread | md5sum | awk '{print $1}' > $QMP_KEY
+
+	# Start firewall 
+	sh /etc/firewall.user
 }
 
 start() {
