@@ -157,6 +157,8 @@ qmp_gw_masq_wan() {
 qmp_gw_apply() {
 	qmp_configure_bmx6
 	bmx6 -c --configReload || /etc/init.d/bmx6 restart
-	/etc/init.d/firewall restart
+	iptables -F
+	iptables -F -t nat
+	sh /etc/firewall.user
 }
 

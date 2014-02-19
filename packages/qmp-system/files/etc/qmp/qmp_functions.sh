@@ -820,7 +820,9 @@ qmp_configure_bmx6() {
 }
 
 qmp_restart_firewall() {
-	/etc/init.d/firewall restart
+	iptables -F
+	iptables -F -t nat
+	sh /etc/firewall.user
 }
 
 qmp_check_force_internet() {
