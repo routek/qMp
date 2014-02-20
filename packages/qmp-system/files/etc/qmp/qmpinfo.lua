@@ -32,6 +32,45 @@ local uci = luci.model.uci.cursor()
 local qmpinfo = {}
 local i,d
 
+
+local function tableConcat(t1,t2)
+	local _,i
+	for _,i in ipairs(t2) do
+		table.insert(t1,i)
+	end
+	return t1
+end
+
+local function isInTable(t,e)
+	local yes = false
+	local _,i
+	for _,i in ipairs(t) do
+		if i == e then
+			yes = true
+			break
+		end
+	end
+	return yes
+end
+
+local function printr(t)
+	local _,i
+	for _,i in ipairs(t) do
+		print(" " .. tostring(_) .. " -> " .. tostring(i))
+	end	
+end
+
+function qmpinfo.get_qmp_devices()
+	local devs = {}
+	local mesh = util.split( uci:get("qmp","interfaces","mesh_devices") or ""," ")
+	local lan = util.split(uci:get("qmp","interfaces","lan_devices") or ""," ")
+	local wan = util.split(uci:get("qmp","interfaces","wan_devices")or "", " ")
+	tableConcat(devs,mesh)
+	tableConcat(devs,lan)
+	tableConcat(devs,wan)
+	return devs
+end
+
 -- returns all the physical devices as a table
 --  in table.wifi only the wifi ones
 --  in table.eth only the non-wifi ones
@@ -42,35 +81,30 @@ function qmpinfo.get_devices()
 	phydevs.wifi = {}
 	phydevs.all = {}
 	phydevs.eth = {}
-	local ignored = util.split(uci:get("qmp","interfaces","ignore_devices") or "")
+	local ignored = util.split( uci:get("qmp","interfaces","ignore_devices") or ""," ")
 	
-	uci:foreach('network','switch_vlan', function (s)
-			local name = uci:get("network",s[".name"],"device")
-			local vlan = uci:get("network",s[".name"],"vid")
-			if name ~= nil and vlan ~= nil then
-				table.insert(phydevs.eth,name..'.'..vlan)
-				table.insert(phydevs.all,name..'.'..vlan) 
-				table.insert(ignored,name)
-			end
-		end)
+--	uci:foreach('network','switch_vlan', function (s)
+--			local name = uci:get("network",s[".name"],"device")
+--			local vlan = uci:get("network",s[".name"],"vid")
+--			if name ~= nil and vlan ~= nil then
+--				table.insert(phydevs.eth,name..'.'..vlan)
+--				table.insert(phydevs.all,name..'.'..vlan) 
+--				table.insert(ignored,name)
+--			end
+--		end)
 
 	local sysnet = "/sys/class/net/"
+	local qmp_devs = qmpinfo.get_qmp_devices()
+	
 	for d in nixio.fs.dir(sysnet) do
-		if nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then 
-			if string.find(d,"%.") == nil and string.find(d,"ap") == nil then
-
-				local ignore = false
-				local _,id
-				for _,id in ipairs(ignored) do
-					if id == d then
-						ignore = true
-						break
-					end
-				end
+		local is_qmp_dev = isInTable(qmp_devs,d)
+		if is_qmp_dev or nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then 
+			if is_qmp_dev or (string.find(d,"%.") == nil and string.find(d,"ap") == nil) then
+				local ignore = isInTable(ignored,d)
+				
 				if not ignore then
-
 					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
-		                table.insert(phydevs.wifi,d)
+						table.insert(phydevs.wifi,d)
 					else
 						table.insert(phydevs.eth,d) 
 					end
