@@ -1,0 +1,2 @@
+#!/bin/sh
+sed -i s/bonus/rating/g /etc/config/gateways 
