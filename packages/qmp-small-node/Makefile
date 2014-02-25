@@ -41,7 +41,7 @@ define Package/qmp-small-node
   URL:=http://qmp.cat
   DEPENDS:= \
 	+qmp-tiny-node \
-	+synctincvpn +altermap-agent \
+	+synctincvpn \
 	+iputils-arping +iputils-clockdiff +tcpdump-mini \
 	+cgi-bin-zero \
 	+kmod-tun +kmod-ipip \

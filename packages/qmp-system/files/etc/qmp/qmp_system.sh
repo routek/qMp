@@ -136,9 +136,9 @@ qmp_set_services() {
 			qmp_enable_service tinyproxy || qmp_disable_service tinyproxy
 		}
 		
-		[ "$s" == "altermap" ] && [ -e /etc/init.d/altermap-agent ] && {
+		[ "$s" == "libremap" ] && [ -e /etc/init.d/libremap ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] && \
-			qmp_enable_service altermap-agent || qmp_disable_service altermap-agent
+			qmp_enable_service libremap || qmp_disable_service libremap
 		}
 		
 		[ "$s" == "b6m" ] && [ -e /etc/init.d/b6m-spread ] && {
