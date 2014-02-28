@@ -35,19 +35,15 @@ local roaming_help
 roaming_help = m:field(DummyValue,"roaming_help")
 roaming_help:depends("_netmode","roaming")
 roaming_help.rawhtml = true
-roaming_help.default = "This page provides a simple way to configure the basic settings of a qMp node.<br/> <br/>Roaming mode is used for quick, temporal deployments. \
-User devices connected to the network can roam between\ Access Points without loosing connectivity. However, they can not see other user devices connected to the Mesh.<br/> <br/>"
+roaming_help.default = translate("This page provides a simple way to configure the basic settings of a qMp node. <br/> <br/> qMp can work in two modes, \"roaming\" and \"community\":<br/> <br/> · Roaming mode is used for quick, temporal deployments. User devices connected to the network can roam between Access Points without loosing connectivity. However, they can not see other devices connected to the Mesh.<br/> <br/> · Community mode is used for static, long-term deployments (such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. However, roaming between stations is not possible.<br/> <br/>")
 local community_help
 community_help = m:field(DummyValue,"community_help")
 community_help:depends("_netmode","community")
 community_help.rawhtml = true
 
-community_help.default = "This page provides a simple way to configure the basic settings of a qMp node.<br/> <br/>Community mode is used for static, long-term deployments \
-(such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. \
-However, roaming between stations is not possible.<br/> <br/>"
+community_help.default = translate("This page provides a simple way to configure the basic settings of a qMp node. <br/> <br/> qMp can work in two modes, \"roaming\" and \"community\":<br/> <br/> · Roaming mode is used for quick, temporal deployments. User devices connected to the network can roam between Access Points without loosing connectivity. However, they can not see other devices connected to the Mesh.<br/> <br/> · Community mode is used for static, long-term deployments (such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. However, roaming between stations is not possible.<br/> <br/>")
 
-netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("Choose \"community\" mode for community networks and long-term deployments.<br/>\"Roaming\" mode \
-is best for quick, temporal network setups."))
+netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("\"Roaming\" mode is best for quick, temporal network setups.<br/>Choose \"community\" mode for community networks and long-term deployments."))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
 
@@ -122,7 +118,7 @@ local function is_a(dev, what)
 end
 
 for i,v in ipairs(devices.eth) do
-        tmp = m:field(ListValue, "_" .. v, v)
+		tmp = m:field(ListValue, "_" .. v, translatef("Wired interface <strong>%s</strong> mode",v))
 	tmp:value("Mesh")
 	tmp:value("Lan")
 	tmp:value("Wan")
@@ -142,7 +138,7 @@ end
 nodedevs_wifi = {}
 
 for i,v in ipairs(devices.wifi) do
-	tmp = m:field(ListValue, "_" .. v, v)
+		tmp = m:field(ListValue, "_" .. v, translatef("Wireless interface <strong>%s</strong> mode",v))	
 	tmp:value("Mesh")
 	tmp:value("AP")
 	tmp.default = ""
