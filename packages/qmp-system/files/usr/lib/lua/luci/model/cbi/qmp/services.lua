@@ -42,9 +42,9 @@ local b6m = section:option(Flag, "b6m", translate("BMX6 map"),
 translate("The b6m is a real time descentralized geopositioning map based on OpenStreetMaps (Internet access only required for the OSM but not for the status/topology)"))
 b6m.default=0
 
--- Option: altermap
-local alt = section:option(Flag, "altermap", translate("Altermap"),
-translate("AlterMap is a centralized geopositioning map. Internet and the previous creation of the node in the map page are required (http://map.qmp.cat)"))
+-- Option: libremap
+local alt = section:option(Flag, "libremap", translate("LibreMap"),
+translate("LibreMap is a centralized geopositioning map. Internet and the previous creation of the node in the map page are required (http://libremap.net)"))
 alt.default=0
 
 -- Option: gwck

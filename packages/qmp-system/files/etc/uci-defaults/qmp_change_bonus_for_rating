@@ -1,0 +1,11 @@
+#!/bin/sh
+uci show gateways | grep bonus | while read g
+	do
+	k="$(echo $g | cut -d= -f1)"
+	v="$(echo $g | cut -d= -f2)"
+	newv=$(($v+100))
+	uci del $k
+	newk="$(echo $k | sed s/bonus/rating/g)"
+	uci set $newk=$newv
+	uci commit gateways
+	done

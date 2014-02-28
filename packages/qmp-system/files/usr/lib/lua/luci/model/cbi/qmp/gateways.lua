@@ -63,13 +63,13 @@ local gwoptions = {
 	{["name"]="srcType", ["help"]="tunnel ip allocation mechanism (0 = static/global, 1 = static, 2 = auto, 3 = AHCP)"},
 	{["name"]="bandwidth", ["help"]="network bandwidth (bits/sec) (default: 1000, range: [36..128849018880])"},
 	{["name"]="minBandwidth", ["help"]="minimum bandwidth (bits/sec) beyond which GW's advertised bandwidth is ignored (default: 100000, range: [36..128849018880])"},
+	{["name"]="rating", ["help"]="Default rating is 100. Smaller rating (from 0 to 99) gives low priority to the gateway. Higher rating (>100) gives more priority."},
 	{["name"]="tunDev", ["help"]="incoming tunnel interface name to be used"},
 	{["name"]="exportDistance", ["help"]=""},
 	{["name"]="allowOverlappingPrefix", ["help"]="allow overlapping other tunRoutes with worse tunMetric but larger prefix length"},
 	{["name"]="breakOverlappingPrefix", ["help"]="let this tunRoute break other tunRoutes with better tunMetric but smaller prefix length"},
 	{["name"]="tableRule", ["help"]="ip rules tabel and preference to maintain matching tunnels ({PREF}/{TABLE})"},
 	{["name"]="ipMetric", ["help"]="ip metric for local routing table entries"},
-	{["name"]="bonus", ["help"]="specify in percent a metric bonus (preference) for GWs matching this tunOut spec when compared with other tunOut specs for same network"},
 	{["name"]="hysteresis", ["help"]="specify in percent how much the metric to an alternative GW must be better than current GW"}
 }
 

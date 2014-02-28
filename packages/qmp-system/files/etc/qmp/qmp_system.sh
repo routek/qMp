@@ -126,28 +126,28 @@ qmp_set_services() {
 	for s in $(qmp_list_services); do
 		
 		[ "$s" == "vpn" ] && [ -e /etc/init.d/synctincvpn ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service synctincvpn || qmp_disable_service synctincvpn
 		
 		}
 		
 		[ "$s" == "captive_portal" ] && [ -e /etc/init.d/tinyproxy ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service tinyproxy || qmp_disable_service tinyproxy
 		}
 		
-		[ "$s" == "altermap" ] && [ -e /etc/init.d/altermap-agent ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
-			qmp_enable_service altermap-agent || qmp_disable_service altermap-agent
+		[ "$s" == "libremap" ] && [ -e /etc/init.d/libremap ] && {
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
+			qmp_enable_service libremap || qmp_disable_service libremap
 		}
 		
 		[ "$s" == "b6m" ] && [ -e /etc/init.d/b6m-spread ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service b6m-spread || qmp_disable_service b6m-spread
 		}
 		
 		[ "$s" == "gwck" ] && [ -e /etc/init.d/gwck ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] && 
 			qmp_enable_service gwck || qmp_disable_service gwck
 		}
 		
@@ -156,17 +156,17 @@ qmp_set_services() {
 		}
 		
 		[ "$s" == "mesh_dns" ] && [ -e /etc/init.d/mdns ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \ 
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service mdns || qmp_disable_service mdns
 		}
 		
 		[ "$s" == "bwtest" ] && [ -n "$(which netserver)" ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_netserver || qmp_disable_netserver
 		}
 
 		[ "$s" == "munin" ] && [ -e /etc/init.d/munin ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && \
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service munin || qmp_disable_service munin
 		}
 
