@@ -62,9 +62,10 @@ else
 end
 netmode.default=networkmode
 
-nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),
+local nodeip_roaming =  m:field(Value, "_nodeip_roaming", translate("IP address"),
 translate("Main IPv4 address for this node. This IP must be unique in the Mesh network. <br/>Leave it blank to get a random one."))
 nodeip_roaming:depends("_netmode","roaming")
+
 
 local rip = uciout:get("qmp","networks","bmx6_ipv4_address")
 if rip == nil or #rip < 7 then
@@ -75,26 +76,30 @@ if rip == nil or #rip < 7 then
 end 
 
 nodeip_roaming.default=rip
+nodeip_roaming.datatype="ip4prefix"
 
-nodename = m:field(Value, "_nodename", translate("Node name"),
+local nodename = m:field(Value, "_nodename", translate("Node name"),
 translate("The name of this node. Four hex numbers will be appended, according the the device's MAC address."))
 
 nodename:depends("_netmode","community")
 nodename.default="qMp"
+nodename.datatype="hostname"
 if uciout:get("qmp","node","community_id") ~= nil then
 	nodename.default=uciout:get("qmp","node","community_id")
 end
 
-nodeip = m:field(Value, "_nodeip", translate("IP address"),
+local nodeip = m:field(Value, "_nodeip", translate("IP address"),
 translate("Main IPv4 address for this node. This IP must be unique in the Mesh network. It will be used in the LAN for end users."))
 
 nodeip:depends("_netmode","community")
 nodeip.default = "10.30."..util.trim(util.exec("echo $((($(date +%M)*$(date +%S)%254)+1))"))..".1"
+nodeip.datatype="ip4addr"
 
-nodemask = m:field(Value, "_nodemask",translate("Network mask"),
+local nodemask = m:field(Value, "_nodemask",translate("Network mask"),
 translate("Network mask to be used with the IPv4 address above. This mask will be used in the LAN for end users."))
 nodemask:depends("_netmode","community")
 nodemask.default = "255.255.255.0"
+nodemask.datatype="ip4addr"
 
 if networkmode == "community" then
 	nodeip.default=uciout:get("qmp","networks","lan_address")
