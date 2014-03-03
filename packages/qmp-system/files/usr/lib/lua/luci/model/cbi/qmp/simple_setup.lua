@@ -29,7 +29,7 @@ local uciout = uci.cursor()
 package.path = package.path .. ";/etc/qmp/?.lua"
 qmpinfo = require "qmpinfo"
 
-m = SimpleForm("qmp_tmp", translate("qMp simple setup"))
+m = SimpleForm("qmp", translate("qMp simple setup"))
 
 local roaming_help
 roaming_help = m:field(DummyValue,"roaming_help")
