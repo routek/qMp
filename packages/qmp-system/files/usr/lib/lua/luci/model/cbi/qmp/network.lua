@@ -38,7 +38,7 @@ mesh_section.addremove = False
 net_int = qmpinfo.get_devices().all
 
 -- Option: lan_devices
-lan = eth_section:option(MultiValue, "lan_devices", "LAN mode","Interfaces used to provide end-user connectivity (DHCP server)")
+lan = eth_section:option(MultiValue, "lan_devices", translate("LAN mode"),translate("Interfaces used to provide end-user connectivity (DHCP server)"))
 local i,l
 for i,l in ipairs(net_int) do
 	lan:value(l,l)
