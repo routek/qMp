@@ -25,7 +25,7 @@ require("luci.sys")
 local http = require "luci.http"
 m = Map("qmp", "qMp network settings")
 
-eth_section = m:section(NamedSection, "interfaces", "qmp", translate("Network mode"), translate("Select the working mode of the wired network interfaces: <br/> · LAN mode is used to provide end-users connectivity and a DHCP will be enabled to assign IP addresses to the devices connecting.<br/> · WAN mode is used on interfaces connected to an Internet up-link or any other gateway connection.<br/> <br/>LAN and WAN modes are mutually exclusive. <strong>Do set an interface in both LAN and WAN modes.</strong>"))
+eth_section = m:section(NamedSection, "interfaces", "qmp", translate("Network mode"), translate("Select the working mode of the wired network interfaces: <br/> · LAN mode is used to provide end-users connectivity and a DHCP will be enabled to assign IP addresses to the devices connecting.<br/> · WAN mode is used on interfaces connected to an Internet up-link or any other gateway connection.<br/> <br/>LAN and WAN modes are mutually exclusive. <strong>Do not set an interface in both LAN and WAN modes.</strong>"))
 eth_section.addremove = False
 
 mesh_section = m:section(NamedSection, "interfaces", "qmp", translate("Mesh interfaces"), translate("Select the devices that will be used in the mesh network. It is recommended to select them all."))
