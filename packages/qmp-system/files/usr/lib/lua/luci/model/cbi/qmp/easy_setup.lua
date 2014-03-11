@@ -31,16 +31,18 @@ qmpinfo = require "qmpinfo"
 
 m = SimpleForm("qmp", translate("qMp easy setup"))
 
+m:section(NamedSection, "interfaces", "qmp", translate("Network mode"), translate("Select  mutually exclusive. <strong>Do set LAN and WAN modes.</strong>"))
+
 local roaming_help
 roaming_help = m:field(DummyValue,"roaming_help")
 roaming_help:depends("_netmode","roaming")
 roaming_help.rawhtml = true
 roaming_help.default = translate("This page provides a simple way to configure the basic settings of a qMp node. <br/> <br/> qMp can work in two modes, \"roaming\" and \"community\":<br/> <br/> · Roaming mode is used for quick, temporal deployments. User devices connected to the network can roam between Access Points without loosing connectivity. However, they can not see other devices connected to the Mesh.<br/> <br/> · Community mode is used for static, long-term deployments (such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. However, roaming between stations is not possible.<br/> <br/>")
+
 local community_help
 community_help = m:field(DummyValue,"community_help")
 community_help:depends("_netmode","community")
 community_help.rawhtml = true
-
 community_help.default = translate("This page provides a simple way to configure the basic settings of a qMp node. <br/> <br/> qMp can work in two modes, \"roaming\" and \"community\":<br/> <br/> · Roaming mode is used for quick, temporal deployments. User devices connected to the network can roam between Access Points without loosing connectivity. However, they can not see other devices connected to the Mesh.<br/> <br/> · Community mode is used for static, long-term deployments (such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. However, roaming between stations is not possible.<br/> <br/>")
 
 netmode = m:field(ListValue, "_netmode",translate("Network mode"),translate("\"Roaming\" mode is best for quick, temporal network setups.<br/>Choose \"community\" mode for community networks and long-term deployments."))
