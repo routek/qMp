@@ -67,7 +67,7 @@ config 'qmp' 'update'
 	option filter 'sysupgrade'
 	
 	# List of files which are gonna be saved between upgrades.
-	option preserve '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear /etc/config/b6m-spread /etc/qmp/.birth /etc/config/gateways'
+	option preserve '/etc/config/qmp /etc/shadow /etc/passwd /etc/rc.local /etc/firewall.user /etc/dropbear /etc/config/b6m-spread /etc/qmp/.birth /etc/config/gateways /etc/config/mini_snmpd'
 
 # -----------------------------
 # L3 roaming mode options
