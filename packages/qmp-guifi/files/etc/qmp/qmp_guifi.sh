@@ -176,7 +176,7 @@ configure() {
 	done
 
 	# Set filter to update with image that includes 'qmp-guifi' package
-	uci set qmp.update.filter="qMp-Guifi*sysupgrade"
+	uci set qmp.update.filter="qMp-Guifi.*sysupgrade"
 
 	echo;
 	uci commit
