@@ -175,6 +175,16 @@ configure() {
 		j=$(( $j + 1 ))
 	done
 
+	# If mini_snmpd present configure it with wlan0 (used by Guifi.net graphics)
+	[ -f /etc/config/mini_snmpd ] && {
+		uci set mini_snmpd.@mini_snmpd[0].enabled=1
+		uci set mini_snmpd.@mini_snmpd[0].contact="guifi@guifi.net"
+		uci set mini_snmpd.@mini_snmpd[0].location="$nodename"
+		INTERFACES=$(uci get mini_snmpd.@mini_snmpd[0].interfaces)
+		echo $INTERFACES |  grep 'wlan0' 2> /dev/null
+		[ $? -eq 0 ] && uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
+        }
+
 	# Set filter to update with image that includes 'qmp-guifi' package
 	uci set qmp.update.filter="qMp-Guifi.*sysupgrade"
 
