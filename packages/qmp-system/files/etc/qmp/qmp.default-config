@@ -43,7 +43,7 @@ config 'qmp' 'node'
 config 'qmp' 'services'
 	option vpn 0
 	option captive_portal 0
-	option b6m 1
+	option b6m 0
 	option libremap 1
 	option gwck 1
 	option auto_upgrade 0
@@ -87,7 +87,7 @@ config 'qmp' 'roaming'
 # -----------------------------
 config 'qmp' 'networks'
 	# DNS servers which will be configured.
-	option dns '141.1.1.1 85.126.4.170 202.83.95.227'
+	option dns '208.67.222.222 85.126.4.170 202.83.95.227'
 	
 	# LAN address and netmask (will be assigned to br-lan).
 	option lan_address '172.30.22.1'
@@ -127,6 +127,7 @@ config 'qmp' 'networks'
 # -----------------------------
 config 'qmp' 'wireless'
 	option driver 'mac80211'
-	option country 'SP'
+	option country 'US'
 	option bssid '02:CA:FF:EE:BA:BE'
+	option mrate '6000'
 

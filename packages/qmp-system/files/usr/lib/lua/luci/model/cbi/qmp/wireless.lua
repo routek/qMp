@@ -51,6 +51,9 @@ country = s_wireless_main:option(Value,"country", translate("Country"))
 -- BSSID
 bssid = s_wireless_main:option(Value,"bssid","BSSID")
 
+-- MRATE
+mrate = s_wireless_main:option(Value,"mrate",translate("Multicast rate"))
+
 -- Button Rescan Wifi devices
 confwifi = s_wireless_main:option(Button, "_confwifi", translate("Reconfigure"),
 translate("Rescan and reconfigure all devices. <br/>Use it just in case you have added or changed a device."))

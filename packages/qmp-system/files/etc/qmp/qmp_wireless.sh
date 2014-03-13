@@ -161,12 +161,15 @@ qmp_configure_wifi_device() {
 	} || { 
 		m11b="$(echo $channel_raw | tr -d [0-9]+-)"
 		m11n="$($QMPINFO modes $device | grep -c n)"
-		[ -n "$m11b" -o $m11n = 0 ] && { 
-			# Device is not 11n compatible or mode 11b is forced
+		[ -n "$m11b" ] && { 
+			# Mode 11b is forced
 			htmode=""
 			mode11="b"
-
-		} || { 
+		} || [ $m11n -eq 0 ] && { 
+			# Device is not 11n compatible
+			htmode=""
+			mode11="auto"
+		} || {
 			# Device is 11n compatible
 			htmode="HT20"
 			mode11="n"
@@ -199,6 +202,7 @@ qmp_configure_wifi_device() {
 	echo "Name     $name"
 	echo "HTmode   $htmode"
 	echo "11mode   $mode11"
+	echo "Mrate	   $mrate"
 	echo "------------------------"
 
 	local vap=0
@@ -219,6 +223,7 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_MAC"/"$mac"/ \
 	 -e s/"#QMP_CHANNEL"/"$channel"/ \
 	 -e s/"#QMP_COUNTRY"/"$country"/ \
+	 -e s/"#QMP_MRATE"/"$mrate"/ \
 	 -e s/"#QMP_HTMODE"/"$htmode"/ \
 	 -e s/"#QMP_TXPOWER"/"$txpower"/ > $TMP/qmp_wifi_device
 
@@ -233,7 +238,6 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_NETWORK"/"$network"/ \
 	 -e s/"#QMP_ENC"/"$encrypt"/ \
 	 -e s/"#QMP_KEY"/"$key"/ \
-	 -e s/"#QMP_MRATE"/"$mrate"/ \
 	 -e s/"#QMP_MODE"/"$mode"/ > $TMP/qmp_wifi_iface
 
 
@@ -244,11 +248,10 @@ qmp_configure_wifi_device() {
 	 	 -e s/"#QMP_RADIO"/"$radio"/ \
 		 -e s/"#QMP_DEVICE"/"${device}ap"/ \
 		 -e s/"#QMP_IFNAME"/"${device}ap"/ \
-		 -e s/"#QMP_SSID"/"$name"/ \
+		 -e s/"#QMP_SSID"/"${name}-AP"/ \
 		 -e s/"#QMP_NETWORK"/"lan"/ \
 		 -e s/"#QMP_ENC"/"$encrypt"/ \
 		 -e s/"#QMP_KEY"/"$key"/ \
-		 -e s/"#QMP_MRATE"/"$mrate"/ \
 		 -e s/"#QMP_MODE"/"ap"/ >> $TMP/qmp_wifi_iface
 	}
 
