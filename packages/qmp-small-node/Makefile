@@ -42,7 +42,7 @@ define Package/qmp-small-node
   DEPENDS:= \
 	+qmp-tiny-node \
 	+iputils-arping +iputils-clockdiff +tcpdump-mini \
-	+cgi-bin-zero \
+	+cgi-bin-zero +mtr \
 	+kmod-ipip +kmod-gre \
 	+b6m +b6m-spread \
 	+munin-mesh +mini-snmpd

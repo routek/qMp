@@ -45,7 +45,7 @@ define Package/qmp-tiny-node
   +iwinfo +luci-mod-admin-full \
   +radvd \
   +wpad-mini \
-  +iw +netperf +mtr \
+  +iw +netperf \
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
   +gwck-qmp +luci-theme-qmp \
   +ip +iputils-ping6
