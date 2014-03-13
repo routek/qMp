@@ -267,11 +267,11 @@ qmp_configure_smart_network() {
 		} && continue
 
 		# if there is already LAN device and it is not wifi, use as WAN
-		[ -z "$wan" ] && wan="$dev" && continue
-		
-		# else use as LAN and MESH
-		lan="$dev $lan"
-		mesh="$dev $mesh"
+		[ -z "$wan" ] && wan="$dev" || {
+			# else use as LAN and MESH
+			lan="$dev $lan"
+			mesh="$dev $mesh"
+		}
 	done
 	
 	echo "Network devices found:"
