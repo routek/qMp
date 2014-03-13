@@ -53,9 +53,9 @@ qmp_configure_system() {
 	[ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
 
 	# set hostname
-	uci set system.@system[0].hostname=${community_id}${community_node_id}
+	uci set system.@system[0].hostname="${community_id}-${community_node_id}"
 	uci commit system
-	echo "${community_id}${community_node_id}" > /proc/sys/kernel/hostname
+	echo "${community_id}-${community_node_id}" > /proc/sys/kernel/hostname
 
 	uci set uhttpd.main.listen_http="80"
 	uci set uhttpd.main.listen_https="443"

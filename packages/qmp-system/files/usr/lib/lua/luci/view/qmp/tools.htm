@@ -27,12 +27,12 @@ function parse_result(txt) {
 
 </script>
 
-<h2>Tools</h2>
+<h2>Network testing tools</h2>
 
 <div class="cbi-map">
 <form>
 <fieldset class="cbi-section">
-<legend><%:Nodes found in the network%></legend>
+<legend><%:Test network parameters with the nodes available in the network%></legend>
 
 	<table class="cbi-section-table" >
 	<tr class="cbi-section-table-titles">
@@ -54,7 +54,7 @@ function parse_result(txt) {
 </table>
 <br /><br />
 	<div style="clear:both;height:30px;float:left">
-	<strong>Specify Custom ip:</strong>
+	<strong>Test a custom IP address:</strong>
 	<input type="text" name="custom" />
 	<input type="button" value="bandwidth" onclick="do_test(this.form.custom.value,'custom','<%=key%>','bwtest')" />
 	<input type="button" value="ping" onclick="do_test(this.form.custom.value,'custom','<%=key%>','ping')"  />

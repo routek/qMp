@@ -22,14 +22,17 @@
 require("luci.sys")
 local http = require "luci.http"
 
-m = Map("qmp", "Quick Mesh Project")
+m = Map("qmp", "qMp node basic settings")
 
-node_section = m:section(NamedSection, "node", "qmp", translate("Node"), translate("Node configuration options"))
+node_section = m:section(NamedSection, "node", "qmp", translate("Node identity"), translate("Use this page to define basic qMp settings, like the node\'s name."))
 node_section.addremove = False
 
-community_id = node_section:option(Value,"community_id", translate("Community id"), translate("Community identifier for node name (alphanumeric, no spaces)"))
---community_node_id = node_section:option(Value,"community_node_id", translate("Node id"), translate("Node identifier, two hexadecimal digits, leave blank to use last byte of primary MAC address."))
-primary_device = node_section:option(Value,"primary_device", translate("Primary device"), translate("Network primary device which never will change"))
+community_id = node_section:option(Value,"community_id", translate("Node name"), translate("The name for this node (use alphanumeric characters, without spaces)."))
+community_id.default = "qMp"
+community_id.datatype = "hostname"
+primary_device = node_section:option(Value,"primary_device", translate("Primary network device"), translate("The name of the node's primary network device. The last four digits of this device's MAC address will be appended to the node name."))
+primary_device.default = "eth0"
+primary_device.datatype = "network"
 
 
 function m.on_commit(self,map)
