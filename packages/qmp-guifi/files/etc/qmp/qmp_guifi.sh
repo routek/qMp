@@ -181,8 +181,8 @@ configure() {
 		uci set mini_snmpd.@mini_snmpd[0].contact="guifi@guifi.net"
 		uci set mini_snmpd.@mini_snmpd[0].location="$nodename"
 		INTERFACES=$(uci get mini_snmpd.@mini_snmpd[0].interfaces)
-		echo $INTERFACES |  grep 'wlan0' 2> /dev/null
-		[ $? -eq 0 ] && uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
+		echo $INTERFACES | grep 'wlan0' 2> /dev/null
+		[ $? -ne 0 ] && uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
         }
 
 	# Set filter to update with image that includes 'qmp-guifi' package
@@ -191,7 +191,7 @@ configure() {
 	echo;
 	uci commit
 	sleep 1
-	qmpcontrol configure_network ; qmpcontrol configure_wifi # ; /etc/init.d/bmx6 restart
+	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
 	return 0
 }
 
