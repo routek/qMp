@@ -26,8 +26,8 @@ uci set network.@switch[0].reset=1
 uci set network.@switch[0].enable_vlan=1
 uci set network.@switch_vlan[0]=switch_vlan
 uci set network.@switch_vlan[0].device=switch0
-uci set network.@switch_vlan[0].vlan=1
-uci set network.@switch_vlan[0].vid=1
+uci set network.@switch_vlan[0].vlan=2
+uci set network.@switch_vlan[0].vid=2
 uci set network.@switch_vlan[0].ports="0 1 2 3 4"
 
 uci commit network
