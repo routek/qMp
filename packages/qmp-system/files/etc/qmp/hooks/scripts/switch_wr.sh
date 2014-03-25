@@ -32,4 +32,3 @@ uci set network.@switch_vlan[0].ports="0 1 2 3 4"
 
 uci commit network
 }
-

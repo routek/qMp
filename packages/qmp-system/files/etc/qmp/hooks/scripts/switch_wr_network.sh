@@ -4,7 +4,7 @@ STAGE="$1"
 
 [ "$STAGE" == "firstboot" ] && {
 
-echo "Configuring TP-Link TL-WR-series device networking"
+echo "Configuring TPlink WDR switch networking"
 iseth=0
 
 devs="$(uci get qmp.interfaces.lan_devices) \
