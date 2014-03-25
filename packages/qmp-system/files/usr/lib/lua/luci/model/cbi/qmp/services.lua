@@ -22,49 +22,54 @@
 require("luci.sys")
 local http = require "luci.http"
 
-local m = Map("qmp", "Quick Mesh Project")
+local m = Map("qmp", "qMp node services")
 
-local section = m:section(NamedSection, "services", "qmp", translate("Services"), translate("System services control"))
-section.addremove = False
+local basic_services = m:section(NamedSection, "services", "qmp", translate("Basic qMp services"),
+translate("These are the basic qMp services running on this node.").." "..translate("It is recommended to enable them, since they play an important role for end-user connectiviy and mesh network administration."))
+basic_services.addremove = False
+
+local additional_services = m:section(NamedSection, "services", "qmp", translate("Additional qMp services"),
+translate("These are the additional services provided by this qMp node.").." "..translate("You can safely enable or disable them according to your needs without affecting basic node features or end-user connectivity."))
+additional_services.addremove = False
 
 -- Option: VPN
-local vpn = section:option(Flag, "vpn", translate("Management VPN"),
-translate("The Management VPN is used to control the nodes in remote from a central point"))
+local vpn = additional_services:option(Flag, "vpn", translate("Management VPN"),
+translate("The Management VPN is used to control the nodes remotely from a central point"))
 vpn.default=0
 
 -- Option: Captive Portal
-local cp = section:option(Flag, "captive_portal", translate("Captive Portal"),
-translate("The captive portal is a small http proxy used to show a HTML page the first time someone connects to the node's Access Point"))          
-cp.default=0
+-- local cp = additional_services:option(Flag, "captive_portal", translate("Captive Portal"),
+-- translate("The captive portal is a small http proxy used to show an HTML page the first time someone connects to the node's Access Point"))          
+-- cp.default=0
 
 -- Option: b6m
-local b6m = section:option(Flag, "b6m", translate("BMX6 map"),
-translate("The b6m is a real time descentralized geopositioning map based on OpenStreetMaps (Internet access only required for the OSM but not for the status/topology)"))
-b6m.default=0
+-- local b6m = additional_services:option(Flag, "b6m", translate("BMX6 map"),
+-- translate("B6m is a decentralized, real-time geopositioning map based on OpenStreetMaps (Internet connection is only required for the OSM but not for the status/topology)"))
+-- b6m.default=0
 
 -- Option: libremap
-local alt = section:option(Flag, "libremap", translate("LibreMap"),
-translate("LibreMap is a centralized geopositioning map. Internet and the previous creation of the node in the map page are required (http://libremap.net)"))
+local alt = additional_services:option(Flag, "libremap", translate("LibreMap"),
+translate("LibreMap is a centralized geopositioning map (Internet connection is required, as well as registering the node in the map page (http://libremap.net)"))
 alt.default=0
 
 -- Option: gwck
-local gwck = section:option(Flag, "gwck", translate("Gateway Checker"),
-translate("GWCK is a tool automatic discover and publish Internet access among the Mesh network"))
-gwck.default=0
+local gwck = basic_services:option(Flag, "gwck", translate("Gateway Checker").." "..translate("(GWCK)"),
+translate("GWCK is a tool to automatically discover and publish Internet gateways among the Mesh network"))
+gwck.default=1
 
 -- Option: bwtest
-local bwt = section:option(Flag, "bwtest", translate("Bandwidth test"),
+local bwt = basic_services:option(Flag, "bwtest", translate("Bandwidth test"),
 translate("If enabled, the node will be available to perform bandwidth test from other locations"))
-bwt.default=0
+bwt.default=1
 
 -- Option: mdns
-local mdns = section:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),
-translate("A distributed DNS system to publish and get domain names (i.e myNode01.qmp)"))
-mdns.default=0
+local mdns = basic_services:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),
+translate("A distributed DNS system to publish and get domain names (example: myNode01.qmp)"))
+mdns.default=1
 
 -- Option: munin
-local munin = section:option(Flag, "munin", translate("Munin agent"),
-translate("Munin agent (listen on port 4949) for monitorization and statistics"))
+local munin = additional_services:option(Flag, "munin", translate("Munin agent"),
+translate("Munin agent (listening on port 4949) for monitorization and statistics purposes"))
 munin.default=0
 
 function m.on_commit(self,map)

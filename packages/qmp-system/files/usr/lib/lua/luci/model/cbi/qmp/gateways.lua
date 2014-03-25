@@ -24,7 +24,7 @@ local http = require "luci.http"
 local uci = luci.model.uci.cursor()
 local sys = require("luci.sys")
 
-m = Map("gateways", "Quick Mesh Project")
+m = Map("gateways", "qMp gateway announcements")
 
 -- GET GATEWAYS NAMES
 gw_names = {}
@@ -35,7 +35,7 @@ uci:foreach('gateways','gateway', function (s)
             	end
             end)
 
-gw_section = m:section(TypedSection, "gateway", translate("Gateways"),translate("Network announcements (i.e publish your home LAN) and network searches (i.e look for an Internet connection)."))
+gw_section = m:section(TypedSection, "gateway", translate("qMp gateway announcements"),translate("Use this page to configure gateways and network announcements for your node (i.e. to publish your home LAN) and searches (i.e. look for an Internet gateway or a subnetwork announcement).").."<br/> <br/><strong>"..translate("Use with care!").."</strong> "..translate("Publising incorrect announcements might cause other nodes to lose Internet connection or render the mesh network inoperative."))
 gw_section.addremove = true
 gw_section.anonymous = false
 

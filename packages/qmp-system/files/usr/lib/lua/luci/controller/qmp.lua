@@ -37,19 +37,19 @@ function index()
 	-- Rest of entries
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
 
-	entry({"qmp","configuration"}, cbi("qmp/wizard"), "Configuration", 4).dependent=false
-	entry({"qmp","configuration","wizard"}, cbi("qmp/wizard"), "Wizard", 1).dependent=false
-	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Node", 2).dependent=false
-	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network", 3).dependent=false
-	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced networking", 1).dependent=false
-	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "WiFi", 4).dependent=false
-	entry({"qmp","configuration","services"}, cbi("qmp/services"), "Services", 5).dependent=false
-	entry({"qmp","configuration","gateways"}, cbi("qmp/gateways"), "Gateways", 6).dependent=false
+	entry({"qmp","configuration"}, cbi("qmp/easy_setup"), "Node configuration", 4).dependent=false
+	entry({"qmp","configuration","easy_setup"}, cbi("qmp/easy_setup"), "qMp easy setup", 1).dependent=false
+	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Basic settings", 2).dependent=false
+	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network settings", 3).dependent=false
+	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced network settings", 1).dependent=false
+	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "Wireless settings", 4).dependent=false
+	entry({"qmp","configuration","services"}, cbi("qmp/services"), "qMp services", 5).dependent=false
+	entry({"qmp","configuration","gateways"}, cbi("qmp/gateways"), "qMp gateways", 6).dependent=false
 
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
-	entry({"qmp","tools","tools"}, call("action_tools"), "Tools", 1).dependent=false           
-	entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
-	entry({"qmp","tools","map"}, call("action_map"), "Map", 3).dependent=false
+	entry({"qmp","tools","tools"}, call("action_tools"), "Network testing", 1).dependent=false           
+	-- entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
+	-- entry({"qmp","tools","map"}, call("action_map"), "Map", 3).dependent=false
 
 	entry({"qmp","about"}, call("action_status"), "About", 9).dependent=false
 end

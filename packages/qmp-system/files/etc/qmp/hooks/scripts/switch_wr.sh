@@ -23,16 +23,13 @@ uci add network switch_vlan > /dev/null
 uci set network.@switch[0]=switch
 uci set network.@switch[0].name=switch0
 uci set network.@switch[0].reset=1
-uci set network.@switch[0].enable_vlan=0
-
-# The following lines have to be commented, otherwise the VLAN inteface
-# switch0.1 appears as a regular interface in the configuration wizard
-
-#uci set network.@switch_vlan[0]=switch_vlan
-#uci set network.@switch_vlan[0].device=switch0
-#uci set network.@switch_vlan[0].vlan=1
-#uci set network.@switch_vlan[0].vid=1
-#uci set network.@switch_vlan[0].ports="0 1 2 3 4"
+uci set network.@switch[0].enable_vlan=1
+uci set network.@switch_vlan[0]=switch_vlan
+uci set network.@switch_vlan[0].device=switch0
+uci set network.@switch_vlan[0].vlan=1
+uci set network.@switch_vlan[0].vid=1
+uci set network.@switch_vlan[0].ports="0 1 2 3 4"
 
 uci commit network
 }
+
