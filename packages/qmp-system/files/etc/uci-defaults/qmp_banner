@@ -1,10 +1,10 @@
 #!/bin/sh
 
-cat /etc/qmp/qmp.banner >> /etc/banner
+cat /etc/qmp/qmp.banner > /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
 echo " $COD ($REL, $BRANCH rev.$REV-$DATE)" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
-echo "  * Recipe: http://en.wikipedia.org/wiki/Ratafia" >> /etc/banner
+echo "  * http://en.wikipedia.org/wiki/Air_traffic_control#Flight_data_.2F_clearance_delivery >> /etc/banner
 echo "" >> /etc/banner
 echo " http://qmp.cat/projects/qmp/repository/show?branch=$BRANCH&rev=$REV" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner

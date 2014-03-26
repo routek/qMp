@@ -28,8 +28,8 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=qmp-system
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Ratafia
-QMP_RELEASE:=2.0beta
+QMP_CODENAME:=Clearance
+QMP_RELEASE:=3.0-rc1
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
