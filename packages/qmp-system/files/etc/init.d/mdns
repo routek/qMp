@@ -176,6 +176,8 @@ publish_my_domains() {
 	local ip4="$(get_my_ip4)"
 	local ip6="$(get_my_ip6)"
 
+	[ -f "$SMSTMP" ] && rm -f $SMSTMP
+
 	[ -z "$ip4$ip6" ] && error "cannot get ip address"
 
 	[ -n "$ip4" ] && {
@@ -196,8 +198,10 @@ publish_my_domains() {
 	log "publishing own external domains:\n$ext_domains"
 	echo -e "$ext_domains" >> $SMSTMP
 	echo -e "$ext_domains" >> $HOSTF
-	
-	cp -f $SMSTMP $SMSF
+
+	sed '/./!d' -i $SMSTMP $HOSTF
+
+	[ $(md5sum $SMSTMP $SMSF | awk '{print $1}' | uniq | wc -l) -gt 1 ] && cp -f $SMSTMP $SMSF
 }
 
 get_domains() {
