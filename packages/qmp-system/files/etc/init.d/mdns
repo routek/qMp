@@ -200,8 +200,9 @@ publish_my_domains() {
 	echo -e "$ext_domains" >> $HOSTF
 
 	sed '/./!d' -i $SMSTMP $HOSTF
-
-	[ $(md5sum $SMSTMP $SMSF | awk '{print $1}' | uniq | wc -l) -gt 1 ] && cp -f $SMSTMP $SMSF
+	[ -f $SMSF ] && \
+	[ $(md5sum $SMSTMP $SMSF | awk '{print $1}' | uniq | wc -l) -eq 1 ] || \
+	cp -f $SMSTMP $SMSF
 }
 
 get_domains() {
