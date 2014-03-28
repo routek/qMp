@@ -43,11 +43,11 @@ config 'qmp' 'node'
 config 'qmp' 'services'
 	option vpn 0
 	option captive_portal 0
-	option b6m 1
-	option libremap 1
+	option b6m 0
+	option libremap 0
 	option gwck 1
 	option auto_upgrade 0
-	option mesh_dns 1
+	option mesh_dns 0
 	option bwtest 1
 
 # -----------------------------
