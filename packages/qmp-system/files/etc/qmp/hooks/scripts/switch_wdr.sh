@@ -47,7 +47,7 @@ uci set network.@switch_vlan[2]=switch_vlan
 uci set network.@switch_vlan[2].device=eth0
 uci set network.@switch_vlan[2].vlan=12
 uci set network.@switch_vlan[2].vid=12
-uci set network.@switch_vlan[2].ports="0t 5t"
+uci set network.@switch_vlan[2].ports="0t 5"
 
 uci commit network
 }
