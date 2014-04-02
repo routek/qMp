@@ -25,7 +25,7 @@ PKG_NAME:=qmp-bmx6testing-node
 PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Clearance
-QMP_RELEASE:=3.0-rc1
+QMP_RELEASE:=3.0-rc2
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
