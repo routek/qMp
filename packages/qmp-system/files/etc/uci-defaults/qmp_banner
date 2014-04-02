@@ -4,7 +4,7 @@ cat /etc/qmp/qmp.banner >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
 echo " $COD ($REL, $BRANCH rev.$REV-$DATE)" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
-echo "  * Recipe: http://en.wikipedia.org/wiki/Ratafia" >> /etc/banner
+echo "  * Recipe: http://en.wikipedia.org/wiki/Kalimotxo" >> /etc/banner
 echo "" >> /etc/banner
 echo " http://qmp.cat/projects/qmp/repository/show?branch=$BRANCH&rev=$REV" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
