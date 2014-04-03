@@ -90,11 +90,11 @@ for _,wdev in ipairs(wdevs) do
 
 	-- Mode
 	mode = s_wireless:option(ListValue,"mode","Mode")
-	mode:value("adhoc_ap","AdHoc + AP")
-	mode:value("adhoc","AdHoc")
-	mode:value("ap","Access Point")
-	mode:value("client","Client")
-	mode:value("none","Not used")
+        mode:value("adhoc_ap","AdHoc (mesh) + Acess point (LAN)")
+        mode:value("adhoc","AdHoc (mesh)")
+        mode:value("ap","Master (mesh, no DHCP)")
+        mode:value("client","Client")
+        mode:value("none","Disabled")
 
 	-- Name
 	local essid = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
