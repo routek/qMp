@@ -1,0 +1,14 @@
+wireless.#QMP_RADIO=wifi-device
+wireless.#QMP_RADIO.type=mac80211
+wireless.#QMP_RADIO.macaddr=#QMP_MAC
+wireless.#QMP_RADIO.channel=#QMP_CHANNEL
+wireless.#QMP_RADIO.country=#QMP_COUNTRY
+wireless.#QMP_RADIO.hwmode=auto
+wireless.#QMP_RADIO.htmode=#QMP_HTMODE
+wireless.#QMP_RADIO.txpower=#QMP_TXPOWER
+wireless.#QMP_RADIO.noscan=1
+wireless.#QMP_RADIO.distance=5000
+list wireless.#QMP_RADIO.ht_capab=SHORT-GI-20
+list wireless.#QMP_RADIO.ht_capab=SHORT-GI-40
+list wireless.#QMP_RADIO.ht_capab=RX-STBC1
+list wireless.#QMP_RADIO.ht_capab=DSSS_CCK-40
