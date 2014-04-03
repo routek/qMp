@@ -153,15 +153,22 @@ qmp_configure_wifi_device() {
 	local mode11=""
 	local htmode=""
 
-	[ -n "$ht40" ] && {
+	[ "$ht40" == "+" -o "$ht40" == "-" ] && {
 		# Device is selected to use 40MHz channel
-		mode11="n" 
 		htmode="HT40$ht40"
+
+		[ $channel < 15 ] && {
+		# If it is 2.4
+			mode11="ng"
+		} || {
+		# If it is 5
+			mode11="na"
+		}
 
 	} || { 
 		m11b="$(echo $channel_raw | tr -d [0-9]+-)"
 		m11n="$($QMPINFO modes $device | grep -c n)"
-		[ -n "$m11b" ] && { 
+		[ "$m11b" == "b" ] && { 
 			# Mode 11b is forced
 			htmode=""
 			mode11="b"
@@ -171,8 +178,15 @@ qmp_configure_wifi_device() {
 			mode11="auto"
 		} || {
 			# Device is 11n compatible
-			htmode="HT20"
-			mode11="n"
+			[ $channel < 15 ] && {
+			# If it is 2.4
+				htmode="HT20"
+				mode11="ng"
+			} || {
+			# If it is 5
+				htmode="HT20"
+				mode11="na"
+			}
 		}
 	}
 
@@ -202,7 +216,7 @@ qmp_configure_wifi_device() {
 	echo "Name     $name"
 	echo "HTmode   $htmode"
 	echo "11mode   $mode11"
-	echo "Mrate	   $mrate"
+	echo "Mrate    $mrate"
 	echo "------------------------"
 
 	local vap=0
