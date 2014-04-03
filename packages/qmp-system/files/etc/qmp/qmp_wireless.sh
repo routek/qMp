@@ -157,7 +157,7 @@ qmp_configure_wifi_device() {
 		# Device is selected to use 40MHz channel
 		htmode="HT40$ht40"
 
-		[ $channel < 15 ] && {
+		[ $channel -lt 15 ] && {
 		# If it is 2.4
 			mode11="ng"
 		} || {
@@ -178,7 +178,7 @@ qmp_configure_wifi_device() {
 			mode11="auto"
 		} || {
 			# Device is 11n compatible
-			[ $channel < 15 ] && {
+			[ $channel -lt 15 ] && {
 			# If it is 2.4
 				htmode="HT20"
 				mode11="ng"
