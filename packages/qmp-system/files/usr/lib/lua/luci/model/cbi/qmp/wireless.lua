@@ -85,7 +85,6 @@ for _,wdev in ipairs(wdevs) do
 	mac = s_wireless:option(DummyValue,"mac","MAC")
 
 	-- Mode
-	mode = s_wireless:option(ListValue,"mode","Mode")
         mode = s_wireless:option(ListValue,"mode","Mode")                                                                                      
         mode:value("adhoc_ap","AdHoc (mesh) + Acess point (LAN)")                                                                                  
         mode:value("adhoc","AdHoc (mesh)")                                                                                                       
