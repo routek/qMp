@@ -22,6 +22,7 @@ done
         uci set qmp.interfaces.lan_devices="eth1"
         uci set qmp.interfaces.mesh_devices="eth0 eth1"
         uci set qmp.interfaces.wan_devices="eth0"
+	uci set qmp.interfaces.no_vlan_devices="br-lan"
         uci commit qmp
 	}
 }
