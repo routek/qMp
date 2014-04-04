@@ -1,0 +1,12 @@
+#!/bin/sh
+
+[ "$(uci get qmp.wireless.country)" == "SP" ] && {
+	uci set qmp.wireless.country=US
+	uci commit
+}
+
+[ "$(uci get qmp.update.url)" == "http://fw.qmp.cat/testing" ] && {
+	uci set qmp.update.url="http://fw.qmp.cat/trunk"
+	uci commit
+}
+
