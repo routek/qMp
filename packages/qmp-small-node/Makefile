@@ -28,9 +28,6 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=qmp-small-node
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Kalimotxo
-QMP_RELEASE:=4.0-unstable
-QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
