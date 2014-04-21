@@ -17,19 +17,19 @@ config gateway inet4
 	option maxPrefixLen '0'
 	option ignore '0'
 	option tableRule '32767/253'
-	
+
 config gateway inet4_offer
 	option type 'offer'
 	option network '0.0.0.0/0'
 	option bandwidth '100000'
 	option ignore '1'
-		
+
 config gateway cloud
 	option type 'search'
 	option network '10.0.0.0/8'
 	option minPrefixLen '24'
 	option ignore '0'
-	
+
 config gateway cloud6
 	option type 'search'
 	option network '::/0'
