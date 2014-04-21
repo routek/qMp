@@ -692,7 +692,9 @@ qmp_add_qmp_bmx6_tunnels()
 		bmx6_type=tunIn
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$name"
-		for t in network address bandwidth
+		for t in \
+			network \
+			bandwidth
 		do		
 			qmp_translate_configuration gateways $section $t $config $name
 		done
@@ -700,8 +702,34 @@ qmp_add_qmp_bmx6_tunnels()
 		bmx6_type=tunOut
 		uci set $config.$name="$bmx6_type"
 		uci set $config.$name.$bmx6_type="$section"
-		for t in network gwName address minPrefixLen maxPrefixLen hysteresis bonus \
-			tableRule minBandwidth exportDistance
+		for t in \
+			network \
+			srcNet \
+			gwName \
+			minPrefixLen \
+			maxPrefixLen \
+			hysteresis \
+			rating \
+			minBandwidth \
+			tableRule \
+			kernel \
+			boot \
+			static \
+			zebra \
+			system \
+			connect \
+			rip \
+			ripng \
+			ospf \
+			ospf6 \
+			isis \
+			bgp \
+			babel \
+			olsr \
+			exportDistance \
+			srcType \
+			gwId \
+			ipMetric
 		do		
 			qmp_translate_configuration gateways $section $t $config $name
 		done
