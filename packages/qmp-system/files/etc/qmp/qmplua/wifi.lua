@@ -2,7 +2,7 @@
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
     Authors: Pau Escrich <p4u@dabax.net>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -42,7 +42,7 @@ local _TEMPLATES_DIR="/etc/qmp/templates/wifi"
 function wifi.apply(dev)
 	debug.set_namespace("WiFi")
 	debug.logger(util.printf("Executing wifi.apply(%s)",dev))
-	
+
 	wdev,msg = wifi.info.config(dev)
 	if not wdev then
 		if msg == "Device configured as none" then
@@ -55,7 +55,7 @@ function wifi.apply(dev)
 	end
 
 	debug.logger(util.printf("Mode: %s | Channel: %s | Channel mode: %s | Country: %s | BSSID: %s | ESSID: %s | TXpower: %s | MAC: %s",wdev.mode,wdev.channel,wdev.channel_mode,wdev.country,wdev.bssid,wdev.name,wdev.txpower,wdev.mac))
-		
+
 	local device = wifi.template.device(wdev)
 	local iface = wifi.template.iface(wdev)
 	if not (device and iface) then
@@ -98,13 +98,13 @@ function wifi.template.device(wdev)
 	end
 	local t = fd:read("*all")
 	fd:close()
-	
+
 	if #wdev.channel > 0 then t = util.replace(t,'#QMP_CHANNEL',wdev.channel) end
 	if #wdev.txpower > 0 then t = util.replace(t,'#QMP_TXPOWER',wdev.txpower) end
 	t = util.replace(t,'#QMP_MAC',wdev.mac)
 	t = util.replace(t,'#QMP_COUNTRY',wdev.country)
 	t = util.replace(t,'#QMP_DEVICE',wdev.device)
-	
+
 	if wdev.channel_mode == 'b' then
 		t = util.replace(t,'#QMP_HWMODE','11b')
 	else
@@ -149,7 +149,7 @@ function wifi.template.iface(wdev)
 	end
 
 	return t
-end	
+end
 
 function wifi.info.config(dev)
 	local index = model.get_indextype("wireless","device",dev)[1]
@@ -181,10 +181,10 @@ function wifi.info.config(dev)
 	devconfig.device = wdev.device or "nil"
 
 	local i,v
-	for i,v in pairs(devconfig) do 
-		if v == "nil" then 
+	for i,v in pairs(devconfig) do
+		if v == "nil" then
 			return false,"missing parameter "..i.." in device configuration"
-		end 
+		end
 	end
 
 	return devconfig,""

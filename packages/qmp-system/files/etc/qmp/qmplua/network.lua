@@ -2,7 +2,7 @@
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
 	Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
-	 
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -51,7 +51,7 @@ end
 
 --! @brief Add a bridge [by default proto = none]
 --! @param name	UCI section name
---! @param ifaces (string) With the interfaces of the breach 
+--! @param ifaces (string) With the interfaces of the breach
 function network.add_br(name, ifaces)
 	model.add('interface', name)
 	model.set(name, 'proto', 'none')
@@ -74,8 +74,8 @@ end
 
 --! @brief Set a IPv4 to a interface [by default proto = static]
 --! @param name	UCI section name
---! @param ip 	IP for the interface 
---! @param netmask Netmask for the interface 
+--! @param ip 	IP for the interface
+--! @param netmask Netmask for the interface
 function network.set_ipv4(name, ip, mask)
 	model.delete(name, 'ip6addr')
 	model.set(name, 'ipaddr', ip)
@@ -99,7 +99,7 @@ end
 
 --! @brief Set a IPv6 to a interface [by default proto = static]
 --! @param name	UCI section name
---! @param network 	Network for the interface 
+--! @param network 	Network for the interface
 function network.set_ipv6(name, network)
 	model.delete(name, 'ipaddr')
 	model.delete(name, 'netmask')

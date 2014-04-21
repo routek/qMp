@@ -57,7 +57,7 @@ local function printr(t)
 	local _,i
 	for _,i in ipairs(t) do
 		print(" " .. tostring(_) .. " -> " .. tostring(i))
-	end	
+	end
 end
 
 function qmpinfo.get_qmp_devices()
@@ -82,33 +82,33 @@ function qmpinfo.get_devices()
 	phydevs.all = {}
 	phydevs.eth = {}
 	local ignored = util.split( uci:get("qmp","interfaces","ignore_devices") or ""," ")
-	
+
 --	uci:foreach('network','switch_vlan', function (s)
 --			local name = uci:get("network",s[".name"],"device")
 --			local vlan = uci:get("network",s[".name"],"vid")
 --			if name ~= nil and vlan ~= nil then
 --				table.insert(phydevs.eth,name..'.'..vlan)
---				table.insert(phydevs.all,name..'.'..vlan) 
+--				table.insert(phydevs.all,name..'.'..vlan)
 --				table.insert(ignored,name)
 --			end
 --		end)
 
 	local sysnet = "/sys/class/net/"
 	local qmp_devs = qmpinfo.get_qmp_devices()
-	
+
 	for d in nixio.fs.dir(sysnet) do
 		local is_qmp_dev = isInTable(qmp_devs,d)
-		if is_qmp_dev or nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then 
+		if is_qmp_dev or nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then
 			if is_qmp_dev or (string.find(d,"%.") == nil and string.find(d,"ap") == nil) then
 				local ignore = isInTable(ignored,d)
-				
+
 				if not ignore then
 					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
 						table.insert(phydevs.wifi,d)
 					else
-						table.insert(phydevs.eth,d) 
+						table.insert(phydevs.eth,d)
 					end
-					table.insert(phydevs.all,d) 
+					table.insert(phydevs.all,d)
 				end
 			end
 		end
@@ -117,7 +117,7 @@ function qmpinfo.get_devices()
 	return phydevs
 end
 
--- deprecated	
+-- deprecated
 function qmpinfo.get_devices_old()
 
 	ethernet_interfaces = { 'eth' }
@@ -298,7 +298,7 @@ function qmpinfo.get_wifi_index()
 				table.insert(windex,k)
 			end
 	end
-	
+
 	return windex
 end
 
@@ -330,7 +330,7 @@ function qmpinfo.links()
 	return result
 end
 
-function qmpinfo.get_version(option)                    
+function qmpinfo.get_version(option)
 	local version = nil
 	if option == nil or option == "full" then version = util.exec("cat /etc/qmp/qmp.release | grep DESCRIPTION | cut -d= -f2")
 	elseif option == "build" then version = util.exec("cat /etc/qmp/qmp.release | grep BUILDDATE | cut -d= -f2")
@@ -341,7 +341,7 @@ function qmpinfo.get_version(option)
 	else version = nil
 	end
 	return version
-end  
+end
 
 function qmpinfo.get_key()
 	local keyf = util.exec("uci get qmp.node.key")

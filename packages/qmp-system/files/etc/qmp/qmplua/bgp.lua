@@ -2,7 +2,7 @@
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
     Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -31,7 +31,7 @@ bgp = {}
 --! @brief Get the published networks of the current node
 --! @return table
 function bgp.get_networks()
-	return model.get_type('bgp')	
+	return model.get_type('bgp')
 end
 
 --! @brief Get the devices working on bpg mode
@@ -53,7 +53,7 @@ end
 --! @param devices Devices working on bgp mode (string)
 --! @return	Boolean whether operation succeeded
 function bgp.set_device(devices)
-	return model.set('interfaces', 'bgp_devices', devices)	
+	return model.set('interfaces', 'bgp_devices', devices)
 end
 
 
@@ -64,24 +64,24 @@ function bgp.add_network(network)
 	return model.set_list('bgp', 'network', network)
 end
 
---! @brief Remove the current BGP configuration 
+--! @brief Remove the current BGP configuration
 function bgp.clear()
-	model.delete('bgp') 
-	model.delete_type('bgp') 
+	model.delete('bgp')
+	model.delete_type('bgp')
 	model.add('qmp', 'bgp')
-	model.set('interfaces', 'bgp_devices', '')	
+	model.set('interfaces', 'bgp_devices', '')
 	model.add('qmp', 'bgp')
 end
 
 --! @brief Set the AS of the working node
---! @param as AS of the working node 
+--! @param as AS of the working node
 --! @return	Boolean whether operation succeeded
 function bgp.set_as(as)
 	return model.set('bgp', 'as', as)
 end
 
 --! @brief Get the AS of the working node
---! @return AS of the working node 
+--! @return AS of the working node
 function bgp.get_as()
 	return model.get('qmp', 'bgp', 'as')
 end
