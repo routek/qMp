@@ -236,10 +236,10 @@ qmp_get_dev_from_wifi_mac() {
 qmp_hooks_exec() {
     local stage="$1"
 	local device="none"
-	
+
 	[ -e /tmp/sysinfo/board_name ] && device="$(cat /tmp/sysinfo/board_name 2>/dev/null)" \
 		|| device=$(cat /proc/cpuinfo | grep vendor_id | cut -d: -f2 | tr -d ' ')
-    
+
     [ -z "$stage" -o -z "$device" ] && return 1
     local hooksdir="/etc/qmp/hooks/$device"
 
@@ -255,7 +255,7 @@ qmp_hooks_exec() {
 # ID/IP commands
 #########################
 
-# Returns the crc16 from the mac of the primary mac device 
+# Returns the crc16 from the mac of the primary mac device
 # If no parameter it returns the entire hash
 # If parameter = 1 or 2, returns the first/second 8bit module 256
 qmp_get_crc16() {
@@ -267,7 +267,7 @@ qmp_get_crc16() {
 }
 
 # qmp_get_id [8bit]
-qmp_get_id() {  
+qmp_get_id() {
   local community_node_id="$(qmp_uci_get node.community_node_id)"
   [ -z "$community_node_id" ] && \
     community_node_id="$(qmp_get_crc16)"

@@ -51,14 +51,14 @@ qmp_get_llocal_for_dev() {
 # returns primary device
 qmp_get_primary_device() {
   local primary_mesh_device="$(uci get qmp.node.primary_device)"
-  [ -z "$primary_mesh_device" ] && 
+  [ -z "$primary_mesh_device" ] &&
       {
       if ip link show dev eth0 > /dev/null; then
         primary_mesh_device="eth0"
       else
         primary_mesh_device="$(ip link show | awk '!/lo:/&&/^[0-9]?:/{sub(/:$/,"",$2); print $2; exit}')"
       fi
-      [ -z "$primary_mesh_device" ] && echo "CRITICAL: No primary network device found, please define qmp.node.primary_device" 
+      [ -z "$primary_mesh_device" ] && echo "CRITICAL: No primary network device found, please define qmp.node.primary_device"
       }
   echo "$primary_mesh_device"
 }
@@ -102,8 +102,8 @@ qmp_get_virtual_iface() {
     return
   fi
 
-  for l in $(qmp_get_devices lan); do 
-    if [ "$l" == "$device" ]; then 
+  for l in $(qmp_get_devices lan); do
+    if [ "$l" == "$device" ]; then
       viface="lan"
       echo $viface
       return
@@ -117,7 +117,7 @@ qmp_get_virtual_iface() {
   local id_char=$(echo $device | cut -c 1)
 
   # is wan
-  for w in $(qmp_get_devices wan); do 
+  for w in $(qmp_get_devices wan); do
    if [ "$w" == "$device" ]; then
      viface="wan_${id_char}${id_num}"
      echo $viface
@@ -126,21 +126,21 @@ qmp_get_virtual_iface() {
   done
 
   # is mesh
-  for w in $(qmp_get_devices mesh); do 
+  for w in $(qmp_get_devices mesh); do
    if [ "$w" == "$device" ]; then
      viface="mesh_${id_char}${id_num}"
      break
    fi
   done
-  
-  echo "$viface" 
+
+  echo "$viface"
 }
 
 # arg1=<mesh|lan|wan>, returns the devices which have to be configured in such mode
 qmp_get_devices() {
   local devices=""
 
-  if [ "$1" == "mesh" ]; then 
+  if [ "$1" == "mesh" ]; then
     local brlan_enabled=0
     for dev in $(uci get qmp.interfaces.mesh_devices 2>/dev/null); do
 
@@ -181,7 +181,7 @@ qmp_get_devices() {
 
 
 # Scan and configure the network devices (lan, mesh and wan)
-# if $1 is set to "force", it rescan all devices 
+# if $1 is set to "force", it rescan all devices
 qmp_configure_smart_network() {
 	echo "---------------------------------------"
 	echo "Starting smart networking configuration"
@@ -193,16 +193,16 @@ qmp_configure_smart_network() {
 	local dev=""
 	local phydevs=""
 	local ignore_devs=""
-	
+
 	[ "$force" != "force" ] && {
 		ignore_devs="$(qmp_uci_get interfaces.ignore_devices)"
 	}
 
 	for dev in $(ls /sys/class/net/); do
 		[ -e /sys/class/net/$dev/device ] || [ dev == "eth0" ] && {
-			local id 
+			local id
 			local ignore=0
-			
+
 			# Check if device is in the ignore list
 				for id in $ignore_devs; do
 					[ "$id" == "$dev" ] && ignore=1
@@ -213,7 +213,7 @@ qmp_configure_smart_network() {
 	done
 
 	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
-	
+
 	# if force is not enabled, we are not changing the existing lan/wan/mesh (only adding new ones)
 	[ "$force" != "force" ] && {
 		lan="$(qmp_uci_get interfaces.lan_devices)"
@@ -227,7 +227,7 @@ qmp_configure_smart_network() {
 	local cdev
 
 	for dev in $phydevs; do
-		# If force is enabled, do not check if the device is already configured		
+		# If force is enabled, do not check if the device is already configured
 		[ "$force" != "force" ] && {
 			cnt=0
 			# If it is already configured, doing nothing
@@ -242,7 +242,7 @@ qmp_configure_smart_network() {
 			done
 			[ $cnt -eq 1 ] && continue
 		}
-		
+
 		# If not found before...
 		[ "$dev" == "eth0" ] && {
 			lan="$lan eth0"
@@ -268,12 +268,12 @@ qmp_configure_smart_network() {
 
 		# if there is already LAN device and it is not wifi, use as WAN
 		[ -z "$wan" ] && wan="$dev" && continue
-		
+
 		# else use as LAN and MESH
 		lan="$dev $lan"
 		mesh="$dev $mesh"
 	done
-	
+
 	echo "Network devices found:"
 	echo "- LAN $lan"
 	echo "- MESH $mesh"
@@ -289,8 +289,8 @@ qmp_configure_smart_network() {
 qmp_attach_device_to_interface() {
 	local device=$1
 	local interface=$2
-	local intype="$(qmp_uci_get_raw network.$interface.type)" 
-	
+	local intype="$(qmp_uci_get_raw network.$interface.type)"
+
 	echo "Attaching device $device to interface $interface"
 
 	# is it a wifi device?
@@ -327,7 +327,7 @@ qmp_configure_routerstationpro_switch() {
 	uci set network.mesh_ports_vid1.vid="1"
 	uci set network.mesh_ports_vid1.device="eth1"
 	uci set network.mesh_ports_vid1.ports="0t 4"
-      
+
 	for vid in $vids
 	do
 		uci set network.mesh_ports_vid$vid="switch_vlan"
@@ -618,7 +618,7 @@ qmp_configure_network() {
   echo "-----------------------"
 
   qmp_configure_prepare_network $conf
-  
+
   # LoopBack device
   uci set $conf.loopback="interface"
   uci set $conf.loopback.ifname="lo"
@@ -632,13 +632,13 @@ qmp_configure_network() {
   qmp_configure_lan
   # MESH devices
   qmp_configure_mesh
-  
+
   uci commit
 }
 
 
 qmp_remove_qmp_bmx6_tunnels()
-{	
+{
 	if echo "$1" | grep -q "^qmp_"
 	then
 		uci delete bmx6.$1
@@ -680,9 +680,9 @@ qmp_add_qmp_bmx6_tunnels()
 	local ignore
 	local t
 	config_get ignore "$section" ignore
-	
+
 	[ "$ignore" = "1" ] && return
-	
+
 	local type="$(qmp_uci_get_raw gateways.$name.type)"
 	qmp_log Configuring gateway $name of type $type
 	[ -z "$name" ] && name="qmp_$gateway" || name="qmp_$name"
@@ -695,7 +695,7 @@ qmp_add_qmp_bmx6_tunnels()
 		for t in \
 			network \
 			bandwidth
-		do		
+		do
 			qmp_translate_configuration gateways $section $t $config $name
 		done
 	else
@@ -730,11 +730,11 @@ qmp_add_qmp_bmx6_tunnels()
 			srcType \
 			gwId \
 			ipMetric
-		do		
+		do
 			qmp_translate_configuration gateways $section $t $config $name
 		done
 	fi
-	
+
 	gateway="$(($gateway + 1))"
 }
 
@@ -773,9 +773,9 @@ qmp_configure_bmx6() {
 
   local community_node_id=$(qmp_get_id)
 
-  if qmp_uci_test qmp.interfaces.mesh_devices && 
+  if qmp_uci_test qmp.interfaces.mesh_devices &&
   qmp_uci_test qmp.networks.mesh_protocol_vids
-  
+
     then
     local counter=1
 
@@ -783,20 +783,20 @@ qmp_configure_bmx6() {
 	for protocol_vid in $(uci get qmp.networks.mesh_protocol_vids); do
 
 	local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
-	
+
 	if [ "$protocol_name" = "bmx6" ] ; then
-	    
+
 	# Check if the current device is configured as no-vlan
 	local use_vlan=1
 	for no_vlan_int in $(qmp_uci_get interfaces.no_vlan_devices); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
-		
+
 	# If vlan tagging
 	    if [ $use_vlan -eq 1 ]; then
                 local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
 		local ifname="$dev.$vid"
-	
+
 	# If not vlan tagging
 	    else
 		local ifname="$dev"

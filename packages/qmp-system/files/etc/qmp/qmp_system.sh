@@ -40,15 +40,15 @@ qmp_configure_system() {
 		local community_node_id=$(qmp_get_id_hostname)
 		qmp_uci_set node.community_node_id $community_node_id
 	fi
-	
+
 	# check if community_node_id is hexadecimal and get last 4 characters
 	community_node_id="$(echo -n $community_node_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
-	
+
 	[ $(echo -n $community_node_id | wc -c) -lt 4 ] && {
 		qmp_log "Warning, community_node_id not defined properly, using failsafe 0000"
 		community_node_id=0000
 	}
-	
+
 	local community_id="$(qmp_uci_get node.community_id)"
 	[ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
 
@@ -124,42 +124,42 @@ qmp_list_services() {
 qmp_set_services() {
 	local s
 	for s in $(qmp_list_services); do
-		
+
 		[ "$s" == "vpn" ] && [ -e /etc/init.d/synctincvpn ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service synctincvpn || qmp_disable_service synctincvpn
-		
+
 		}
-		
+
 		[ "$s" == "captive_portal" ] && [ -e /etc/init.d/tinyproxy ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service tinyproxy || qmp_disable_service tinyproxy
 		}
-		
+
 		[ "$s" == "libremap" ] && [ -e /etc/init.d/libremap ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service libremap || qmp_disable_service libremap
 		}
-		
+
 		[ "$s" == "b6m" ] && [ -e /etc/init.d/b6m-spread ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service b6m-spread || qmp_disable_service b6m-spread
 		}
-		
+
 		[ "$s" == "gwck" ] && [ -e /etc/init.d/gwck ] && {
-			[ $(qmp_uci_get services.$s) -eq 1 ] && 
+			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service gwck || qmp_disable_service gwck
 		}
-		
+
 		[ "$s" == "auto_upgrade" ] && {
 			true
 		}
-		
+
 		[ "$s" == "mesh_dns" ] && [ -e /etc/init.d/mdns ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_service mdns || qmp_disable_service mdns
 		}
-		
+
 		[ "$s" == "bwtest" ] && [ -n "$(which netserver)" ] && {
 			[ $(qmp_uci_get services.$s) -eq 1 ] &&
 			qmp_enable_netserver || qmp_disable_netserver
