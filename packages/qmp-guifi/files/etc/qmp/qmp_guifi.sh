@@ -161,7 +161,7 @@ configure() {
 
 	# SET NODE NAME
 	# TO DO: SET ZONE ID IN NAME (OR NOT)
-	uci set qmp.node.community_id="$devname-"
+	uci set qmp.node.community_id="$devname"
 
         # Select radio mode to set SSID
 	local j=0
