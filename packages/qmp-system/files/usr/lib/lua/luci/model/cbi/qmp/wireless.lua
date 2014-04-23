@@ -146,7 +146,7 @@ s_wireless_main.addremove = False
 confwifi = s_wireless_reconfigure:option(Button, "_confwifi", translate("Reconfigure wireless interfaces"),translate("Rescan and reconfigure all devices. <strong>Current wireless settings will be restored to defaults.</strong>"))
 
 function confwifi.write(self, section)
-	luci.sys.call("qmpcontrol reset_wifi")
+	luci.sys.call("qmpcontrol reset_wifi > /tmp/qmp_control_reset_wifi.log")
 end
 
 
