@@ -108,7 +108,7 @@ qmp_update_save_config() {
 	for d in $@; do
 		[ -e "$d" ] && preserve="$preserve $d"
 	done
-	
+
 	cd /
 	tar czf /tmp/qmp_saved_config.tar.gz $preserve
 	[ $? -ne 0 ] && qmp_error "Cannot save config: $@"

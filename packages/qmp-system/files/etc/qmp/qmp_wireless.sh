@@ -165,14 +165,14 @@ qmp_configure_wifi_device() {
 			mode11="na"
 		}
 
-	} || { 
+	} || {
 		m11b="$(echo $channel_raw | tr -d [0-9]+-)"
 		m11n="$($QMPINFO modes $device | grep -c n)"
-		[ "$m11b" == "b" ] && { 
+		[ "$m11b" == "b" ] && {
 			# Mode 11b is forced
 			htmode=""
 			mode11="b"
-		} || [ $m11n -eq 0 ] && { 
+		} || [ $m11n -eq 0 ] && {
 			# Device is not 11n compatible
 			htmode=""
 			mode11="auto"
@@ -198,7 +198,7 @@ qmp_configure_wifi_device() {
 	local bssid="$(qmp_uci_get wireless.bssid)"
 	local txpower="$(qmp_uci_get @wireless[$id].txpower)"
 	local network="$(qmp_get_virtual_iface $device)"
-	local key="$(qmp_uci_get @wireless[$id].key)"	
+	local key="$(qmp_uci_get @wireless[$id].key)"
 	[ $(echo "$key" | wc -c) -lt 8 ] && encrypt="none" || encrypt="psk2"
 
 	local dev_id="$(echo $device | tr -d [A-z])"
@@ -226,7 +226,7 @@ qmp_configure_wifi_device() {
 	}
 
 	device_template="$TEMPLATE_BASE/device.$driver-$mode11"
-	iface_template="$TEMPLATE_BASE/iface.$mode" 
+	iface_template="$TEMPLATE_BASE/iface.$mode"
 	vap_template="$TEMPLATE_BASE/iface.ap"
 
 	[ ! -f "$device_template" ] || [ ! -f "$iface_template" ]  && qmp_error "Template $template not found"
@@ -295,7 +295,7 @@ qmp_configure_wifi() {
 	echo "" > $OWRT_WIRELESS_CONFIG
 
 	local j=0
-		
+
 	while qmp_uci_test qmp.@wireless[$j]; do
 		qmp_configure_wifi_device $j
 		j=$(( $j + 1 ))
@@ -349,12 +349,12 @@ qmp_wifi_get_default() {
 		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
 			echo "adhoc"
 		else
-		
+
 		#If more than one device BG, using first for ADHOC+AP and the others for ADHOC
 		if [ $devices -gt 1 ]; then
 			[ $index == 0 ] && echo "adhoc_ap" || echo "adhoc"
 		else
-		
+
 		#This should never happend
 			echo "adhoc_ap"
 		fi;fi;fi;fi
@@ -371,7 +371,7 @@ qmp_wifi_get_default() {
 		# we are using index var to put devices in different channels
 		local index=$(echo $device | tr -d [A-z])
 		index=${index:-0}
-		
+
 		# QMPINFO returns a list of avaiable channels in this format: 130 ht40+ adhoc
 		# this is the command line used to get available channels from a device
 		local channels_cmd="$QMPINFO channels $device"
@@ -389,17 +389,17 @@ qmp_wifi_get_default() {
 
 			#this is global
 			ADHOC_INDEX=${ADHOC_INDEX:-0}
-			
+
 			channel_info="$(qmp_tac $channels_cmd | grep adhoc | awk NR==${ADHOC_INDEX}+${ADHOC_INDEX}*2+1)"
-			
+
 			ADHOC_INDEX=$(($ADHOC_INDEX+1))
 			# c is the channel number, checking if it is 802.11bg
 			# in such case it will be 1, 6 and 11 for performance and coexistence with other networks
 			c="$(echo $channel_info | cut -d' ' -f1)"
 			[ $c -lt 14 ] && {
 				qmp_log "Using adhoc device in 802.11bg mode"
-				if [ $c -lt 5 ]; then c=1                                                                                                 
-				else if [ $c -lt 9 ]; then c=6                                                                                            
+				if [ $c -lt 5 ]; then c=1
+				else if [ $c -lt 9 ]; then c=6
 				else c=11
 				fi; fi
 			ADHOC_BG_USED="$c"
@@ -409,9 +409,9 @@ qmp_wifi_get_default() {
 				# let's see if we can use ht40 mode
 				ht40="$(echo $channel_info | cut -d' ' -f2)"
 			}
-						
+
 		}
-		
+
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
 		# channel is 1, 6 or 11 for coexistence and performance
 		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" ] && {
@@ -429,7 +429,7 @@ qmp_wifi_get_default() {
 				else if [ $c -lt 9 ]; then c=6
 				else c=11
 				fi; fi
-			
+
 				#if the resulting channel is used by adhoc, selecting another one
 				[ -n "$ADHOC_BG_USED" ] && [ $ADHOC_BG_USED -eq $c ] && \
 				( [ $c -lt 7 ] && c=$(($c+5)) || c=$(($c-5)) )
@@ -437,7 +437,7 @@ qmp_wifi_get_default() {
 
 			channel_info="$($channels_cmd | awk NR==$c)"
 		}
-		
+
 		# if there is some problem, channel 6 is used
 		if [ -z "$channel_info" ]; then
 			qmp_log "Warning, not usable channels found in device $device "

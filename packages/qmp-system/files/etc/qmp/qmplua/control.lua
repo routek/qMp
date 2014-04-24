@@ -2,7 +2,7 @@
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
     Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -29,12 +29,12 @@ local model = require "qmp.model"
 local util = require "luci.util"
 control = {}
 
---! @brief Remove the current bgp configuration 
+--! @brief Remove the current bgp configuration
 function control.remove_bgp_config()
 	bgp.clear()
 end
 
---! @brief Add a BGP peer 
+--! @brief Add a BGP peer
 --! @param as AS of the BGP peer (if doesn't exist, it should be given as an argument)
 --! @param ip IP of the BGP peer  (if doesn't exist, it should be given as an argument)
 --! @param netmask Netmask of the BGP peer  (if doesn't exist, it should be given as an argument)
@@ -52,8 +52,8 @@ function control.add_bgp_peer(as, ipdest, netmask)
 	else
 		print('You should give the AS, ip and the netmask of peer you want to create as arguments or parameters')
 		return false
-	end 
-			
+	end
+
 	bgp.add_peer(as, ipdest, netmask)
 	return true
 end
@@ -65,7 +65,7 @@ function control.add_bgp_network(range)
 	if not range then
 		if table.getn(arg) == 1 then
 			range = arg[1]
-		else 
+		else
 			print('You should give the range of the network you want to publish as an argument or a parameter. Use the format: 10.1.1.0/24')
 			return false
 		end
@@ -73,7 +73,7 @@ function control.add_bgp_network(range)
 		print('You should give the range of the network you want to publish as an argument or a parameter. Use the format: 10.1.1.0/24')
 		return false
 	end
-		
+
 	bgp.add_network(range)
 	return true
 end
@@ -82,7 +82,7 @@ end
 --! @param devices Devices working on bgp mode (if doesn't exist, it should be given as an argument)
 --! @return	Boolean whether operation succeeded
 function control.set_bgp_devices(devices)
-	if not devices then 
+	if not devices then
 		if table.getn(arg) == 1 then
 			devices	= arg[1]
 		else
@@ -102,7 +102,7 @@ end
 --! @param as AS of the working node (if doesn't exist, it should be given as an argument)
 --! @return	Boolean whether operation succeeded
 function control.set_bgp_as(as)
-	if not as then 
+	if not as then
 		if table.getn(arg) == 1 then
 			as = agv[1]
 		else
@@ -129,13 +129,13 @@ function control.configure_net_devices()
 	local vlan_tags = {}
 	local vids = model.get("networks","mesh_protocol_vids")
 	local vid_offset = model.get("networks","mesh_vid_offset")
-	
+
 	for i,v in ipairs(util.split(vids," ")) do
 		s = util.split(v,":")
 		vlan_tags[s[1]] = vid_offset + s[2]
 	end
 	print("VLAN vids and protocols found")
-	util.dumptable(vlan_tags)	
+	util.dumptable(vlan_tags)
 end
 
 return control

@@ -53,12 +53,12 @@ end
 
 function qmp_model.get_type(type, index, option)
 	local c = uci.cursor()
-	if index then 
-		if option then 
+	if index then
+		if option then
 			return qmp_model.get_type_option(type, index, option)
-		else 
+		else
 			return qmp_model.get_type_index(type, index)
-		end 
+		end
 	else
 		return qmp_model.get_all_type(type)
 	end
@@ -79,7 +79,7 @@ function qmp_model.get_indexes(type, index)
 	local gt = {}
 	if c:foreach('qmp', type, function (t) if t['.index'] == index then table.insert(gt, t) end end) then
 		return gt
-	else 
+	else
 		return false
 	end
 end
@@ -89,7 +89,7 @@ function qmp_model.get_type_option(type, index, option)
 	local gt = {}
 	if c:foreach('qmp', type, function (t) if t['.index'] == index then table.insert(gt, t) end end) then
 		return gt[option]
-	else 
+	else
 		return false
 	end
 end

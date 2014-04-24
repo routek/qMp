@@ -44,7 +44,7 @@ qmp_set_gateway()
 {
 	local name="$1"
 	shift
-	
+
 	while [ $# -ge 2 ]
 	do
 		qmp_uci_set_raw gateways.$name.$1="$2"
@@ -67,7 +67,7 @@ qmp_gw_search_default_ipv6() {
 }
 
 qmp_gw_offer_default_ipv4() {
-	qmp_set_gateway inet4 ignore 1 
+	qmp_set_gateway inet4 ignore 1
 	qmp_set_gateway inet4_offer ignore 0 type offer network 0.0.0.0/0
 	qmp_gw_masq_wan 1
 }
@@ -78,13 +78,13 @@ qmp_gw_offer_default_ipv6() {
 }
 
 qmp_gw_disable_default_ipv4() {
-	qmp_set_gateway inet4 ignore 1 
+	qmp_set_gateway inet4 ignore 1
 	qmp_set_gateway inet_offer ignore 1
 	qmp_gw_masq_wan 0
 }
 
 qmp_gw_disable_default_ipv6() {
-	qmp_set_gateway inet6 ignore 1 
+	qmp_set_gateway inet6 ignore 1
 	qmp_set_gateway inet6_offer ignore 1
 }
 
@@ -150,7 +150,7 @@ qmp_gw_masq_wan() {
 	fi
 
 	qmp_gw_add_interfaces_to_firewall_zone $cfg
-	
+
 	uci commit firewall
 }
 

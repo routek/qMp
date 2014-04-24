@@ -29,18 +29,18 @@ quagga = {}
 
 --! @brief Get the port used to connect to vtsyh for a given routing protocol enabled on quagga
 --! @param type Name of a routing protocol
---! @return port for a vtsyh connection 
+--! @return port for a vtsyh connection
 function quagga.get_vtsyh_port(type)
 	if type == 'bgp' then
 		return 2605
 	end
 end
 
---! @brief Get a vtsyh connnection 
+--! @brief Get a vtsyh connnection
 --! @param type Name of a routing protocol
 --! @param password Password to login on vtsyh
 --! @param host IP address for the connecton [Default value: 127.0.0.1](optional)
---! @param port Port for the connection (optional) 
+--! @param port Port for the connection (optional)
 --! @param timeout The time where the connecton will expire [Default value: 2] (optional)
 --! @return	Boolean whether operation succeeded
 function quagga.connect(type, password, host, port, timeout)
@@ -51,24 +51,24 @@ function quagga.connect(type, password, host, port, timeout)
 		quagga.connection = assert(socket.connect(host, port))
 		quagga.connection:settimeout(timeout)
 
-		local l = quagga.connection:receive('*l') 
+		local l = quagga.connection:receive('*l')
 		while not string.find(l, 'Password:') do
-			l = quagga.connection:receive('*l') 
+			l = quagga.connection:receive('*l')
 		end
 		assert(quagga.connection:send(password .. "\n"))
 
 		local prompt = ''
-		l = quagga.connection:receive('*l') 
+		l = quagga.connection:receive('*l')
 		while not string.find(l, '>') do
 			prompt = prompt .. " " .. l
-			l = quagga.connection:receive('*l') 
+			l = quagga.connection:receive('*l')
 		end
 
-		if string.find(prompt, 'Password:') then 
-			return false	
+		if string.find(prompt, 'Password:') then
+			return false
 		else
 			return true
-		end 
+		end
 	else
 		return false
 	end
@@ -79,10 +79,10 @@ end
 --! @param command connection to a vtsyh console
 --! @return	Boolean whether operation succeeded
 function quagga.command(command)
-	if quagga.connection then 
+	if quagga.connection then
 		assert(quagga.connection:send(command .. "\n"))
 		return true
-	else 
+	else
 		return false
 	end
 end
@@ -91,7 +91,7 @@ end
 --! @return	Boolean whether operation succeeded
 function quagga.enable_config_mode()
 	if quagga.connection then
-		if quagga.command('configure terminal') then 
+		if quagga.command('configure terminal') then
 			return true
 		else
 			return false
@@ -105,7 +105,7 @@ end
 --! @return	Boolean whether operation succeeded
 function quagga.write_file()
 	if quagga.connection then
-		if quagga.command('write file') then 
+		if quagga.command('write file') then
 			return true
 		else
 			return false
@@ -120,7 +120,7 @@ end
 --! @return	Boolean whether operation succeeded
 function quagga.set_hostname(name)
 	if quagga.connection then
-		if quagga.command('hostname ' .. name) then 
+		if quagga.command('hostname ' .. name) then
 			return true
 		else
 			return false
@@ -131,7 +131,7 @@ function quagga.set_hostname(name)
 end
 
 --! @brief Set the AS of the working node
---! @param as AS of the working node 
+--! @param as AS of the working node
 --! @return	Boolean whether operation succeeded
 function quagga.set_bgp_as(as)
 	if quagga.connection then
@@ -143,10 +143,10 @@ function quagga.set_bgp_as(as)
 	else
 		return false
 	end
-	
+
 end
 
---! @brief Add a neighbor 
+--! @brief Add a neighbor
 --! @param ip IP of the neighbor
 --! @param as AS of the neighbor
 --! @return	Boolean whether operation succeeded
@@ -177,7 +177,7 @@ function quagga.add_network(network)
 	end
 end
 
---! @brief Remove a neighbor 
+--! @brief Remove a neighbor
 --! @param ip IP of the neighbor
 --! @param as AS of the neighbor
 --! @return	Boolean whether operation succeeded

@@ -37,17 +37,17 @@ function print_help(what)
 		print(" configure parameters:")
 		print(" \t devices")
 	end
-	
+
 	os.exit(1)
 end
 
 function network_control()
-	if arg[2] == nil then 
+	if arg[2] == nil then
 		print_help("network")
 	elseif arg[2] == "configure" then
 		network_configure()
 	end
-		
+
 end
 
 function network_configure()
@@ -70,7 +70,7 @@ end
 if arg[1] == nil then
 	print_help()
 elseif arg[1]:match("^network") then
-	network_control() 
+	network_control()
 elseif arg[1]:match("^bgp") then
 	bgp_control()
 elseif arg[1]:match("^wifi") then

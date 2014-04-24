@@ -2,7 +2,7 @@
 --[[
     Copyright (C) 2011 Fundacio Privada per a la Xarxa Oberta, Lliure i Neutral guifi.net
     Authors: Joel Espunya, Pau Escrich <p4u@dabax.net>
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -57,7 +57,7 @@ end
 function debug.logger(msg)
 	local logger = string.format("logger %s %s -t qMp[%s] '",stdout,priority,namespace)
 	local status, c = pcall(os.execute,logger .. msg .. "'")
-	return status		
+	return status
 end
 
 return debug

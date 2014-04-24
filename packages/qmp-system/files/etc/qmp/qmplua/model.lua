@@ -38,7 +38,7 @@ model.file = 'qmp'
 --! @return			UCI value
 function model.get(section, option)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -57,7 +57,7 @@ end
 --! @return			Name of created section
 function model.add(type, name, values)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -84,7 +84,7 @@ end
 --! @return			Boolean whether operation succeeded
 function model.delete(section, option)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -95,7 +95,7 @@ function model.delete(section, option)
 			else
 				return false
 			end
-		else 
+		else
 			if c:delete(model.get_file(), section) then
 				model.commit(c)
 				return true
@@ -112,7 +112,7 @@ end
 --! @return			Boolean whether operation succeeded
 function model.delete_type(type)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -134,7 +134,7 @@ end
 --! @return			Boolean whether operation succeeded
 function model.set(section, option, value)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -158,7 +158,7 @@ end
 --! @return			Boolean whether operation succeeded
 function model.set_list(section, option, value)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -175,19 +175,19 @@ function model.set_list(section, option, value)
 	end
 end
 
---! @brief Get a table with the information of some sections of a given type 
+--! @brief Get a table with the information of some sections of a given type
 --! @param type		UCI section type
 --! @param index	UCI section type index (optional)
 --! @param option	UCI option (optional)
 --! @return			Table or UCI value
 function model.get_type(type, index, option)
 	local typeout = nil
-	if index then 
-		if option then 
+	if index then
+		if option then
 			typeout = model.get_type_option(type, index, option)
-		else 
+		else
 			typeout = model.get_type_index(type, index)
-		end 
+		end
 	else
 		typeout = model.get_all_type(type)
 	end
@@ -196,10 +196,10 @@ end
 
 --! @brief Get a table with all the sections of a given type
 --! @param type	UCI section type
---! @return		Table 
+--! @return		Table
 function model.get_all_type(type)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
@@ -212,42 +212,42 @@ function model.get_all_type(type)
 	end
 end
 
---! @brief Returns a table with the information of the section of a given type and index 
+--! @brief Returns a table with the information of the section of a given type and index
 --! @param type		UCI section type
 --! @param index	UCI section type index
---! @return	Table 
+--! @return	Table
 function model.get_type_index(type, index)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	end
 	local typeout = nil
-	c:foreach(model.get_file(), type, function (t) 
-		if t['.index'] == index then 
+	c:foreach(model.get_file(), type, function (t)
+		if t['.index'] == index then
 			typeout = t
 			return
-		end 
+		end
 	end)
-	
+
 	return typeout
 end
 
---! @brief Get a table with the information of some sections of a given type 
+--! @brief Get a table with the information of some sections of a given type
 --! @param type		UCI section type
---! @param index	UCI section type index 
+--! @param index	UCI section type index
 --! @param option	UCI option
 --! @return			UCI value
 function model.get_type_option(type, index, option)
 	local status, c = pcall(model.raw)
-	if not status then 
+	if not status then
 		debug.logger(c)
 		return nil
 	else
 		local gt = {}
 		if c:foreach(model.get_file(), type, function (t) if t['.index'] == index then table.insert(gt, t) end end) then
 			return gt[option]
-		else 
+		else
 			return false
 		end
 	end
@@ -267,23 +267,23 @@ function model.get_indextype(type,option,value)
 		debug.logger(c)
 		return nil
 	end
-	
+
 	local index = {}
-	c:foreach(model.get_file(), type, function (t) 
+	c:foreach(model.get_file(), type, function (t)
 		if option == nil then
 			table.insert(index,t['.index'])
-			
-		elseif t[option] == value then 
-			table.insert(index,t['.index']) 
+
+		elseif t[option] == value then
+			table.insert(index,t['.index'])
 		end
 	end)
-	
+
 	return index
 end
 
 --! @brief Commit the changed done with a UCI-Cursor
 --! @param c UCI-Cursor
---! @return Boolean whether operation succeeded 
+--! @return Boolean whether operation succeeded
 function model.commit(c)
 	if not c then
 		debug.logger(c)
@@ -299,7 +299,7 @@ function model.raw()
 	local c = uci.cursor()
 	if c == nil then
 		error('There was a problem while trying to get a UCI-Cursor')
-	else 
+	else
 		return c
 	end
 end
