@@ -17,8 +17,8 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 #
-# Contributor:
-#	Roger Pueyo Centelles <rogerpueyo@routek.net>
+#    Contributor:
+#     Roger Pueyo Centelles <rogerpueyo@routek.net>
 #
 
 include $(TOPDIR)/rules.mk
