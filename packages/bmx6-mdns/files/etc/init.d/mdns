@@ -25,20 +25,32 @@ STOP=99
 MDNS_DIR="/etc/mdns"                                                
 HOSTF="$MDNS_DIR/hosts"                                            
 MY_DOMAINS="$MDNS_DIR/public"                                     
-DOMAINS4="qmp"
-DOMAINS6="qm6"
 SMSF="/var/run/bmx6/sms/sendSms/mdns"                                       
 SMSTMP="/tmp/sms-mdns.tmp"
 SMSR="/var/run/bmx6/sms/rcvdSms"                                            
 DNSMASQ="/etc/dnsmasq.conf"                                     
 DNSMASQ_PID="/var/run/dnsmasq.pid"
+
+[ ! -d $MDNS_DIR ] && mkdir $MDNS_DIR
+[ ! -f $HOSTF ] && touch $HOSTF
+[ ! -f $MY_DOMAINS ] && touch $MY_DOMAINS
+[ ! -f $MDNS_DIR/domain4 ] && touch $MDNS_DIR/domain4
+[ ! -f $MDNS_DIR/domain6 ] && touch $MDNS_DIR/domain6
+[ ! -f $SMSF ] && touch $SMSF
+
+DOMAINS4="$(cat $MDNS_DIR/domain4)"
+DOMAINS6="$(cat $MDNS_DIR/domain6)"
+
 # Optional
 IPV4=""
 IPV6=""
 
 start() {
 	if ! cat /etc/crontabs/root | grep mdns > /dev/null; then
-		echo "10 * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
+		int=$(echo "0x$(dd if=/dev/urandom bs=1 count=1 2>&- | hexdump | \
+			if read line; then echo ${line#* }; fi)" | awk '{print ($1 % 60)}')
+		int=${int:-10}
+		echo "$int * * * * /etc/init.d/mdns reload > /tmp/log/mdns.log" >> /etc/crontabs/root
 		/etc/init.d/cron enable
 		/etc/init.d/cron start
 	fi
@@ -200,9 +212,8 @@ publish_my_domains() {
 	echo -e "$ext_domains" >> $HOSTF
 
 	sed '/./!d' -i $SMSTMP $HOSTF
-	[ -f $SMSF ] && \
-	[ $(md5sum $SMSTMP $SMSF | awk '{print $1}' | uniq | wc -l) -eq 1 ] || \
-	cp -f $SMSTMP $SMSF
+
+	[ $(md5sum $SMSTMP $SMSF | awk '{print $1}' | uniq | wc -l) -gt 1 ] && cp -f $SMSTMP $SMSF
 }
 
 get_domains() {
