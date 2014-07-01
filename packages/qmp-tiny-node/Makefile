@@ -38,11 +38,9 @@ define Package/qmp-tiny-node
   URL:=http://qmp.cat
   DEPENDS:= \
   +qmp-system \
-  +uhttpd +luci-mod-admin-core +luci-app-bmx6 \
-  +iwinfo +luci-mod-admin-full \
-  +radvd \
-  +wpad-mini \
-  +iw +netperf \
+  +uhttpd +iwinfo \
+  +luci-app-bmx6 +luci-mod-admin-full +luci-i18n-english \
+  +radvd  +wpad-mini +iw +netperf \
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
   +gwck-qmp +luci-theme-qmp \
   +ip +iputils-ping6
