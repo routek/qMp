@@ -22,7 +22,7 @@
 module("luci.controller.qmp", package.seeall)
 
 function index()
-
+	local fs = require "luci.fs"
 	-- Making qmp as default
 	local root = node()
 	root.target = alias("qmp")
@@ -47,7 +47,10 @@ function index()
 	entry({"qmp","configuration","gateways"}, cbi("qmp/gateways"), "qMp gateways", 6).dependent=false
 
 	entry({"qmp","tools"}, call("action_tools"), "Tools", 5).dependent=false
-	entry({"qmp","tools","tools"}, call("action_tools"), "Network testing", 1).dependent=false           
+	entry({"qmp","tools","tools"}, call("action_tools"), "Network testing", 1).dependent=false
+	if luci.fs.isfile("/usr/lib/lua/luci/model/cbi/qmp/mdns.lua") then
+		entry({"qmp","tools","mDNS"}, cbi("qmp/mdns"), "DNS mesh", 1).dependent=false
+	end
 	-- entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
 	-- entry({"qmp","tools","map"}, call("action_map"), "Map", 3).dependent=false
 

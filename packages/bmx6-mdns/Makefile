@@ -36,7 +36,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/bmx6-mdns
   TITLE:=bmx6 distributed DNS
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=qMp
   URL:=http://qmp.cat
   DEPENDS:=+bmx6-sms
 endef

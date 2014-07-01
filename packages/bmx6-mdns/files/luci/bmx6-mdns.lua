@@ -59,8 +59,9 @@ function f.handle(self, state, data)
 end
 
 hosts = fs.readfile(hostfile) or ""
-h = f:field(DummyValue, "hosts", translate("Current obtained domains"), "<pre>"..hosts.."</pre>")
+h = f:field(DummyValue, "hosts", translate("Current obtained domains"))
+h.rawhtml = true
+h.default = "<pre>"..hosts.."</pre>"
 h.rmempty = false
-h.rows = 20
 
 return f
