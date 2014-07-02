@@ -145,7 +145,7 @@ qmp_gw_masq_wan() {
 		qmp_uci_set_raw firewall.@zone[$wan].output=ACCEPT
 		qmp_uci_set_raw firewall.@zone[$wan].forward=ACCEPT
 		#qmp_uci_set_raw firewall.@zone[$wan].masq=$masq
-		qmp_uci_set_raw firewall.$cfg.mtu_fix=1
+		qmp_uci_set_raw firewall.@zone[$wan].mtu_fix=1
 		cfg=@zone[$wan]
 	fi
 
