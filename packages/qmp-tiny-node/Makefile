@@ -42,7 +42,8 @@ define Package/qmp-tiny-node
   +luci-app-bmx6 +luci-mod-admin-full +luci-i18n-english \
   +radvd  +wpad-mini +iw +netperf \
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +bmx6-mdns \
-  +gwck-qmp +luci-theme-qmp +libremap-agent \
+  +gwck-qmp +luci-theme-qmp \
+  +libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless +luci-lib-libremap-system \
   +ip +iputils-ping6
 endef
 
