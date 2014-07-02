@@ -1,7 +1,7 @@
 /*
  * reghack - Utility to binary-patch the embedded mac80211 regulatory rules.
  *
- *   Copyright (C) 2012-2013 Jo-Philipp Wich <xm@subsignal.org>
+ *   Copyright (C) 2012-2014 Jo-Philipp Wich <xm@subsignal.org>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,13 +51,7 @@ struct ieee80211_reg_rule {
     struct ieee80211_freq_range freq_range;
     struct ieee80211_power_rule power_rule;
     uint32_t flags;
-};
-
-struct ieee80211_regdomain_old {
-    uint32_t n_reg_rules;
-    char alpha2[2];
-    uint8_t dfs_region;
-    struct ieee80211_reg_rule reg_rules[1];
+    uint32_t dfs_cac_ms;
 };
 
 struct ieee80211_regdomain {
@@ -82,6 +76,7 @@ struct ieee80211_regdomain {
     .power_rule.max_antenna_gain = DBI_TO_MBI(gain),\
     .power_rule.max_eirp = DBM_TO_MBM(eirp),    \
     .flags = reg_flags,             \
+    .dfs_cac_ms = 0, \
 }
 
 #define REG_MATCH(code, num, dfs, rule) \
@@ -98,7 +93,6 @@ struct ieee80211_regdomain {
 struct search_regdomain {
 	const char *desc;
 	struct ieee80211_regdomain reg;
-	struct ieee80211_regdomain_old old;
 };
 
 static const struct search_regdomain search_regdomains[] = {
@@ -124,6 +118,15 @@ static const struct search_regdomain search_regdomains[] = {
 	}, {
 		.desc = "embedded US regdomain in cfg80211/regdb.o",
 		.reg  = REG_MATCH("US", 7, NL80211_DFS_FCC, REG_RULE(2402, 2472, 40, 3, 27, 0))
+	},
+
+	/* regdb.txt matches (new) */
+	{
+		.desc = "embedded 00 regdomain in cfg80211/regdb.o",
+		.reg  = REG_MATCH("00", 6, NL80211_DFS_UNSET, REG_RULE(2402, 2472, 40, 0, 20, 0))
+	}, {
+		.desc = "embedded US regdomain in cfg80211/regdb.o",
+		.reg  = REG_MATCH("US", 5, NL80211_DFS_FCC, REG_RULE(2402, 2472, 40, 0, 30, 0))
 	},
 
 	/* ath.ko matches */
@@ -196,11 +199,9 @@ static void bswap_rule(struct ieee80211_reg_rule *r)
 static int patch_regdomain(struct ieee80211_regdomain *pos,
                            const struct ieee80211_regdomain *comp)
 {
-	struct ieee80211_reg_rule r2 = REG_RULE(2400, 2484, 40, 0, 30, 0);
+	struct ieee80211_reg_rule r2 = REG_RULE(2400, 2483, 40, 0, 30, 0);
 	struct ieee80211_reg_rule r5 = REG_RULE(5140, 5860, 40, 0, 30, 0);
 	struct ieee80211_regdomain pattern = *comp;
-	struct ieee80211_regdomain_old *pos2 = (struct ieee80211_regdomain_old *)pos;
-	struct ieee80211_regdomain_old pattern2 = { };
 
 	if (need_byteswap)
 	{
@@ -208,11 +209,6 @@ static int patch_regdomain(struct ieee80211_regdomain *pos,
 		pattern.dfs_region = bswap_32(pattern.dfs_region);
 		pattern.n_reg_rules = bswap_32(pattern.n_reg_rules);
 	}
-
-	pattern2.dfs_region = pattern.dfs_region;
-	pattern2.n_reg_rules = pattern.n_reg_rules;
-	memcpy(&pattern2.alpha2, &pattern.alpha2, sizeof(pattern2.alpha2));
-	memcpy(&pattern2.reg_rules, &pattern.reg_rules, sizeof(pattern2.reg_rules));
 
 	if (!memcmp(pos, &pattern, sizeof(pattern)))
 	{
@@ -226,22 +222,6 @@ static int patch_regdomain(struct ieee80211_regdomain *pos,
 			bswap_rule(&pos->reg_rules[0]);
 			bswap_rule(&pos->reg_rules[1]);
 			pos->n_reg_rules = bswap_32(pos->n_reg_rules);
-		}
-
-		return 0;
-	}
-	else if (!memcmp(pos2, &pattern2, sizeof(pattern2)))
-	{
-		pos2->reg_rules[0] = r2;
-		pos2->reg_rules[1] = r5;
-		pos2->n_reg_rules = 2;
-		pos2->dfs_region = 0;
-
-		if (need_byteswap)
-		{
-			bswap_rule(&pos2->reg_rules[0]);
-			bswap_rule(&pos2->reg_rules[1]);
-			pos2->n_reg_rules = bswap_32(pos2->n_reg_rules);
 		}
 
 		return 0;
