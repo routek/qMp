@@ -6,7 +6,7 @@
 }
 
 [ "$(uci get qmp.update.url)" == "http://fw.qmp.cat/testing" ] && {
-	uci set qmp.update.url="http://fw.qmp.cat/trunk"
+	uci set qmp.update.url="http://fw.qmp.cat/kalimotxo"
 	uci commit
 }
 
