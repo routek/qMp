@@ -59,7 +59,8 @@ define Package/bmx6-mdns/install
 	$(INSTALL_DIR) $(1)/
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DIR) $(1)/etc/mdns
-	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/etc/rc.d
+	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) ./files/etc/init.d/mdns $(1)/etc/init.d/
 	chmod 755 $(1)/etc/init.d/mdns
 	$(CP) ./files/etc/mdns/* $(1)/etc/mdns
