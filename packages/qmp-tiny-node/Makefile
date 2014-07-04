@@ -40,7 +40,7 @@ define Package/qmp-tiny-node
   +qmp-system \
   +uhttpd +iwinfo \
   +luci-app-bmx6 +luci-mod-admin-full +luci-i18n-english \
-  +radvd  +wpad-mini +iw +netperf \
+  +radvd +wpad-mini +iw \
   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +bmx6-mdns \
   +gwck-qmp +luci-theme-qmp \
   +libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
