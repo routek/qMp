@@ -56,6 +56,8 @@ define Build/Compile
 endef
 
 define Package/bmx6-mdns/install
+	$(INSTALL_DIR) $(1)/
+	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DIR) $(1)/etc/mdns
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(CP) ./files/etc/init.d/mdns $(1)/etc/init.d/
