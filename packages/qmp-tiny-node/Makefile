@@ -39,7 +39,7 @@ define Package/qmp-tiny-node
   DEPENDS:= \
   +qmp-system \
   +uhttpd +luci-mod-admin-core +luci-app-bmx6 \
-  +iwinfo +luci-mod-admin-full \
+  +iwinfo +luci-mod-admin-full +luci-i18n-english \
   +radvd \
   +wpad-mini \
   +iw +netperf +mtr \
