@@ -30,14 +30,20 @@ node_section.addremove = False
 community_id = node_section:option(Value,"community_id", translate("Node name"), translate("The name for this node (use alphanumeric characters, without spaces)."))
 community_id.default = "qMp"
 community_id.datatype = "hostname"
+
 primary_device = node_section:option(Value,"primary_device", translate("Primary network device"), translate("The name of the node's primary network device. The last four digits of this device's MAC address will be appended to the node name."))
 primary_device.default = "eth0"
 primary_device.datatype = "network"
 
+geopos_lat = node_section:option(Value,"latitude", translate("Latitude"), translate("Latitude geoposition to use in the maps (optional)."))
+geopos_lon = node_section:option(Value,"longitude", translate("Longitude"), translate("Longitude geoposition to use in the maps (optional)."))
+geopos_elv = node_section:option(Value,"elevation", translate("Elevation"), translate("Elevation of the node relative to the ground level (optional)."))
+
+contact = node_section:option(Value,"contact", translate("Contact e-mail"), translate("An e-mail to contact you if needed (optional)."))
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_short.html")
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_system > /tmp/qmp_control_system.log &')
+        luci.sys.exec('/etc/qmp/qmp_control.sh configure_system > /tmp/qmp_control_system.log &')
 end
 
 

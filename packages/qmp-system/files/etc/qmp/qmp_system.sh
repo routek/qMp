@@ -38,6 +38,9 @@ qmp_configure_system() {
 
 	# configuring hosts
 	qmp_set_hosts
+
+	# configure maps
+	qmp_set_maps
 }
 
 qmp_set_hosts() {
@@ -56,6 +59,24 @@ qmp_set_hosts() {
 		echo "$ip $hn admin.qmp qmpadmin" >> /tmp/hosts.tmp
 		cp /tmp/hosts.tmp /etc/hosts
 	fi
+}
+
+qmp_set_maps() {
+	[ $(qmp_uci_get services.libremap) -eq 1 ] && {
+		qmp_uci_get_raw libremap.location && {
+			local lat="$(qmp_uci_get node.latitude)"
+			local lon="$(qmp_uci_get node.latitude)"
+			local elev="$(qmp_uci_get node.elevation)"
+			[ -n "$lat" ] && [ -n "$lon" ] && {
+				elev=${elev:-0}
+				qmp_uci_set_raw libremap.location.latitude="$lat"
+				qmp_uci_set_raw libremap.location.latitude="$lon"
+				qmp_uci_set_raw libremap.location.elev="$elev"
+			}
+		}
+	}
+
+
 }
 
 # -----------------------------------
