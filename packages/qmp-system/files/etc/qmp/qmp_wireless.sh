@@ -207,7 +207,7 @@ qmp_configure_wifi_device() {
 
 	[ ! -f "$device_template" ] || [ ! -f "$iface_template" ]  && qmp_error "Template $template not found"
 
-	cat $device_template | grep -v "^list " | sed \
+	cat $device_template | grep -v ^# | grep -v "^list " | sed \
 	 -e s/"#QMP_RADIO"/"$radio"/ \
 	 -e s/"#QMP_TYPE"/"$driver"/ \
 	 -e s/"#QMP_MAC"/"$mac"/ \
@@ -219,7 +219,7 @@ qmp_configure_wifi_device() {
 
 	qmp_prepare_wireless_iface $device
 
-	cat $iface_template | sed \
+	cat $iface_template | grep -v ^# | sed \
 	 -e s/"#QMP_RADIO"/"$radio"/ \
 	 -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_IFNAME"/"$device"/ \
@@ -234,7 +234,7 @@ qmp_configure_wifi_device() {
 	# If virtual AP interface has to be configured
 	[ "$vap" == "1" ] && {
 		qmp_prepare_wireless_iface ${device}ap
-		cat $vap_template | sed \
+		cat $vap_template | grep -v ^# | sed \
 	 	 -e s/"#QMP_RADIO"/"$radio"/ \
 		 -e s/"#QMP_DEVICE"/"${device}ap"/ \
 		 -e s/"#QMP_IFNAME"/"${device}ap"/ \
@@ -249,7 +249,7 @@ qmp_configure_wifi_device() {
 	qmp_uci_import $TMP/qmp_wifi_device
 
 	# List arguments (needed for HT capab)
-	cat $device_template | grep "^list " | sed s/"^list "//g | sed \
+	cat $device_template | grep -v ^# | grep "^list " | sed s/"^list "//g | sed \
 	 -e s/"#QMP_RADIO"/"$radio"/ | while read l; do
 		qmp_uci_add_list_raw $l
 	done
