@@ -1,0 +1,1 @@
+../scripts/wrtnode.sh

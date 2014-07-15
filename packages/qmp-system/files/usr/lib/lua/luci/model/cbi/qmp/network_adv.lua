@@ -40,10 +40,14 @@ eth_section:option(Value, "lan_netmask", "LAN netmask",translate("IPv4 netmask f
 
 -- Option: publish lan
 --eth_section:option(Flag, "publish_lan", "Publish LAN", "Publish LAN network through the mesh")
-
--- Option: disable dhcp
-eth_section:option(Flag, "disable_lan_dhcp", "Disable DHCP in LAN",
+ 
+-- Option: disable dhcp lan
+eth_section:option(Flag, "disable_lan_dhcp", "Disable DHCP server in LAN",
 translate("Disable DHCP server in LAN network (not recommended)."))
+
+-- Option: disable dhcp mesh
+eth_section:option(Flag, "disable_mesh_dhcp", "Disable DHCP server in MESH",
+translate("Disable DHCP server in MESH network devices."))
 
 -- Option bmx6_ipv4_address
 eth_section:option(Value, "bmx6_ipv4_address", "Main IPv4 address",
@@ -56,7 +60,6 @@ translate("Network prefix used to calculate a random IP address if the field abo
 -- Option: bmx6_ripe_prefix48
 eth_section:option(Value, "bmx6_ripe_prefix48", "Main IPv6 prefix",
 translate("If you have a global IPv6 48bits prefix, specify it here. Otherwise leave it blank."))
-
 
 -- Option force_internet
 fint = eth_section:option(ListValue, "force_internet", "Force internet",

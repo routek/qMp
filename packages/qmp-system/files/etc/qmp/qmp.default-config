@@ -101,6 +101,7 @@ config 'qmp' 'networks'
 	option lan_address '172.30.22.1'
 	option lan_netmask '255.255.0.0'
 	option disable_lan_dhcp '0'
+	option disable_mesh_dhcp '0'
 	
 	# Rescue IPv4 network prefix (/16 bits). 
 	# Missing 16 bits are taken from primary device MAC.

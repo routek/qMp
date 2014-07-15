@@ -35,7 +35,7 @@ qmp_set_mss_clamping_and_masq() {
 # Prepare config files
 qmp_configure_prepare_network() {
 	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
-	echo "Removing current network configuration"
+	qmp_log "Removing current network configuration"
 	for i in $toRemove; do
 		uci del network.$i
 	done
@@ -478,6 +478,21 @@ qmp_configure_dhcp() {
 		qmp_uci_set_raw dhcp.lan.ignore="1"
 	else
 		qmp_uci_set_raw dhcp.lan.ignore="0"
+	fi
+
+	# Set dhcp server in mesh devices if enabled
+	if [ "$(qmp_uci_get networks.disable_mesh_dhcp)" == "0" ]; then
+		local dev
+		for dev in $(qmp_get_devices mesh); do
+			local vif="$(qmp_get_virtual_iface $dev)"
+			[ -n "$vif" ] && {
+				qmp_log "Configuring dhcp server for mesh device $dev/$vif"
+				qmp_uci_set_raw dhcp.$vif="dhcp"
+				qmp_uci_set_raw dhcp.$vif.interface="$vif"
+				qmp_uci_set_raw dhcp.$vif.leasetime="10m"
+				qmp_uci_set_raw dhcp.$vif.ignore="0"
+			}
+		done
 	fi
 }
 
