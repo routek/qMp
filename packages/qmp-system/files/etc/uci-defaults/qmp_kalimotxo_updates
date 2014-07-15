@@ -2,11 +2,11 @@
 
 [ "$(uci get qmp.wireless.country)" == "SP" ] && {
 	uci set qmp.wireless.country=US
-	uci commit
 }
 
 [ "$(uci get qmp.update.url)" == "http://fw.qmp.cat/testing" ] && {
 	uci set qmp.update.url="http://fw.qmp.cat/kalimotxo"
-	uci commit
 }
 
+uci -q get qmp.networks.disable_mesh_dhcp || uci set qmp.networks.disable_mesh_dhcp=1
+uci commit qmp

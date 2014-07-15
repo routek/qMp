@@ -86,14 +86,13 @@ translate("Offset to calculate the first IP to give via DHCP"))
 -- Option: Leassetime
 overlapping_section:option(Value, "qmp_leasetime", "DHCP leas etime",translate("Lease time for the DHCP server"))
 
-
 --------------------------
 -- Commit
 -------------------------
 
 function m.on_commit(self,map)
 	http.redirect("/luci-static/resources/qmp/wait_long.html")
-        luci.sys.call('/etc/qmp/qmp_control.sh configure_all > /tmp/qmp_control_network.log &')
+	luci.sys.call('/etc/qmp/qmp_control.sh configure_all > /tmp/qmp_control_network.log &')
 end
 
 
