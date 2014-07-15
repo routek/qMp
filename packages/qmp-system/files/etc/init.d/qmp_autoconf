@@ -76,17 +76,17 @@ configure() {
 	log Starting qmp configuration...
 	log Waiting 10 seconds to be sure all is configured
 	sleep 10
-	
-	# Execute birth hooks if it is the first boot of the device
-	[ ! -e "$BIRTH_FILE" ] && exechooks birth && touch "$BIRTH_FILE"
 
-	# Generating default wifi configuration
-	log "[Configuring wifi]"
+	log "[Preparing wifi]"
 	country="$(uci get qmp.wireless.country 2>/dev/null)"
 	country="${country:-00}"
 	log Using countrycode $country
-
 	prepare_wifi
+
+	# Execute birth hooks if it is the first boot of the device
+	[ ! -e "$BIRTH_FILE" ] && exechooks birth && touch "$BIRTH_FILE"
+
+	# Configure system and reboot
 	. $QMP_DIR/qmp_functions.sh
 	log "[Configuring initial system]"
 	qmp_configure_initial
