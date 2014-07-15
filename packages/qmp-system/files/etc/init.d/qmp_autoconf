@@ -87,17 +87,10 @@ configure() {
 	log Using countrycode $country
 
 	prepare_wifi
-	. $QMP_DIR/qmp_wireless.sh
 	. $QMP_DIR/qmp_functions.sh
 	log "[Configuring initial system]"
-	qmp_configure_wifi_initial
-	qmp_configure_wifi
-	log Reloading network
-	/etc/init.d/network reload
-	sleep 1	
-	# Configuring networking and everything else
-	log "[Configuring full system]"
 	qmp_configure_initial
+	log "[Configuring full system]"
 	qmp_configure
 
 	log Rebooting

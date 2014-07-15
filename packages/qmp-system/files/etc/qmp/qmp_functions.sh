@@ -1,4 +1,5 @@
 #!/bin/sh
+# requires ip ipv6calc awk sed grep
 QMP_PATH="/etc/qmp"
 SOURCE_FUNCTIONS=1
 
@@ -14,8 +15,7 @@ fi
 [ -z "$SOURCE_GW" ] && . $QMP_PATH/qmp_gw.sh
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
 [ -z "$SOURCE_SYS" ] && . $QMP_PATH/qmp_system.sh
-
-# requires ip ipv6calc awk sed grep
+[ -z "$SOURCE_WIRELESS" ] && . $QMP_PATH/qmp_wireless.sh
 
 qmp_get_llocal_for_dev() {
   local dev=$1
@@ -834,6 +834,10 @@ qmp_check_force_internet() {
 
 qmp_configure_initial() {
 	qmp_hooks_exec firstboot
+	qmp_configure_wifi_initial
+	qmp_configure_wifi
+	/etc/init.d/network reload
+	sleep 1
 	qmp_configure_smart_network
 }
 
