@@ -2,7 +2,7 @@
 # Stage = [birth|firstboot|anyboot|preconf|postconf]
 STAGE="$1"
 
-[ "$STAGE" == "firstboot" ] && {
+[ "$STAGE" == "birth" ] && {
 	echo "Configuring adhoc wifi device for WRTnode"
 	uci set qmp.interfaces.mesh_devices="wlan0"
 	uci set qmp.interfaces.lan_devices="eth0"
