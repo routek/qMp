@@ -38,9 +38,9 @@ translate("The Management VPN is used to control the nodes remotely from a centr
 vpn.default=0
 
 -- Option: Captive Portal
--- local cp = additional_services:option(Flag, "captive_portal", translate("Captive Portal"),
--- translate("The captive portal is a small http proxy used to show an HTML page the first time someone connects to the node's Access Point"))          
--- cp.default=0
+local cp = additional_services:option(Flag, "captive_portal", translate("Captive Portal"),
+translate("The captive portal is a small http proxy used to show an HTML page the first time someone connects to the node's Access Point"))          
+cp.default=0
 
 -- Option: b6m
 -- local b6m = additional_services:option(Flag, "b6m", translate("BMX6 map"),

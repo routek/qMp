@@ -51,7 +51,7 @@ function index()
 	if luci.fs.isfile("/usr/lib/lua/luci/model/cbi/qmp/mdns.lua") then
 		entry({"qmp","tools","mDNS"}, cbi("qmp/mdns"), "DNS mesh", 1).dependent=false
 	end
-	-- entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
+	entry({"qmp","tools","splash"}, call("action_splash"), "Splash", 2).dependent=false
 	-- entry({"qmp","tools","map"}, call("action_map"), "Map", 3).dependent=false
 
 	entry({"qmp","about"}, call("action_status"), "About", 9).dependent=false
