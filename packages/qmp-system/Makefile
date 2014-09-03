@@ -29,7 +29,7 @@ PKG_NAME:=qmp-system
 PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 QMP_CODENAME:=Kalimotxo
-QMP_RELEASE:=unstable
+QMP_RELEASE:=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
