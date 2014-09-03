@@ -110,6 +110,9 @@ static const struct search_regdomain search_regdomains[] = {
 		.desc = "embedded 00 regdomain in cfg80211/regdb.o",
 		.reg  = REG_MATCH("00", 6, NL80211_DFS_UNSET, REG_RULE(2402, 2472, 40, 3, 20, 0))
 	}, {
+		.desc = "embedded 00 regdomain in cfg80211/regdb.o",
+		.reg  = REG_MATCH("00", 8, NL80211_DFS_UNSET, REG_RULE(2402, 2472, 40, 0, 20, 0))
+	}, {
 		.desc = "embedded US regdomain in cfg80211/regdb.o",
 		.reg  = REG_MATCH("US", 6, NL80211_DFS_UNSET, REG_RULE(2402, 2472, 40, 3, 27, 0))
 	}, {
