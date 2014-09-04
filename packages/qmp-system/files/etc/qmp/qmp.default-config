@@ -95,7 +95,7 @@ config 'qmp' 'roaming'
 # -----------------------------
 config 'qmp' 'networks'
 	# DNS servers which will be configured.
-	option dns '208.67.222.222 85.126.4.170 202.83.95.227'
+	option dns '208.67.222.222 208.67.220.220 209.244.0.3'
 	
 	# LAN address and netmask (will be assigned to br-lan).
 	option lan_address '172.30.22.1'
