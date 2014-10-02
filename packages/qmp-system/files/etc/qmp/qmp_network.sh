@@ -24,7 +24,7 @@ qmp_set_mss_clamping_and_masq() {
                 "iptables -t nat -A POSTROUTING -o $dev ! -d 10.0.0.0/8 -j MASQUERADE"; do
 	  [ -z "$dev" ] && return
 	  if [ "$rm" == "remove" ]; then
-	    sed -i /"${rule}"/d $fw
+	    sed -i /"$(echo $rule | sed s?'/'?'\\/'?g)"/d $fw
       else if [ $(cat $fw | grep "$rule" -c) -eq 0 ]; then
         qmp_log "Adding TCP ClampMSS rule for $dev"
         echo "$rule" >> $fw
@@ -346,6 +346,9 @@ qmp_configure_mesh() {
 		for protocol_vid in $protocol_vids; do
 			local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
 			local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
+			
+			# if no vlan is specified do not use vlan
+			[ -z "$vid" ] && vid=1 && use_vlan=0
 
 			# virtual interface
 			local viface=$(qmp_get_virtual_iface $dev)
@@ -355,7 +358,14 @@ qmp_configure_mesh() {
 
 			# Since all interfaces are defined somewhere (LAN, WAN or with Rescue IP),
 			# in case of not use vlan tag, device definition is not needed.
-			[ $use_vlan -eq 1 ] || [ $vid -gt 0 ] && qmp_set_vlan $viface $vid
+			[ $use_vlan -eq 1 ] && {
+				# If device is WAN use rescue for the VLAN tag
+				if [ $(qmp_get_devices wan | grep -c $dev) -gt 0 ]; then
+					qmp_set_vlan ${viface}_rescue $vid
+				else
+					qmp_set_vlan $viface $vid
+				fi
+			}
 
 			# Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
 			if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
