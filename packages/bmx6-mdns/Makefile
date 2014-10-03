@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=bmx6-mdns
 PKG_RELEASE:=1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Kalimotxo
+QMP_CODENAME:=testing
 QMP_RELEASE:=4.0
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 

@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=qmp-system
 PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Kalimotxo
+QMP_CODENAME:testing
 QMP_RELEASE:=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
