@@ -45,7 +45,7 @@ define Package/qmp-tiny-node
   +gwck-qmp +luci-theme-qmp \
   +libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
   +luci-lib-libremap-system +luci-lib-libremap-location \
-  +ip +iputils-ping6
+  +ip +iputils-ping6 +kmod-ipt-nat
 endef
 
 
