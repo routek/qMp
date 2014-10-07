@@ -53,7 +53,7 @@ STAGE="$1"
 	uci set network.@switch_vlan[4].device=switch0
 	uci set network.@switch_vlan[4].vlan=5
 	uci set network.@switch_vlan[4].vid=5
-	uci set network.@switch_vlan[4].ports="0t 4"
+	uci set network.@switch_vlan[4].ports="0t 5"
 
 	uci commit network
 }
