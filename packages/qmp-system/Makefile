@@ -26,9 +26,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-system
-PKG_RELEASE:=2
+PKG_VERSION:=3.1
+PKG_RELEASE:=1
+PKG_LICENSE:=GPL-2.0+
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:testing
+
+QMP_CODENAME:=Mistela
 QMP_RELEASE:=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
@@ -39,11 +43,11 @@ define Package/qmp-system
   SECTION:=net
   CATEGORY:=qMp
   URL:=http://qmp.cat
-  DEPENDS:=+luci-lib-core +luci-lib-nixio +luci-lib-sys +luci-lib-web +libiwinfo-lua
+  DEPENDS:=+libuci-lua +lua +libiwinfo-lua +wpad-mini
 endef
 
 define Package/qmp-system/description
- System files for qMp node
+ System files required for configuring a qMp node
 endef
 
 define Build/Prepare

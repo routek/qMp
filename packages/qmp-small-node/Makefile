@@ -26,7 +26,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-small-node
+PKG_VERSION:=3.1
 PKG_RELEASE:=1
+PGK_LICENSE:=GPL-2.0+
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -34,21 +37,28 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-small-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Required addons for small qMp mesh node
+  TITLE:=Metapackage for setting up a small qMp node (8 MB flash or more)
   URL:=http://qmp.cat
-  DEPENDS:= \
-	+qmp-tiny-node \
-	+iputils-arping +iputils-clockdiff +tcpdump-mini \
-	+cgi-bin-zero +mtr +netperf \
-	+kmod-ipip +kmod-gre \
-	+b6m +b6m-spread \
-	+munin-mesh +mini-snmpd
+  DEPENDS:= +qmp-tiny-node \
+	+iputils-arping +iputils-clockdiff +tcpdump-mini +b6m +b6m-spread \
+	+munin-mesh +mini-snmpd +cgi-bin-zero +kmod-ipip +kmod-gre \
+	+libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
+	+luci-lib-libremap-system +luci-lib-libremap-location
 endef
-
 
 define Package/qmp-small-node/description
- Addons for small qmp nodes (4MByte flash)
+ This metapackage installs the packages required for setting up a typical qMp node:
+  - BMX6 routing protocol
+  - Luci web interface
+  - qMp system configuration files
+  - IP/TCP utils
+  - b6m and libremap
+  - SNMP and Munin
+  - IP over IP support
+
+ It is intended to be used on devices with 8 MB of flash or more.
 endef
+
 
 define Build/Configure
 endef
