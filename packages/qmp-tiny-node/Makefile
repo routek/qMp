@@ -42,7 +42,6 @@ define Package/qmp-tiny-node
   DEPENDS:= +qmp-system \
 	+bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +bmx6-mdns +luci-app-bmx6 +gwck-qmp \
 	+ip +iw +iwinfo \
-	+iputils-ping6 +netperf +mtr \
 	+luci +luci-i18n-english 
 endef
 
