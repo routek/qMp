@@ -45,7 +45,6 @@ define Package/qmp-quagga/Default
   SECTION:=qMp
   CATEGORY:=qMp
   SUBMENU:=Routing and Redirection
-  DEPENDS:=qmp-quagga
   TITLE:=The Quagga Software Routing Suite
   URL:=http://www.quagga.net
   MAINTAINER:=Vasilis Tsiligiannis <b_tsiligiannis@silverton.gr>
