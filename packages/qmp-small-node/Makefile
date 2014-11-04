@@ -37,7 +37,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-small-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Metapackage for setting up a small qMp node (8 MB flash or more)
+  TITLE:=Standard qMp node (8 MB flash devices)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-tiny-node \
 	+iputils-arping +iputils-clockdiff +tcpdump-mini +b6m +b6m-spread \

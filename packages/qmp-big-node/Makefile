@@ -37,7 +37,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-big-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Metapackage for installing extra addons for big qMp nodes (8 MB flash or more)
+  TITLE:=Full-featured qMp nodes with addons (8 MB flash)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-small-node \
 	+qmp-tinyproxy +tinymce \
