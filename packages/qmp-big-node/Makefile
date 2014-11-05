@@ -26,7 +26,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
-PKG_RELEASE:=2
+PKG_VERSION:=4.0
+PKG_RELEASE:=1
+PKG_LICENSE:=GPL-2.0+
+
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 
 include $(INCLUDE_DIR)/package.mk
@@ -34,20 +37,27 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-big-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Addons for big qMp mesh node (8MByte flash or more)
+  TITLE:=Full-featured qMp node with addons (8 MB flash)
   URL:=http://qmp.cat
-  DEPENDS:= \
-	+qmp-small-node \
+  DEPENDS:= +qmp-small-node \
 	+qmp-tinyproxy +tinymce \
 	+openssl-util +luci-ssl \
-	+lsof \
-	+wget +bmon +bwm +ebtables +pv \
-	+ndisc6 +rdisc6 \
-	+ipv6calc
+	+lsof +wget +bmon +bwm +ebtables +pv \
+	+ndisc6 +rdisc6 +ipv6calc
 endef
 
 define Package/qmp-big-node/description
- Addons for big qmp nodes (8MByte flash or more)
+ This metapackage installs the extra addon packages for big qMp nodes:
+  - BMX6 routing protocol
+  - Luci web interface (HTTP/HTTPS)
+  - qMp system configuration files
+  - IP/TCP utils
+  - b6m and libremap
+  - SNMP and Munin
+  - IP over IP support
+  - Tinyproxy
+
+ It is intended to be used on devices with 8 MB of flash or more.
 endef
 
 define Build/Prepare

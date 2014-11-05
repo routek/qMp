@@ -26,7 +26,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-tiny-node
-PKG_RELEASE:=2
+PKG_VERSION:=4.0
+PKG_RELEASE:=1
+PKG_LICENSE:=GPL-2.0+
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
@@ -34,23 +37,22 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-tiny-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Basic addons for default qMp node
+  TITLE:=Minimalistic qMp node (4 MB flash devices)
   URL:=http://qmp.cat
-  DEPENDS:= \
-  +qmp-system \
-  +uhttpd +iwinfo \
-  +luci-app-bmx6 +luci-mod-admin-full +luci-i18n-english \
-  +radvd +wpad-mini +iw \
-  +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +bmx6-mdns \
-  +gwck-qmp +luci-theme-qmp \
-  +libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
-  +luci-lib-libremap-system +luci-lib-libremap-location \
-  +ip +iputils-ping6 +kmod-ipt-nat
+  DEPENDS:= +qmp-system \
+	+bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +bmx6-mdns +luci-app-bmx6 +gwck-qmp \
+	+ip +iw +iwinfo \
+	+luci-mod-admin-full +luci-theme-bootstrap +luci-i18n-english \
+	+uhttpd +uhttpd-mod-ubus
 endef
 
-
 define Package/qmp-tiny-node/description
- Required addons for qMp node (only needed and basic stuff)
+ This metapackage installs the packages required for setting up a minimal qMp node:
+  - BMX6 routing protocol
+  - Luci web interface
+  - qMp system configuration files
+
+ It is intended to be used on devices with 4 MB of flash.
 endef
 
 define Build/Prepare
