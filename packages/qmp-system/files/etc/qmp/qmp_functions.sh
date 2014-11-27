@@ -86,7 +86,7 @@ qmp_get_virtual_iface() {
 
   [ -n "$viface" ] && { echo $viface; return; }
 
-  # id is the first and char and the numbers of the device [e]th[0] [w]lan[1]
+  # id is the first char and the numbers of the device [e]th[0] [w]lan[1]
   local id_num=$(echo $device | tr -d "[A-z]" | tr - _ | tr . _)
   local id_char=$(echo $device | cut -c 1)
 
@@ -765,7 +765,7 @@ qmp_configure_bmx6() {
 	for no_vlan_int in $(qmp_uci_get interfaces.no_vlan_devices); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
-	
+
 	# Check if the protocol has VLAN tag configured
 	local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
 	[ -z "$vid" -o $vid -lt 1 ] && use_vlan=0

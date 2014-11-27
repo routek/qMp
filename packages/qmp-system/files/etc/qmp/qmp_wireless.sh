@@ -34,7 +34,7 @@ qmp_prepare_wireless_iface() {
 ###################################
 # First parameter: device
 # Second parameter: channel
-# Third parameter: mode (adhoc, ap, adhoc_ap)
+# Third parameter: mode (adhoc, ap, adhoc_ap, aplan, client, clientwan, none)
 # It returns the same channel if it is right, and the new one fixet if not
 
 qmp_check_channel() {
@@ -219,6 +219,9 @@ qmp_configure_wifi_device() {
 
 	qmp_prepare_wireless_iface $device
 
+    echo "Mode is $mode"
+    echo "Network is $network"
+
 	cat $iface_template | grep -v ^# | sed \
 	 -e s/"#QMP_RADIO"/"$radio"/ \
 	 -e s/"#QMP_DEVICE"/"$device"/ \
@@ -287,15 +290,15 @@ qmp_configure_wifi() {
 # This function returns the default values
 #  - first parameter: is always what are you asking for (mode, channel, name,...)
 #  - second parameter: is device name, only needed by mode and channel
-#  - third parameter: is configured mode, only needed by chanel
+#  - third parameter: is configured mode, only needed by channel
 
 qmp_wifi_get_default() {
 	local what="$1"
 	local device="$2"
 
 	# MODE
-	# default mode depens on several things:
-	#  if only 1 device = adhoc
+	# default mode depends on several things:
+	#  if only 1 device = adhoc_ap
 	#  if only 1 bg device = ap
 	#  else depending on index
 

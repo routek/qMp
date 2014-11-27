@@ -56,8 +56,8 @@ cc = s_wireless_main:option(ListValue, "country", translate("Country Code"), tra
 cc.default = tostring(iw and iw.country or "00")
 for _, s in ipairs(cl) do
   	cc:value(s.alpha2, "%s - %s" %{ s.alpha2, s.name })
-end                                        
-   
+end
+
 --   else
 --                s_wireless_main:option(Value, "country", translate("Country Code"), translate("Use ISO/IEC 3166 alpha2 country codes2."))
   end
@@ -90,10 +90,12 @@ for _,wdev in ipairs(wdevs) do
 
 	-- Mode
 	mode = s_wireless:option(ListValue,"mode","Mode")
-        mode:value("adhoc_ap","AdHoc (mesh) + Acess point (LAN)")
-        mode:value("adhoc","AdHoc (mesh)")
-        mode:value("ap","Master (mesh, no DHCP)")
-        mode:value("client","Client")
+        mode:value("adhoc_ap","Ad hoc (mesh) + access point (LAN)")
+        mode:value("adhoc","Ad hoc (mesh)")
+        mode:value("ap","Access point (mesh)")
+        mode:value("aplan","Access point (LAN)")
+        mode:value("client","Client (mesh)")
+       -- mode:value("clientwan","Client (WAN)")
         mode:value("none","Disabled")
 
 	-- Name
@@ -117,11 +119,14 @@ for _,wdev in ipairs(wdevs) do
 	end
 
 	-- WPA key
-	local key=s_wireless:option(Value,"key","WPA2 key", 
-		translate("WPA2 key for AP (8 chars or more).<br/>Leave blank for make it OPEN (recomended)"))
+	local key=s_wireless:option(Value,"key","WPA2 key",
+		translate("WPA2 key for AP mode. The minimum lenght is 8 characters.<br/>Leave blank to make it OPEN (recommended)"))
 	key.default = ""
-	key:depends("mode","ap")
+    key:depends("mode","ap")
+	key:depends("mode","aplan")
 	key:depends("mode","adhoc_ap")
+	key:depends("mode","client")
+	--key:depends("mode","clientwan")
 
 	-- Txpower
 	txpower = s_wireless:option(ListValue,"txpower",translate("Transmission power (dBm)"),translate("Radio power in dBm. Each 3 dB increment doubles the power."))
