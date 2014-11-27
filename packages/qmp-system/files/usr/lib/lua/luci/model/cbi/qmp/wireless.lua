@@ -95,7 +95,7 @@ for _,wdev in ipairs(wdevs) do
         mode:value("ap","Access point (mesh)")
         mode:value("aplan","Access point (LAN)")
         mode:value("client","Client (mesh)")
-       -- mode:value("clientwan","Client (WAN)")
+        mode:value("clientwan","Client (WAN)")
         mode:value("none","Disabled")
 
 	-- Name
@@ -126,7 +126,7 @@ for _,wdev in ipairs(wdevs) do
 	key:depends("mode","aplan")
 	key:depends("mode","adhoc_ap")
 	key:depends("mode","client")
-	--key:depends("mode","clientwan")
+	key:depends("mode","clientwan")
 
 	-- Txpower
 	txpower = s_wireless:option(ListValue,"txpower",translate("Transmission power (dBm)"),translate("Radio power in dBm. Each 3 dB increment doubles the power."))

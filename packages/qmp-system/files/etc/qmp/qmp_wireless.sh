@@ -116,9 +116,68 @@ qmp_configure_wifi_device() {
 	local id=$1
 	local device="$(qmp_uci_get @wireless[$id].device)"
 
-	# checking if device is configured as "none"
+
+
+	# Remove the wireless device in $device from the previous lan/wan/mesh groups
+	# and put it in the appropriate ones according to the selected mode
+	#
+	# The possible modes are:
+	# adhoc_ap ==> Ad hoc (mesh) + access point (LAN)
+	# adhoc =====> Ad hoc (mesh)
+	# ap ========> Access point (mesh)
+	# aplan =====> Access point (LAN)
+	# client ====> Client (mesh)
+	# clientwan => Client (WAN)
+
 	local mode="$(qmp_uci_get @wireless[$id].mode)"
-	[ "$mode" == "none" ] && { echo "Interface $device is not managed by the qMp system"; return; }
+
+	# Remove $device and also unneeded white spaces
+	local allmeshdevs="$(qmp_uci_get interfaces.mesh_devices)"
+	local meshdevs="$(echo $allmeshdevs | sed -e s/$device//g  -e 's/^[ \t]*//' -e 's/ \+/ /g' -e 's/[ \t]*$//')"
+	local allwandevs="$(qmp_uci_get interfaces.wan_devices)"
+	local wandevs="$(echo $allwandevs | sed -e s/$device//g  -e 's/^[ \t]*//' -e 's/ \+/ /g' -e 's/[ \t]*$//')"
+	local alllandevs="$(qmp_uci_get interfaces.lan_devices)"
+	local landevs="$(echo $alllandevs | sed -e s/$device//g  -e 's/^[ \t]*//' -e 's/ \+/ /g' -e 's/[ \t]*$//')"
+
+	case $mode in
+		adhoc_ap)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices  "$landevs $device"
+			qmp_uci_set interfaces.wan_devices  "$wandevs"
+			;;
+		adhoc)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		ap)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		aplan)
+			qmp_uci_set interfaces.lan_devices "$landevs $device"
+			qmp_uci_set interfaces.mesh_devices "$meshdevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		client)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		clientwan)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs $device"
+			;;
+		none)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			echo "Interface $device is not managed by the qMp system"
+			return
+			;;
+	esac
 
 	# spliting channel in channel number and ht40 mode
 	local channel_raw="$(qmp_uci_get @wireless[$id].channel)"

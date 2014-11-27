@@ -118,7 +118,7 @@ qmp_get_devices() {
     local brlan_enabled=0
     for dev in $(uci get qmp.interfaces.mesh_devices 2>/dev/null); do
 
-        # Lookging if device is defined as LAN, in such case dev=br-lan, but only once
+        # Looking if device is defined as LAN, in such case dev=br-lan, but only once
         # except eth1 for RouterStation Pro
         if ! ( [[ "$dev" == "eth1" ]] && qmp_is_routerstationpro ) ; then
             for landev in $(uci get qmp.interfaces.lan_devices 2>/dev/null); do
