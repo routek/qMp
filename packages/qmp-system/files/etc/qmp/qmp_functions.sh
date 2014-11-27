@@ -16,6 +16,7 @@ fi
 [ -z "$SOURCE_NET" ] && . $QMP_PATH/qmp_network.sh
 [ -z "$SOURCE_SYS" ] && . $QMP_PATH/qmp_system.sh
 [ -z "$SOURCE_WIRELESS" ] && . $QMP_PATH/qmp_wireless.sh
+[ -z "$SOURCE_COMMON" ] && . $QMP_PATH/qmp_common.sh
 
 qmp_get_llocal_for_dev() {
   local dev=$1
@@ -69,45 +70,52 @@ qmp_get_virtual_iface() {
     fi
   fi
 
-   # is lan?
-  if [ "$device" == "br-lan" ]; then
-    viface="lan"
-    echo $viface
-    return
-  fi
+	# is lan?
+	if [ "$device" == "br-lan" ]; then
+		viface="lan"
+		if [ ! -e "/sys/class/net/$device/phy80211" ]; then
+			echo $viface
+			return
+		fi
+  	fi
 
-  for l in $(qmp_get_devices lan); do
-    if [ "$l" == "$device" ]; then
-      viface="lan"
-      echo $viface
-      return
-    fi
-  done
+	for l in $(qmp_get_devices lan); do
+		if [ "$l" == "$device" ]; then
+			viface="lan"
+			if [ ! -e "/sys/class/net/$device/phy80211" ]; then
+				echo $viface
+				return
+			fi
+		fi
+	done
 
-  [ -n "$viface" ] && { echo $viface; return; }
+	[ ! -e "/sys/class/net/$device/phy80211" ] && [ -n "$viface" ] && { echo $viface; return; }
 
-  # id is the first char and the numbers of the device [e]th[0] [w]lan[1]
-  local id_num=$(echo $device | tr -d "[A-z]" | tr - _ | tr . _)
-  local id_char=$(echo $device | cut -c 1)
+	# id is the first char and the numbers of the device [e]th[0] [w]lan[1]
+	local id_num=$(echo $device | tr -d "[A-z]" | tr - _ | tr . _)
+	local id_char=$(echo $device | cut -c 1)
 
-  # is wan
-  for w in $(qmp_get_devices wan); do
-   if [ "$w" == "$device" ]; then
-     viface="wan_${id_char}${id_num}"
-     echo $viface
-     return
-   fi
-  done
+	# is wan?
+	for w in $(qmp_get_devices wan); do
+		if [ "$w" == "$device" ]; then
+			viface="wan_${id_char}${id_num}"
+			echo $viface
+			return
+		fi
+	done
 
-  # is mesh
-  for w in $(qmp_get_devices mesh); do
-   if [ "$w" == "$device" ]; then
-     viface="mesh_${id_char}${id_num}"
-     break
-   fi
-  done
+	qmp_log "LOG: 5"
+		qmp_log "Viface: $viface"
 
-  echo "$viface"
+	# is mesh?
+	for w in $(qmp_get_devices mesh); do
+		if [ "$w" == "$device" ]; then
+			viface="mesh_${id_char}${id_num}"
+			break
+		fi
+	done
+
+	echo "$viface"
 }
 
 # arg1=<mesh|lan|wan>, returns the devices which have to be configured in such mode
@@ -122,7 +130,7 @@ qmp_get_devices() {
         # except eth1 for RouterStation Pro
         if ! ( [[ "$dev" == "eth1" ]] && qmp_is_routerstationpro ) ; then
             for landev in $(uci get qmp.interfaces.lan_devices 2>/dev/null); do
-                if [ "$landev" == "$dev" ]; then
+                if [ "$landev" == "$dev" ] && [ ! -e "/sys/class/net/$dev/phy80211" ] ; then
                     if [ $brlan_enabled -eq 0 ]; then
                         dev="br-lan"
                         brlan_enabled=1

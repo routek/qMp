@@ -346,7 +346,7 @@ qmp_configure_mesh() {
 		for protocol_vid in $protocol_vids; do
 			local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
 			local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
-			
+
 			# if no vlan is specified do not use vlan
 			[ -z "$vid" ] && vid=1 && use_vlan=0
 
