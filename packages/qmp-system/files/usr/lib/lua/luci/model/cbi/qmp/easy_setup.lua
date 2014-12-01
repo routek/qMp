@@ -70,10 +70,10 @@ nodeip_roaming:depends("_netmode","roaming")
 local rip = uciout:get("qmp","networks","bmx6_ipv4_address")
 if rip == nil or #rip < 7 then
 	rip = uciout:get("bmx6","general","tun4Address")
-	if rip == nil or #rip < 7 then 
+	if rip == nil or #rip < 7 then
 		rip = ""
 	end
-end 
+end
 
 nodeip_roaming.default=rip
 nodeip_roaming.datatype="ip4prefix"
@@ -157,38 +157,39 @@ for i,v in ipairs(devices.eth) do
 	nodedevs_eth[i] = {v,tmp}
 end
 
+-- MeshAll option for wired devices
+
+meshall = m:field(Flag, "_meshall", translate("Use mesh in all wired devices"),translate("If this option is enabled, all the node's wired network devices will be used for meshing (recommended)"))
+meshall.default = "1"
+
 -- Wireless devices
 nodedevs_wifi = {}
 
 for i,v in ipairs(devices.wifi) do
-		tmp = m:field(ListValue, "_" .. v, translatef("Wireless interface <strong>%s</strong>",v))	
-	tmp:value("Mesh")
-	tmp:value("AP")
-	tmp.default = ""
+		tmp = m:field(ListValue, "_" .. v, translatef("Wireless interface <strong>%s</strong>",v))
+	tmp:value("adhoc_ap","Ad hoc (mesh) + access point (LAN)")
+    tmp:value("adhoc","Ad hoc (mesh)")
+    tmp:value("ap","Access point (mesh)")
+    tmp:value("aplan","Access point (LAN)")
+    tmp:value("client","Client (mesh)")
+    tmp:value("clientwan","Client (WAN)")
+    tmp:value("none","Disabled")
 
-	if is_a(v,"lan_devices") then
-		-- If the device is in lan_devices, it is AP mode
-		tmp.default = "AP"
-	else
-		-- Check if the device is adhoc_ap mode, then Mode=AP MeshAll=1
-		uciout:foreach("qmp","wireless", function (s)
-			if s.device == v then
-				if s.mode == "adhoc_ap" then
-					tmp.default = "AP"
-				end
+	tmp.default = "adhoc_ap"
+
+	-- Check if the device is adhoc_ap mode, then Mode=AP MeshAll=1
+	uciout:foreach("qmp","wireless", function (s)
+		if s.device == v then
+			if s.mode ~= nil then
+				tmp.default = s.mode
 			end
-
-		end)
-
-		-- If it is not adhoc_ap it is only mesh
-		if tmp.default == "" then tmp.default = "Mesh" end
-	end
+		end
+	end)
 
 	nodedevs_wifi[i] = {v,tmp}
 end
 
-meshall = m:field(Flag, "_meshall", translate("Use mesh in all devices"),translate("If this option is enabled, all the node's network devices will be used for meshing (recommended)"))
-meshall.default = "1"
+
 
 function netmode.write(self, section, value)
 	local name = nodename:formvalue(section)
@@ -196,7 +197,7 @@ function netmode.write(self, section, value)
 	local nodeip = nodeip:formvalue(section)
 	local nodemask = nodemask:formvalue(section)
 	local nodeip_roaming = nodeip_roaming:formvalue(section)
-	
+
 	if mode == "community" then
 		uciout:set("qmp","roaming","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
@@ -253,12 +254,7 @@ function netmode.write(self, section, value)
 
 		function setmode(s)
 			if s.device == devname then
-				if devmode == "AP" and meshall == "1" then 
-					uciout:set("qmp",s['.name'],"mode","adhoc_ap")
-				elseif devmode == "AP" then
-					uciout:set("qmp",s['.name'],"mode","ap")
-				else
-					uciout:set("qmp",s['.name'],"mode","adhoc") end
+				uciout:set("qmp",s['.name'],"mode",devmode)
 			end
 		end
 		uciout:foreach("qmp","wireless",setmode)

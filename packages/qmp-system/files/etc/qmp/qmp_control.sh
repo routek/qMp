@@ -32,6 +32,7 @@ reset_wifi() {
 configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
+	configure_network
 	/etc/init.d/network reload
 	if /etc/init.d/gwck enabled
 	then
