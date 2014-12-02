@@ -25,10 +25,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=bmx6-mdns
+PKG_VERSION:=0.1
 PKG_RELEASE:=1
+PKG_LICENSE:=GPL-2.0+
+
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=testing
-QMP_RELEASE:=4.0
+QMP_CODENAME:=Clearance
+QMP_RELEASE:=3.1-rc1
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
