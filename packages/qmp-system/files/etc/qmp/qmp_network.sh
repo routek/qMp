@@ -350,6 +350,9 @@ qmp_configure_mesh() {
 			# if no vlan is specified do not use vlan
 			[ -z "$vid" ] && vid=1 && use_vlan=0
 
+			# if no vlan is specified do not use vlan
+			[ -z "$vid" ] && vid=1 && use_vlan=0
+
 			# virtual interface
 			local viface=$(qmp_get_virtual_iface $dev)
 
