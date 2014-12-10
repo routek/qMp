@@ -6,7 +6,7 @@ function do_test(ip,index,key,tool) {
 	var output = document.getElementById('output_'+index);
 
 	if (output) {
-		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:middle"/&gt; ';
+		output.innerHTML ='<%:Collecting data... %><img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:middle"/> ';
                 output.style.display = 'inline';
 		XHR.get("/cgi-bin/tools",[ key ,  tool ,  ip] ,
                 function(x) {
@@ -19,10 +19,11 @@ function parse_result(txt) {
 	var t = new String(txt);
 
 	if (t.indexOf("Cannot") >= 0)
-		return("&lt;font color='#f00'&gt;<%:Cannot connecto to netserver%>&lt;/font&gt;");
+		//return("&lt;font color='#f00'&gt;<%:Cannot connecto to netserver%>&lt;/font&gt;");
+		return("<font color='#a00'><%:Cannot connect to netserver%></font>");
 	else
-		return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");
-		//return("<font color='#0a0'>"+txt+"</font>");
+		//return("&lt;font color='#0a0'&gt;"+txt+"&lt;/font&gt;");
+		return("<font color='#050'>"+txt+"</font>");
 }
 
 </script>
