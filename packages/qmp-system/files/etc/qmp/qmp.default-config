@@ -63,7 +63,7 @@ config 'qmp' 'services'
 # -----------------------------
 config 'qmp' 'update'
 	# Remote URL where the firmware images are placed.
-	option url 'http://fw.qmp.cat/master'
+	option url 'http://fw.qmp.cat/trunk'
 	
 	# Special remote file which contains a list of firmware:md5hash.
 	option images 'IMAGES'

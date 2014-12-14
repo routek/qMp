@@ -26,8 +26,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
-PKG_VERSION:=3.1
-PKG_RELEASE:=rc1
+PKG_VERSION:=trunk
+PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0+
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
