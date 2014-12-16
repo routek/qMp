@@ -7,7 +7,7 @@ QMP_PATH="/etc/qmp"
 QMP_VERSION="$QMP_PATH/qmp.version"
 
 qmp_update_get_local_hash() {
-	device_hash="$(cat /proc/cpuinfo | egrep  "^vendor_id|^model name|^machine" | md5sum | awk '{print $1}')"
+	device_hash="$( ( [ -f /tmp/sysinfo/board_name ] && cat /tmp/sysinfo/board_name || cat /proc/cpuinfo | egrep "^vendor_id|^model name|^machine") | md5sum | awk '{print $1}' )"
 	qmp_debug "My local device hash is $device_hash"
 	echo "$device_hash"
 }
