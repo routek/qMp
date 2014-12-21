@@ -34,7 +34,7 @@ qmp_prepare_wireless_iface() {
 ###################################
 # First parameter: device
 # Second parameter: channel
-# Third parameter: mode (adhoc, ap, adhoc_ap, aplan, client, clientwan, 80211s, 80211s_aplan none)
+# Third parameter: mode (adhoc, ap, adhoc_ap, aplan, client, clientwan, none)
 # It returns the same channel if it is right, and the new one fixet if not
 
 qmp_check_channel() {
@@ -49,7 +49,7 @@ qmp_check_channel() {
 		# Checking if some thing related with channel is wrong
 		local wrong=0
 		[ -z "$channel" ] || [ -z "$chaninfo" ] && wrong=1
-		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" ] -o "$mode" == "80211s" ] -o "$mode" == "80211s_aplan" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
+		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
 		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
 		[ "$m11b" == "b" ] && [ $channel -gt 14 ] && wrong=1
@@ -128,8 +128,6 @@ qmp_configure_wifi_device() {
 	# aplan =====> Access point (LAN)
 	# client ====> Client (mesh)
 	# clientwan => Client (WAN)
-	# 80211s ====> 802.11s (mesh)
-	# 80211s_aplan ====> 802.11s (mesh) + access poin (LAN)
 
 	local mode="$(qmp_uci_get @wireless[$id].mode)"
 
@@ -151,16 +149,6 @@ qmp_configure_wifi_device() {
 			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
 			qmp_uci_set interfaces.lan_devices "$landevs"
 			qmp_uci_set interfaces.wan_devices "$wandevs"
-			;;
-		80211s)
-			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
-			qmp_uci_set interfaces.lan_devices "$landevs"
-			qmp_uci_set interfaces.wan_devices "$wandevs"
-			;;
-		80211s_aplan)
-			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
-			qmp_uci_set interfaces.lan_devices  "$landevs $device"
-			qmp_uci_set interfaces.wan_devices  "$wandevs"
 			;;
 		ap)
 			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
@@ -269,11 +257,6 @@ qmp_configure_wifi_device() {
 	local vap=0
 	[ $mode == "adhoc_ap" ] && {
 		mode="adhoc"
-		vap=1
-	}
-	
-	[ $mode == "80211s_aplan" ] && {
-		mode="80211s"
 		vap=1
 	}
 

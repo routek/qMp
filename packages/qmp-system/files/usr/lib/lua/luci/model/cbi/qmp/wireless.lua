@@ -96,40 +96,15 @@ for _,wdev in ipairs(wdevs) do
         mode:value("aplan","Access point (LAN)")
         mode:value("client","Client (mesh)")
         mode:value("clientwan","Client (WAN)")
-        mode:value("80211s","[EXPERIMENTAL] 802.11s (mesh)")
-        mode:value("80211s_aplan","[EXPERIMENTAL] 802.11s (mesh) + access point (LAN)")
         mode:value("none","Disabled")
 
-	-- Network name
+	-- Name
 	local essid = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
 	-- maxlength is documented but not implemented
 	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
 	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
 	essid.maxlength = 32
 
---[[
-	essid.default = "qMp"
-	essid.depends = "adhoc_ap"
-	essid.depends = "adhoc"
-	essid.depends = "ap"
-	essid.depends = "aplan"
-	essid.depends = "client"
-	essid.depends = "clientwan"
-	
-	-- Mesh network name
-	local 80211smesh = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
-	-- maxlength is documented but not implemented
-	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
-	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
-	essid.maxlength = 32
-	essid.default = "qMp"
-	essid.depends = "adhoc_ap"
-	essid.depends = "adhoc"
-	essid.depends = "ap"
-	essid.depends = "aplan"
-	essid.depends = "client"
-	essid.depends = "clientwan"
-]]--
 	-- Channel
 	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to be used in this device.<br/>Selecting channels with + or - enables 40MHz bandwidth."))
 	mymode = m.uci:get("qmp",wdev,"mode")
