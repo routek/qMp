@@ -7,7 +7,6 @@ STAGE="$1"
 	uci set qmp.interfaces.mesh_devices="wlan0"
 	uci set qmp.interfaces.lan_devices="eth0.1"
 	uci set qmp.interfaces.wan_devices="eth0.2"
-	uci set qmp.networks.disable_mesh_dhcp="0"
 	uci add qmp wireless
 	uci set qmp.@wireless[0]=wireless
 	uci set qmp.@wireless[0].mode=adhoc
