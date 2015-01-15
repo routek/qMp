@@ -484,8 +484,11 @@ qmp_wifi_get_default() {
 		fi
 
 		channel="$(echo $channel_info | cut -d' ' -f1)"
-		[ "$ht40" == "ht40+" ] && channel="${channel}+"
-		[ "$ht40" == "ht40-" ] && channel="${channel}-"
+		# Temporary fix for #336
+		#[ "$ht40" == "ht40+" ] && channel="${channel}+"
+		#[ "$ht40" == "ht40-" ] && channel="${channel}-"
+		[ "$ht40" == "ht40+" ] && channel="${channel}"
+		[ "$ht40" == "ht40-" ] && channel="${channel}"
 
 		echo "$channel"
 
