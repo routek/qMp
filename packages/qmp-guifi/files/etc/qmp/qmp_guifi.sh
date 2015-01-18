@@ -91,7 +91,7 @@ check() {
 	} 
 	
 	# CHECK IF HAS MESH RADIO
-	local meshradio=`grep "meshradio" $1 | awk '{FS="="; print $2}' | tr -d "'"`
+	local meshradio=`grep "meshradio" $1 | awk -F "=" '{print $2}' | tr -d "'"`
 	[ "$meshradio" == "no" ] && {
 		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No Mesh radio found. Revise your device configuration in the guifi.net website."; exit 1; } ||
 		qmp_error "No Mesh radio found. Revise your device configuration in the guifi.net website."
@@ -114,7 +114,7 @@ print() {
 	}
 	local var
 	for var in $ONECLICK_VARS; do
-		echo " $var='`grep "$var" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`'"
+		echo " $var='`grep "$var" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`'"
 	done	
 	
 	return 0
@@ -134,11 +134,11 @@ configure() {
 	uci set qmp.networks.disable_lan_dhcp=0
 
 	# SET LAN IP
-	local ip="`grep "ip" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local ip="`grep "ip" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	uci set qmp.networks.lan_address="$ip"
 
 	# SET LAN MASK
-	local mask="`grep "mask" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local mask="`grep "mask" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	uci set qmp.networks.lan_netmask="$mask"
 
 	# SET BMX IP mask (CIDR)
@@ -154,10 +154,10 @@ configure() {
 	uci set qmp.networks.bmx6_ipv4_address="$ip/$cidrmask"
 
 	# GET NODE DEVICE NAME - ZONE ID - ZONE CHANNEL
-	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local ssid="`grep "ssid" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local zone="`grep "zone" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local nodename="`grep "nodename" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local devname="`grep "devname" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local ssid="`grep "ssid" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
 	# SET NODE NAME
 	# TO DO: SET ZONE ID IN NAME (OR NOT)
