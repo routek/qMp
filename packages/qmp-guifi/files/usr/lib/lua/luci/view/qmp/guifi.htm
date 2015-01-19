@@ -7,12 +7,14 @@ function option(url,key,option) {
 	if (url) if (output) {
 		toggle("confirm",0);   // Hide button
 		toggle("cancel",0);    // Hide button
-		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:midle;"/&gt; ';
+//		output.innerHTML ='<%:Collecting data...%>&lt;img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:midle;"/&gt; ';
+		output.innerHTML ='<%:Collecting data...%><img src="/luci-static/resources/icons/loading.gif" height="20px" alt="Loading" style="vertical-align:midle;"/> ';
 		output.style.display = 'block';
 		XHR.get("/cgi-bin/guifi",[ key , option , url ] ,
 		function(x) {
 			var text = new String(x.responseText);
-			output.innerHTML="&lt;pre&gt;&lt;font color='#0a0'&gt;"+text+"&lt;/font&gt;&lt;/pre&gt;";
+//			output.innerHTML="&lt;pre&gt;&lt;font color='#0a0'&gt;"+text+"&lt;/font&gt;&lt;/pre&gt;";
+			output.innerHTML="<pre><font color='#0a0'>"+text+"</font></pre>";
 			document.getElementById("guifidiv").style.height = 'auto';
 			if ( !(text.indexOf("ERROR") >= 0) ) {
 				switch (option) {
