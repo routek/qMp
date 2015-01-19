@@ -41,6 +41,12 @@ get_url() {
 		[ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: No URL specified."; exit 1; } ||
 		qmp_error "No URL specified. USE: '$0 get_url [${ONECLICK_URL_BASE}#####/] [FILE]'"
 	} || {
+                # TEMPORARY SOLUTION WHILE NO HTTPS SUPPORT FOR WGET                      
+                echo $1 | grep -q "^https://" 2>/dev/null                                          
+                [ $? -ne 0 ] || {                                                                             
+                        [ $ONECLICK_CGI -eq 1 ] && { echo "ERROR: HTTPS URLs not supported yet."; exit 1; } ||
+                        qmp_error "HTTPS URLs not supported yet."                         
+                }
 		echo $1 | grep -q "^http://" 2>/dev/null
 		## TO DO CHECK IF ID OR URL IS GIVEN
 		[ $? -ne 0 ] && {
