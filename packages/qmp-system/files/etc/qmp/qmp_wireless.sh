@@ -469,7 +469,7 @@ qmp_wifi_get_default() {
 
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
 		# channel is 1, 6 or 11 for coexistence and performance
-		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" ] && {
+		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" -o "$mode" = "80211s_aplan" ] && {
 
 			AP_INDEX=${AP_INDEX:-0}
 
@@ -540,7 +540,7 @@ qmp_configure_wifi_initial() {
 	#Changing to configured countrycode
 	iw reg set $(qmp_uci_get wireless.country)
 
-	macs="$(qmp_get_wifi_mac_devices | sort -u)"
+	macs="$(qmp_get_wifi_mac_devices | uniq)"
 
 	#Looking for configured devices
 	id_configured=""

@@ -162,7 +162,7 @@ qmp_debug() {
 
 # Returns the names of the wifi devices from the system
 qmp_get_wifi_devices() {
-	awk 'NR>2 { gsub(/:$/,"",$1); print $1 }' /proc/net/wireless | grep -v -e "wlan[0-9]-[0-9]"
+	awk 'NR>2 { gsub(/:$/,"",$1); print $1 }' /proc/net/wireless | grep -v -e "wlan[0-9]-[0-9]" | sort -u
 }
 
 # Returns the MAC address of the wifi devices
