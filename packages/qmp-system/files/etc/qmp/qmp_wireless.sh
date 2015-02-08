@@ -239,6 +239,8 @@ qmp_configure_wifi_device() {
 
 	local mac="$(qmp_uci_get @wireless[$id].mac)"
 	local name="$(qmp_uci_get @wireless[$id].name)"
+	local essidap="$(qmp_uci_get @wireless[$id].essidap)"
+	local mesh80211s="$(qmp_uci_get @wireless[$id].mesh80211s)"
 	local driver="$(qmp_uci_get wireless.driver)"
 	local country="$(qmp_uci_get wireless.country)"
 	local mrate="$(qmp_uci_get wireless.mrate)"
@@ -247,24 +249,29 @@ qmp_configure_wifi_device() {
 	local network="$(qmp_get_virtual_iface $device)"
 	local key="$(qmp_uci_get @wireless[$id].key)"
 	[ $(echo "$key" | wc -c) -lt 8 ] && encrypt="none" || encrypt="psk2"
-
+	
 	local dev_id="$(echo $device | tr -d [A-z])"
 	dev_id=${dev_id:-$(date +%S)}
 	local radio="radio$dev_id"
 
 	echo "------------------------"
-	echo "Device   $device"
-	echo "Mac      $mac"
-	echo "Mode     $mode"
-	echo "Driver   $driver"
-	echo "Channel  $channel"
-	echo "Country  $country"
-	echo "Network  $network"
-	echo "Name     $name"
-	echo "HTmode   $htmode"
-	echo "11mode   $mode11"
-	echo "Mrate    $mrate"
+	echo "Device        $device"
+	echo "Mac           $mac"
+	echo "Mode          $mode"
+	echo "Driver        $driver"
+	echo "Channel       $channel"
+	echo "Country       $country"
+	echo "Network       $network"
+	echo "AdHoc ESSID   $name"
+	echo "AP ESSID      $essidap"
+	echo "Mesh network" $mesh80211s
+	echo "HTmode        $htmode"
+	echo "11mode        $mode11"
+	echo "Mrate         $mrate"
 	echo "------------------------"
+
+	[ -z $essidap ] && essidap=$(echo ${name:0:29})"-AP"
+	[ -z $mesh80211s ] && mesh80211s="qMp"
 
 	local vap=0
 	[ $mode == "adhoc_ap" ] && {
@@ -303,6 +310,8 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_IFNAME"/"$device"/ \
 	 -e s/"#QMP_SSID"/"$(echo "${name:0:32}" | sed -e 's|/|\\/|g')"/ \
+	 -e s/"#QMP_APSSID"/"$(echo "${essidap:0:32}" | sed -e 's|/|\\/|g')"/ \
+	 -e s/"#QMP_MSSID"/"$(echo "${mesh80211s:0:32}" | sed -e 's|/|\\/|g')"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
 	 -e s/"#QMP_NETWORK"/"$network"/ \
 	 -e s/"#QMP_ENC"/"$encrypt"/ \
@@ -317,7 +326,7 @@ qmp_configure_wifi_device() {
 	 	 -e s/"#QMP_RADIO"/"$radio"/ \
 		 -e s/"#QMP_DEVICE"/"${device}ap"/ \
 		 -e s/"#QMP_IFNAME"/"${device}ap"/ \
-	 	 -e s/"#QMP_SSID"/"$(echo "${name:0:29}-AP" | sed -e 's|/|\\/|g')"/ \
+	 	 -e s/"#QMP_SSID"/"$(echo "${essidap:0:32}" | sed -e 's|/|\\/|g')"/ \
 		 -e s/"#QMP_NETWORK"/"lan"/ \
 		 -e s/"#QMP_ENC"/"$encrypt"/ \
 		 -e s/"#QMP_KEY"/"$key"/ \

@@ -100,36 +100,6 @@ for _,wdev in ipairs(wdevs) do
         mode:value("80211s_aplan","[EXPERIMENTAL] 802.11s (mesh) + access point (LAN)")
         mode:value("none","Disabled")
 
-	-- Network name
-	local essid = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
-	-- maxlength is documented but not implemented
-	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
-	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
-	essid.maxlength = 32
-
---[[
-	essid.default = "qMp"
-	essid.depends = "adhoc_ap"
-	essid.depends = "adhoc"
-	essid.depends = "ap"
-	essid.depends = "aplan"
-	essid.depends = "client"
-	essid.depends = "clientwan"
-	
-	-- Mesh network name
-	local 80211smesh = s_wireless:option(Value,"name","ESSID", translate("Name of the WiFi network"))
-	-- maxlength is documented but not implemented
-	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
-	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
-	essid.maxlength = 32
-	essid.default = "qMp"
-	essid.depends = "adhoc_ap"
-	essid.depends = "adhoc"
-	essid.depends = "ap"
-	essid.depends = "aplan"
-	essid.depends = "client"
-	essid.depends = "clientwan"
-]]--
 	-- Channel
 	channel = s_wireless:option(ListValue,"channel","Channel",translate("WiFi channel to be used in this device.<br/>Selecting channels with + or - enables 40MHz bandwidth."))
 	mymode = m.uci:get("qmp",wdev,"mode")
@@ -142,22 +112,56 @@ for _,wdev in ipairs(wdevs) do
 			if ch.channel < 15 then channel:value(ch.channel .. 'b', ch.channel .. 'b') end
 		end
 	end
-
-	-- WPA key
-	local key=s_wireless:option(Value,"key","WPA2 key",
-		translate("WPA2 key for AP mode. The minimum lenght is 8 characters.<br/>Leave blank to make it OPEN (recommended)"))
-	key.default = ""
-    key:depends("mode","ap")
-	key:depends("mode","aplan")
-	key:depends("mode","adhoc_ap")
-	key:depends("mode","client")
-	key:depends("mode","clientwan")
-
+	
 	-- Txpower
 	txpower = s_wireless:option(ListValue,"txpower",translate("Transmission power (dBm)"),translate("Radio power in dBm. Each 3 dB increment doubles the power."))
 	for _,t in ipairs(qmpinfo.get_txpower(mydev)) do
 		txpower:value(t,t)
 	end
+
+	-- maxlength is documented but not implemented
+	-- http://luci.subsignal.org/trac/wiki/Documentation/CBI#a.maxlengthnil
+	-- http://luci.subsignal.org/trac/browser/luci/trunk/libs/web/luasrc/cbi.lua?rev=9834#L1463
+
+	-- Network ESSID for adhoc                                                                                               
+   local essid = s_wireless:option(Value,"name","Ad hoc ESSID",
+		translate("ESSID (network name) to broadcast in ad hoc mode. Every node can use a different one."))
+	essid.maxlength = 32                               
+	essid.default = "qMp"                              
+	essid:depends("mode","adhoc")
+	essid:depends("mode","adhoc_ap")
+                                                                                                                                           
+	-- Network name for 80211s
+	local mesh80211s = s_wireless:option(Value,"mesh80211s","802.11s network",
+		translate("Name of the 802.11s mesh network. All the nodes must use the same network name."))
+	mesh80211s.maxlength = 32
+	mesh80211s.default = "qMp"	
+	mesh80211s:depends("mode","80211s")
+	mesh80211s:depends("mode","80211s_aplan")
+	
+	-- Network ESSID for ap or client
+	local essidap = s_wireless:option(Value,"essidap","AP ESSID",
+		translate("Name of the WiFi network (ESSID) for access point or client mode."))
+	essidap.maxlength = 27
+	essidap.default = "qMp-AP"
+	essidap:depends("mode","adhoc_ap")
+	essidap:depends("mode","ap")
+	essidap:depends("mode","aplan")
+	essidap:depends("mode","client")
+	essidap:depends("mode","clientwan")
+	essidap:depends("mode","80211s_aplan")
+
+	-- Network WPA2 key for ap or client
+	local key=s_wireless:option(Value,"key","WPA2 key",
+		translate("WPA2 key for AP or client modes. The minimum lenght is 8 characters.<br/>Leave blank to make it OPEN (recommended)"))
+	key.default = ""
+   key:depends("mode","ap")
+	key:depends("mode","aplan")
+	key:depends("mode","adhoc_ap")
+	key:depends("mode","client")
+	key:depends("mode","clientwan")
+	key:depends("mode","80211s_aplan")
+
 end
 
 
