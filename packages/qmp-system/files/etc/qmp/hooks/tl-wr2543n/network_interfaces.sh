@@ -1,1 +1,0 @@
-../scripts/switch_wdr_network.sh
