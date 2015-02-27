@@ -25,9 +25,12 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
+QMP_RELEASE?=testing
+QMP_CODENAME?=Clearance
+
 PKG_NAME:=qmp-tiny-node
-PKG_VERSION:=testing
-PKG_RELEASE:=1
+PKG_VERSION:=$(QMP_RELEASE)
+PKG_RELEASE:=$(QMP_CODENAME)
 PKG_LICENSE:=GPL-2.0+
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
