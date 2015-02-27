@@ -34,7 +34,7 @@ qmp_prepare_wireless_iface() {
 ###################################
 # First parameter: device
 # Second parameter: channel
-# Third parameter: mode (adhoc, ap, adhoc_ap, aplan, client, clientwan, none)
+# Third parameter: mode (adhoc, ap, adhoc_ap, aplan, client, clientwan, 80211s, 80211s_aplan none)
 # It returns the same channel if it is right, and the new one fixet if not
 
 qmp_check_channel() {
@@ -49,7 +49,7 @@ qmp_check_channel() {
 		# Checking if some thing related with channel is wrong
 		local wrong=0
 		[ -z "$channel" ] || [ -z "$chaninfo" ] && wrong=1
-		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
+		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" ] -o "$mode" == "80211s" ] -o "$mode" == "80211s_aplan" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
 		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
 		[ "$m11b" == "b" ] && [ $channel -gt 14 ] && wrong=1
@@ -128,6 +128,8 @@ qmp_configure_wifi_device() {
 	# aplan =====> Access point (LAN)
 	# client ====> Client (mesh)
 	# clientwan => Client (WAN)
+	# 80211s ====> 802.11s (mesh)
+	# 80211s_aplan ====> 802.11s (mesh) + access poin (LAN)
 
 	local mode="$(qmp_uci_get @wireless[$id].mode)"
 
@@ -149,6 +151,16 @@ qmp_configure_wifi_device() {
 			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
 			qmp_uci_set interfaces.lan_devices "$landevs"
 			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		80211s)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices "$landevs"
+			qmp_uci_set interfaces.wan_devices "$wandevs"
+			;;
+		80211s_aplan)
+			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
+			qmp_uci_set interfaces.lan_devices  "$landevs $device"
+			qmp_uci_set interfaces.wan_devices  "$wandevs"
 			;;
 		ap)
 			qmp_uci_set interfaces.mesh_devices "$meshdevs $device"
@@ -227,6 +239,8 @@ qmp_configure_wifi_device() {
 
 	local mac="$(qmp_uci_get @wireless[$id].mac)"
 	local name="$(qmp_uci_get @wireless[$id].name)"
+	local essidap="$(qmp_uci_get @wireless[$id].essidap)"
+	local mesh80211s="$(qmp_uci_get @wireless[$id].mesh80211s)"
 	local driver="$(qmp_uci_get wireless.driver)"
 	local country="$(qmp_uci_get wireless.country)"
 	local mrate="$(qmp_uci_get wireless.mrate)"
@@ -235,28 +249,38 @@ qmp_configure_wifi_device() {
 	local network="$(qmp_get_virtual_iface $device)"
 	local key="$(qmp_uci_get @wireless[$id].key)"
 	[ $(echo "$key" | wc -c) -lt 8 ] && encrypt="none" || encrypt="psk2"
-
+	
 	local dev_id="$(echo $device | tr -d [A-z])"
 	dev_id=${dev_id:-$(date +%S)}
 	local radio="radio$dev_id"
 
 	echo "------------------------"
-	echo "Device   $device"
-	echo "Mac      $mac"
-	echo "Mode     $mode"
-	echo "Driver   $driver"
-	echo "Channel  $channel"
-	echo "Country  $country"
-	echo "Network  $network"
-	echo "Name     $name"
-	echo "HTmode   $htmode"
-	echo "11mode   $mode11"
-	echo "Mrate    $mrate"
+	echo "Device        $device"
+	echo "Mac           $mac"
+	echo "Mode          $mode"
+	echo "Driver        $driver"
+	echo "Channel       $channel"
+	echo "Country       $country"
+	echo "Network       $network"
+	echo "AdHoc ESSID   $name"
+	echo "AP ESSID      $essidap"
+	echo "Mesh network" $mesh80211s
+	echo "HTmode        $htmode"
+	echo "11mode        $mode11"
+	echo "Mrate         $mrate"
 	echo "------------------------"
+
+	[ -z $essidap ] && essidap=$(echo ${name:0:29})"-AP"
+	[ -z $mesh80211s ] && mesh80211s="qMp"
 
 	local vap=0
 	[ $mode == "adhoc_ap" ] && {
 		mode="adhoc"
+		vap=1
+	}
+	
+	[ $mode == "80211s_aplan" ] && {
+		mode="80211s"
 		vap=1
 	}
 
@@ -286,6 +310,8 @@ qmp_configure_wifi_device() {
 	 -e s/"#QMP_DEVICE"/"$device"/ \
 	 -e s/"#QMP_IFNAME"/"$device"/ \
 	 -e s/"#QMP_SSID"/"$(echo "${name:0:32}" | sed -e 's|/|\\/|g')"/ \
+	 -e s/"#QMP_APSSID"/"$(echo "${essidap:0:32}" | sed -e 's|/|\\/|g')"/ \
+	 -e s/"#QMP_MSSID"/"$(echo "${mesh80211s:0:32}" | sed -e 's|/|\\/|g')"/ \
 	 -e s/"#QMP_BSSID"/"$bssid"/ \
 	 -e s/"#QMP_NETWORK"/"$network"/ \
 	 -e s/"#QMP_ENC"/"$encrypt"/ \
@@ -300,7 +326,7 @@ qmp_configure_wifi_device() {
 	 	 -e s/"#QMP_RADIO"/"$radio"/ \
 		 -e s/"#QMP_DEVICE"/"${device}ap"/ \
 		 -e s/"#QMP_IFNAME"/"${device}ap"/ \
-	 	 -e s/"#QMP_SSID"/"$(echo "${name:0:29}-AP" | sed -e 's|/|\\/|g')"/ \
+	 	 -e s/"#QMP_APSSID"/"$(echo "${essidap:0:32}" | sed -e 's|/|\\/|g')"/ \
 		 -e s/"#QMP_NETWORK"/"lan"/ \
 		 -e s/"#QMP_ENC"/"$encrypt"/ \
 		 -e s/"#QMP_KEY"/"$key"/ \
@@ -452,7 +478,7 @@ qmp_wifi_get_default() {
 
 		# channel AP = ( node_id + index*3 ) % ( num_channels_ap) + 1
 		# channel is 1, 6 or 11 for coexistence and performance
-		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" ] && {
+		[ "$mode" = "ap" -o "$mode" = "adhoc_ap" -o "$mode" = "80211s_aplan" ] && {
 
 			AP_INDEX=${AP_INDEX:-0}
 
@@ -484,8 +510,11 @@ qmp_wifi_get_default() {
 		fi
 
 		channel="$(echo $channel_info | cut -d' ' -f1)"
-		[ "$ht40" == "ht40+" ] && channel="${channel}+"
-		[ "$ht40" == "ht40-" ] && channel="${channel}-"
+		# Temporary fix for #336
+		#[ "$ht40" == "ht40+" ] && channel="${channel}+"
+		#[ "$ht40" == "ht40-" ] && channel="${channel}-"
+		[ "$ht40" == "ht40+" ] && channel="${channel}"
+		[ "$ht40" == "ht40-" ] && channel="${channel}"
 
 		echo "$channel"
 
@@ -520,7 +549,7 @@ qmp_configure_wifi_initial() {
 	#Changing to configured countrycode
 	iw reg set $(qmp_uci_get wireless.country)
 
-	macs="$(qmp_get_wifi_mac_devices | sort -u)"
+	macs="$(qmp_get_wifi_mac_devices | uniq)"
 
 	#Looking for configured devices
 	id_configured=""

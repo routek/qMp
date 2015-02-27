@@ -1,0 +1,6 @@
+wireless.#QMP_DEVICE.device=#QMP_RADIO
+wireless.#QMP_DEVICE.mode=mesh
+wireless.#QMP_DEVICE.mesh_id=#QMP_MSSID
+wireless.#QMP_DEVICE.network=#QMP_NETWORK
+wireless.#QMP_DEVICE.ifname=#QMP_IFNAME
+wireless.#QMP_DEVICE.mesh_fwding=0

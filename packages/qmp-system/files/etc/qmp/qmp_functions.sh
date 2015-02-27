@@ -773,6 +773,10 @@ qmp_configure_bmx6() {
 	for no_vlan_int in $(qmp_uci_get interfaces.no_vlan_devices); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
+	
+	# Check if the protocol has VLAN tag configured
+	local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
+	[ -z "$vid" -o $vid -lt 1 ] && use_vlan=0
 
 	# Check if the protocol has VLAN tag configured
 	local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"

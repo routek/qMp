@@ -26,7 +26,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-big-node
-PKG_VERSION:=3.1
+PKG_VERSION:=trunk
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0+
 
@@ -37,7 +37,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/qmp-big-node
   SECTION:=net
   CATEGORY:=qMp
-  TITLE:=Full-featured qMp nodes with addons (8 MB flash)
+  TITLE:=Full-featured qMp node with addons (8 MB flash)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-small-node \
 	+qmp-tinyproxy +tinymce \

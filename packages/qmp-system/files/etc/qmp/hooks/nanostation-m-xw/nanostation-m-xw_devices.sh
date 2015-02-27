@@ -1,0 +1,1 @@
+../scripts/nanostation-m-xw_devices.sh
