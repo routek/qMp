@@ -26,14 +26,14 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-system
-PKG_VERSION:=trunk
+PKG_VERSION:=testing
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0+
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
-QMP_CODENAME:=Kalimotxo
-QMP_RELEASE:=trunk
+QMP_CODENAME:=Clearance
+QMP_RELEASE:=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk

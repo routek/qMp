@@ -26,7 +26,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=qmp-tiny-node
-PKG_VERSION:=trunk
+PKG_VERSION:=testing
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0+
 

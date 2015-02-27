@@ -30,8 +30,8 @@ PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0+
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Kalimotxo
-QMP_RELEASE:=trunk
+QMP_CODENAME:=Clearance
+QMP_RELEASE:=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
