@@ -173,6 +173,9 @@ for i,v in ipairs(devices.wifi) do
     tmp:value("aplan","Access point (LAN)")
     tmp:value("client","Client (mesh)")
     tmp:value("clientwan","Client (WAN)")
+    tmp:value("80211s","[EXPERIMENTAL] 802.11s (mesh)")
+    tmp:value("80211s_aplan","[EXPERIMENTAL] 802.11s (mesh) + access point (LAN)")
+
     tmp:value("none","Disabled")
 
 	tmp.default = "adhoc_ap"
