@@ -29,7 +29,7 @@ SMSF="/var/run/bmx6/sms/sendSms/mdns"
 SMSTMP="/tmp/sms-mdns.tmp"
 SMSR="/var/run/bmx6/sms/rcvdSms"                                            
 DNSMASQ="/etc/dnsmasq.conf"                                     
-DNSMASQ_PID="/var/run/dnsmasq.pid"
+DNSMASQ_PID="/var/run/dnsmasq/dnsmasq.pid"
 
 [ ! -d $MDNS_DIR ] && mkdir $MDNS_DIR
 [ ! -f $HOSTF ] && touch $HOSTF
