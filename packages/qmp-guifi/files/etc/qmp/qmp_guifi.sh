@@ -1,5 +1,5 @@
 #!/bin/sh
-#    Copyright (C) 2013 Quick Mesh Project
+#    Copyright (C) 2015 Quick Mesh Project
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,8 +30,7 @@ ONECLICK_FILE="/tmp/guifi_oneclick"
 ONECLICK_PATTERN="qMp Guifi-oneclick"
 ONECLICK_URL="/view/unsolclic"
 ONECLICK_URL_BASE="http://guifi.net/guifi/device/"
-ONECLICK_VARS="nodename devname devmodel ipv4 netmask zoneid"
-#ONECLICK_ZONES="GS='124+' RAV='136' VLLC='108+'"
+ONECLICK_VARS="nodename latitude longitude devname devmodel ipv4 netmask zoneid"
 
 
 get_url() {
@@ -160,14 +159,19 @@ configure() {
 	uci set qmp.networks.bmx6_ipv4_address="$ip/$cidrmask"
 
 	# GET NODE DEVICE NAME - ZONE ID - ZONE CHANNEL
-	local zone="`grep "zone" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local nodename="`grep "nodename" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local devname="`grep "devname" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local ssid="`grep "ssid" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local latitude="`grep "latitude" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local longitude="`grep "longitude" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
 	# SET NODE NAME
 	# TO DO: SET ZONE ID IN NAME (OR NOT)
 	uci set qmp.node.community_id="$devname"
+
+        # SET COORDINATES
+	uci set qmp.node.latitude="$latitude"
+	uci set qmp.node.longitude="$longitude"
 
         # Select radio mode to set SSID
 	local j=0
@@ -176,7 +180,7 @@ configure() {
 		mode=$(uci get qmp.@wireless[$j].mode)
 		echo $mode | grep -q "adhoc" 2>/dev/null
 		[ $? -eq 0 ] && ssid="guifi.net/${nodename}"
-		[ "$mode" == "ap" ] && ssid="qMp-AP"
+		[ "$mode" == "ap" ] && ssid="${nodename}-AP"
 		uci set qmp.@wireless[$j].name=$ssid
 		j=$(( $j + 1 ))
 	done
@@ -197,12 +201,13 @@ configure() {
 	echo;
 	uci commit
 	sleep 1
-	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
+#	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
+	qmpcontrol configure_all ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
 	return 0
 }
 
 oneclick() {
-	[ ! -z $1 ] && oneclick_url=$1 || exit 1
+	[ ! -z $1 ] && oneclick_url=$1 || help
 	[ ! -z $2 ] && oneclick_file=$2 || oneclick_file=$ONECLICK_FILE
 	
 	# GETTING ONECLICK CONFIG
@@ -250,5 +255,5 @@ help() {
 }
 
 [ -z "$1" ] && help
-$@
+$@; [ $? -ne 0 ] && help
 
