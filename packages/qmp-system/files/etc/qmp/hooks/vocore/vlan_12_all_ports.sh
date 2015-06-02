@@ -1,1 +1,1 @@
-scripts/vlan_12_all_ports.sh
+../scripts/vlan_12_all_ports.sh

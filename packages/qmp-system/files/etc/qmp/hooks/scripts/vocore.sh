@@ -4,7 +4,6 @@ STAGE="$1"
 
 [ "$STAGE" == "birth" ] && {
 	echo "Configuring network and wifi for VoCore"
-	uci set qmp.interfaces.mesh_devices="wlan0"
 	uci set qmp.interfaces.lan_devices="eth0.1"
 	uci set qmp.interfaces.ignore_devices="eth0"
 	uci add qmp wireless
