@@ -197,20 +197,28 @@ function qmpinfo.get_channels(dev)
 
 		-- 5Ghz band
 		elseif c > 14 then
-			if #freqs == i then nc = nil
-			else nc = freqs[i+1].channel
+
+			if #freqs == i then
+				nc = nil
+			else
+				nc = freqs[i+1].channel
 			end
 
-			if i == 1 then pc = nil
-			else pc = freqs[i-1].channel
+			-- Channels 36 to 140
+			if c <= 140 then
+				if c % 8 == 0 then
+					ch.ht40m = true
+				elseif nc ~= nil and nc-c == 4 then
+					ch.ht40p = true
 			end
 
-			if nc ~= nil and nc-c == 4 then
-				ch.ht40p = true
-			end
-
-			if pc ~= nil and c-pc == 4 then
-				ch.ht40m = true
+			-- Channels 149 to 165
+			elseif c >=149 then
+				if (c-1) % 8 == 0 then
+					ch.ht40m = true
+				elseif nc ~= nil and nc-c == 4 then
+					ch.ht40p = true
+				end
 			end
 
 		end
