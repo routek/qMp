@@ -44,7 +44,7 @@ define Package/qmp-small-node
   URL:=http://qmp.cat
   DEPENDS:= +qmp-tiny-node \
 	+iputils-arping +iputils-clockdiff +tcpdump-mini +b6m +b6m-spread \
-	+iputils-ping6 +netperf +mtr \
+	+iputils-ping6 +mtr \
 	+munin-mesh +mini-snmpd +cgi-bin-zero +kmod-ipip +kmod-gre \
 	+libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
 	+luci +luci-lib-libremap-system +luci-lib-libremap-location
