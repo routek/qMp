@@ -1,0 +1,1 @@
+../scripts/tl-wr842n-v2.sh
