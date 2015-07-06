@@ -33,7 +33,7 @@ STAGE="$1"
 
 	uci set qmp.interfaces.lan_devices="eth0.1"
 	uci set qmp.interfaces.mesh_devices="eth0.12"
-	uci set qmp.interfaces.no_lan_devices="eth0.12"
+	uci set qmp.interfaces.no_vlan_devices="eth0.12"
         uci set qmp.interfaces.ignore_devices="eth0"
 	uci add qmp wireless
 	uci set qmp.@wireless[0]=wireless
