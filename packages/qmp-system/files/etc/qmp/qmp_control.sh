@@ -33,7 +33,7 @@ configure_wifi() {
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
 	configure_network
-	/etc/init.d/network reload
+	/etc/init.d/network restart
 	if /etc/init.d/gwck enabled
 	then
 		/etc/init.d/gwck restart
