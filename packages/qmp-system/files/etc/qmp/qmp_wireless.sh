@@ -49,7 +49,7 @@ qmp_check_channel() {
 		# Checking if some thing related with channel is wrong
 		local wrong=0
 		[ -z "$channel" ] || [ -z "$chaninfo" ] && wrong=1
-		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" ] -o "$mode" == "80211s" ] -o "$mode" == "80211s_aplan" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
+		[ "$mode" == "adhoc" -o "$mode" == "adhoc_ap" -o "$mode" == "80211s" -o "$mode" == "80211s_aplan" ] && [ -z "$(echo $chaninfo | grep adhoc)" ] && wrong=1
 		[ "$ht40" == "+" ] && [ -z "$(echo $chaninfo | grep +)" ] && wrong=1
 		[ "$ht40" == "-" ] && [ -z "$(echo $chaninfo | grep -)" ] && wrong=1
 		[ "$m11b" == "b" ] && [ $channel -gt 14 ] && wrong=1
