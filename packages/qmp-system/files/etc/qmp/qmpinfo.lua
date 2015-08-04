@@ -81,7 +81,17 @@ function qmpinfo.get_devices()
 					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
 						table.insert(phydevs.wifi,d)
 					else
-						table.insert(phydevs.eth,d)
+						local switched = true
+						for e in nixio.fs.dir(sysnet) do
+							if switched == true and nixio.fs.stat(sysnet..e..'/upper_'..d,"type") ~= nil then
+								switched = false
+							end
+
+						end
+						
+						if switched == false then
+							table.insert(phydevs.eth,d)
+						end
 					end
 					table.insert(phydevs.all,d)
 				end
