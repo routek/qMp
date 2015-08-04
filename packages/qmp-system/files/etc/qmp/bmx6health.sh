@@ -9,7 +9,7 @@
 	[ $(bmx6 -c show=interfaces| grep -c UP) -le 0 ] && {
 		echo "[$(date)] There is no interface working, restarting network and bmx6."
 		logread > /tmp/bmx6_crash_$(date +%Y%m%d_%H%M).log
-		/etc/init.d/network restart
+		/etc/init.d/network reload
 		if /etc/init.d/gwck enabled
 		then
 			/etc/init.d/gwck restart

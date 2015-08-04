@@ -34,7 +34,7 @@ qmp_set_mss_clamping_and_masq() {
 
 # Prepare config files
 qmp_configure_prepare_network() {
-	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=interface" | cut -d. -f2 | cut -d= -f1)"
+	local toRemove="$(uci show network | egrep "network.(lan|wan|mesh_).*=(interface|device)" | cut -d. -f2 | cut -d= -f1)"
 	qmp_log "Removing current network configuration"
 	for i in $toRemove; do
 		uci del network.$i
@@ -346,7 +346,7 @@ qmp_configure_mesh() {
 		for protocol_vid in $protocol_vids; do
 			local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
 			local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
-			
+
 			# if no vlan is specified do not use vlan
 			[ -z "$vid" ] && vid=1 && use_vlan=0
 
@@ -362,12 +362,21 @@ qmp_configure_mesh() {
 			# Since all interfaces are defined somewhere (LAN, WAN or with Rescue IP),
 			# in case of not use vlan tag, device definition is not needed.
 			[ $use_vlan -eq 1 ] && {
-				# If device is WAN use rescue for the VLAN tag
-				if [ $(qmp_get_devices wan | grep -c $dev) -gt 0 ]; then
-					qmp_set_vlan ${viface}_rescue $vid
-				else
-					qmp_set_vlan $viface $vid
-				fi
+
+				#### [QinQ]
+				####
+				#### Using the rescue interface here does not make much sense as of
+				#### current qMp status and does not work for 802.1-ad
+				####
+				#### # If device is WAN use rescue for the VLAN tag
+				####
+				####	if [ $(qmp_get_devices wan | grep -c $dev) -gt 0 ]; then
+				####		qmp_set_vlan ${viface}_rescue $vid $dev
+				####	else
+				####		qmp_set_vlan $viface $vid $dev
+				####	fi
+
+				qmp_set_vlan $viface $vid $dev
 			}
 
 			# Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)

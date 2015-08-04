@@ -49,10 +49,24 @@ qmp_set_vlan() {
   local vid=$2
   [ -z "$viface" ] || [ -z "$vid" ] && return
 
-  uci set network.${viface}_$vid=interface
-  uci set network.${viface}_$vid.proto=none
-  uci set network.${viface}_$vid.ifname=@$viface.$vid
+  uci set network.${viface}_${vid}=device
+  if [ -e "/sys/class/net/$dev/phy80211" ]; then
+    # 802.1Q VLANs for wireless interfaces
+    uci set network.${viface}_${vid}.type=8021q
+  else
+    # [QinQ backport] 802.1q VLANs for wired interfaces
+    uci set network.${viface}_${vid}.type=8021q
+  fi
+  uci set network.${viface}_${vid}.name=${viface}_${vid}
+  uci set network.${viface}_${vid}.ifname=$3
+  uci set network.${viface}_${vid}.vid=${vid}
+
+  uci set network.${viface}_${vid}_ad=interface
+  uci set network.${viface}_${vid}_ad.ifname=${viface}_${vid}
+  uci set network.${viface}_${vid}_ad.proto=${none}
+  uci set network.${viface}_${vid}_ad.auto=1
   uci commit network
+
 }
 
 qmp_get_virtual_iface() {
@@ -190,11 +204,19 @@ qmp_configure_smart_network() {
 					[ "$id" == "$dev" ] && ignore=1
 				done
 
-			[ $ignore -eq 0 ] && phydevs="$phydevs $dev\n"
+			# [Qin] The device might be a wired device (e.g. eth0) with a switch
+			# and two or more virtual switched devices (e.g. eth0.1, eth0.2)
+			for sdev in $(ls /sys/class/net/$dev/ | grep upper_$dev. | cut -d "_" -f2); do
+				phydevs="$phydevs $sdev\n"
+				ignore=1
+			done
+
+			if [ $ignore -eq 0 ]; then
+				phydevs="$phydevs $dev\n"
+			fi
 		}
 	done
-
-	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | grep -v "\\." | sort -u | tr -d ' ' \t)"
+	phydevs="$(echo -e "$phydevs" | grep -v -e ".*ap$" | sort -u | tr -d ' ' \t)"
 
 	# if force is not enabled, we are not changing the existing lan/wan/mesh (only adding new ones)
 	[ "$force" != "force" ] && {
@@ -211,6 +233,7 @@ qmp_configure_smart_network() {
 	for dev in $phydevs; do
 		# If force is enabled, do not check if the device is already configured
 		[ "$force" != "force" ] && {
+
 			cnt=0
 			# If it is already configured, doing nothing
 			for cdev in $lan; do
@@ -226,9 +249,9 @@ qmp_configure_smart_network() {
 		}
 
 		# If not found before...
-		[ "$dev" == "eth0" ] && {
-			lan="$lan eth0"
-			mesh="$mesh eth0"
+		[ "$dev" == "eth0" ] || [ "$dev" == "eth0.1" ] && {
+			lan="$lan $dev"
+			mesh="$mesh $dev"
 			continue
 		}
 
@@ -248,12 +271,13 @@ qmp_configure_smart_network() {
 			done
 		} && continue
 
-		# if there is already LAN device and it is not wifi, use as WAN
-		[ -z "$wan" ] && wan="$dev" || {
+		# if there is already LAN device and it is not wifi, use as WAN+MESH
+		[ -z "$wan" ] && wan="$dev" && mesh="$mesh $dev" || {
 			# else use as LAN and MESH
 			lan="$dev $lan"
 			mesh="$dev $mesh"
 		}
+
 	done
 
 	echo "Network devices found:"
@@ -773,7 +797,7 @@ qmp_configure_bmx6() {
 	for no_vlan_int in $(qmp_uci_get interfaces.no_vlan_devices); do
 		[ "$no_vlan_int" == "$dev" ] && use_vlan=0
 	done
-	
+
 	# Check if the protocol has VLAN tag configured
 	local vid="$(echo $protocol_vid | awk -F':' '{print $2}')"
 	[ -z "$vid" -o $vid -lt 1 ] && use_vlan=0
@@ -783,16 +807,22 @@ qmp_configure_bmx6() {
 	[ -z "$vid" -o $vid -lt 1 ] && use_vlan=0
 
 	# If vlan tagging
-	    if [ $use_vlan -eq 1 ]; then
-		local ifname="$dev.$vid"
-
+		if [ $use_vlan -eq 1 ]; then
+			local viface="$(qmp_get_virtual_iface $dev)"
+			local ifname="${viface}_${vid}"
+			
 	# If not vlan tagging
-	    else
-		local ifname="$dev"
-	    fi
+		else
+			local ifname="$dev"
+		fi
 
-	    uci set $conf.mesh_$counter="dev"
-	    uci set $conf.mesh_$counter.dev="$ifname"
+		uci set $conf.mesh_$counter="dev"
+		uci set $conf.mesh_$counter.dev="$ifname"
+		if [ -e "/sys/class/net/$dev/phy80211" ]; then
+			uci set $conf.mesh_$counter.linklayer=2
+		else
+			uci set $conf.mesh_$counter.linklayer=1
+		fi
 
 	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
 	      local bmx6_ipv4_netmask="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -s -d / -f2)"
@@ -851,7 +881,7 @@ qmp_configure_initial() {
 	qmp_hooks_exec firstboot
 	qmp_configure_wifi_initial
 	qmp_configure_wifi
-	/etc/init.d/network restart
+	/etc/init.d/network reload
 	sleep 1
 	qmp_configure_smart_network
 }
