@@ -1,0 +1,1 @@
+../scripts/ramips_configure_wlan0_802.1s_aplan.sh

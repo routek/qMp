@@ -1,1 +1,0 @@
-../scripts/wt3020.sh
