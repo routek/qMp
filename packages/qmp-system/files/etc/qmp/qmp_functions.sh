@@ -58,7 +58,13 @@ qmp_set_vlan() {
     uci set network.${viface}_${vid}.type=8021q
   fi
   uci set network.${viface}_${vid}.name=${viface}_${vid}
-  uci set network.${viface}_${vid}.ifname=$3
+  if [ -e "/sys/class/net/$dev/phy80211" ]; then
+    # 802.1Q VLANs for wireless interfaces
+    uci set network.${viface}_${vid}.ifname='@'${viface}
+  else
+    # [QinQ backport] 802.1q VLANs for wired interfaces
+    uci set network.${viface}_${vid}.ifname=$3
+  fi
   uci set network.${viface}_${vid}.vid=${vid}
 
   uci set network.${viface}_${vid}_ad=interface
