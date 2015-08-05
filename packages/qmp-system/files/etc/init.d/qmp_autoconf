@@ -93,9 +93,9 @@ configure() {
 	log "[Configuring full system]"
 	qmp_configure
 
-	log Reloading network to finish
+	log Restarting network to finish
 	touch "$CONTROL_FILE"
-	[ -f "$CONTROL_FILE" ] && /etc/init.d/network reload || log CRITICAL, cannot write file $CONTROL_FILE
+	[ -f "$CONTROL_FILE" ] && /etc/init.d/network restart || log CRITICAL, cannot write file $CONTROL_FILE
 }
 
 # This function is executed in each boot
