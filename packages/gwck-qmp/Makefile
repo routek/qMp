@@ -42,7 +42,7 @@ define Package/gwck-qmp
   URL:=http://qmp.net/projects/gwck
   MAINTAINER:=Simó Albert i Beltran <sim6@graciasensefils.net>
   MENU:=1
-  DEPENDS:=+fping +bmx6
+  DEPENDS:=+fping +bmx7
 endef
 
 define Package/gwck-qmp/description
