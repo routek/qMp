@@ -41,7 +41,7 @@ define Package/bmx6-mdns
   SECTION:=net
   CATEGORY:=qMp
   URL:=http://qmp.cat
-  DEPENDS:=+bmx6-sms
+  DEPENDS:=+bmx7-sms
 endef
 
 define Package/bmx6-mdns/description
