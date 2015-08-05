@@ -43,7 +43,7 @@ define Package/qmp-small-node
   TITLE:=Standard qMp node (8 MB flash devices)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-tiny-node \
-	+iputils-arping +iputils-clockdiff +tcpdump-mini +b6m +b6m-spread \
+	+iputils-arping +iputils-clockdiff +tcpdump-mini \
 	+iputils-ping6 +mtr \
 	+munin-mesh +mini-snmpd +cgi-bin-zero +kmod-ipip +kmod-gre \
 	+libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
