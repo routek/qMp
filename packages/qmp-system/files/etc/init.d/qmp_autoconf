@@ -86,16 +86,16 @@ configure() {
 	# Execute birth hooks if it is the first boot of the device
 	[ ! -e "$BIRTH_FILE" ] && exechooks birth && touch "$BIRTH_FILE"
 
-	# Configure system and reboot
+	# Configure system and finish
 	. $QMP_DIR/qmp_functions.sh
 	log "[Configuring initial system]"
 	qmp_configure_initial
 	log "[Configuring full system]"
 	qmp_configure
 
-	log Rebooting
+	log Reloading network to finish
 	touch "$CONTROL_FILE"
-	[ -f "$CONTROL_FILE" ] && reboot || log CRITICAL, cannot write file $CONTROL_FILE
+	[ -f "$CONTROL_FILE" ] && /etc/init.d/network reload || log CRITICAL, cannot write file $CONTROL_FILE
 }
 
 # This function is executed in each boot
