@@ -49,57 +49,47 @@ end
 -- returns all the physical devices as a table
 --  in table.wifi only the wifi ones
 --  in table.eth only the non-wifi ones
-
-function qmpinfo.get_devices()
-	local d
-	local phydevs = {}
-	phydevs.wifi = {}
+function qmpinfo.get_devices() 
+	local d 
+	local phydevs = {} 
+	phydevs.wifi = {} 
 	phydevs.all = {}
 	phydevs.eth = {}
 	local ignored = util.split( uci:get("qmp","interfaces","ignore_devices") or ""," ")
 
---	uci:foreach('network','switch_vlan', function (s)
---			local name = uci:get("network",s[".name"],"device")
---			local vlan = uci:get("network",s[".name"],"vid")
---			if name ~= nil and vlan ~= nil then
---				table.insert(phydevs.eth,name..'.'..vlan)
---				table.insert(phydevs.all,name..'.'..vlan)
---				table.insert(ignored,name)
---			end
---		end)
+	local sysnet = "/sys/class/net/" 
+	local qmp_devs = qmpinfo.get_qmp_devices() 
 
-	local sysnet = "/sys/class/net/"
-	local qmp_devs = qmpinfo.get_qmp_devices()
-
-	for d in nixio.fs.dir(sysnet) do
-		local is_qmp_dev = isInTable(qmp_devs,d)
+	for d in nixio.fs.dir(sysnet) do 
+		local is_qmp_dev = isInTable(qmp_devs,d) 
 		if is_qmp_dev or nixio.fs.stat(sysnet..d..'/device',"type") ~= nil then
 			if is_qmp_dev or (string.find(d,"%.") == nil and string.find(d,"ap") == nil) then
 				local ignore = isInTable(ignored,d)
 
-				if not ignore then
+				if not ignore then 
 					if nixio.fs.stat(sysnet..d..'/phy80211',"type") ~= nil then
-						table.insert(phydevs.wifi,d)
-					else
-						local switched = true
-						for e in nixio.fs.dir(sysnet) do
-							if switched == true and nixio.fs.stat(sysnet..e..'/upper_'..d,"type") ~= nil then
-								switched = false
-							end
+						table.insert(phydevs.wifi,d) 
+					else 
 
+						local toadd = true 
+						for e in nixio.fs.dir(sysnet) do 
+							if toadd == true and string.match(e, d) and nixio.fs.stat(sysnet..d..'/upper_'..e,"type") ~= nil then
+								toadd = false
+							end
 						end
-						
-						if switched == false then
+
+						if toadd == true then
 							table.insert(phydevs.eth,d)
 						end
 					end
+
 					table.insert(phydevs.all,d)
 				end
 			end
 		end
 	end
 
-	return phydevs
+	return phydevs 
 end
 
 -- deprecated
