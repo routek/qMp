@@ -159,8 +159,8 @@ end
 
 -- MeshAll option for wired devices
 
-meshall = m:field(Flag, "_meshall", translate("Use mesh in all wired devices"),translate("If this option is enabled, all the node's wired network devices will be used for meshing (recommended)"))
-meshall.default = "1"
+meshall = m:field(Flag, "_meshall", translate("Use mesh in all wired devices"),translate("If this option is enabled, all the wired network devices will be used for meshing"))
+meshall.default = "0"
 
 -- Wireless devices
 nodedevs_wifi = {}
