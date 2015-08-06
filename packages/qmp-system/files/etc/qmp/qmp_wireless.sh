@@ -550,11 +550,12 @@ qmp_reset_wifi() {
 	#Generating default wifi configuration
 	country="$(uci get qmp.wireless.country 2>/dev/null)"
 	country="${country:-US}"
-
+	
 	mv /etc/config/wireless /tmp/wireless.old
 	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
 
-	wifi
+        wifi
+	sleep 5
 }
 
 qmp_configure_wifi_initial() {
