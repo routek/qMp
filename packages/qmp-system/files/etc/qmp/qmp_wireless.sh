@@ -389,39 +389,59 @@ qmp_wifi_get_default() {
 
 	if [ "$what" == "mode" ]; then
 
+		#Count the number of total devices, A/AN 5 GHz devices, B/BG/BGN 2.4 GHz devices and AB/ABG/ABGN dual-band devices
 		local devices=0
+		local a_devices=0
 		local bg_devices=0
+		local abg_devices=0
 		for wd in $(qmp_get_wifi_devices); do
 			devices=$(( $devices + 1 ))
-			bg_devices=$(( $bg_devices + $($QMPINFO modes $wd | egrep "b|g" -c) ))
+			a_devices=$(( $a_devices + $($QMPINFO modes $wd | egrep "a" | egrep -v "b|g" -c) ))
+			bg_devices=$(( $bg_devices + $($QMPINFO modes $wd | egrep -v "a" | egrep "b|g" -c) ))
+			abg_devices=$(( $abg_devices + $($QMPINFO modes $wd | egrep "a" | egrep "b|g" -c) ))
 		done
 
 		local index=$(echo $device | tr -d [A-z])
 
-		#If only one device, using AP+ADHOC
+		#Only one device: if 5 GHz-capable => adhoc, otherwise AP+ADHOC
 		if [ $devices -eq 1 ]; then
 			[ $bg_devices -eq 0 ] && echo "adhoc" || echo "adhoc_ap"
 		else
 
-		#If only one B/G device (2.4GHz) available, using it as AP+ADHOC
-		bg_this_device=$($QMPINFO modes $device | egrep "b|g" -c)
-		if [ $bg_this_device -eq 1 -a $bg_devices -eq 1 ]; then
-			echo "adhoc_ap"
-		else
+		#Two or more devices
 
-		#If only one B/G device of two devices, using the non B/G one as adhoc
-		if [ $bg_devices -eq 1 -a $devices -eq 2 ]; then
+		# If current device is 5 GHz-capable only => adhoc
+		a_this_device=$($QMPINFO modes $device | egrep "a" | egrep -v "b|g" -c)
+		if [ $a_this_device -eq 1 ]; then
 			echo "adhoc"
 		else
 
-		#If more than one device BG, using first for ADHOC+AP and the others for ADHOC
-		if [ $devices -gt 1 ]; then
-			[ $index == 0 ] && echo "adhoc_ap" || echo "adhoc"
+		# If current device is 2.4 GHz-capable only => adhoc_ap
+		bg_this_device=$($QMPINFO modes $device | egrep -v "a" | egrep "b|g" -c)
+		if [ $bg_this_device -eq 1 ]; then
+			echo "adhoc_ap"
 		else
 
-		#This should never happend
+		# If current device is dual-band capable only => depends on the other devices
+
+		# If there are no other only 5 GHz-capable devices => adhoc
+		if [ $a_devices -eq 0 ]; then
+			echo "adhoc"
+		else
+
+		# If there are no other only 2.4 GHz-capable devices => adhoc_ap
+		if [ $bg_devices -eq 0 ]; then
 			echo "adhoc_ap"
-		fi;fi;fi;fi
+		else
+
+		# If all the devices are dual-band capable => firs device adhoc, the rest adhoc_ap
+		if [ $abg_devices -eq $devices ]; then
+			[ $index == 0 ] && echo "adhoc" || echo "adhoc_ap"
+		else
+
+		# This should never happen
+			echo "adhoc_ap"
+		fi;fi;fi;fi;fi;fi
 
 	# CHANNEL
 	# Default channel depends on the card and on configured mode
