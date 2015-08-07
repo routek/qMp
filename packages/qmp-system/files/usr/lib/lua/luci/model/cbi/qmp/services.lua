@@ -21,6 +21,7 @@
 
 require("luci.sys")
 local http = require "luci.http"
+local nixio = require "nixio"
 
 local m = Map("qmp", "qMp node services")
 
@@ -63,9 +64,11 @@ translate("If enabled, the node will be available to perform bandwidth test from
 bwt.default=1
 
 -- Option: mdns
-local mdns = basic_services:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),
-translate("A distributed DNS system to publish and get domain names (example: myNode01.qmp)"))
-mdns.default=1
+if nixio.fs.stat("/usr/lib/lua/luci/model/cbi/qmp/mdns.lua","type") ~= nil then
+	local mdns = basic_services:option(Flag, "mesh_dns", translate("Mesh distributed DNS"),
+	translate("A distributed DNS system to publish and get domain names (example: myNode01.qmp)"))
+	mdns.default=1
+end
 
 -- Option: munin
 local munin = additional_services:option(Flag, "munin", translate("Munin agent"),
