@@ -46,7 +46,6 @@ stop_services() {
 	/etc/init.d/dnsmasq stop
 	/etc/init.d/gwck stop
 	/etc/init.d/bmx6 stop
-	/etc/init.d/radvd stop
 	/etc/init.d/uhttpd stop
 }
 

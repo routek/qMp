@@ -113,6 +113,7 @@ qmp_unpublish_hna_bmx6() {
 	bmx6 -c --configReload
 }
 
+### Deprecated
 qmp_radvd_enable_dev() {
 	local dev="$1"
 	local cfg=""
@@ -139,6 +140,7 @@ qmp_radvd_enable_dev() {
 	echo "Done"
 }
 
+### Deprecated
 qmp_radvd_enable_prefix() {
 	local dev="$1"
 	local prefix="$2"
@@ -177,6 +179,7 @@ qmp_radvd_enable_prefix() {
 	echo "Done"
 }
 
+### Deprecated
 qmp_radvd_enable_route() {
 	local dev="$1"
 	local route="$2"
@@ -243,11 +246,13 @@ qmp_configure_lan_v6() {
 	echo "Publishing $ulan_net over the mesh network"
 	qmp_publish_hna_bmx6 $ulan_net ulan
 
-	echo "Configuring radvd"
-	qmp_radvd_enable_dev lan
-	qmp_radvd_enable_prefix lan $ulan_ip
-	qmp_radvd_enable_route lan fc00::/7
-	/etc/init.d/radvd restart
+	
+	### Deprecated
+	# echo "Configuring radvd"
+	# qmp_radvd_enable_dev lan
+	# qmp_radvd_enable_prefix lan $ulan_ip
+	# qmp_radvd_enable_route lan fc00::/7
+	# /etc/init.d/radvd restart
 
 	echo "Done"
 }
