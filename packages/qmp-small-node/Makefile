@@ -47,7 +47,7 @@ define Package/qmp-small-node
 	+iputils-ping6 +mtr +netperf \
 	+munin-mesh +mini-snmpd +cgi-bin-zero +kmod-ipip +kmod-gre \
 	+libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
-	+luci +luci-lib-libremap-system +luci-lib-libremap-location
+	+luci +luci-lib-libremap-system +luci-lib-libremap-location +bmx6-mdns
 endef
 
 define Package/qmp-small-node/description
