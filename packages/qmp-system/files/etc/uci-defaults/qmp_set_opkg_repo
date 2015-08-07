@@ -1,2 +1,0 @@
-#!/bin/sh
-sed s/12.09.1/12.09-rc2/g -i /etc/opkg.conf
