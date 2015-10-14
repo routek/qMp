@@ -13,7 +13,6 @@ STAGE="$1"
 
 	uci add network switch
 	uci add network switch_vlan > /dev/null
-	uci add network switch_vlan > /dev/null
 
 	uci set network.@switch[0]=switch
 	uci set network.@switch[0].name=switch0
