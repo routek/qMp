@@ -1,0 +1,9 @@
+#!/bin/sh
+
+source /etc/openwrt_release
+ARCH=`echo $DISTRIB_TARGET | cut -d '/' -f 1`
+DFEEDS_FILE=/etc/opkg/distfeeds.conf
+CFEEDS_FILE=/etc/opkg/customfeeds.conf
+
+cat $DFEEDS_FILE | grep clearance_qmp_ | sed 's/^#//' | sed 's/^ //' | sed 's!http://downloads.openwrt.org/chaos_calmer/15.05!http://fw.qmp.cat/Releases/3.2!' | sed "s!$DISTRIB_TARGET!$ARCH!" >> $CFEEDS_FILE
+
