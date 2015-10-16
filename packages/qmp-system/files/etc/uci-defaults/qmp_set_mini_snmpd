@@ -4,8 +4,8 @@
         uci set mini_snmpd.@mini_snmpd[0].enabled=1
         if ! uci get mini_snmpd.@mini_snmpd[0].interfaces | egrep -q 'br-lan|wlan0'        
                 then
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces="br-lan"
                 uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces="br-lan"
         fi
         uci commit
 
