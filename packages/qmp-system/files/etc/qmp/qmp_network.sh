@@ -375,13 +375,11 @@ qmp_configure_mesh() {
 				####
 				#### # If device is WAN use rescue for the VLAN tag
 				####
-				####	if [ $(qmp_get_devices wan | grep -c $dev) -gt 0 ]; then
-				####		qmp_set_vlan ${viface}_rescue $vid $dev
-				####	else
-				####		qmp_set_vlan $viface $vid $dev
-				####	fi
-
-				qmp_set_vlan $viface $vid $dev
+				if [ $(qmp_get_devices wan | grep -c $dev) -gt 0 ]; then
+					qmp_set_vlan ${viface}_rescue $vid $dev
+				else
+					qmp_set_vlan $viface $vid $dev
+				fi
 			}
 
 			# Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
