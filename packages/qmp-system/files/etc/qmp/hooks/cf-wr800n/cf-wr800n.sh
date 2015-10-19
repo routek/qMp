@@ -1,1 +1,0 @@
-../scripts/cf-wr800n.sh

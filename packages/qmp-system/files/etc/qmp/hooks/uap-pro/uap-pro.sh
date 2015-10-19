@@ -1,1 +1,0 @@
-../scripts/uap-pro.sh

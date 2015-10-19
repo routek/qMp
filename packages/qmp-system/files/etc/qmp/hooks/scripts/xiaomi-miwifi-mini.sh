@@ -3,10 +3,7 @@
 STAGE="$1"
 
 [ "$STAGE" == "birth" ] && {
-	echo "Configuring network for Xiaomi MiWiFi Mini"
-	uci set qmp.interfaces.lan_devices="eth0.1"
-	uci set qmp.interfaces.wan_devices="eth0.2"
-	uci set qmp.interfaces.ignore_devices="eth0"
+	echo "Configuring wifi for Xiaomi MiWiFi Mini"
 	uci add qmp wireless
 	uci set qmp.@wireless[0]=wireless
 	uci set qmp.@wireless[0].mode=adhoc

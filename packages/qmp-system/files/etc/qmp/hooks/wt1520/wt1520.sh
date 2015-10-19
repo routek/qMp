@@ -1,1 +1,0 @@
-../scripts/wt1520.sh

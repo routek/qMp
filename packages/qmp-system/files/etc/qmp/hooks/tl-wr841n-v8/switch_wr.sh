@@ -1,1 +1,0 @@
-../scripts/switch_wr.sh
