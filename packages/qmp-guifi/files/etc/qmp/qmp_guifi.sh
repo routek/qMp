@@ -159,11 +159,11 @@ configure() {
 	uci set qmp.networks.bmx6_ipv4_address="$ip/$cidrmask"
 
 	# GET NODE DEVICE NAME - ZONE ID - ZONE CHANNEL
-	local nodename="`grep "nodename" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local nodename="`grep "nodename" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local latitude="`grep "latitude" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 	local longitude="`grep "longitude" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local devname="`grep "devname" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
-	local zone="`grep "zone" $1 | awk '{FS="="; print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local devname="`grep "devname" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
+	local zone="`grep "zone" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
 
 	# SET NODE NAME
 	# TO DO: SET ZONE ID IN NAME (OR NOT)
