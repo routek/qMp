@@ -233,12 +233,11 @@ oneclick() {
 		[ $? -ne 0 ] && qmp_error "Unexpected in qmpguifi configure function"
 		echo "Configuration done!"; echo;
 		rm -f $oneclick_file
-		return 0
 	} || {
 		echo "Doing nothing."; echo;
 		rm -f $oneclick_file
-		return 1
 	}
+	return 0
 }
 
 help() {
@@ -255,5 +254,5 @@ help() {
 }
 
 [ -z "$1" ] && help
-$@; [ $? -ne 0 ] && help
+$@; [ $? -ne 0 ] && help || return 0
 
