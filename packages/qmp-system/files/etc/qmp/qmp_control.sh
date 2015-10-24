@@ -169,7 +169,7 @@ help() {
 	echo ""
 	echo "Other:"
 	echo " apply_services			: Start/stop services depending on qmp configuration"
-	echo " enable_ns_ppt			: Enable POE passtrought from NanoStation M2/5 devices. Be careful with this option!"
+	echo " enable_ns_ppt			: Enable PoE passtrough from NanoStation M2/5 devices. Be careful with this option!"
 	echo " upgrade [URL]			: Upgrade system. By default to the last version, but image url can be provided to force"
 	echo " hard_reboot			: Performs a hard reboot (using kernel sysrq)"
 
