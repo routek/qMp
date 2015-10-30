@@ -1,1 +1,0 @@
-../scripts/microwrt.sh
