@@ -1,0 +1,31 @@
+#!/usr/bin/lua
+
+local qmp_system = require("qmp_system")
+
+function print_help()
+        print("qmpinfo is a handy script that provides basic information about this qMp device\
+	and the mesh status.")
+        print("")
+        print("Usage: qmpinfo <command> [options]")
+        print("")
+        print("Available commands:")
+        print(" hostname                : print this device's hostname")
+        print("")
+end
+
+
+function print_hostname()
+	print(qmp_system.get_hostname())
+end
+
+if #arg < 1 then
+        print_help()
+        os.exit(1)
+end
+
+local command = arg[1]
+
+if command == "hostname" then
+        print_hostname()
+end
+
