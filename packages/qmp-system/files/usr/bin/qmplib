@@ -1,0 +1,33 @@
+#!/usr/bin/lua
+
+local qmp_network = require("qmp_network")
+
+function print_help()
+        print("qmplib is a handy script library that provides information about this qMp device\
+	and the mesh status. It is mostly thought for development.")
+        print("")
+        print("Usage: qmplib <command> [options]")
+        print("")
+        print("Available commands:")
+        print(" list_ethernet_devices   : print the list of Ethernet s hostname")
+        print("")
+end
+
+
+function print_list_ethernet_devices()
+	for k, v in pairs(qmp_network.get_ethernet_devices()) do
+	  print (v)
+	end
+end
+
+if #arg < 1 then
+        print_help()
+        os.exit(1)
+end
+
+local command = arg[1]
+
+if command == "list_ethernet_devices" then
+        print_list_ethernet_devices()
+end
+

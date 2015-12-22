@@ -1,5 +1,29 @@
 #!/usr/bin/lua
 
+local qmp_wireless = require("qmp_wireless")
+
+function configure_network()
+  -- qmp_configure
+  -- qmp_bmx6_reload
+  -- /etc/init.d/network reload
+  -- if gwck then /etc/init.nd/gwck reload
+  -- /etc/init.d/dnsmaq restart
+  -- qmp_restart_firewall
+end
+
+function configure_wireless()
+  print("In qmpcontrol -> configure_wireless()")
+  qmp_wireless.initial()
+  -- qmp_configure_wifi_initial
+  -- qmp_configure_wifi
+  -- configure_network
+  -- /etc/init.d/network reload
+  -- if /etc/init.d/gwck enabled
+  --   then
+  --   /etc/init.d/gwck restart
+  -- fi
+end
+
 function print_help()
   print("qmpcontrol is a handy script that allows controlling and configuring several")
   print("aspects of this qMp device. Several commands are available, sorted in different")
@@ -8,6 +32,8 @@ function print_help()
   print("Usage: qmpcontrol <command> [options]")
   print("")
   print("General device configuration:")
+  print(" configure_network                 : Configure all the network interfaces according to the settings in /etc/config/qmp")
+  print(" configure_wireless                : Configure the wireless interfaces according to the settings in /etc/config/qmp")
   print("")
   print("Other:")
   print(" help                              : Show this help")
@@ -21,6 +47,14 @@ if #arg < 1 then
 end
 
 local command = arg[1]
+
+if command == "configure_network" then
+  configure_network()
+end
+
+if command == "configure_wireless" or command == "configure_wifi" then
+  configure_wireless()
+end
 
 if command == "help" then
   print_help()
