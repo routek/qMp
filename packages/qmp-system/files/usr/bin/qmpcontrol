@@ -1,0 +1,27 @@
+#!/usr/bin/lua
+
+function print_help()
+  print("qmpcontrol is a handy script that allows controlling and configuring several")
+  print("aspects of this qMp device. Several commands are available, sorted in different")
+  print("categories.")
+  print("")
+  print("Usage: qmpcontrol <command> [options]")
+  print("")
+  print("General device configuration:")
+  print("")
+  print("Other:")
+  print(" help                              : Show this help")
+  print("")
+end
+
+
+if #arg < 1 then
+  print_help()
+  os.exit(1)
+end
+
+local command = arg[1]
+
+if command == "help" then
+  print_help()
+end
