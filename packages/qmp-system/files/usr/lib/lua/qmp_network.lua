@@ -11,6 +11,28 @@ local qmp_defaults = require("qmp_defaults")
 
 local qmp_network = {}
 
+
+-- Get all the network devices, (e.g. lo, eth0, eth1.12, br-lan, tunn33, wlan0ap)
+local function get_all_devices()
+
+  local devices = {}
+
+	local conn = ubus.connect()
+	if conn then
+		local status = conn:call("network.device", "status", {})
+
+    -- Check all the devices returned by the Ubus call
+		for k, v in pairs(status) do
+		  -- table.insert(devices, k)
+		  print (k)
+		end
+		conn:close()
+	end
+
+  return devices
+
+end
+
 -- Get an array with the physical raw Ethernet devices (e.g. eth0, eth1, eth2),
 -- excluding wireless and the virtual ones like "lo" (localhost), VLANs, etc.
 local function get_ethernet_devices()
@@ -48,5 +70,6 @@ end
 
 
 qmp_network.get_ethernet_devices = get_ethernet_devices
+qmp_network.get_all_devices = get_all_devices
 
 return qmp_network
