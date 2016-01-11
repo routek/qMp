@@ -20,6 +20,14 @@ function print_list_ethernet_devices()
 	end
 end
 
+
+function print_list_network_devices()
+	for k, v in pairs(qmp_network.get_all_devices()) do
+	  print (v)
+	end
+end
+
+
 if #arg < 1 then
         print_help()
         os.exit(1)
@@ -29,5 +37,9 @@ local command = arg[1]
 
 if command == "list_ethernet_devices" then
         print_list_ethernet_devices()
+end
+
+if command == "list_network_devices" then
+        print_list_network_devices()
 end
 
