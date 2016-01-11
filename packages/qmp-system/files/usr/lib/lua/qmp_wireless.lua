@@ -1,9 +1,13 @@
 #!/usr/bin/lua
 
+local PATH_SYS_CLAS_80211 = "/sys/class/ieee80211/"
+
 local QMP_CONFIG_FILENAME = "qmp"
 
 local qmp_uci = require("qmp_uci")
 local qmp_defaults = require("qmp_defaults")
+local qmp_network = require("qmp_network")
+local qmp_tools = require("qmp_tools")
 
 local qmp_wireless = {}
 
@@ -27,6 +31,41 @@ local function initial_setup()
 end
 
 
+
+-- Get an array with the wireless (IEEE 802.11) radio devices (e.g. radio0, radio1, radio2)
+local function get_wireless_phy_devices()
+
+  return qmp_tools.ls(PATH_SYS_CLAS_80211)
+
+end
+
+
+
+-- Get an array with the wireless (IEEE 802.11) radio devices (e.g. radio0, radio1, radio2)
+local function get_wireless_radio_devices()
+
+  local rdevices = {}
+
+	local conn = ubus.connect()
+	if conn then
+		local status = conn:call("network.wireless", "status", {})
+
+    -- Check all the devices returned by the Ubus call
+		for k, v in pairs(status) do
+      table.insert(rdevices, k)
+    end
+
+		conn:close()
+	end
+
+  return rdevices
+
+end
+
+
+
 qmp_wireless.initial_setup = initial_setup
+qmp_wireless.get_wireless_radio_devices = get_wireless_radio_devices
+qmp_wireless.get_wireless_phy_devices = get_wireless_phy_devices
 
 return qmp_wireless

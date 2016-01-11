@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 
 local qmp_network = require("qmp_network")
+local qmp_wireless = require("qmp_wireless")
 
 function print_help()
         print("qmplib is a handy script library that provides information about this qMp device\
@@ -9,20 +10,37 @@ function print_help()
         print("Usage: qmplib <command> [options]")
         print("")
         print("Available commands:")
-        print(" list_ethernet_devices   : print the list of Ethernet s hostname")
+        print(" list_network_all_devices        : print the list of all network devices")
+        print(" list_network_ethernet_devices   : print the list of Ethernet network devices")
+        print(" list_wireless_physical_devices  :print the list of wireless physical devices")
+        print(" list_wireless_radio_devices     : print the list of wireless radio devices")
         print("")
 end
 
 
-function print_list_ethernet_devices()
-	for k, v in pairs(qmp_network.get_ethernet_devices()) do
+function print_list_network_all_devices()
+	for k, v in pairs(qmp_network.get_all_devices()) do
 	  print (v)
 	end
 end
 
 
-function print_list_network_devices()
-	for k, v in pairs(qmp_network.get_all_devices()) do
+function print_list_network_ethernet_devices()
+	for k, v in pairs(qmp_network.get_ethernet_devices()) do
+    print (v)
+	end
+end
+
+
+function print_list_wireless_physical_devices()
+	for k, v in pairs(qmp_wireless.get_wireless_phy_devices()) do
+	  print (v)
+	end
+end
+
+
+function print_list_wireless_radio_devices()
+	for k, v in pairs(qmp_wireless.get_wireless_radio_devices()) do
 	  print (v)
 	end
 end
@@ -35,11 +53,13 @@ end
 
 local command = arg[1]
 
-if command == "list_ethernet_devices" then
-        print_list_ethernet_devices()
-end
-
-if command == "list_network_devices" then
-        print_list_network_devices()
+if command == "list_network_ethernet_devices" then
+        print_list_network_ethernet_devices()
+elseif command == "list_network_all_devices" then
+        print_list_network_all_devices()
+elseif command == "list_wireless_physical_devices" then
+        print_list_wireless_physical_devices()
+elseif command == "list_wireless_radio_devices" then
+        print_list_wireless_radio_devices()
 end
 
