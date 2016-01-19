@@ -12,7 +12,7 @@ function print_help()
         print("Available commands:")
         print(" list_network_all_devices        : print the list of all network devices")
         print(" list_network_ethernet_devices   : print the list of Ethernet network devices")
-        print(" list_wireless_physical_devices  :print the list of wireless physical devices")
+        print(" list_wireless_physical_devices  : print the list of wireless physical devices")
         print(" list_wireless_radio_devices     : print the list of wireless radio devices")
         print("")
 end
