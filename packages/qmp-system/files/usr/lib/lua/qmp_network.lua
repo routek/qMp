@@ -1,7 +1,7 @@
 #!/usr/bin/lua
 
 local PATH_SYS_VIRTUAL_NET = "/sys/devices/virtual/net/"
-local PATH_SYS_CLASS_NET = "/sys/devices/virtual/net/"
+local PATH_SYS_CLASS_NET = "/sys/class/net/"
 
 local ubus = require "ubus"
 local uci = require("uci")
@@ -24,7 +24,7 @@ local function get_all_devices()
     -- Check all the devices returned by the Ubus call
 		for k, v in pairs(status) do
 		  -- table.insert(devices, k)
-		  print (k)
+		print (k)
 		end
 		conn:close()
 	end
@@ -48,14 +48,25 @@ local function get_ethernet_devices()
 
       -- Check for devices with "Network device" in the "type" field
 			for l, w in pairs(v) do
+
   			if l == "type" and w == "Network device" then
 
   			  -- Check for virtual devices to discard them
   			  local f = io.open(PATH_SYS_VIRTUAL_NET .. k)
+
   			  if f then
   			    f:close()
   			  else
-            table.insert(devices, k)
+
+            -- Check for IEEE 802.11 wireless devices to discard them
+            local f = io.open(PATH_SYS_CLASS_NET .. k .. "/phy80211")
+
+            if then
+              f:close()
+            else
+              -- The interface is not VLAN, localhost, wireless, etc.
+              table.insert(devices, k)
+            end
           end
   			end
 			end
