@@ -32,7 +32,7 @@ end
 
 
 
--- Get an array with the wireless (IEEE 802.11) radio devices (e.g. radio0, radio1, radio2)
+-- Get an array with the wireless (IEEE 802.11) physical devices (e.g. phy0, phy1, phy2)
 local function get_wireless_phy_devices()
 
   return qmp_tools.ls(PATH_SYS_CLAS_80211)
