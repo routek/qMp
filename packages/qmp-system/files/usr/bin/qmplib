@@ -5,45 +5,93 @@ local qmp_wireless = require("qmp_wireless")
 
 function print_help()
         print("qmplib is a handy script library that provides information about this qMp device\
-	and the mesh status. It is mostly thought for development.")
+  and the mesh status. It is mostly thought for development.")
         print("")
         print("Usage: qmplib <command> [options]")
         print("")
         print("Available commands:")
-        print(" list_network_all_devices        : print the list of all network devices")
-        print(" list_network_ethernet_devices   : print the list of Ethernet network devices")
-        print(" list_wireless_physical_devices  : print the list of wireless physical devices")
-        print(" list_wireless_radio_devices     : print the list of wireless radio devices")
+        print(" is_network_ethernet_devices <device>        : check if a device (e.g. eth0) is an Ethernet network device")
+        print(" list_network_all_devices                    : print the list of all network devices")
+        print(" list_network_ethernet_devices               : print the list of Ethernet network devices")
+        print(" list_network_ethernet_switch_devices        : print the list of Ethernet network devices with a switch")
+        print(" list_network_switch_devices                 : print the list of Ethernet network devices")
+        print(" list_wireless_physical_devices              : print the list of wireless physical devices")
+        print(" list_wireless_radio_devices                 : print the list of wireless radio devices")
+        print(" table_network_etherswitch_devices           : print the table of Ethernet network devices with a switch")
+        print(" table_network_etherswitch_swconfig_devices  : print the table of Ethernet network devices with a switch as returned by swconfig")
         print("")
 end
 
 
+function check_is_network_ethernet_devices()
+  if #arg == 2 then
+    print (tostring(qmp_network.is_ethernet_device(arg[2])))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 function print_list_network_all_devices()
-	for k, v in pairs(qmp_network.get_all_devices()) do
-	  print (v)
-	end
+  for k, v in pairs(qmp_network.get_all_devices()) do
+    print (v)
+  end
 end
 
 
 function print_list_network_ethernet_devices()
-	for k, v in pairs(qmp_network.get_ethernet_devices()) do
+  for k, v in pairs(qmp_network.get_ethernet_devices()) do
     print (v)
-	end
+  end
+end
+
+
+function print_list_network_ethernet_switch_devices()
+  for k, v in pairs(qmp_network.get_ethernet_switch_devices()) do
+    print (v)
+  end
+end
+
+
+function print_list_network_switch_devices()
+  for k, v in pairs(qmp_network.get_switch_devices()) do
+    print (v)
+  end
 end
 
 
 function print_list_wireless_physical_devices()
-	for k, v in pairs(qmp_wireless.get_wireless_phy_devices()) do
-	  print (v)
-	end
+  for k, v in pairs(qmp_wireless.get_wireless_phy_devices()) do
+    print (v)
+  end
 end
 
 
 function print_list_wireless_radio_devices()
-	for k, v in pairs(qmp_wireless.get_wireless_radio_devices()) do
-	  print (v)
-	end
+  for k, v in pairs(qmp_wireless.get_wireless_radio_devices()) do
+    print (v)
+  end
 end
+
+
+function print_table_network_etherswitch_devices()
+  for k, v in pairs(qmp_network.get_etherswitch_devices()) do
+    for l, w in pairs(v) do
+      print (k .. ": " .. l .. ": " .. w)
+    end
+  end
+end
+
+
+function print_table_network_etherswitch_swconfig_devices()
+  for k, v in pairs(qmp_network.get_etherswitch_swconfig_devices()) do
+    for l, w in pairs(v) do
+      print (k .. ": " .. l .. ": " .. w)
+    end
+  end
+end
+
 
 
 if #arg < 1 then
@@ -53,13 +101,23 @@ end
 
 local command = arg[1]
 
-if command == "list_network_ethernet_devices" then
-        print_list_network_ethernet_devices()
+if command == "is_network_ethernet_devices" then
+  check_is_network_ethernet_devices()
 elseif command == "list_network_all_devices" then
-        print_list_network_all_devices()
+  print_list_network_all_devices()
+elseif command == "list_network_ethernet_devices" then
+  print_list_network_ethernet_devices()
+elseif command == "list_network_ethernet_switch_devices" then
+  print_list_network_ethernet_switch_devices()
+elseif command == "list_network_switch_devices" then
+  print_list_network_switch_devices()
 elseif command == "list_wireless_physical_devices" then
-        print_list_wireless_physical_devices()
+  print_list_wireless_physical_devices()
 elseif command == "list_wireless_radio_devices" then
-        print_list_wireless_radio_devices()
+  print_list_wireless_radio_devices()
+elseif command == "table_network_etherswitch_devices" then
+  print_table_network_etherswitch_devices()
+elseif command == "table_network_etherswitch_swconfig_devices" then
+  print_table_network_etherswitch_swconfig_devices()
 end
 
