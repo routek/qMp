@@ -13,6 +13,19 @@ local qmp_defaults = require("qmp_defaults")
 local qmp_network = {}
 
 
+-- Call u-bus to get network.device status
+local function call_ubus_network_device_status()
+
+  local ubusdata = nil
+
+  local conn = ubus.connect()
+  if conn then
+    ubusdata = conn:call("network.device", "status", {})
+    conn:close()
+  end
+
+  return ubusdata
+end
 
 -- Get all the network devices, (e.g. lo, eth0, eth1.12, br-lan, tunn33, wlan0ap)
 local function get_all_devices()
@@ -249,13 +262,13 @@ local function get_switch_devices()
 end
 
 
-
-qmp_network.is_ethernet_device = is_ethernet_device
+qmp_network.call_ubus_network_device_status = call_ubus_network_device_status
 qmp_network.get_all_devices = get_all_devices
 qmp_network.get_ethernet_devices = get_ethernet_devices
 qmp_network.get_ethernet_switch_devices = get_ethernet_switch_devices
 qmp_network.get_etherswitch_devices = get_etherswitch_devices
 qmp_network.get_etherswitch_swconfig_devices = get_etherswitch_swconfig_devices
 qmp_network.get_switch_devices = get_switch_devices
+qmp_network.is_ethernet_device = is_ethernet_device
 
 return qmp_network
