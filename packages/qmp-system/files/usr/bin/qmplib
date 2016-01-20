@@ -15,10 +15,12 @@ function print_help()
         print(" list_network_ethernet_devices               : print the list of Ethernet network devices")
         print(" list_network_ethernet_switch_devices        : print the list of Ethernet network devices with a switch")
         print(" list_network_switch_devices                 : print the list of Ethernet network devices")
+        print(" list_network_vlan_devices                   : print the list of VLAN network devices")
         print(" list_wireless_physical_devices              : print the list of wireless physical devices")
         print(" list_wireless_radio_devices                 : print the list of wireless radio devices")
         print(" table_network_etherswitch_devices           : print the table of Ethernet network devices with a switch")
         print(" table_network_etherswitch_swconfig_devices  : print the table of Ethernet network devices with a switch as returned by swconfig")
+        print(" table_network_vlan_ethernet_devices         : print the table of the VLAN network devices and their lower Ethernet device")
         print("")
 end
 
@@ -61,6 +63,13 @@ function print_list_network_switch_devices()
 end
 
 
+function print_list_network_vlan_devices()
+  for k, v in pairs(qmp_network.get_vlan_devices()) do
+    print (v)
+  end
+end
+
+
 function print_list_wireless_physical_devices()
   for k, v in pairs(qmp_wireless.get_wireless_phy_devices()) do
     print (v)
@@ -93,6 +102,15 @@ function print_table_network_etherswitch_swconfig_devices()
 end
 
 
+function print_table_network_vlan_ethernet_devices()
+  for k, v in pairs(qmp_network.get_vlan_ethernet_devices()) do
+    for l, w in pairs(v) do
+      print (k .. ": " .. l .. ": " .. w)
+    end
+  end
+end
+
+
 
 if #arg < 1 then
         print_help()
@@ -111,6 +129,8 @@ elseif command == "list_network_ethernet_switch_devices" then
   print_list_network_ethernet_switch_devices()
 elseif command == "list_network_switch_devices" then
   print_list_network_switch_devices()
+elseif command == "list_network_vlan_devices" then
+  print_list_network_vlan_devices()
 elseif command == "list_wireless_physical_devices" then
   print_list_wireless_physical_devices()
 elseif command == "list_wireless_radio_devices" then
@@ -119,5 +139,7 @@ elseif command == "table_network_etherswitch_devices" then
   print_table_network_etherswitch_devices()
 elseif command == "table_network_etherswitch_swconfig_devices" then
   print_table_network_etherswitch_swconfig_devices()
+elseif command == "table_network_vlan_ethernet_devices" then
+  print_table_network_vlan_ethernet_devices()
 end
 

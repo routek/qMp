@@ -7,8 +7,9 @@ local ubus = require "ubus"
 local uci = require("uci")
 local io = require("io")
 
-local qmp_uci = require("qmp_uci")
 local qmp_defaults = require("qmp_defaults")
+local qmp_tools = require("qmp_tools")
+local qmp_uci = require("qmp_uci")
 
 local qmp_network = {}
 
@@ -91,6 +92,83 @@ end
 -- Get a table with arrays containing the name of the switch and Ethernet devices
 -- returned by swconfig (e.g {"switch0"=>"mt7620", "switch1"=>"eth1"}), unfiltered
 local function get_etherswitch_swconfig_devices()
+
+  local essdevices = {}
+
+  local f = assert (io.popen ("swconfig list"))
+
+  for line in f:lines() do
+    local found = string.find(line, "Found:")
+    if found then
+      --Get the name of the switch interface (e.g. switch0) from the swconfig output
+      local sdev = string.sub(string.sub(line, string.find(line, " ")+1), 0, string.find(string.sub(line, string.find(line, " ")+1)," ")-1)
+      --Get the name of the Ethernet interface (e.g. eth0) from the swconfig output
+      local edev = string.sub(line, tostring(string.find(line, "-"))+2)
+      table.insert(essdevices,{[sdev] = edev});
+    end
+  end
+
+  f:close()
+
+  return essdevices
+
+end
+
+
+
+
+-- Get an array with all the VLAN devices (e.g. eth0.1, eth1.7)
+local function get_vlan_devices()
+
+  local vdevices = {}
+
+  ubusdata = call_ubus_network_device_status()
+
+  -- Check all the devices returned by the Ubus call
+  for k, v in pairs(ubusdata) do
+
+    -- Check for devices with "Network device" in the "type" field
+    for l, w in pairs(v) do
+
+      if l == "type" and w == "VLAN" then
+        table.insert(vdevices, k)
+      end
+    end
+  end
+
+  return vdevices
+end
+
+
+
+-- Get a table with arrays containing the name of a VLAN device and the
+-- Ethernet device they belong to (e.g {"eth0.1"=>"eth0", "eth1.7"=>"eth1"})
+local function get_vlan_ethernet_devices()
+
+  local vedevices = {}
+  local vdevices = get_vlan_devices()
+
+  for k, v in pairs(vdevices) do
+    local files = qmp_tools.ls(PATH_SYS_CLASS_NET .. v)
+
+    for l, w in pairs(files) do
+      local lpos = string.find(w, "lower_")
+
+      if lpos then
+        table.insert(vedevices,{[v] = string.sub(w, string.find(w, "_")+1)})
+      end
+    end
+  end
+
+  return vedevices
+end
+
+
+
+
+-- Get a table with arrays containing the name of a VLAN device and the switched
+-- Ethernet device they belong to (e.g {"eth0.1"=>"eth0"})
+local function get_vlan_etherswitch_devices()
 
   local essdevices = {}
 
@@ -262,6 +340,8 @@ qmp_network.get_ethernet_switch_devices = get_ethernet_switch_devices
 qmp_network.get_etherswitch_devices = get_etherswitch_devices
 qmp_network.get_etherswitch_swconfig_devices = get_etherswitch_swconfig_devices
 qmp_network.get_switch_devices = get_switch_devices
+qmp_network.get_vlan_devices = get_vlan_devices
+qmp_network.get_vlan_ethernet_devices = get_vlan_ethernet_devices
 qmp_network.is_ethernet_device = is_ethernet_device
 
 return qmp_network
