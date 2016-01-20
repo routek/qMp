@@ -13,10 +13,11 @@ local qmp_defaults = require("qmp_defaults")
 local qmp_network = {}
 
 
+
 -- Call u-bus to get network.device status
 local function call_ubus_network_device_status()
 
-  local ubusdata = nil
+  local ubusdata = {}
 
   local conn = ubus.connect()
   if conn then
@@ -27,24 +28,20 @@ local function call_ubus_network_device_status()
   return ubusdata
 end
 
+
+
 -- Get all the network devices, (e.g. lo, eth0, eth1.12, br-lan, tunn33, wlan0ap)
 local function get_all_devices()
 
   local devices = {}
 
-  local conn = ubus.connect()
-  if conn then
-    local status = conn:call("network.device", "status", {})
+  ubusdata = call_ubus_network_device_status()
 
-    -- Check all the devices returned by the Ubus call
-    for k, v in pairs(status) do
-      table.insert(devices, k)
-    end
-    conn:close()
+  for k, v in pairs(ubusdata) do
+    table.insert(devices, k)
   end
 
   return devices
-
 end
 
 
@@ -55,39 +52,35 @@ local function get_ethernet_devices()
 
   local devices = {}
 
-  local conn = ubus.connect()
-  if conn then
-    local status = conn:call("network.device", "status", {})
+  ubusdata = call_ubus_network_device_status()
 
-    -- Check all the devices returned by the Ubus call
-    for k, v in pairs(status) do
+  -- Check all the devices returned by the Ubus call
+  for k, v in pairs(ubusdata) do
 
-      -- Check for devices with "Network device" in the "type" field
-      for l, w in pairs(v) do
+    -- Check for devices with "Network device" in the "type" field
+    for l, w in pairs(v) do
 
-        if l == "type" and w == "Network device" then
+      if l == "type" and w == "Network device" then
 
-          -- Check for virtual devices to discard them
-          local f = io.open(PATH_SYS_VIRTUAL_NET .. k)
+        -- Check for virtual devices to discard them
+        local f = io.open(PATH_SYS_VIRTUAL_NET .. k)
+
+        if f then
+          f:close()
+        else
+
+          -- Check for IEEE 802.11 wireless devices to discard them
+          local f = io.open(PATH_SYS_CLASS_NET .. k .. "/phy80211")
 
           if f then
             f:close()
           else
-
-            -- Check for IEEE 802.11 wireless devices to discard them
-            local f = io.open(PATH_SYS_CLASS_NET .. k .. "/phy80211")
-
-            if f then
-              f:close()
-            else
-              -- The interface is not VLAN, localhost, wireless, etc.
-              table.insert(devices, k)
-            end
+            -- The interface is not VLAN, localhost, wireless, etc.
+            table.insert(devices, k)
           end
         end
       end
     end
-    conn:close()
   end
 
   return devices
