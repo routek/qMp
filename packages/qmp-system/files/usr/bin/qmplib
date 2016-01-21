@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 
 local qmp_network = require("qmp_network")
+local qmp_system = require("qmp_system")
 local qmp_wireless = require("qmp_wireless")
 
 function print_help()
@@ -18,6 +19,7 @@ function print_help()
         print(" list_network_vlan_devices                   : print the list of VLAN network devices")
         print(" list_wireless_physical_devices              : print the list of wireless physical devices")
         print(" list_wireless_radio_devices                 : print the list of wireless radio devices")
+        print(" set_system_hostname <hostname>              : set the system hostname specified by hostname")
         print(" table_network_etherswitch_devices           : print the table of Ethernet network devices with a switch")
         print(" table_network_etherswitch_swconfig_devices  : print the table of Ethernet network devices with a switch as returned by swconfig")
         print(" table_network_vlan_ethernet_devices         : print the table of the VLAN network devices and their lower Ethernet device")
@@ -111,6 +113,16 @@ function print_table_network_vlan_ethernet_devices()
 end
 
 
+function set_system_hostname()
+  if #arg == 2 then
+    qmp_system.set_hostname(arg[2])
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 
 if #arg < 1 then
         print_help()
@@ -135,6 +147,8 @@ elseif command == "list_wireless_physical_devices" then
   print_list_wireless_physical_devices()
 elseif command == "list_wireless_radio_devices" then
   print_list_wireless_radio_devices()
+elseif command == "set_system_hostname" then
+  set_system_hostname()
 elseif command == "table_network_etherswitch_devices" then
   print_table_network_etherswitch_devices()
 elseif command == "table_network_etherswitch_swconfig_devices" then

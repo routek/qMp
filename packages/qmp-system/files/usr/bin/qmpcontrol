@@ -1,6 +1,15 @@
 #!/usr/bin/lua
 
 local qmp_wireless = require("qmp_wireless")
+local qmp_system = require("qmp_system")
+
+function configure_hostname()
+  local hostname = nil
+  if #arg == 2 then
+    hostname = arg[2]
+  end
+  qmp_system.configure_hostname(arg[2])
+end
 
 function configure_network()
   -- qmp_configure
@@ -12,7 +21,6 @@ function configure_network()
 end
 
 function configure_wireless()
-  print("In qmpcontrol -> configure_wireless()")
   qmp_wireless.initial()
   -- qmp_configure_wifi_initial
   -- qmp_configure_wifi
@@ -35,6 +43,8 @@ function print_help()
   print(" configure_network                 : Configure all the network interfaces according to the settings in /etc/config/qmp")
   print(" configure_wireless                : Configure the wireless interfaces according to the settings in /etc/config/qmp")
   print("")
+  print("System configuration:")
+  print(" configure_hostname [hostname]     : Configure the device hostname with the specified name or using the default settings")
   print("Other:")
   print(" help                              : Show this help")
   print("")
@@ -54,6 +64,10 @@ end
 
 if command == "configure_wireless" or command == "configure_wifi" then
   configure_wireless()
+end
+
+if command == "configure_system" then
+  configure_hostname()
 end
 
 if command == "help" then

@@ -3,7 +3,7 @@
 local PATH_SYS_VIRTUAL_NET = "/sys/devices/virtual/net/"
 local PATH_SYS_CLASS_NET = "/sys/class/net/"
 
-local ubus = require "ubus"
+local ubus = require ("ubus")
 local uci = require("uci")
 local io = require("io")
 
