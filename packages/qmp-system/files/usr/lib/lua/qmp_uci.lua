@@ -78,9 +78,13 @@ end
 -- by its index- in a configuration file
 local function set_option_nonamesec(filename, sectype, secindex, opname, opvalue)
 
-  -- Assume no section index means first to appear (index 0)
-  if secindex == nil then
-    secindex = 0
+  -- Add some logic to ensure the index is valid or assume it is 0
+  if type(secindex) ~= "number" then
+    if tonumber(secindex) >= 0 then
+      secindex = tonumber(secindex)
+    else
+      secindex = 0
+    end
   end
 
   if filename ~= nil and sectype ~= nil and opname ~= nil and opvalue ~= nil then
