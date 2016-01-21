@@ -60,9 +60,10 @@ local function sectypename_in_file(filename, sectype, secname)
   return exists
 end
 
--- Set an option -> value pair to a section of a certain type and name in a
--- configuration file
-local function set_option(filename, secname, opname, opvalue)
+
+
+-- Set an option -> value pair to a named section in a configuration file
+local function set_option_namesec(filename, secname, opname, opvalue)
   if filename ~= nil and secname ~= nil and opname ~= nil and opvalue ~= nil then
     local cursor = uci.cursor()
     cursor:set(filename, secname, opname, opvalue)
@@ -71,10 +72,48 @@ local function set_option(filename, secname, opname, opvalue)
   end
 end
 
+
+
+-- Set an option -> value pair to an unnamed section of a certain type -identified
+-- by its index- in a configuration file
+local function set_option_nonamesec(filename, sectype, secindex, opname, opvalue)
+
+  -- Assume no section index means first to appear (index 0)
+  if secindex == nil then
+    secindex = 0
+  end
+
+  if filename ~= nil and sectype ~= nil and opname ~= nil and opvalue ~= nil then
+    local cursor = uci.cursor()
+
+    local secname = nil
+
+    -- Run through all the sections of the specified type
+    cursor:foreach(filename, sectype, function (s)
+
+      -- Get the name of the section specified with the index
+      if s[".index"] == secindex then
+        secname = s[".name"]
+      end
+    end)
+
+    -- If the section was found, set the name=>value pair
+    if secname ~= nil then
+      cursor:set(filename, secname, opname, opvalue)
+    end
+    cursor:save(filename)
+    cursor:commit(filename)
+  end
+end
+
+
+
 qmp_uci.config_file_exists = config_file_exists
 qmp_uci.isset_option_secname = isset_option_secname
 qmp_uci.new_section_typename = new_section_typename
 qmp_uci.sectypename_in_file = sectypename_in_file
-qmp_uci.set_option = set_option
+qmp_uci.set_option_namesec = set_option_namesec
+qmp_uci.set_option_nonamesec = set_option_nonamesec
+
 
 return qmp_uci
