@@ -28,6 +28,49 @@ end
 
 
 
+-- Get the value of an option in a named section of a certain type in a configuration file
+local function get_option_namesec(filename, secname, opname)
+  local cursor = uci.cursor()
+  return cursor:get(filename, secname, opname)
+end
+
+
+
+-- Get the value of an option in an unnamed section of a certain type -identified
+-- by its index- in a configuration file
+local function get_option_nonamesec(filename, sectype, secindex, opname)
+
+  local opvalue = {}
+
+  -- Add some logic to ensure the index is valid or assume it is 0
+  if type(secindex) ~= "number" then
+    if tonumber(secindex) >= 0 then
+      secindex = tonumber(secindex)
+    else
+      secindex = 0
+    end
+  end
+
+  if filename ~= nil and sectype ~= nil and opname ~= nil and opvalue ~= nil then
+    local cursor = uci.cursor()
+
+    local secname = nil
+
+    -- Run through all the sections of the specified type
+    cursor:foreach(filename, sectype, function (s)
+
+      -- Find the section specified with the index
+      if s[".index"] == secindex then
+        opvalue = s[opname]
+      end
+    end)
+end
+
+  return (opvalue)
+end
+
+
+
 -- Check if an option is set in a section of a certain name in a configuration file
 local function isset_option_secname(filename, secname, opname)
   if filename ~= nil and secname ~= nil and opname ~= nil then
@@ -113,6 +156,8 @@ end
 
 
 qmp_uci.config_file_exists = config_file_exists
+qmp_uci.get_option_namesec = get_option_namesec
+qmp_uci.get_option_nonamesec = get_option_nonamesec
 qmp_uci.isset_option_secname = isset_option_secname
 qmp_uci.new_section_typename = new_section_typename
 qmp_uci.sectypename_in_file = sectypename_in_file
