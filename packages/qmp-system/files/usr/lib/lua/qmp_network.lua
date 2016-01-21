@@ -14,6 +14,8 @@ local qmp_uci = require("qmp_uci")
 local qmp_network = {}
 
 
+local is_valid_mac
+
 
 -- Call u-bus to get network.device status
 local function call_ubus_network_device_status()
@@ -44,6 +46,32 @@ local function get_all_devices()
 
   return devices
 end
+
+
+
+-- Get the MAC address (lowercase) of a network device
+local function get_device_mac(device)
+
+  local devices = get_all_devices()
+
+  -- Check if the device is a network device
+  for k, v in pairs(devices) do
+    if device == v then
+      local f = io.open(PATH_SYS_CLASS_NET .. v .. "/address")
+      if f then
+        -- read the MAC address (17 characters: 12 MAC + 5 colons)
+        local mac = f:read(17)
+        f:close()
+        if is_valid_mac(mac) then
+          return string.lower(mac)
+        end
+      end
+    end
+  end
+
+  return nil
+end
+
 
 
 
@@ -207,6 +235,44 @@ end
 
 
 
+-- Validate a MAC address
+function is_valid_mac(mac)
+
+  if string.len(mac) == 17 then
+    if string.match(string.sub(mac,1,2),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+      if string.match(string.sub(mac,3,3),':') then
+        if string.match(string.sub(mac,4,5),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+          if string.match(string.sub(mac,6,6),':') then
+            if string.match(string.sub(mac,7,8),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+              if string.match(string.sub(mac,9,9),':') then
+                if string.match(string.sub(mac,10,11),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+                  if string.match(string.sub(mac,12,12),':') then
+                    if string.match(string.sub(mac,13,14),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+                      if string.match(string.sub(mac,15,15),':') then
+                        if string.match(string.sub(mac,16,17),'[a-zA-Z0-9:][a-zA-Z0-9]') then
+                          return true
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  return false
+end
+
+
+
+
+
+
+
 -- Get a table with arrays containing the name of the switch and Ethernet devices
 -- as returned by swconfig, ex.:
 --  a) { "switch0"=>"eth0" }
@@ -335,6 +401,7 @@ end
 
 qmp_network.call_ubus_network_device_status = call_ubus_network_device_status
 qmp_network.get_all_devices = get_all_devices
+qmp_network.get_device_mac = get_device_mac
 qmp_network.get_ethernet_devices = get_ethernet_devices
 qmp_network.get_ethernet_switch_devices = get_ethernet_switch_devices
 qmp_network.get_etherswitch_devices = get_etherswitch_devices
@@ -343,5 +410,6 @@ qmp_network.get_switch_devices = get_switch_devices
 qmp_network.get_vlan_devices = get_vlan_devices
 qmp_network.get_vlan_ethernet_devices = get_vlan_ethernet_devices
 qmp_network.is_ethernet_device = is_ethernet_device
+qmp_network.is_valid_mac = is_valid_mac
 
 return qmp_network
