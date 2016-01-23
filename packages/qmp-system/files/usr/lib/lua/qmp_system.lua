@@ -14,6 +14,7 @@ local qmp_uci = require("qmp_uci")
 
 local qmp_system = {}
 
+-- Local functions declaration
 local configure_hostname
 local get_community_id
 local get_hostname

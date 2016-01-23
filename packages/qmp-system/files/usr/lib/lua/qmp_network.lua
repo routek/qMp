@@ -8,7 +8,7 @@ local uci = require("uci")
 local io = require("io")
 
 local qmp_defaults = require("qmp_defaults")
-local qmp_tools = require("qmp_tools")
+local qmp_io = require("qmp_io")
 local qmp_uci = require("qmp_uci")
 
 local qmp_network = {}
@@ -177,7 +177,7 @@ local function get_vlan_ethernet_devices()
   local vdevices = get_vlan_devices()
 
   for k, v in pairs(vdevices) do
-    local files = qmp_tools.ls(PATH_SYS_CLASS_NET .. v)
+    local files = qmp_io.ls(PATH_SYS_CLASS_NET .. v)
 
     for l, w in pairs(files) do
       local lpos = string.find(w, "lower_")

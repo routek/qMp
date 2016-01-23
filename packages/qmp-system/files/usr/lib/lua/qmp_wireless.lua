@@ -7,7 +7,7 @@ local QMP_CONFIG_FILENAME = "qmp"
 local qmp_uci = require("qmp_uci")
 local qmp_defaults = require("qmp_defaults")
 local qmp_network = require("qmp_network")
-local qmp_tools = require("qmp_tools")
+local qmp_io = require("qmp_io")
 
 local qmp_wireless = {}
 
@@ -35,7 +35,7 @@ end
 -- Get an array with the wireless (IEEE 802.11) physical devices (e.g. phy0, phy1, phy2)
 local function get_wireless_phy_devices()
 
-  return qmp_tools.ls(PATH_SYS_CLAS_80211)
+  return qmp_io.ls(PATH_SYS_CLAS_80211)
 
 end
 
