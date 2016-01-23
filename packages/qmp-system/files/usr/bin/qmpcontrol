@@ -2,6 +2,7 @@
 
 local qmp_wireless = require("qmp_wireless")
 local qmp_system = require("qmp_system")
+local qmp_config = require("qmp_config")
 
 function configure_hostname()
   local hostname = nil
@@ -33,12 +34,8 @@ function configure_wireless()
 end
 
 function initialize()
-  -- check config file
-  -- detect and configure eth
-  -- detect and configure wifi
-  -- configure network
-  -- configure RPs
-  -- enjoy
+  -- Initialize the configuration file
+  qmp_config.initialize()
 end
 
 function print_help()
