@@ -28,6 +28,7 @@ function print_help()
         print(" list_wireless_physical_devices                    : print the list of wireless physical devices")
         print(" list_wireless_radio_devices                       : print the list of wireless radio devices")
         print(" set_system_hostname <hostname>                    : set the system hostname specified by hostname")
+        print(" set_uci_namesec <file> <type> <op> <val>          : set an option in a named section of a file")
         print(" set_uci_nonamesec <file> <type> <index> <op> <val>: set an option in an indexed unnamed section of a file")
         print(" table_network_etherswitch_devices                 : print the table of Ethernet network devices with a switch")
         print(" table_network_etherswitch_swconfig_devices        : print the table of Ethernet network devices with a switch as returned by swconfig")
@@ -187,6 +188,16 @@ function set_system_hostname()
 end
 
 
+function set_uci_namesec()
+  if #arg == 5 then
+    qmp_uci.set_option_namesec(arg[2], arg[3], arg[4], arg[5])
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 function set_uci_nonamesec()
   if #arg == 6 then
     qmp_uci.set_option_nonamesec(arg[2], arg[3], arg[4], arg[5], arg[6])
@@ -237,6 +248,8 @@ elseif command == "list_wireless_radio_devices" then
   print_list_wireless_radio_devices()
 elseif command == "set_system_hostname" then
   set_system_hostname()
+elseif command == "set_uci_namesec" then
+  set_uci_namesec()
 elseif command == "set_uci_nonamesec" then
   set_uci_nonamesec()
 elseif command == "table_network_etherswitch_devices" then
