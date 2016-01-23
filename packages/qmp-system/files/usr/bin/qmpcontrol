@@ -32,12 +32,24 @@ function configure_wireless()
   -- fi
 end
 
+function initialize()
+  -- check config file
+  -- detect and configure eth
+  -- detect and configure wifi
+  -- configure network
+  -- configure RPs
+  -- enjoy
+end
+
 function print_help()
   print("qmpcontrol is a handy script that allows controlling and configuring several")
   print("aspects of this qMp device. Several commands are available, sorted in different")
   print("categories.")
   print("")
   print("Usage: qmpcontrol <command> [options]")
+  print("")
+  print("Initialization:")
+  print(" initialize                        : ")
   print("")
   print("General device configuration:")
   print(" configure_network                 : Configure all the network interfaces according to the settings in /etc/config/qmp")
@@ -60,16 +72,19 @@ local command = arg[1]
 
 if command == "configure_network" then
   configure_network()
-end
 
-if command == "configure_wireless" or command == "configure_wifi" then
+elseif command == "configure_wireless" or command == "configure_wifi" then
   configure_wireless()
-end
 
-if command == "configure_hostname" then
+elseif command == "configure_hostname" then
   configure_hostname()
-end
 
-if command == "help" then
+elseif command == "configure_hostname" then
+  configure_hostname()
+
+elseif command == "initialize" then
+  initialize()
+
+else
   print_help()
 end
