@@ -18,7 +18,6 @@ gen_name.rmempty = false
 -- Community id
 gen_comm = sect:taboption("general", Value, "community_id", translate("Community (optional):"), translate("A short tag that identifies your Community Network (e.g. \"MyCN\")."))
 gen_comm.datatype = "hostname"
-gen_comm.default = "CN"
 gen_comm.maxlength = 45
 gen_comm.optional = true
 gen_comm.rmempty = false
