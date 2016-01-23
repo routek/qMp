@@ -15,7 +15,7 @@ start() {
 }
 
 stop() {
-
+	sleep 1
 }
 
 restart() {
