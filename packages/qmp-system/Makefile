@@ -40,7 +40,8 @@ define Package/qmp-system
   SECTION:=net
   CATEGORY:=qMp
   URL:=http://www.qmp.cat
-  DEPENDS:=+libuci-lua +lua +libiwinfo-lua +wpad-mini +kmod-ipt-nat
+  DEPENDS:=+libuci-lua +lua +libubus-lua +luci-lib-nixio\
+		+libiwinfo-lua +wpad-mini +kmod-ipt-nat
 endef
 
 define Package/qmp-system/description
