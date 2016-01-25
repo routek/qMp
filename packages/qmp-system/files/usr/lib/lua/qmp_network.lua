@@ -16,7 +16,9 @@ local qmp_network = qmp_network or {}
 
 local is_valid_mac
 local is_ethernet_device
+local is_ethernet_switched_device
 local is_network_device
+local get_ethernet_switch_devices
 local get_primary_device
 
 
@@ -115,6 +117,7 @@ local function get_ethernet_devices()
     end
   end
 
+  table.sort(devices)
   return devices
 end
 
@@ -185,6 +188,7 @@ local function get_vlan_devices()
     end
   end
 
+  table.sort(vdevices)
   return vdevices
 end
 
@@ -247,6 +251,21 @@ local function is_ethernet_device(edev)
 
   for k, v in pairs(edevices) do
     if edev == v then
+      return true
+    end
+  end
+
+  return false
+end
+
+
+-- Check if a device (e.g. eth4) is an Ethernet device with a switch
+local function is_ethernet_switched_device(esdev)
+
+  local esdevices = get_ethernet_switch_devices()
+
+  for k, v in pairs(esdevices) do
+    if esdev == v then
       return true
     end
   end
@@ -411,7 +430,7 @@ end
 
 
 -- Get the list of Ethernet switch devices (e.g. eth0, eth2)
-local function get_ethernet_switch_devices()
+function get_ethernet_switch_devices()
 
   local esdevices = get_etherswitch_devices()
   local edevices = {}
@@ -422,6 +441,7 @@ local function get_ethernet_switch_devices()
     end
   end
 
+  table.sort(edevices)
   return edevices
 end
 
@@ -431,15 +451,16 @@ end
 local function get_switch_devices()
 
   local esdevices = get_etherswitch_devices()
-  local edevices = {}
+  local sdevices = {}
 
   for a, b in pairs(esdevices) do
     for k, v in pairs(b) do
-      table.insert(edevices, k)
+      table.insert(sdevices, k)
     end
   end
 
-  return edevices
+  table.sort(sdevices)
+  return sdevices
 end
 
 
@@ -455,6 +476,7 @@ qmp_network.get_switch_devices = get_switch_devices
 qmp_network.get_vlan_devices = get_vlan_devices
 qmp_network.get_vlan_ethernet_devices = get_vlan_ethernet_devices
 qmp_network.is_ethernet_device = is_ethernet_device
+qmp_network.is_ethernet_switched_device = is_ethernet_switched_device
 qmp_network.is_network_device = is_network_device
 qmp_network.is_valid_mac = is_valid_mac
 
