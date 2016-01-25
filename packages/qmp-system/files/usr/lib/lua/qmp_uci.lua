@@ -6,6 +6,8 @@ local OWRT_CONFIG_DIR = "/etc/config/"
 
 local qmp_uci = {}
 
+local set_option_typenamesec
+
 -- Check if a config file exists
 local function config_file_exists(filename)
   if filename ~= nil then
@@ -154,6 +156,33 @@ local function set_option_nonamesec(filename, sectype, secindex, opname, opvalue
 end
 
 
+-- Set an option -> value pair to a named section of a certain type in a configuration file
+local function set_option_typenamesec(filename, sectype, secname, opname, opvalue)
+
+  if filename ~= nil and sectype ~= nil and secname ~= nil and opname ~= nil and opvalue ~= nil then
+
+    local cursor = uci.cursor()
+    local secfound = false
+
+    -- Run through all the sections of the specified type
+    cursor:foreach(filename, sectype, function (s)
+
+      -- Get the name of the section specified with the index
+      if s[".name"] == secname and s[".type"] == sectype then
+        secfound = true
+      end
+    end)
+
+    -- If the section was found, set the name=>value pair
+    if secfound then
+      cursor:set(filename, secname, opname, opvalue)
+    end
+    cursor:save(filename)
+    cursor:commit(filename)
+  end
+end
+
+
 
 qmp_uci.config_file_exists = config_file_exists
 qmp_uci.get_option_namesec = get_option_namesec
@@ -162,6 +191,7 @@ qmp_uci.isset_option_secname = isset_option_secname
 qmp_uci.new_section_typename = new_section_typename
 qmp_uci.sectypename_in_file = sectypename_in_file
 qmp_uci.set_option_namesec = set_option_namesec
+qmp_uci.set_option_typenamesec = set_option_typenamesec
 qmp_uci.set_option_nonamesec = set_option_nonamesec
 
 
