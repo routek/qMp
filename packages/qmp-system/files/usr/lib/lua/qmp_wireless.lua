@@ -6,10 +6,10 @@ local QMP_CONFIG_FILENAME = "qmp"
 
 local qmp_uci = require("qmp_uci")
 local qmp_defaults = require("qmp_defaults")
-local qmp_network = require("qmp_network")
+local qmp_network = qmp_network or require("qmp_network")
 local qmp_io = require("qmp_io")
 
-local qmp_wireless = {}
+local qmp_wireless = qmp_wireless or {}
 
 -- Initialize the wireless interfaces configuration
 local function initial_setup()

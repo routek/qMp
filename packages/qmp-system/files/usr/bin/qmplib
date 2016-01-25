@@ -1,9 +1,9 @@
 #!/usr/bin/lua
 
-local qmp_network = require("qmp_network")
-local qmp_system = require("qmp_system")
-local qmp_uci = require("qmp_uci")
-local qmp_wireless = require("qmp_wireless")
+qmp_network = qmp_network or require("qmp_network")
+qmp_system = qmp_system or require("qmp_system")
+qmp_uci = qmp_uci or require("qmp_uci")
+qmp_wireless = qmp_wireless or require("qmp_wireless")
 
 function print_help()
         print("qmplib is a handy script library that provides information about this qMp device\
@@ -13,12 +13,14 @@ function print_help()
         print("")
         print("Available commands:")
         print(" get_network_device_mac <device>                   : get a network device's MAC address")
+        print(" get_network_primary_device                        : get the primary network device")
         print(" get_system_community_id                           : get the device's community id")
         print(" get_system_node_id                                : get the device's node id")
         print(" get_system_primary_device                         : get the device's configured primary device")
         print(" get_uci_namesec <file> <type> <op>                : get an option in a named section of a file")
         print(" get_uci_nonamesec <file> <type> <index> <op>      : get an option in an indexed unnamed section of a file")
-        print(" is_network_ethernet_devices <device>              : check if a device (e.g. eth0) is an Ethernet network device")
+        print(" is_network_device <device>                        : check if a device (e.g. eth0, radio1) is a network device")
+        print(" is_network_ethernet_device <device>               : check if a device (e.g. eth0) is an Ethernet network device")
         print(" is_network_valid_mac <mac>                        : check if a MAC address (e.g. \"02:CA:FF:EE:BA:BE\") is valid")
         print(" list_network_all_devices                          : print the list of all network devices")
         print(" list_network_ethernet_devices                     : print the list of Ethernet network devices")
@@ -37,13 +39,28 @@ function print_help()
 end
 
 
-function check_is_network_ethernet_devices()
+function check_is_network_device()
+  if #arg == 2 then
+    print (tostring(qmp_network.is_network_device(arg[2])))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function check_is_network_ethernet_device()
   if #arg == 2 then
     print (tostring(qmp_network.is_ethernet_device(arg[2])))
   else
     print_help()
     os.exit(1)
   end
+end
+
+
+function get_network_primary_device()
+  print (tostring(qmp_network.get_primary_device()))
 end
 
 
@@ -78,7 +95,7 @@ end
 
 
 function get_system_primary_device()
-  print (qmp_system.get_primary_device())
+  print (tostring(qmp_system.get_primary_device()))
 end
 
 
@@ -218,6 +235,8 @@ local command = arg[1]
 
 if command == "get_network_device_mac" then
   get_network_device_mac()
+elseif command == "get_network_primary_device" then
+  get_network_primary_device()
 elseif command == "get_system_community_id" then
   get_system_community_id()
 elseif command == "get_system_node_id" then
@@ -228,8 +247,10 @@ elseif command == "get_uci_namesec" then
   get_uci_namesec()
 elseif command == "get_uci_nonamesec" then
   get_uci_nonamesec()
-elseif command == "is_network_ethernet_devices" then
-  check_is_network_ethernet_devices()
+elseif command == "is_network_ethernet_device" then
+  check_is_network_ethernet_device()
+elseif command == "is_network_device" then
+  check_is_network_device()
 elseif command == "is_network_valid_mac" then
   check_is_network_valid_mac()
 elseif command == "list_network_all_devices" then

@@ -104,7 +104,7 @@ end
 
 -- Get the primary network device in qmp config file
 function get_primary_device()
-	return qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device")
+	return qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "network", "primary_device")
 end
 
 

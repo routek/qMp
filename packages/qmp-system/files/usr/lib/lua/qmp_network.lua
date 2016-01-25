@@ -11,10 +11,13 @@ local qmp_defaults = require("qmp_defaults")
 local qmp_io = require("qmp_io")
 local qmp_uci = require("qmp_uci")
 
-local qmp_network = {}
+local qmp_network = qmp_network or {}
 
 
 local is_valid_mac
+local is_ethernet_device
+local is_network_device
+local get_primary_device
 
 
 -- Call u-bus to get network.device status
@@ -145,6 +148,24 @@ end
 
 
 
+-- Get the primary network device of the router
+local function get_primary_device()
+
+  local edevices = get_ethernet_devices()
+
+  if edevices[1] ~= nil then
+    return edevices[1]
+  end
+
+  local rdevices = qmp_wireless.get_wireless_radio_devices()
+
+  if rdevices[1] ~= nil then
+    return rdevices[1]
+  end
+
+  return ("none")
+end
+
 -- Get an array with all the VLAN devices (e.g. eth0.1, eth1.7)
 local function get_vlan_devices()
 
@@ -226,6 +247,29 @@ local function is_ethernet_device(edev)
 
   for k, v in pairs(edevices) do
     if edev == v then
+      return true
+    end
+  end
+
+  return false
+end
+
+
+-- Check if a device (e.g. eth4, radio7) is a network device
+local function is_network_device(netdev)
+
+  local edevices = get_ethernet_devices()
+
+  for k, v in pairs(edevices) do
+    if netdev == v then
+      return true
+    end
+  end
+
+  local rdevices = qmp_wireless.get_wireless_radio_devices()
+
+  for k, v in pairs(rdevices) do
+    if netdev == v then
       return true
     end
   end
@@ -401,6 +445,7 @@ end
 
 qmp_network.call_ubus_network_device_status = call_ubus_network_device_status
 qmp_network.get_all_devices = get_all_devices
+qmp_network.get_primary_device = get_primary_device
 qmp_network.get_device_mac = get_device_mac
 qmp_network.get_ethernet_devices = get_ethernet_devices
 qmp_network.get_ethernet_switch_devices = get_ethernet_switch_devices
@@ -410,6 +455,7 @@ qmp_network.get_switch_devices = get_switch_devices
 qmp_network.get_vlan_devices = get_vlan_devices
 qmp_network.get_vlan_ethernet_devices = get_vlan_ethernet_devices
 qmp_network.is_ethernet_device = is_ethernet_device
+qmp_network.is_network_device = is_network_device
 qmp_network.is_valid_mac = is_valid_mac
 
 return qmp_network

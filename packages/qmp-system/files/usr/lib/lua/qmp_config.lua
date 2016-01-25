@@ -6,6 +6,7 @@ local QMP_CONFIG_FILENAME = "qmp"
 local qmp_defaults = require("qmp_defaults")
 local qmp_io = require("qmp_io")
 local qmp_uci = require("qmp_uci")
+local qmp_network = qmp_network or require("qmp_network")
 
 local qmp_config = {}
 
@@ -34,6 +35,7 @@ function initialize()
     end
 
     -- Remove parameters from previous versions which no longer must be here
+    local primary_device = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device")
     qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device", '')
     qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "key", '')
 
@@ -44,7 +46,14 @@ function initialize()
       end
     end
 
+    -- Create the network section or, if already present, add any missing value
+    qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "network")
 
+    -- Add the primary network device
+    if not qmp_network.is_network_device(primary_device) then
+      primary_device = qmp_network.get_primary_device()
+    end
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "network", "primary_device", primary_device)
   end
 end
 
