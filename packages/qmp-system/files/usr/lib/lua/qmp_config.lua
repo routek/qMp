@@ -8,10 +8,14 @@ local qmp_io = require("qmp_io")
 local qmp_network = qmp_network or require("qmp_network")
 local qmp_tools = require("qmp_tools")
 local qmp_uci = require("qmp_uci")
+local qmp_wireless = require("qmp_wireless")
 
 
 local qmp_config = {}
 
+local configure_radio_with_criteria
+local get_radios_for_criteria
+local get_wifi_iface_name
 local initialize
 local initialize_network
 
@@ -231,7 +235,6 @@ function initialize_devices(force)
 
   -- Add any device remaining unconfigured
   for k, v in pairs(eth_to_configure) do
-    print("Remaining: " ..v)
     if not qmp_tools.is_item_in_array(v, eth_configured) then
 
       if not added_lan then
@@ -260,8 +263,202 @@ function initialize_devices(force)
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "devices", "novlan_devices", qmp_tools.array_to_list(qmp_tools.array_unique(novlan_devices)))
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "devices", "switch_devices", qmp_tools.array_to_list(qmp_tools.array_unique(switch_devices)))
 
+
+  -- Configure wireless devices
+  -- Get the lists of wireless devices
+  local allradios = qmp_wireless.get_wireless_radio_devices()
+  local confradios = {}
+
+  -- Wireless configuration criteria
+  --
+  -- 1) 5 GHz in adhoc_mesh mode
+  -- 2) 2.4 GHz in AP_lan and 80211s_mesh modes
+  -- 3) 5 GHz in AP_lan mode (lowest channel +)
+  -- 4) 2.4 GHz in AP_lan and 80211s_mesh modes
+
+  local criteria = {}
+
+    criteria[1] = {}
+    criteria[1]["selected"] = nil
+    criteria[1]["band"] = "5g"
+    criteria[1]["channel"] = 1
+    criteria[1]["configs"] = {}
+      criteria[1]["configs"][1] = {}
+      criteria[1]["configs"][1]["phymode"] = "adhoc"
+      criteria[1]["configs"][1]["netmode"] = "mesh"
+
+    criteria[2] = {}
+    criteria[2]["selected"] = nil
+    criteria[2]["band"] = "2g"
+    criteria[2]["channel"] = 1
+    criteria[2]["configs"] = {}
+      criteria[2]["configs"][1] = {}
+      criteria[2]["configs"][1]["phymode"] = "ap"
+      criteria[2]["configs"][1]["netmode"] = "lan"
+      criteria[2]["configs"][2] = {}
+      criteria[2]["configs"][2]["phymode"] = "mesh"
+      criteria[2]["configs"][2]["netmode"] = "mesh"
+
+    criteria[3] = {}
+    criteria[3]["selected"] = nil
+    criteria[3]["band"] = "5g"
+    criteria[3]["channel"] = -1
+    criteria[3]["configs"] = {}
+      criteria[3]["configs"][1] = {}
+      criteria[3]["configs"][1]["phymode"] = "ap"
+      criteria[3]["configs"][1]["netmode"] = "lan"
+
+    criteria[4] = {}
+    criteria[4]["selected"] = nil
+    criteria[4]["band"] = "2g"
+    criteria[4]["channel"] = -1
+    criteria[4]["configs"] = {}
+      criteria[4]["configs"][1] = {}
+      criteria[4]["configs"][1]["phymode"] = "ap"
+      criteria[4]["configs"][1]["netmode"] = "lan"
+      criteria[4]["configs"][2] = {}
+      criteria[4]["configs"][2]["phymode"] = "mesh"
+      criteria[4]["configs"][2]["netmode"] = "mesh"
+
+
+
+  for k, v in pairs(criteria) do
+    print ("")
+    print ("Criteria " .. k)
+
+    if v["selected"] == nil then
+      local possradios = get_radios_free_for_criteria (v, confradios)
+
+      for ak, av in pairs(possradios) do
+        print ("Candidates: " .. av)
+      end
+
+      local selradio = nil
+
+      if table.getn(possradios) == 1 then
+        selradio = possradios[1]
+      elseif table.getn(possradios) >= 1 then
+        for l, m in pairs(possradios) do
+          if selradio == nil and qmp_wireless.is_radio_band(m,v["band"]) and not qmp_wireless.is_radio_band_dual(m) then
+            selradio = m
+          end
+        end
+      end
+
+      if selradio == nil and table.getn(possradios) >= 1 then
+        selradio = possradios[1]
+      end
+
+      if selradio ~= nil then
+        print ("Selected: " .. selradio)
+        table.insert(confradios, selradio)
+        configure_radio_with_criteria(selradio, v)
+      end
+
+    end
+
+  end
+
+
+
+
+
+
+
 end
 
+
+-- Configure a radio device with a criteria
+function configure_radio_with_criteria(radio, criteria)
+
+  local iw = qmp_wireless.get_radio_iwinfo(radio)
+
+  print ("Configuring " .. radio .. " with the follwing criteria:")
+  for k, v in pairs(criteria) do
+    if type(v) == table then
+      for l, m in pairs(v) do
+        print (k .. "." .. l .. tostring(v))
+      end
+    else
+      print (k .. ": " .. tostring(v))
+    end
+  end
+
+  -- Create the section for the radio device
+  qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-device", radio)
+  -- Set the channel
+  print("Criteria->channel: " .. criteria["channel"])
+
+  if criteria["channel"] < 0 then
+    criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
+  end
+
+  local channel = iw.freqlist[criteria["channel"]]["channel"]
+  print ("Channel: " .. channel)
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
+
+  local macaddr = qmp_wireless.get_device_mac(radio)
+  print ("MAC address: " .. macaddr)
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "macaddr", macaddr)
+
+
+  -- Configure the wifi-ifaces
+  for k, v in pairs(criteria["configs"]) do
+    print ("Configuring a wifi-iface in " .. v["phymode"] .. " mode for " .. radio .. ":")
+
+    -- Create the section for the radio device
+    local name = get_wifi_iface_name(radio, v["phymode"])
+    qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-iface", name)
+
+    -- Specify which radio it belongs to
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "device", radio)
+
+    -- Specify the operation mode
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "phymode", v["phymode"])
+
+  end
+end
+
+
+
+-- Get the name for a wifi-iface for a given radio and mode
+function get_wifi_iface_name(radio, mode)
+
+  local number = string.match(radio, "%d+")
+
+  if mode == "adhoc" then
+    return ("wlan" .. number)
+  elseif mode == "80211s" then
+    return ("wlan" .. number .. "s")
+  else
+    return ("wlan" .. number .. mode)
+  end
+end
+
+
+
+-- Get an array with the radios that meet the given criteria
+function get_radios_for_criteria (crit)
+  return qmp_wireless.get_radios_band(crit["band"])
+end
+
+
+
+-- Get an array with available radios that meet the given criteria
+function get_radios_free_for_criteria (crit, confradios)
+
+  local cradios = get_radios_for_criteria(crit)
+
+  local fradios = {}
+
+  for k,v in pairs(cradios) do
+    if not qmp_tools.is_item_in_array(v, confradios) then
+      table.insert(fradios, v)
+    end
+  end
+
+  return fradios
+end
 
 
 -- Set the given role to a network device
@@ -297,6 +494,8 @@ function set_device_role(dev, role)
 end
 
 
+qmp_config.configure_radio_with_criteria = configure_radio_with_criteria
+qmp_config.get_radios_for_criteria = get_radios_for_criteria
 qmp_config.initialize = initialize
 qmp_config.initialize_network = initialize_network
 qmp_config.set_device_role = set_device_role
