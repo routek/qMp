@@ -3,15 +3,15 @@
 local OWRT_CONFIG_DIR = "/etc/config/"
 local QMP_CONFIG_FILENAME = "qmp"
 
-local qmp_defaults = require("qmp_defaults")
-local qmp_io = require("qmp_io")
-local qmp_network = qmp_network or require("qmp_network")
-local qmp_tools = require("qmp_tools")
-local qmp_uci = require("qmp_uci")
-local qmp_wireless = require("qmp_wireless")
+local qmp_defaults = qmp_defaults       or require("qmp_defaults")
+local qmp_io       = qmp_io       or require("qmp_io")
+local qmp_network  = qmp_network  or require("qmp_network")
+local qmp_tools    = qmp_tools    or require("qmp_tools")
+local qmp_uci      = qmp_uci      or require("qmp_uci")
+local qmp_wireless = qmp_wireless or require("qmp_wireless")
 
 
-local qmp_config = {}
+local qmp_config = qmp_config or {}
 
 local configure_radio_with_criteria
 local get_radios_for_criteria
@@ -393,6 +393,7 @@ function configure_radio_with_criteria(radio, criteria)
     criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
   end
 
+  -- TODO: this does not work properly for dual-band devices (if criteria->channel = 0 (lowest), it selects channel 1 in 2.4 GHz)
   local channel = iw.freqlist[criteria["channel"]]["channel"]
   print ("Channel: " .. channel)
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
@@ -410,11 +411,19 @@ function configure_radio_with_criteria(radio, criteria)
     local name = get_wifi_iface_name(radio, v["phymode"])
     qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-iface", name)
 
+    -- Set the wifi-iface name (thesame as the section name)
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "ifname", name)
+
     -- Specify which radio it belongs to
     qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "device", radio)
 
     -- Specify the operation mode
-    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "phymode", v["phymode"])
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, "mode", v["phymode"])
+
+    -- Apply the rest of default settings
+    for l, w in pairs(qmp_defaults.get_wifi_iface_defaults(v["phymode"])) do
+      qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, name, l, w)
+    end
 
   end
 end
