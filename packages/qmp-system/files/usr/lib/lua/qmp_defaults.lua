@@ -16,16 +16,24 @@ local elevation = '5.0'
 -- Default contact
 local contact = 'your@email.qmp'
 
--- Wireless section
--- Default BSSID for Ad-Hoc wireless mode
-local bssid = "02:CA:FF:EE:BA:BE"
--- Default country regulatory domain
-local country = "US"
 -- Default hostname
 local hostname = "qMp"
--- Default multicast rate (mcast_rate), in kb/s, for
-local mcast_rate = 18000
-       
+
+
+-- Wireless section
+
+-- Default wifi-iface adhoc BSSID for Ad-Hoc wireless mode
+local wi_adhoc_bssid = "02:CA:FF:EE:BA:BE"
+
+
+-- Default wifi-device country regulatory domain
+local wd_country = "US"
+-- Default wifi-device multicast rate (mcast_rate), in kb/s, for
+local wd_mcast_rate = 18000
+-- Default wifi-device noscan
+local wd_noscan = 1
+-- Default wifi-device type
+local wd_type = "mac80211"
 
 
 local function get_default_hostname()
@@ -34,11 +42,19 @@ end
 
 
 
-local function get_wireless_defaults()
+local function get_wifi_iface_adhoc_defaults()
   local t = {}
   t["bssid"] = bssid
-  t["mcast_rate"] = mcast_rate
-  t["country"] = country
+  return (t)
+end
+
+
+local function get_wifi_device_defaults()
+  local t = {}
+  t["country"] = wd_country
+  t["mcast_rate"] = wd_mcast_rate
+  t["noscan"] = wd_noscan
+  t["type"] = wd_type
   return (t)
 end
 
@@ -57,6 +73,7 @@ end
 
 qmp_defaults.get_default_hostname = get_default_hostname
 qmp_defaults.get_node_defaults = get_node_defaults
-qmp_defaults.get_wireless_defaults = get_wireless_defaults
+qmp_defaults.get_wifi_device_defaults = get_wifi_device_defaults
+qmp_defaults.get_wifi_iface_adhoc_defaults = get_wifi_iface_adhoc_defaults
 
 return qmp_defaults
