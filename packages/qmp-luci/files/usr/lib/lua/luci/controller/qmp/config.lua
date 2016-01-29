@@ -29,6 +29,7 @@ function index()
 
 	entry({"qmp","configuration"}, call("dummy"), "Configuration", 20).dependent=false
 	entry({"qmp", "configuration", "system"}, cbi("qmp/system"), "System settings", 10).dependent=false
+  entry({"qmp", "configuration", "network"}, cbi("qmp/network"), "Network settings", 10).dependent=false
 	entry({"qmp","configuration","dummy"}, call("dummy_ubus"), "Dummy Ubus function", 20).dependent=false
 
 end
