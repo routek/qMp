@@ -1,9 +1,9 @@
 #!/usr/bin/lua
 
-qmp_config = qmp_config or require("qmp_config")
-qmp_network = qmp_network or require("qmp_network")
-qmp_system = qmp_system or require("qmp_system")
-qmp_uci = qmp_uci or require("qmp_uci")
+qmp_config   = qmp_config   or require("qmp_config")
+qmp_network  = qmp_network  or require("qmp_network")
+qmp_system   = qmp_system   or require("qmp_system")
+qmp_uci      = qmp_uci      or require("qmp_uci")
 qmp_wireless = qmp_wireless or require("qmp_wireless")
 
 function print_help()

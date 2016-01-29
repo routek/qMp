@@ -4,7 +4,7 @@ local uci = require ("uci")
 
 local OWRT_CONFIG_DIR = "/etc/config/"
 
-local qmp_uci = {}
+local qmp_uci = qmp_uci or {}
 
 local set_option_typenamesec
 

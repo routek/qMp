@@ -4,12 +4,15 @@ local PATH_SYS_CLAS_80211 = "/sys/class/ieee80211/"
 
 local QMP_CONFIG_FILENAME = "qmp"
 
-local luci_sys = require("luci.sys")
-local qmp_uci = require("qmp_uci")
-local qmp_defaults = require("qmp_defaults")
-local qmp_io = require("qmp_io")
-local qmp_network = qmp_network or require("qmp_network")
-local qmp_tools = qmp_tools or require("qmp_tools")
+local luci_sys     = require("luci.sys")
+
+
+local qmp_uci      = qmp_uci      or require("qmp_uci")
+local qmp_defaults = qmp_defaults or require("qmp_defaults")
+local qmp_io       = qmp_io       or require("qmp_io")
+local qmp_network  = qmp_network  or require("qmp_network")
+local qmp_tools    = qmp_tools    or require("qmp_tools")
+
 
 local qmp_wireless = qmp_wireless or {}
 

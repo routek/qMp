@@ -10,7 +10,7 @@ local remove_item_from_array
 local times_item_in_array
 
 
-local qmp_tools = {}
+local qmp_tools = qmp_tools or {}
 
 
 function array_to_list(arr)

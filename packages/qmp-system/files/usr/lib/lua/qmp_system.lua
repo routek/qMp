@@ -8,11 +8,12 @@ local io = require("io")
 local ubus = require("ubus")
 local uci = require("uci")
 
-local qmp_defaults = require("qmp_defaults")
-local qmp_network = require("qmp_network")
-local qmp_uci = require("qmp_uci")
+--[[
+local qmp_network  = qmp_network  or require("qmp_network")
+local qmp_uci      = qmp_uci      or require("qmp_uci")
+]]--
 
-local qmp_system = {}
+local qmp_system = qmp_system or {}
 
 -- Local functions declaration
 local configure_hostname
@@ -33,8 +34,11 @@ function configure_hostname()
 
   local hostname = ""
 
-  -- Add the community_id field
-  hostname = hostname .. get_community_id()
+  -- Add the community_id field (if present) and a hyphen
+  local community_id = get_community_id()
+  if type(community_id) == "string" then
+    hostname = hostname .. community_id
+  end
   if string.len(hostname) > 0 then
     hostname = hostname .. "-"
   end
@@ -104,7 +108,7 @@ end
 
 -- Get the primary network device in qmp config file
 function get_primary_device()
-	return qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "network", "primary_device")
+	return qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "devices", "primary_device")
 end
 
 

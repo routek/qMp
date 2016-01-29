@@ -2,7 +2,7 @@
 
 local nixiofs = require("nixio.fs")
 
-local qmp_io = {}
+local qmp_io = qmp_io or {}
 
 -- Local functions declaration
 local ls
