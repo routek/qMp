@@ -23,8 +23,8 @@
 #	Simó Albert i Beltran
 #
 
-# Update the clamp MSS TCP rule to new interface name of bmx6 with tunnels on-demand.
-sed -i -e "s/^iptables -A FORWARD -p tcp -o bmx6_+ -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu$/iptables -A FORWARD -p tcp -o bmx+ -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu/g" /etc/firewall.user
+# Update the clamp MSS TCP rule to new interface name of bmx7 with tunnels on-demand.
+sed -i -e "s/^iptables -A FORWARD -p tcp -o bmx7_+ -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu$/iptables -A FORWARD -p tcp -o bmx+ -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu/g" /etc/firewall.user
 
 if grep -q -e "^# Clamp MSS TCP rule to fix MTU problems" /etc/firewall.user; then exit 0; fi
 

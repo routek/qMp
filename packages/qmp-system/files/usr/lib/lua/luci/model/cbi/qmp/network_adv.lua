@@ -49,16 +49,16 @@ translate("Disable DHCP server in LAN network (not recommended)."))
 eth_section:option(Flag, "disable_mesh_dhcp", "Disable DHCP server in MESH",
 translate("Disable DHCP server in MESH network devices."))
 
--- Option bmx6_ipv4_address
-eth_section:option(Value, "bmx6_ipv4_address", "Main IPv4 address",
-translate("Main IPv4 address used in bmx6. Leave it blank to get a random one."))
+-- Option bmx7_ipv4_address
+eth_section:option(Value, "bmx7_ipv4_address", "Main IPv4 address",
+translate("Main IPv4 address used in bmx7. Leave it blank to get a random one."))
 
--- Option: bmx6_ipv4_prefix24
-eth_section:option(Value, "bmx6_ipv4_prefix24", "Random-IPv4 prefix 24",
+-- Option: bmx7_ipv4_prefix24
+eth_section:option(Value, "bmx7_ipv4_prefix24", "Random-IPv4 prefix 24",
 translate("Network prefix used to calculate a random IP address if the field above is left blank (example: 10.40.50)."))
 
--- Option: bmx6_ripe_prefix48
-eth_section:option(Value, "bmx6_ripe_prefix48", "Main IPv6 prefix",
+-- Option: bmx7_ripe_prefix48
+eth_section:option(Value, "bmx7_ripe_prefix48", "Main IPv6 prefix",
 translate("If you have a global IPv6 48bits prefix, specify it here. Otherwise leave it blank."))
 
 -- Option force_internet

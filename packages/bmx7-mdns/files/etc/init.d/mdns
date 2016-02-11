@@ -25,9 +25,9 @@ STOP=99
 MDNS_DIR="/etc/mdns"                                                
 HOSTF="$MDNS_DIR/hosts"                                            
 MY_DOMAINS="$MDNS_DIR/public"                                     
-SMSF="/var/run/bmx6/sms/sendSms/mdns"                                       
+SMSF="/var/run/bmx7/sms/sendSms/mdns"                                       
 SMSTMP="/tmp/sms-mdns.tmp"
-SMSR="/var/run/bmx6/sms/rcvdSms"                                            
+SMSR="/var/run/bmx7/sms/rcvdSms"                                            
 DNSMASQ="/etc/dnsmasq.conf"                                     
 DNSMASQ_PID="/var/run/dnsmasq/dnsmasq.pid"
 
@@ -86,9 +86,9 @@ log() {
 }
 
 init() {
-	log "preparing bmx6"
-	bmx6 -c --syncSms mdns
-	[ $? -ne 0 ] && error "cannot configure bmx6 daemon"
+	log "preparing bmx7"
+	bmx7 -c --syncSms mdns
+	[ $? -ne 0 ] && error "cannot configure bmx7 daemon"
 
 	cat $DNSMASQ | egrep "^addn-hosts=$HOSTF" -q || {
 		log "adding addn-host entry to dnsmasq config file"
@@ -172,13 +172,13 @@ get_myext_domains() {
 
 get_my_ip4() {
 	[ -z $IPV4 ] && \
-	bmx6 -cp | grep tun4Address | awk '{print $2}' | awk -F / '{print $1}' || \
+	bmx7 -cp | grep tun4Address | awk '{print $2}' | awk -F / '{print $1}' || \
 	echo "$IPV4"
 }
 
 get_my_ip6() {
 	[ -z $IPV4 ] && \
-	bmx6 -cp | grep tun6Address | awk '{print $2}' | awk -F / '{print $1}' || \
+	bmx7 -cp | grep tun6Address | awk '{print $2}' | awk -F / '{print $1}' || \
 	echo "$IPV6"
 }
 

@@ -38,16 +38,16 @@ define Package/gwck-qmp
   SECTION:=net
   CATEGORY:=qMp
   SUBMENU:=Routing and Redirection
-  TITLE:=Check gateway and control bmx6 tunnels.
+  TITLE:=Check gateway and control bmx7 tunnels.
   URL:=http://qmp.net/projects/gwck
   MAINTAINER:=Simó Albert i Beltran <sim6@graciasensefils.net>
   MENU:=1
-  DEPENDS:=+fping +bmx6
+  DEPENDS:=+fping +bmx7
 endef
 
 define Package/gwck-qmp/description
 gwck is a tool to check gateway connectivity and perform actions in consequence.
-This package runs gwck to control bmx6 tunnels.
+This package runs gwck to control bmx7 tunnels.
 endef
 
 define Build/Compile

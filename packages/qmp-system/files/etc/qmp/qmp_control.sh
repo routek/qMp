@@ -50,7 +50,7 @@ apply_services() {
 
 configure_network() {
 	qmp_configure
-	qmp_bmx6_reload
+	qmp_bmx7_reload
 	/etc/init.d/network reload
 	if /etc/init.d/gwck enabled
 	then
@@ -63,7 +63,7 @@ configure_network() {
 configure_system() {
 	qmp_configure_system
 	apply_services
-	qmp_bmx6_reload
+	qmp_bmx7_reload
 	/etc/init.d/uhttpd restart
 }
 
@@ -75,12 +75,12 @@ enable_ns_ppt() {
 
 publish_hna() {
 	[ -z "$1" ] && help
-	qmp_publish_hna_bmx6 $1 $2
+	qmp_publish_hna_bmx7 $1 $2
 }
 
 unpublish_hna() {
 	[ -z "$1" ] && help
-	qmp_unpublish_hna_bmx6 $1
+	qmp_unpublish_hna_bmx7 $1
 }
 
 upgrade() {

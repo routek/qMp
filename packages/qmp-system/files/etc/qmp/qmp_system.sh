@@ -46,7 +46,7 @@ qmp_configure_system() {
 qmp_set_hosts() {
 	qmp_log "Configuring /etc/hosts file with qmpadmin entry"
 
-	local ip=$(uci get bmx6.general.tun4Address | cut -d'/' -f1)
+	local ip=$(uci get bmx7.general.tun4Address | cut -d'/' -f1)
 	local hn=$(uci get system.@system[0].hostname)
 
 	if [ -z "$ip" -o -z "$hn" ]; then

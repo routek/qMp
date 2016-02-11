@@ -53,7 +53,7 @@ type.optional = false
 network = gw_section:option(Value,"network", "<b>"..translate("Network").."</b>",translate("network to be offered/searched. NETWORK/PREFIX must be specified, for example 10.0.0.0/8 or 0.0.0.0/0"))
 network.optional = false
 
--- OPTIONAL PARAMETERS (not using all BMX6 tun options)
+-- OPTIONAL PARAMETERS (not using all BMX7 tun options)
 local gwoptions = {
 	{["name"]="address", ["help"]=""},
 	{["name"]="gwName", ["help"]="force your node to choose a specific gateway by specifying its hostname (such as qMp0012)"},

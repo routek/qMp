@@ -650,22 +650,22 @@ qmp_configure_network() {
 }
 
 
-qmp_remove_qmp_bmx6_tunnels()
+qmp_remove_qmp_bmx7_tunnels()
 {
 	if echo "$1" | grep -q "^qmp_"
 	then
-		uci delete bmx6.$1
+		uci delete bmx7.$1
 	fi
-	uci commit bmx6
+	uci commit bmx7
 }
 
-qmp_unconfigure_bmx6_gateways()
+qmp_unconfigure_bmx7_gateways()
 {
-	config_load bmx6
-	config_foreach qmp_remove_qmp_bmx6_tunnels tunInNet
-	config_foreach qmp_remove_qmp_bmx6_tunnels tunDev
-	config_foreach qmp_remove_qmp_bmx6_tunnels tunIn
-	config_foreach qmp_remove_qmp_bmx6_tunnels tunOut
+	config_load bmx7
+	config_foreach qmp_remove_qmp_bmx7_tunnels tunInNet
+	config_foreach qmp_remove_qmp_bmx7_tunnels tunDev
+	config_foreach qmp_remove_qmp_bmx7_tunnels tunIn
+	config_foreach qmp_remove_qmp_bmx7_tunnels tunOut
 }
 
 qmp_translate_configuration()
@@ -685,11 +685,11 @@ qmp_translate_configuration()
 	fi
 }
 
-qmp_add_qmp_bmx6_tunnels()
+qmp_add_qmp_bmx7_tunnels()
 {
 	local section=$1
 	local name="$section"
-	local config=bmx6
+	local config=bmx7
 	local ignore
 	local t
 	config_get ignore "$section" ignore
@@ -702,9 +702,9 @@ qmp_add_qmp_bmx6_tunnels()
 
 	if [ "$type" == "offer" ]
 	then
-		bmx6_type=tunIn
-		uci set $config.$name="$bmx6_type"
-		uci set $config.$name.$bmx6_type="$name"
+		bmx7_type=tunIn
+		uci set $config.$name="$bmx7_type"
+		uci set $config.$name.$bmx7_type="$name"
 		for t in \
 			network \
 			bandwidth
@@ -712,9 +712,9 @@ qmp_add_qmp_bmx6_tunnels()
 			qmp_translate_configuration gateways $section $t $config $name
 		done
 	else
-		bmx6_type=tunOut
-		uci set $config.$name="$bmx6_type"
-		uci set $config.$name.$bmx6_type="$section"
+		bmx7_type=tunOut
+		uci set $config.$name="$bmx7_type"
+		uci set $config.$name.$bmx7_type="$section"
 		for t in \
 			network \
 			srcNet \
@@ -751,29 +751,29 @@ qmp_add_qmp_bmx6_tunnels()
 	gateway="$(($gateway + 1))"
 }
 
-qmp_configure_bmx6_gateways()
+qmp_configure_bmx7_gateways()
 {
-	qmp_unconfigure_bmx6_gateways
+	qmp_unconfigure_bmx7_gateways
 	config_load gateways
 	gateway=0
-	config_foreach qmp_add_qmp_bmx6_tunnels gateway
-	uci commit bmx6
+	config_foreach qmp_add_qmp_bmx7_tunnels gateway
+	uci commit bmx7
 }
 
 
-qmp_configure_bmx6() {
-  local conf="bmx6"
+qmp_configure_bmx7() {
+  local conf="bmx7"
 
   qmp_configure_prepare $conf
-  uci set $conf.general="bmx6"
-  uci set $conf.bmx6_config_plugin=plugin
-  uci set $conf.bmx6_config_plugin.plugin=bmx6_config.so
+  uci set $conf.general="bmx7"
+  uci set $conf.bmx7_config_plugin=plugin
+  uci set $conf.bmx7_config_plugin.plugin=bmx7_config.so
 
-  uci set $conf.bmx6_json_plugin=plugin
-  uci set $conf.bmx6_json_plugin.plugin=bmx6_json.so
+  uci set $conf.bmx7_json_plugin=plugin
+  uci set $conf.bmx7_json_plugin.plugin=bmx7_json.so
 
-  uci set $conf.bmx6_sms_plugin=plugin
-  uci set $conf.bmx6_sms_plugin.plugin=bmx6_sms.so
+  uci set $conf.bmx7_sms_plugin=plugin
+  uci set $conf.bmx7_sms_plugin.plugin=bmx7_sms.so
 
   # chat file must be syncronized using sms
   cfg_sms=$(uci add $conf syncSms)
@@ -797,7 +797,7 @@ qmp_configure_bmx6() {
 
 	local protocol_name="$(echo $protocol_vid | awk -F':' '{print $1}')"
 
-	if [ "$protocol_name" = "bmx6" ] ; then
+	if [ "$protocol_name" = "bmx7" ] ; then
 
 	# Check if the current device is configured as no-vlan
 	local use_vlan=1
@@ -831,18 +831,18 @@ qmp_configure_bmx6() {
 			uci set $conf.mesh_$counter.linklayer=1
 		fi
 
-	    if qmp_uci_test qmp.networks.bmx6_ipv4_address ; then
-	      local bmx6_ipv4_netmask="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -s -d / -f2)"
-	      local bmx6_ipv4_address="$(echo $(uci get qmp.networks.bmx6_ipv4_address) | cut -d / -f1)"
-	      [ -z "$bmx6_ipv4_netmask" ] && bmx6_ipv4_netmask="32"
-	      uci set $conf.general.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+	    if qmp_uci_test qmp.networks.bmx7_ipv4_address ; then
+	      local bmx7_ipv4_netmask="$(echo $(uci get qmp.networks.bmx7_ipv4_address) | cut -s -d / -f2)"
+	      local bmx7_ipv4_address="$(echo $(uci get qmp.networks.bmx7_ipv4_address) | cut -d / -f1)"
+	      [ -z "$bmx7_ipv4_netmask" ] && bmx7_ipv4_netmask="32"
+	      uci set $conf.general.tun4Address="$bmx7_ipv4_address/$bmx7_ipv4_netmask"
 	      uci set $conf.tmain=tunDev
 	      uci set $conf.tmain.tunDev=tmain
-	      uci set $conf.tmain.tun4Address="$bmx6_ipv4_address/$bmx6_ipv4_netmask"
+	      uci set $conf.tmain.tun4Address="$bmx7_ipv4_address/$bmx7_ipv4_netmask"
 
 	    else
 	      local ipv4_suffix24="$(qmp_get_id 8bit)"
-	      local ipv4_prefix24="$(qmp_uci_get networks.bmx6_ipv4_prefix24)"
+	      local ipv4_prefix24="$(qmp_uci_get networks.bmx7_ipv4_prefix24)"
 	      if [ $(echo -n "$ipv4_prefix24" | tr -d [0-9] | wc -c) -lt 2 ]; then
 	      	ipv4_prefix24="${ipv4_prefix24}.0"
 	      fi
@@ -860,14 +860,14 @@ qmp_configure_bmx6() {
   fi
 
 
-  if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
-    uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+  if qmp_uci_test qmp.networks.bmx7_ripe_prefix48 ; then
+    uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx7_ripe_prefix48):$community_node_id:0:0:0:1/64"
     uci set $conf.tmain=tunDev
     uci set $conf.tmain.tunDev=tmain
-    uci set $conf.tmain.tun6Address="$(qmp_uci_get networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+    uci set $conf.tmain.tun6Address="$(qmp_uci_get networks.bmx7_ripe_prefix48):$community_node_id:0:0:0:1/64"
   fi
 
-  qmp_configure_bmx6_gateways
+  qmp_configure_bmx7_gateways
 
   uci commit $conf
 #  /etc/init.d/$conf restart
@@ -899,7 +899,7 @@ qmp_configure() {
   qmp_hooks_exec preconf
   qmp_check_force_internet
   qmp_configure_network
-  qmp_configure_bmx6
+  qmp_configure_bmx7
   qmp_configure_lan_v6
   qmp_hooks_exec postconf
 }

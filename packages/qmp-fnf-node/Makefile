@@ -38,12 +38,12 @@ define Package/qmp-fnf-node
   URL:=http://thefnf.org
   DEPENDS:= \
   +qmp-system \
-  +uhttpd +luci-mod-admin-full +luci-app-bmx6 +libiwinfo-lua \
+  +uhttpd +luci-mod-admin-full +luci-app-bmx7 +libiwinfo-lua \
   +iwinfo \
   +radvd \
   +wpad-mini \
   +iw +netperf +mtr \
-  +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms \
+  +bmx7 +bmx7-uci-config +bmx7-json +bmx7-sms \
   +luci-theme-qmp \
   +firewall \
   +ip +iputils-ping6 \

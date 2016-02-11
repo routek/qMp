@@ -51,7 +51,7 @@ endef
 
 define Package/qmp-big-node/description
  This metapackage installs the extra addon packages for big qMp nodes:
-  - BMX6 routing protocol
+  - BMX7 routing protocol
   - Luci web interface (HTTP/HTTPS)
   - qMp system configuration files
   - IP/TCP utils

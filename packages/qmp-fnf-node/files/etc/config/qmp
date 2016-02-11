@@ -38,12 +38,12 @@ config 'qmp' 'networks'
 	option 'dns'                 '4.2.2.1'
 	option 'lan_address'         ''
 	option 'lan_netmask'         '255.255.255.0'
-	option 'mesh_protocol_vids'  'bmx6:12' # means olsr6 use vlantag 10+1, bmx6 use vlantag 10+2
+	option 'mesh_protocol_vids'  'bmx7:12' # means olsr6 use vlantag 10+1, bmx7 use vlantag 10+2
 	option 'rescue_prefix24'     '169.254' # rescue network prefix, the 16 missing bits are taken from device MAC 
-	option 'bmx6_mesh_prefix48'  'fd02:0:0'
-	option 'bmx6_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
-	option 'bmx6_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
-#	option 'bmx6_ipv4_address'   '' # specify it if you want to have a specific IPv4 address
+	option 'bmx7_mesh_prefix48'  'fd02:0:0'
+	option 'bmx7_ripe_prefix48'  '2012:0:0' # suffix is autoconfigured based on community_node_id
+	option 'bmx7_ipv4_prefix24'  '10.202.0' # last 8 bits are autoconfigured based on MAC
+#	option 'bmx7_ipv4_address'   '' # specify it if you want to have a specific IPv4 address
 	option 'wan_metric'	     '2048' # metric for WAN interfaces (default: 2048)
 
 

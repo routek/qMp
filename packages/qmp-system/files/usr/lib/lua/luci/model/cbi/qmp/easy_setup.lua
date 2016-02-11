@@ -42,7 +42,7 @@ netmode:value("roaming","roaming")
 
 local networkmode
 if uciout:get("qmp","roaming","ignore") == "1" then
-	local ipv4 = uciout:get("qmp","networks","bmx6_ipv4_address")
+	local ipv4 = uciout:get("qmp","networks","bmx7_ipv4_address")
 	local ipv4mask = string.find(ipv4,"/")
 	if ipv4mask ~= nil then
 		ipv4 = string.sub(ipv4,1,ipv4mask-1)
@@ -67,9 +67,9 @@ translate("Main IPv4 address for this node.").." "..translate("Leave it blank to
 nodeip_roaming:depends("_netmode","roaming")
 
 
-local rip = uciout:get("qmp","networks","bmx6_ipv4_address")
+local rip = uciout:get("qmp","networks","bmx7_ipv4_address")
 if rip == nil or #rip < 7 then
-	rip = uciout:get("bmx6","general","tun4Address")
+	rip = uciout:get("bmx7","general","tun4Address")
 	if rip == nil or #rip < 7 then
 		rip = ""
 	end
@@ -205,7 +205,7 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","roaming","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
 		uciout:set("qmp","networks","lan_address",nodeip)
-		uciout:set("qmp","networks","bmx6_ipv4_address",ip.IPv4(nodeip,nodemask):string())
+		uciout:set("qmp","networks","bmx7_ipv4_address",ip.IPv4(nodeip,nodemask):string())
 		uciout:set("qmp","networks","lan_netmask",nodemask)
 		uciout:set("qmp","node","community_id",name)
 
@@ -214,13 +214,13 @@ function netmode.write(self, section, value)
 		uciout:set("qmp","networks","publish_lan","0")
 		uciout:set("qmp","networks","lan_address","172.30.22.1")
 		uciout:set("qmp","networks","lan_netmask","255.255.0.0")
-		uciout:set("qmp","networks","bmx6_ipv4_prefix24","10.202.0")
+		uciout:set("qmp","networks","bmx7_ipv4_prefix24","10.202.0")
 		uciout:set("qmp","networks","olsr6_ipv4_address","")
 		uciout:set("qmp","networks","olsr6_ipv4_prefix24","10.201")
 		if nodeip_roaming == nil then
-			uciout:set("qmp","networks","bmx6_ipv4_address","")
+			uciout:set("qmp","networks","bmx7_ipv4_address","")
 		else
-			uciout:set("qmp","networks","bmx6_ipv4_address",nodeip_roaming)
+			uciout:set("qmp","networks","bmx7_ipv4_address",nodeip_roaming)
 		end
 
 	end

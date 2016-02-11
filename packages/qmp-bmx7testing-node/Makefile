@@ -17,39 +17,37 @@
 #    The full GNU General Public License is included in this distribution in
 #    the file called "COPYING".
 #
-# Contributors:
-#	Pau Escrich <p4u@dabax.net>
-#
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=bmx6-mdns
-PKG_VERSION:=0.1
-PKG_RELEASE:=1
-PKG_LICENSE:=GPL-2.0+
-
+PKG_NAME:=qmp-bmx7testing-node
+PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-QMP_CODENAME:=Clearance
-QMP_RELEASE:=testing
-QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/bmx6-mdns
-  TITLE:=bmx6 distributed DNS
+define Package/qmp-bmx7testing-node
   SECTION:=net
   CATEGORY:=qMp
+  TITLE:=Basic addons for bmx7 testing and developing
   URL:=http://qmp.cat
-  DEPENDS:=+bmx6-sms
+  DEPENDS:= \
+  +qmp-system \
+  +iwinfo \
+  +wpad-mini \
+  +iw +mtr \
+  +firewall \
+  +tcpdump-mini \
+  +ip +iputils-ping6 
 endef
 
-define Package/bmx6-mdns/description
- Distributed DNS system using bmx6 sms plugin
+define Package/qmp-bmx7testing-node/description
+ Basic addons for bmx7 testing and developing
 endef
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
+ mkdir -p $(PKG_BUILD_DIR)
 endef
 
 define Build/Configure
@@ -58,17 +56,8 @@ endef
 define Build/Compile
 endef
 
-define Package/bmx6-mdns/install
-	$(INSTALL_DIR) $(1)/
-	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_DIR) $(1)/etc/mdns
-	$(INSTALL_DIR) $(1)/etc/rc.d
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(CP) ./files/etc/init.d/mdns $(1)/etc/init.d/
-	chmod 755 $(1)/etc/init.d/mdns
-	$(CP) ./files/etc/mdns/* $(1)/etc/mdns
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/qmp
-	$(CP) ./files/luci/bmx6-mdns.lua $(1)/usr/lib/lua/luci/model/cbi/qmp/mdns.lua
+define Package/qmp-bmx7testing-node/install
+    $(INSTALL_DIR) $(1)/etc/qmp
 endef
 
-$(eval $(call BuildPackage,bmx6-mdns))
+$(eval $(call BuildPackage,qmp-bmx7testing-node))

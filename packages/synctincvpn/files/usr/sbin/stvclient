@@ -31,7 +31,7 @@ TINCDINIT=/etc/init.d/tincvpn
 ALLCONFIG=1
 URL=$(uci -q get tincvpn.@tincvpn[0].url)
 HOSTNAME=$(uci -q get system.@system[0].hostname | sed -e "s/[^[:alnum:]]/_/g")
-INTERNAL_IP=$(bmx6 -c -p | awk '/tun4Address/{gsub(/\//," "); gsub(/\./,"%2E"); print $2}')
+INTERNAL_IP=$(bmx7 -c -p | awk '/tun4Address/{gsub(/\//," "); gsub(/\./,"%2E"); print $2}')
 NETWORK_NAME=$(uci -q get tincvpn.@tincvpn[0].name)
 NETWORK_KEY=$(uci -q get tincvpn.@tincvpn[0].key)
 MAC=$(ifconfig eth0 | awk '/HW/{gsub(/:/,"%3A"); print $5}')
@@ -42,7 +42,7 @@ have_internet() {
 }
 
 is_not_gateway() {
-	ip route get ${EXTERNAL_IP}|grep dev|grep -q bmx6
+	ip route get ${EXTERNAL_IP}|grep dev|grep -q bmx7
 }
 
 msg_error() {

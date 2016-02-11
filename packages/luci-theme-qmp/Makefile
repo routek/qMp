@@ -34,7 +34,7 @@ define Package/luci-theme-qmp
 endef
 
 define Package/luci-theme-qmp/description
-	bmx6 web interface for luci
+	bmx7 web interface for luci
 endef
 
 define Build/Prepare

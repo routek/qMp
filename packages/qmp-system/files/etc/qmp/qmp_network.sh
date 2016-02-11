@@ -58,15 +58,15 @@ qmp_publish_lan() {
 		lan_netid=$(qmp_get_netid_from_network $lan_addr $lan_mask)
 
 		echo "Publishing LAN network: $lan_netid/$lan_prefix"
-		qmp_publish_hna_bmx6 $lan_netid/$lan_prefix qMp_lan
+		qmp_publish_hna_bmx7 $lan_netid/$lan_prefix qMp_lan
 	else
-		qmp_unpublish_hna_bmx6 qMp_lan
+		qmp_unpublish_hna_bmx7 qMp_lan
 	fi
 }
 
-# Usage: qmp_publish_hna_bmx6 <NETADDR/PREFIX> [Name ID]
-# Example: qmp_publish_hna_bmx6 fd00:1714:1714::/64 my_lan
-qmp_publish_hna_bmx6() {
+# Usage: qmp_publish_hna_bmx7 <NETADDR/PREFIX> [Name ID]
+# Example: qmp_publish_hna_bmx7 fd00:1714:1714::/64 my_lan
+qmp_publish_hna_bmx7() {
 	local netid=$(echo $1 | cut -d / -f1)
 	local netmask=$(echo $1 | cut -d / -f2)
 	local name_id="$2"
@@ -77,40 +77,40 @@ qmp_publish_hna_bmx6() {
 	[ $is_ipv6 -lt 1 ] && { echo "Error in IPv6/Prefix format"; return; }
 
 	if [ -z "$name_id" ]; then
-		local ucfg=$(uci add bmx6 unicastHna)
+		local ucfg=$(uci add bmx7 unicastHna)
 		[ -z "$ucfg" ] && { echo "Cannot add unicastHna entry to UCI"; return; }
-		uci set bmx6.$ucfg.unicastHna="$netid/$netmask"
+		uci set bmx7.$ucfg.unicastHna="$netid/$netmask"
 	else
-		uci set bmx6.$name_id=unicastHna
-		uci set bmx6.$name_id.unicastHna="$netid/$netmask"
+		uci set bmx7.$name_id=unicastHna
+		uci set bmx7.$name_id.unicastHna="$netid/$netmask"
 	fi
 
-	uci commit bmx6
+	uci commit bmx7
 
-	bmx6 -c --test -u $netid/$netmask > /dev/null
+	bmx7 -c --test -u $netid/$netmask > /dev/null
 	if [ $? -eq 0 ]; then
-		bmx6 -c --configReload
+		bmx7 -c --configReload
 	else
-		echo "ERROR in bmx6, check log"
+		echo "ERROR in bmx7, check log"
 	fi
 }
 
 # Unpublish a HNA, first argument is IPv6 HNA or name id
-qmp_unpublish_hna_bmx6() {
+qmp_unpublish_hna_bmx7() {
 	if [ $(echo $1 | grep : -c) -ne 0 ]; then
-		uci show bmx6.@unicastHna[].unicastHna | while read hna
+		uci show bmx7.@unicastHna[].unicastHna | while read hna
 			do
 			if [ "$(echo $hna | cut -d= -f2)" == "$1" ]; then
-				uci del bmx6.$(echo $hna | cut -d. -f2)
+				uci del bmx7.$(echo $hna | cut -d. -f2)
 				return
 			fi
 			done
 	else
-		uci delete bmx6.$1
+		uci delete bmx7.$1
 	fi
 
 	uci commit
-	bmx6 -c --configReload
+	bmx7 -c --configReload
 }
 
 ### Deprecated
@@ -244,7 +244,7 @@ qmp_configure_lan_v6() {
 	qmp_uci_set_raw network.lan.ip6addr=$ulan_ip
 	ifup lan
 	echo "Publishing $ulan_net over the mesh network"
-	qmp_publish_hna_bmx6 $ulan_net ulan
+	qmp_publish_hna_bmx7 $ulan_net ulan
 
 	
 	### Deprecated
@@ -273,7 +273,7 @@ qmp_configure_lan() {
     } || {
       lan_addr="10.$(qmp_get_id_ip 1).$(qmp_get_id_ip 2).1"
       lan_mask="255.255.255.0"
-      qmp_uci_set networks.bmx6_ipv4_address $lan_addr/24
+      qmp_uci_set networks.bmx7_ipv4_address $lan_addr/24
       qmp_log No LAN ip address configured, community mode enabled, autoconfiguring $lan_addr/$lan_mask
     }
     qmp_uci_set networks.lan_address $lan_addr
@@ -344,7 +344,7 @@ qmp_configure_mesh() {
 		done
 
 		local protocol_vids="$(qmp_uci_get networks.mesh_protocol_vids 2>/dev/null)"
-		[ -z "$protocol_vids" ] && protocol_vids="bmx6:12"
+		[ -z "$protocol_vids" ] && protocol_vids="bmx7:12"
 
 		local primary_mesh_device="$(qmp_get_primary_device)"
 
@@ -382,7 +382,7 @@ qmp_configure_mesh() {
 				fi
 			}
 
-			# Configure IPv6 address only if mesh_prefix48 is defined (bmx6 does not need it)
+			# Configure IPv6 address only if mesh_prefix48 is defined (bmx7 does not need it)
 			if qmp_uci_test qmp.networks.${protocol_name}_mesh_prefix48; then
 				local ip6="$(qmp_get_ula96 $(uci get qmp.networks.${protocol_name}_mesh_prefix48):: $primary_mesh_device $ip6_suffix 128)"
 				echo "Configuring $ip6 for $protocol_name"
@@ -521,26 +521,26 @@ qmp_configure_dhcp() {
 	fi
 }
 
-qmp_bmx6_reload() {
-	local restart_bmx6=false
+qmp_bmx7_reload() {
+	local restart_bmx7=false
 
-	local bmx6_name="$(bmx6 -c status | awk 'END{split($4,f,"."); print f[1]}')"
+	local bmx7_name="$(bmx7 -c status | awk 'END{split($4,f,"."); print f[1]}')"
 	local current_hostname="$(cat /proc/sys/kernel/hostname)"
-	if [ "$current_hostname" != "$bmx6_name" ]
+	if [ "$current_hostname" != "$bmx7_name" ]
 	then
-        	restart_bmx6=true
+        	restart_bmx7=true
 	fi
 
-	if ! $restart_bmx6
+	if ! $restart_bmx7
 	then
-		if ! bmx6 -c --configReload
+		if ! bmx7 -c --configReload
 		then
-			restart_bmx6=true
+			restart_bmx7=true
 		fi
 	fi
 
-	if $restart_bmx6
+	if $restart_bmx7
 	then
-		/etc/init.d/bmx6 restart
+		/etc/init.d/bmx7 restart
 	fi
 }

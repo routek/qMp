@@ -156,7 +156,7 @@ configure() {
 		done
 	done
 	IFS="\ "
-	uci set qmp.networks.bmx6_ipv4_address="$ip/$cidrmask"
+	uci set qmp.networks.bmx7_ipv4_address="$ip/$cidrmask"
 
 	# GET NODE DEVICE NAME - ZONE ID - ZONE CHANNEL
 	local nodename="`grep "nodename" $1 | awk -F "=" '{print $2}' | tr -d "'" | sed 's/\ /_/g'`"
@@ -201,8 +201,8 @@ configure() {
 	echo;
 	uci commit
 	sleep 1
-#	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
-	qmpcontrol configure_all ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx6 restart
+#	qmpcontrol configure_network ; qmpcontrol configure_wifi ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx7 restart
+	qmpcontrol configure_all ; /etc/init.d/mini_snmpd restart # ; /etc/init.d/bmx7 restart
 	return 0
 }
 

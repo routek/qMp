@@ -5,7 +5,7 @@
        else if (strncmp (s, "bat", 3) == 0)
  	return ZEBRA_ROUTE_BATMAN;
 +      else if (strncmp (s, "bmx", 3) == 0)
-+	return ZEBRA_ROUTE_BMX6;
++	return ZEBRA_ROUTE_BMX7;
        else if (strncmp (s, "bab", 3) == 0)
  	return ZEBRA_ROUTE_BABEL;
      }
@@ -14,7 +14,7 @@
        else if (strncmp (s, "bat", 3) == 0)
  	return ZEBRA_ROUTE_BATMAN;
 +      else if (strncmp (s, "bmx", 3) == 0)
-+	return ZEBRA_ROUTE_BMX6;
++	return ZEBRA_ROUTE_BMX7;
        else if (strncmp (s, "bab", 3) == 0)
  	return ZEBRA_ROUTE_BABEL;
      }
@@ -24,7 +24,7 @@
  ZEBRA_ROUTE_HSLS,       hsls,      hslsd,  'H', 1, 1, "HSLS"
  ZEBRA_ROUTE_OLSR,       olsr,      olsrd,  'o', 1, 1, "OLSR"
  ZEBRA_ROUTE_BATMAN,     batman,    batmand,'b', 1, 1, "BATMAN"
-+ZEBRA_ROUTE_BMX6,       bmx6,      bmx6,   'x', 1, 1, "BMX6"
++ZEBRA_ROUTE_BMX7,       bmx7,      bmx7,   'x', 1, 1, "BMX7"
  ZEBRA_ROUTE_BABEL,      babel,     babeld, 'A', 1, 1, "Babel"
  
  ## help strings
@@ -32,7 +32,7 @@
  ZEBRA_ROUTE_HSLS,   "Hazy-Sighted Link State Protocol (HSLS)"
  ZEBRA_ROUTE_OLSR,   "Optimized Link State Routing (OLSR)"
  ZEBRA_ROUTE_BATMAN, "Better Approach to Mobile Ad-Hoc Networking (BATMAN)"
-+ZEBRA_ROUTE_BMX6,   "BMX6 networking protocol"
++ZEBRA_ROUTE_BMX7,   "BMX7 networking protocol"
  ZEBRA_ROUTE_BABEL,  "Babel routing protocol (Babel)"
 --- a/ripd/rip_zebra.c
 +++ b/ripd/rip_zebra.c
@@ -40,7 +40,7 @@
    {ZEBRA_ROUTE_HSLS,    1, "hsls"},
    {ZEBRA_ROUTE_OLSR,    2, "olsr"},
    {ZEBRA_ROUTE_BATMAN,  3, "batman"},
-+  {ZEBRA_ROUTE_BMX6,    3, "bmx6"},
++  {ZEBRA_ROUTE_BMX7,    3, "bmx7"},
    {ZEBRA_ROUTE_BABEL,   3, "babel"},
    {0, 0, NULL}
  };
@@ -50,7 +50,7 @@
    {ZEBRA_ROUTE_HSLS,    1, "hsls"},
    {ZEBRA_ROUTE_OLSR,    2, "olsr"},
    {ZEBRA_ROUTE_BATMAN,  3, "batman"},
-+  {ZEBRA_ROUTE_BMX6,    3, "bmx6"},
++  {ZEBRA_ROUTE_BMX7,    3, "bmx7"},
    {ZEBRA_ROUTE_BABEL,   3, "babel"},
    {0, 0, NULL}
  };
@@ -60,7 +60,7 @@
    [ZEBRA_ROUTE_HSLS]    = {ZEBRA_ROUTE_HSLS,      0},
    [ZEBRA_ROUTE_OLSR]    = {ZEBRA_ROUTE_OLSR,      0},
    [ZEBRA_ROUTE_BATMAN]  = {ZEBRA_ROUTE_BATMAN,    0},
-+  [ZEBRA_ROUTE_BMX6]    = {ZEBRA_ROUTE_BMX6,      0},
++  [ZEBRA_ROUTE_BMX7]    = {ZEBRA_ROUTE_BMX7,      0},
    [ZEBRA_ROUTE_BABEL]   = {ZEBRA_ROUTE_BABEL,    95},
    /* no entry/default: 150 */
  };
@@ -68,7 +68,7 @@
    [ZEBRA_ROUTE_HSLS]    = 4,
    [ZEBRA_ROUTE_OLSR]    = 4,
    [ZEBRA_ROUTE_BATMAN]  = 4,
-+  [ZEBRA_ROUTE_BMX6]    = 4,
++  [ZEBRA_ROUTE_BMX7]    = 4,
    [ZEBRA_ROUTE_BABEL]   = 2,
  };
  
@@ -78,7 +78,7 @@
        return 1; /* other */
      case ZEBRA_ROUTE_BATMAN:
        return 1; /* other */
-+    case ZEBRA_ROUTE_BMX6:
++    case ZEBRA_ROUTE_BMX7:
 +      return 1; /* other */
      default:
        return 1; /* other */
@@ -91,7 +91,7 @@
  	  || rib->type == ZEBRA_ROUTE_OLSR
 -	  || rib->type == ZEBRA_ROUTE_BATMAN)
 +	  || rib->type == ZEBRA_ROUTE_BATMAN
-+	  || rib->type == ZEBRA_ROUTE_BMX6)
++	  || rib->type == ZEBRA_ROUTE_BMX7)
  	{
  	  time_t uptime;
  	  struct tm *tm;
@@ -101,7 +101,7 @@
  	  || rib->type == ZEBRA_ROUTE_OLSR
 -	  || rib->type == ZEBRA_ROUTE_BATMAN)
 +	  || rib->type == ZEBRA_ROUTE_BATMAN
-+	  || rib->type == ZEBRA_ROUTE_BMX6)
++	  || rib->type == ZEBRA_ROUTE_BMX7)
  	{
  	  time_t uptime;
  	  struct tm *tm;
@@ -111,7 +111,7 @@
  	  || rib->type == ZEBRA_ROUTE_OLSR
 -	  || rib->type == ZEBRA_ROUTE_BATMAN)
 +	  || rib->type == ZEBRA_ROUTE_BATMAN
-+	  || rib->type == ZEBRA_ROUTE_BMX6)
++	  || rib->type == ZEBRA_ROUTE_BMX7)
  	{
  	  time_t uptime;
  	  struct tm *tm;
@@ -121,7 +121,7 @@
  	  || rib->type == ZEBRA_ROUTE_OLSR
 -	  || rib->type == ZEBRA_ROUTE_BATMAN)
 +	  || rib->type == ZEBRA_ROUTE_BATMAN
-+	  || rib->type == ZEBRA_ROUTE_BMX6)
++	  || rib->type == ZEBRA_ROUTE_BMX7)
  	{
  	  time_t uptime;
  	  struct tm *tm;

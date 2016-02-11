@@ -21,8 +21,8 @@
 #
 
 # Check if IP prefix is set to /16 (e.g. 10.202) and change it to /24
-local ipv4_prefix24="$(uci get qmp.networks.bmx6_ipv4_prefix24)"
+local ipv4_prefix24="$(uci get qmp.networks.bmx7_ipv4_prefix24)"
 if [ ! $(echo $ipv4_prefix24 | cut -f3 -d .) ] ; then
-    uci set qmp.networks.bmx6_ipv4_prefix24="$ipv4_prefix24.0"
+    uci set qmp.networks.bmx7_ipv4_prefix24="$ipv4_prefix24.0"
     uci commit
 fi

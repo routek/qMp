@@ -33,7 +33,7 @@ print() {
 	for t in rx tx
 	  do
 	    i=1
-	    for v in $(cat /var/run/bmx6/json/links | sed s/","/"\n"/g | grep "${t}Rate" | cut -d: -f2)
+	    for v in $(cat /var/run/bmx7/json/links | sed s/","/"\n"/g | grep "${t}Rate" | cut -d: -f2)
 	      do
 	        echo "$i${t}.value $v"
 	        i=$(($i+1))

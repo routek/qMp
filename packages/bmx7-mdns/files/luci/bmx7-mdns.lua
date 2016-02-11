@@ -19,7 +19,7 @@ local dom4file = "/etc/mdns/domain4"
 local dom6file = "/etc/mdns/domain6"
 local hostfile = "/etc/mdns/hosts"
 
-f = SimpleForm("mesh-dns", translate("Mesh DNS"), translate( "Distributed DNS system using the bmx6 packets to encode domains."))
+f = SimpleForm("mesh-dns", translate("Mesh DNS"), translate( "Distributed DNS system using the bmx7 packets to encode domains."))
 
 d4 = f:field(Value, "dom4", translate("IPv4 domain extension"), translate("Only IPv4 domains with this extension will be considered valid"))
 d4.rmempty = false

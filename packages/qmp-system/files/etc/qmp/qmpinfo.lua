@@ -286,7 +286,7 @@ function qmpinfo.get_wifi_index()
 end
 
 function qmpinfo.nodes()
-	local nodes = util.split(util.exec('bmx6 -c --originators | awk \'{print $1 "|" $3}\' | grep -e ".*:.*:"'))
+	local nodes = util.split(util.exec('bmx7 -c --originators | awk \'{print $1 "|" $3}\' | grep -e ".*:.*:"'))
 	local ni
 	result = {}
 	for _,n in ipairs(nodes) do
@@ -300,7 +300,7 @@ function qmpinfo.nodes()
 end
 
 function qmpinfo.links()
-	local nodes = util.split(util.exec('bmx6 -c --links | awk \'{print $1 "|" $2}\' |  grep -e ".*:.*:"'))
+	local nodes = util.split(util.exec('bmx7 -c --links | awk \'{print $1 "|" $2}\' |  grep -e ".*:.*:"'))
 	local ni
 	result = {}
 	for _,n in ipairs(nodes) do
