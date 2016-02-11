@@ -55,7 +55,6 @@ define Package/qmp-big-node/description
   - Luci web interface (HTTP/HTTPS)
   - qMp system configuration files
   - IP/TCP utils
-  - b6m and libremap
   - SNMP and Munin
   - IP over IP support
   - Tinyproxy
