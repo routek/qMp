@@ -43,7 +43,7 @@ define Package/qmp-tiny-node
   TITLE:=Minimalistic qMp node (4 MB flash devices)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-system \
-	+bmx7 +bmx7-uci-config +bmx7-json +bmx7-sms +luci-app-bmx7 +gwck-qmp \
+	+bmx7 +bmx7-uci-config +bmx7-json +bmx7-sms +bmx7-tun +luci-app-bmx7 +gwck-qmp \
 	+ip +iw +iwinfo \
 	+luci-mod-admin-full +luci-theme-bootstrap +luci-i18n-english \
 	+uhttpd +uhttpd-mod-ubus
