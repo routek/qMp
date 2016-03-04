@@ -775,6 +775,9 @@ qmp_configure_bmx7() {
   uci set $conf.bmx7_sms_plugin=plugin
   uci set $conf.bmx7_sms_plugin.plugin=bmx7_sms.so
 
+  uci set $conf.bmx7_tun_plugin=plugin
+  uci set $conf.bmx7_tun_plugin.plugin=bmx7_tun.so
+
   # chat file must be syncronized using sms
   cfg_sms=$(uci add $conf syncSms)
   uci set $conf.${cfg_sms}.syncSms=chat
