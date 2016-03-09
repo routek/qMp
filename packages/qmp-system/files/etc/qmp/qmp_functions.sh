@@ -775,6 +775,9 @@ qmp_configure_bmx6() {
   uci set $conf.bmx6_sms_plugin=plugin
   uci set $conf.bmx6_sms_plugin.plugin=bmx6_sms.so
 
+  uci set $conf.bmx6_topology_plugin=plugin
+  uci set $conf.bmx6_topology_plugin.plugin=bmx6_topology.so
+
   # chat file must be syncronized using sms
   cfg_sms=$(uci add $conf syncSms)
   uci set $conf.${cfg_sms}.syncSms=chat
