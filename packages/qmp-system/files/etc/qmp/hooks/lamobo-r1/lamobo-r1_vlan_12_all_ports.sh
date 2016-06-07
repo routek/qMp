@@ -1,1 +1,0 @@
-../scripts/lamobo-r1_vlan_12_all_ports.sh
