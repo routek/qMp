@@ -373,7 +373,7 @@ function configure_radio_with_criteria(radio, criteria)
 
   local iw = qmp_wireless.get_radio_iwinfo(radio)
 
-  print ("Configuring " .. radio .. " with the follwing criteria:")
+  print ("Configuring " .. radio .. " with the following criteria:")
   for k, v in pairs(criteria) do
     if type(v) == table then
       for l, m in pairs(v) do
@@ -393,8 +393,8 @@ function configure_radio_with_criteria(radio, criteria)
     criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
   end
 
-  -- TODO: this does not work properly for dual-band devices (if criteria->channel = 0 (lowest), it selects channel 1 in 2.4 GHz)
-  local channel = iw.freqlist[criteria["channel"]]["channel"]
+  local channel = qmp_wireless.get_radio_channels(radio, criteria.band)[criteria.channel]
+
   print ("Channel: " .. channel)
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
 
