@@ -173,7 +173,7 @@ function is_radio_band(radiodev, band)
 
   if is_radio_device(radiodev) then
     if band == "2g" then
-      is_radio_band_2g(radiodev)
+      return is_radio_band_2g(radiodev)
     elseif band == "5g" then
       return is_radio_band_5g(radiodev)
     elseif band == "dual" then

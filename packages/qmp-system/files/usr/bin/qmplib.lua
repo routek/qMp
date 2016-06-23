@@ -53,6 +53,7 @@ function print_help()
         print("  get_radios_band_5g                        : get the wireless radios that work on the 5 GHz band")
         print("  get_radios_band_dual                      : get the wireless radios that work on both the 5 and 2.4 GHz bands")
         print("  is_radio_device <device>                  : check if a device (e.g. radio0) is a wireless radio device")
+        print("  is_radio_band <device> <band>             : check if a wireless radio device (e.g. radio0) works on the given band (2g or 5g)")
         print("  is_radio_band_2g <device>                 : check if a wireless radio device (e.g. radio0) works on the 2.4 GHz band")
         print("  is_radio_band_5g <device>                 : check if a wireless radio device (e.g. radio0) works on the 5 GHz band")
         print("  is_radio_band_dual <device>               : check if a wireless radio device (e.g. radio0) works on both the 5 and 2.4 GHz bands")
@@ -156,6 +157,16 @@ end
 function check_is_network_valid_mac()
   if #arg == 3 then
     print (tostring(qmp_network.is_valid_mac(arg[3])))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function check_wireless_radio_band()
+  if #arg == 4 then
+    print (tostring(qmp_wireless.is_radio_band(arg[3], arg[4])))
   else
     print_help()
     os.exit(1)
@@ -485,6 +496,9 @@ elseif section == "wireless" then
 
   elseif command == "is_radio_device" then
     check_is_wireless_radio_device()
+
+  elseif command == "is_radio_band" then
+    check_wireless_radio_band()
 
   elseif command == "is_radio_band_2g" then
     check_is_wireless_radio_2g()
