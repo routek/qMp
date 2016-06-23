@@ -37,15 +37,15 @@ function print_help()
         print("  get_community_id                           : get the device's community id")
         print("  get_node_id                                : get the device's node id")
         print("  get_primary_device                         : get the device's configured primary device")
-        print("  set_system_hostname <hostname>          : set the system hostname specified by hostname")
+        print("  set_system_hostname <hostname>             : set the system hostname specified by hostname")
         print("")
         print(" uci")
-        print("  get_namesec <file> <type> <op>             : get an option in a named section of a file")
-        print("  get_nonamesec <file> <type> <index> <op>   : get an option in an indexed unnamed section of a file")
-        print("  new_section_typename <file> <type> <name>  : create a new uci section of the given type and name in a file")
-        print("  set_namesec <file> <type> <op> <val>   : set an option in a named section of a file")
-        print("  set_nonamesec <file> <type> <index> <op> <val> : set an option in an indexed unnamed section of a file")
-        print("  set_typenamesec <file> <type> <name> <op> <val>: set an option in named section of a type in a file")
+        print("  get_namesec <file> <type> <op>                  : get an option in a named section of a file")
+        print("  get_nonamesec <file> <type> <index> <op>        : get an option in an indexed unnamed section of a file")
+        print("  new_section_typename <file> <type> <name>       : create a new uci section of the given type and name in a file")
+        print("  set_namesec <file> <type> <op> <val>            : set an option in a named section of a file")
+        print("  set_nonamesec <file> <type> <index> <op> <val>  : set an option in an indexed unnamed section of a file")
+        print("  set_typenamesec <file> <type> <name> <op> <val> : set an option in named section of a type in a file")
         print("")
         print(" wireless")
         print("  get_radio_hwmode <device>                 : get the hwmode info of a radio device")
@@ -505,17 +505,3 @@ elseif section == "wireless" then
 else
   print_help()
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
