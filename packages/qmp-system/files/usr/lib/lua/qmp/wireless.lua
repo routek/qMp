@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 
 local PATH_SYS_CLAS_80211 = "/sys/class/ieee80211/"
+local CHANNEL_BAND_SPLIT = 25
 
 local QMP_CONFIG_FILENAME = "qmp"
 
@@ -17,6 +18,7 @@ local qmp_tools    = qmp_tools    or require("qmp.tools")
 local qmp_wireless = qmp_wireless or {}
 
 local get_device_mac
+local get_radio_channels
 local get_radio_iwinfo
 local get_radio_phy
 local get_radios_band
@@ -77,6 +79,29 @@ function initial_setup()
   end
 
 
+end
+
+
+-- Get a list with the channels a radio device can operate in
+function get_radio_channels(radiodev, band)
+  if is_radio_device(radiodev) then
+    if band == nil or is_radio_band(radiodev, band) then
+      local channels = {}
+      local iw = get_radio_iwinfo(radiodev)
+
+      for k, v in pairs (iw.freqlist) do
+        if band == "2g" and v.channel > CHANNEL_BAND_SPLIT then
+        elseif band == "5g" and v.channel < CHANNEL_BAND_SPLIT then
+        else
+          table.insert(channels, v.channel)
+        end
+      end
+
+      return channels
+    end
+  end
+
+  return nil
 end
 
 
@@ -284,6 +309,7 @@ end
 
 
 qmp_wireless.get_device_mac = get_device_mac
+qmp_wireless.get_radio_channels = get_radio_channels
 qmp_wireless.get_radio_iwinfo = get_radio_iwinfo
 qmp_wireless.get_radio_phy = get_radio_phy
 qmp_wireless.get_radios_band = get_radios_band

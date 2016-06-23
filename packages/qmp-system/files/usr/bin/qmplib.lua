@@ -48,6 +48,7 @@ function print_help()
         print("  set_typenamesec <file> <type> <name> <op> <val> : set an option in named section of a type in a file")
         print("")
         print(" wireless")
+        print("  get_radio_channels <device> [band]        : get the channels a radio device (e.g. radio0) can use, optionally specifying the band (2g or 5g)")
         print("  get_radio_hwmode <device>                 : get the hwmode info of a radio device")
         print("  get_radios_band_2g                        : get the wireless radios that work on the 2.4 GHz band")
         print("  get_radios_band_5g                        : get the wireless radios that work on the 5 GHz band")
@@ -212,6 +213,19 @@ end
 function get_uci_nonamesec()
   if #arg == 6 then
     print (qmp_uci.get_option_nonamesec(arg[3], arg[4], arg[5], arg[6]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function get_wireless_radio_channels()
+  if #arg == 3 or #arg == 4 then
+    local channels = qmp_wireless.get_radio_channels(arg[3], arg[4])
+    for k, v in pairs (channels) do
+      print (v)
+    end
   else
     print_help()
     os.exit(1)
@@ -482,7 +496,10 @@ elseif section == "uci" then
 
 elseif section == "wireless" then
 
-  if command == "get_radio_hwmode" then
+  if command == "get_radio_channels" then
+    get_wireless_radio_channels()
+
+  elseif command == "get_radio_hwmode" then
     get_wireless_radio_hwmode()
 
   elseif command == "get_radios_band_2g" then
