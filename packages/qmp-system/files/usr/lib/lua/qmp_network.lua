@@ -131,7 +131,7 @@ local function get_etherswitch_swconfig_devices()
 
   local essdevices = {}
 
-  local f = assert (io.popen ("swconfig list"))
+  local f = assert (io.popen ("swconfig list 2> /dev/null"))
 
   for line in f:lines() do
     local found = string.find(line, "Found:")
@@ -227,7 +227,7 @@ local function get_vlan_etherswitch_devices()
 
   local essdevices = {}
 
-  local f = assert (io.popen ("swconfig list"))
+  local f = assert (io.popen ("swconfig list 2> /dev/null"))
 
   for line in f:lines() do
     local found = string.find(line, "Found:")
