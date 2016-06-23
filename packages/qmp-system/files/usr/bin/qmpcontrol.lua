@@ -1,11 +1,11 @@
 #!/usr/bin/lua
 
-qmp_config   = qmp_config   or require("qmp_config")
-qmp_defaults = qmp_defaults or require("qmp_defaults")
-qmp_network  = qmp_network  or require("qmp_network")
-qmp_system   = qmp_system   or require("qmp_system")
-qmp_uci      = qmp_uci      or require("qmp_uci")
-qmp_wireless = qmp_wireless or require("qmp_wireless")
+qmp_config   = qmp_config   or require("qmp.config")
+qmp_defaults = qmp_defaults or require("qmp.defaults")
+qmp_network  = qmp_network  or require("qmp.network")
+qmp_system   = qmp_system   or require("qmp.system")
+qmp_uci      = qmp_uci      or require("qmp.uci")
+qmp_wireless = qmp_wireless or require("qmp.wireless")
 
 
 function configure_hostname()

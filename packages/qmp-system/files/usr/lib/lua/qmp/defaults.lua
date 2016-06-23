@@ -1,6 +1,6 @@
 #!/usr/bin/lua
 
-local qmp_system = qmp_system or require("qmp_system")
+local qmp_system = qmp_system or require("qmp.system")
 
 local qmp_defaults = qmp_defaults or {}
 

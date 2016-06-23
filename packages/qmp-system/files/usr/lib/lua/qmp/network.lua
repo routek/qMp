@@ -8,9 +8,9 @@ local uci = require("uci")
 local io = require("io")
 
 
-local qmp_defaults = qmp_defaults or require("qmp_defaults")
-local qmp_io       = qmp_io       or require("qmp_io")
-local qmp_uci      = qmp_uci      or require("qmp_uci")
+local qmp_defaults = qmp_defaults or require("qmp.defaults")
+local qmp_io       = qmp_io       or require("qmp.io")
+local qmp_uci      = qmp_uci      or require("qmp.uci")
 
 
 local qmp_network = qmp_network or {}

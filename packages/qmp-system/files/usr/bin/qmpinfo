@@ -1,6 +1,6 @@
 #!/usr/bin/lua
 
-local qmp_system = require("qmp_system")
+qmp_system = system or require("system")
 
 function print_help()
         print("qmpinfo is a handy script that provides basic information about this qMp device\
@@ -28,4 +28,3 @@ local command = arg[1]
 if command == "hostname" then
         print_hostname()
 end
-

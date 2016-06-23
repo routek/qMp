@@ -7,11 +7,11 @@ local QMP_CONFIG_FILENAME = "qmp"
 local luci_sys     = require("luci.sys")
 
 
-local qmp_uci      = qmp_uci      or require("qmp_uci")
-local qmp_defaults = qmp_defaults or require("qmp_defaults")
-local qmp_io       = qmp_io       or require("qmp_io")
-local qmp_network  = qmp_network  or require("qmp_network")
-local qmp_tools    = qmp_tools    or require("qmp_tools")
+local qmp_uci      = qmp_uci      or require("qmp.uci")
+local qmp_defaults = qmp_defaults or require("qmp.defaults")
+local qmp_io       = qmp_io       or require("qmp.io")
+local qmp_network  = qmp_network  or require("qmp.network")
+local qmp_tools    = qmp_tools    or require("qmp.tools")
 
 
 local qmp_wireless = qmp_wireless or {}
