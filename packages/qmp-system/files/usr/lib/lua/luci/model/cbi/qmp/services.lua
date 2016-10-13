@@ -40,9 +40,9 @@ vpn.default=0
 
 -- Option: Captive Portal
 if nixio.fs.stat("/usr/sbin/tinyproxy","type") ~= nil then
--- local cp = additional_services:option(Flag, "captive_portal", translate("Captive Portal"),
--- translate("The captive portal is a small http proxy used to show an HTML page the first time someone connects to the node's Access Point"))
--- cp.default=0
+	local cp = additional_services:option(Flag, "captive_portal", translate("Captive Portal"),
+	translate("The captive portal is a small http proxy used to show an HTML page the first time someone connects to the node's Access Point"))
+	cp.default=0
 end
 
 -- Option: b6m
