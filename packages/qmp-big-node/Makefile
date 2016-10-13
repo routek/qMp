@@ -45,8 +45,7 @@ define Package/qmp-big-node
   DEPENDS:= +qmp-small-node \
 	+qmp-tinyproxy +tinymce \
 	+openssl-util +luci-ssl \
-	+lsof +wget +bmon +bwm +ebtables +pv \
-	+ndisc6 +rdisc6 +ipv6calc
+	+lsof +wget +bmon +bwm-ng +ebtables +pv 
 endef
 
 define Package/qmp-big-node/description
