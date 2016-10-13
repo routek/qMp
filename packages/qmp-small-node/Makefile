@@ -25,8 +25,8 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-QMP_RELEASE?=3.2
-QMP_CODENAME?=Clearance
+QMP_RELEASE?=r20161013-1
+QMP_CODENAME?=testing
 
 PKG_NAME:=qmp-small-node
 PKG_VERSION:=$(QMP_RELEASE)
