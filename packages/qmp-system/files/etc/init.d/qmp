@@ -23,5 +23,5 @@ restart() {
 }
 
 initialize() {
-	qmpcontrol initialize
+	qmp4control initialize
 }

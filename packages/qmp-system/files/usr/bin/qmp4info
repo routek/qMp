@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 
-qmp_system = system or require("system")
+qmp_system   = qmp_system   or require("qmp.system")
+
 
 function print_help()
         print("qmpinfo is a handy script that provides basic information about this qMp device\

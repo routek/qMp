@@ -43,11 +43,11 @@ function initialize()
 end
 
 function print_help()
-  print("qmpcontrol is a handy script that allows controlling and configuring several")
+  print("qmp4control is a handy script that allows controlling and configuring several")
   print("aspects of this qMp device. Several commands are available, sorted in different")
   print("categories.")
   print("")
-  print("Usage: qmpcontrol <command> [options]")
+  print("Usage: qmp4control <command> [options]")
   print("")
   print("Initialization:")
   print(" initialize                        : ")

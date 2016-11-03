@@ -7,10 +7,10 @@ qmp_uci      = qmp_uci      or require("qmp.uci")
 qmp_wireless = qmp_wireless or require("qmp.wireless")
 
 function print_help()
-        print("qmplib is a handy script library that provides information about this qMp device\
+        print("qmp4lib is a handy script library that provides information about this qMp device\
   and the mesh status. It is mostly thought for development.")
         print("")
-        print("Usage: qmplib <section> <command> [options]")
+        print("Usage: qmp4lib <section> <command> [options]")
         print("")
         print("Available sections and commands:")
         print("")
