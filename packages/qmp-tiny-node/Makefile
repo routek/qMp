@@ -43,9 +43,8 @@ define Package/qmp-tiny-node
   TITLE:=Minimalistic qMp node (4 MB flash devices)
   URL:=http://qmp.cat
   DEPENDS:= +qmp-system \
-	+bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +luci-app-bmx6 \
-	+gwck-qmp +ip +iw +iwinfo +luci-mod-admin-full +luci-theme-bootstrap \
-	+uhttpd +uhttpd-mod-ubus
+	+luci-app-bmx6 +luci-mod-admin-full +luci-theme-bootstrap +uhttpd \
+	+uhttpd-mod-ubus
 endef
 
 define Package/qmp-tiny-node/description
@@ -72,4 +71,3 @@ define Package/qmp-tiny-node/install
 endef
 
 $(eval $(call BuildPackage,qmp-tiny-node))
-
