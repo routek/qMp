@@ -25,7 +25,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-QMP_RELEASE?=r20161013-1
+QMP_RELEASE?=r20161111-1
 QMP_CODENAME?=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
 
@@ -43,7 +43,8 @@ define Package/qmp-system
   SECTION:=net
   CATEGORY:=qMp
   URL:=http://qmp.cat
-  DEPENDS:=+libuci-lua +lua +libiwinfo-lua +wpad-mini +kmod-ipt-nat
+  DEPENDS:=+libuci-lua +lua +libiwinfo-lua +wpad-mini +kmod-ipt-nat \
+   +bmx6 +bmx6-uci-config +bmx6-json +bmx6-sms +gwck-qmp +ip +iw +iwinfo
 endef
 
 define Package/qmp-system/description
