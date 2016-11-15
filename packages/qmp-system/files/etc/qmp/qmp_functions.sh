@@ -324,7 +324,7 @@ qmp_attach_device_to_interface() {
 }
 
 qmp_is_routerstationpro() {
-	cat /proc/cpuinfo | grep -q "^machine[[:space:]]*: Ubiquiti RouterStation Pro$"
+	cat /proc/cpuinfo | grep -q "^machine[[:space:]]*: No Ubiquiti RouterStation Pro at all$"
 }
 
 qmp_configure_routerstationpro_switch() {
@@ -822,7 +822,7 @@ fi
 		if [ $use_vlan -eq 1 ]; then
 			local viface="$(qmp_get_virtual_iface $dev)"
 			local ifname="${viface}_${vid}"
-			
+
 	# If not vlan tagging
 		else
 			local ifname="$dev"
@@ -908,4 +908,3 @@ qmp_configure() {
   qmp_configure_lan_v6
   qmp_hooks_exec postconf
 }
-
