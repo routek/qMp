@@ -21,15 +21,15 @@
 START=99
 STOP=99
 
-# Configuration variables                                     
-MDNS_DIR="/etc/mdns"                                                
-HOSTF="$MDNS_DIR/hosts"                                            
-MY_DOMAINS="$MDNS_DIR/public"                                     
-SMSF="/var/run/bmx6/sms/sendSms/mdns"                                       
+# Configuration variables
+MDNS_DIR="/etc/mdns"
+HOSTF="$MDNS_DIR/hosts"
+MY_DOMAINS="$MDNS_DIR/public"
+SMSF="/var/run/bmx6/sms/sendSms/mdns"
 SMSTMP="/tmp/sms-mdns.tmp"
-SMSR="/var/run/bmx6/sms/rcvdSms"                                            
-DNSMASQ="/etc/dnsmasq.conf"                                     
-DNSMASQ_PID="/var/run/dnsmasq/dnsmasq.pid"
+SMSR="/var/run/bmx6/sms/rcvdSms"
+DNSMASQ="/etc/dnsmasq.conf"
+DNSMASQ_PID_DIR="/var/run/dnsmasq/"
 
 [ ! -d $MDNS_DIR ] && mkdir $MDNS_DIR
 [ ! -f $HOSTF ] && touch $HOSTF
@@ -67,10 +67,10 @@ reload() {
 	init
 	publish_my_domains
 	get_domains
-	finish	
+	finish
 }
 
-refresh() { 
+refresh() {
 	reload
 }
 
@@ -97,11 +97,11 @@ init() {
 		/etc/init.d/dnsmasq restart
 	}
 	ps | grep dnsmasq -q || error "dnsmasq not running"
-	
+
 	log "cleaning files"
 	[ -f $HOSTF ] && rm -f $HOSTF
-	touch $HOSTF	
-	
+	touch $HOSTF
+
 	[ ! -d $MDNS_DIR ] && mkdir -p $MDNS_DIR
 	touch $MY_DOMAINS
 }
@@ -115,11 +115,11 @@ check_domain() {
 		[ $v == "4" ] && domains="$DOMAINS4"
 		[ $v == "6" ] && domains="$DOMAINS6"
 		[ $v == "all" ] && domains="$DOMAINS4 $DOMAINS6"
-	
+
 		for D in $domains; do
 			echo "$d" | egrep "\.$D"$ -q && valid=0 && break
-		done 
-		
+		done
+
 		return $valid
 }
 
@@ -128,7 +128,7 @@ get_my_domains() {
 	local my_domains=""
 	local domains=""
 	local d t
-	
+
 	for d in $(cat $MY_DOMAINS); do
 		echo "$d" | grep -q ^# && continue
 		echo "$d" | grep -q -v @ && my_tmp_domains="$d $my_tmp_domains"
@@ -142,7 +142,7 @@ get_my_domains() {
 			my_domains="$t.$d $my_domains"
 		done
 	done
-	
+
 	for d in $domains; do
 		my_domains="$(cat /proc/sys/kernel/hostname).$d $my_domains"
 	done
@@ -154,19 +154,19 @@ get_myext_domains() {
 	local ext_domains=""
 	local d ip domain
 	local my_ext_domains=""
-		
-	for d in $(cat $MY_DOMAINS); do                                 
+
+	for d in $(cat $MY_DOMAINS); do
 		echo "$d" | grep -q ^# && continue
 		echo "$d" | grep -q @ && ext_domains="$d $ext_domains"
 	done
-	
+
 	for d in $ext_domains; do
 		ip="$(echo $d | grep @ | cut -d@ -f2)"
 		domain="$(echo $d | grep @ | cut -d@ -f1)"
 		[ -z "$ip" -o -z "$domain" ] && continue
 		my_ext_domains="$ip $domain\n$my_ext_domains"
 	done
-	
+
 	echo -e "$my_ext_domains"
 }
 
@@ -184,7 +184,7 @@ get_my_ip6() {
 
 publish_my_domains() {
 	local d domains ext_domains
-	
+
 	local ip4="$(get_my_ip4)"
 	local ip6="$(get_my_ip6)"
 
@@ -205,7 +205,7 @@ publish_my_domains() {
 		echo "$ip6 $domains" >> $SMSTMP
 		echo "$ip6 $domains" >> $HOSTF
 	}
-	
+
 	ext_domains="$(get_myext_domains)"
 	log "publishing own external domains:\n$ext_domains"
 	echo -e "$ext_domains" >> $SMSTMP
@@ -221,17 +221,17 @@ get_domains() {
 
 	ls $SMSR/*:mdns 2>/dev/null >/dev/null && {
 
-	  # for each received file	
+	  # for each received file
 	  for f in $SMSR/*:mdns; do
 		n=$(cat $f | wc -l)
-			
+
 		# for each line inside the file
 		for i in $(seq $n); do
 			line=$(cat $f | awk "NR==$i")
 
 			ip="$(echo $line | awk '{print $1}')"
 			[ -z $ip ] && continue
-		
+
 			domains=""
 			# for each domain (first is IP)
 			for d in $(echo "$line" | awk '{$1=""; print $0}'); do
@@ -241,13 +241,15 @@ get_domains() {
 			[ -n "$domains" ] && echo "$ip $domains" >> $HOSTF
 			log "added remote domains $domains= $ip"
 	  done
-  done 
+  done
 
 	  } || log "not published domains found in the network"
 }
 
 finish() {
-	kill -SIGHUP $(cat $DNSMASQ_PID)
+	for pidfile in $DNSMASQ_PID_DIR*; do
+		kill -SIGHUP $(cat $pidfile)
+	done
 }
 
 $@
