@@ -1,6 +1,11 @@
 #!/usr/bin/lua
 
+qmp_config   = qmp_config   or require("qmp.config")
+qmp_defaults = qmp_defaults or require("qmp.defaults")
+qmp_network  = qmp_network  or require("qmp.network")
 qmp_system   = qmp_system   or require("qmp.system")
+qmp_uci      = qmp_uci      or require("qmp.uci")
+qmp_wireless = qmp_wireless or require("qmp.wireless")
 
 
 function print_help()
@@ -11,12 +16,17 @@ function print_help()
         print("")
         print("Available commands:")
         print(" hostname                : print this device's hostname")
+        print(" key                     : print this device's qMp mesh key")
         print("")
 end
 
 
 function print_hostname()
 	print(qmp_system.get_hostname())
+end
+
+function print_key()
+	print(qmp_system.get_key())
 end
 
 if #arg < 1 then
@@ -28,4 +38,8 @@ local command = arg[1]
 
 if command == "hostname" then
         print_hostname()
+end
+
+if command == "key" then
+        print_key()
 end
