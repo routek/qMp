@@ -4,6 +4,7 @@ qmp_config   = qmp_config   or require("qmp.config")
 qmp_io       = qmp_io       or require("qmp.io")
 qmp_network  = qmp_network  or require("qmp.network")
 qmp_system   = qmp_system   or require("qmp.system")
+qmp_tools    = qmp_tools    or require("qmp.tools")
 qmp_uci      = qmp_uci      or require("qmp.uci")
 qmp_wireless = qmp_wireless or require("qmp.wireless")
 
@@ -22,7 +23,7 @@ function print_help()
         print("  read_file <filename>                            : print the content of a file")
         print("")
         print(" network")
-        print("  device_mac <device>                             : get a network device's MAC address")
+        print("  get_device_mac <device>                         : get a network device's MAC address")
         print("  get_primary_device                              : get the primary network device")
         print("  is_device <device>                              : check if a device (e.g. eth0, radio1) is a network device")
         print("  is_ethernet_device <device>                     : check if a device (e.g. eth0) is an Ethernet network device")
@@ -38,6 +39,7 @@ function print_help()
         print("  table_vlan_ethernet_devices                     : print the table of the VLAN network devices and their lower Ethernet device")
         print("")
         print(" system")
+        print("  generate_key                                    : generate a qMp mesh key")
         print("  get_community_id                                : get the device's community id")
         print("  get_node_id                                     : get the device's node id")
         print("  get_primary_device                              : get the device's configured primary device")
@@ -179,6 +181,11 @@ function check_wireless_radio_band()
 end
 
 
+function generate_system_key()
+  print (qmp_system.generate_key())
+end
+
+
 function get_network_device_mac()
   if #arg == 3 then
     print ((qmp_network.get_device_mac(arg[3])))
@@ -201,6 +208,16 @@ end
 
 function get_system_primary_device()
   print (tostring(qmp_system.get_primary_device()))
+end
+
+
+function get_tools_random_hex_string()
+  if #arg == 3 then
+    print ((qmp_tools.get_random_hex(tonumber(arg[3]))))
+  else
+    print_help()
+    os.exit(1)
+  end
 end
 
 
@@ -483,7 +500,10 @@ elseif section == "network" then
 
 elseif section == "system" then
 
-  if command == "get_community_id" then
+  if command == "generate_key" then
+    generate_system_key()
+
+  elseif command == "get_community_id" then
     get_system_community_id()
 
   elseif command == "get_node_id" then
@@ -496,6 +516,12 @@ elseif section == "system" then
     set_system_hostname()
   end
 
+
+elseif section == "tools" then
+
+  if command == "get_random_hex_string" then
+    get_tools_random_hex_string()
+  end
 
 
 elseif section == "uci" then

@@ -8,7 +8,7 @@ local is_item_in_array
 local list_to_array
 local remove_item_from_array
 local times_item_in_array
-
+local get_random_hex
 
 local qmp_tools = qmp_tools or {}
 
@@ -51,6 +51,38 @@ function array_unique(arr)
   end
 
   return arr
+end
+
+-- Generate a string of a certain length containing random hex [lowercase] characters
+function get_random_hex(length, seed)
+  math.randomseed(os.time()+seed)
+
+  length = tonumber(length)
+  rhexstring = ''
+
+  while length > 0 do
+
+    rhex = math.random(0,15)
+
+    if rhex == 10 then
+      rhex = "a"
+    elseif rhex == 11 then
+      rhex = "b"
+    elseif rhex == 12 then
+      rhex = "c"
+    elseif rhex == 13 then
+      rhex = "d"
+    elseif rhex == 14 then
+      rhex = "e"
+    elseif rhex == 15 then
+      rhex = "f"
+    end
+
+    rhexstring = rhexstring .. rhex
+    length = length -1
+  end
+
+  return rhexstring
 end
 
 
@@ -127,5 +159,6 @@ qmp_tools.list_to_array = list_to_array
 qmp_tools.remove_item_from_array = remove_item_from_array
 qmp_tools.times_item_in_array = times_item_in_array
 qmp_tools.array_unique = array_unique
+qmp_tools.get_random_hex = get_random_hex
 
 return qmp_tools

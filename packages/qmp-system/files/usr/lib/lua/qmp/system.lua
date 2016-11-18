@@ -10,14 +10,16 @@ local uci = require("uci")
 
 local qmp_system = qmp_system or {}
 
-local qmp_io     = qmp_io  or require("qmp.io")
-local qmp_uci    = qmp_uci or require("qmp.uci")
+local qmp_io     = qmp_io    or require("qmp.io")
+local qmp_uci    = qmp_uci   or require("qmp.uci")
+local qmp_tools  = qmp_tools or require("qmp.tools")
 
 
 -- Local functions declaration
 local configure_hostname
 local get_community_id
 local get_hostname
+local generate_key
 local get_key
 local get_node_id
 local get_primary_device
@@ -99,9 +101,21 @@ function get_hostname()
 
 end
 
+-- Generate the device mesh key
+function generate_key()
+  -- Get the primary device's MAC address last digits to feed it to the random seed
+  mac = qmp_network.get_device_mac(qmp_network.get_primary_device()):gsub('%W','')
+  macseed = tonumber(string.sub(mac,-4,-1),16)
+
+  return qmp_tools.get_random_hex(32,macseed)
+end
+
 -- Get the device mesh key
 function get_key()
-  return qmp_io.read_file(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "key"))[1]
+  key = qmp_io.read_file(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "key"))
+  if key ~= nil then
+    return key[1]
+  end
 end
 
 -- Get the device node_id
@@ -151,6 +165,7 @@ end
 
 qmp_system.configure_hostname = configure_hostname
 qmp_system.get_hostname = get_hostname
+qmp_system.generate_key = generate_key
 qmp_system.get_key = get_key
 qmp_system.get_node_id = get_node_id
 qmp_system.get_community_id = get_community_id

@@ -13,7 +13,9 @@ local read_file
 
 -- Check if a file exists
 function is_file (filename)
-  return nixiofs.stat(filename, 'type') == 'reg'
+  if filename ~= nil then
+    return nixiofs.stat(filename, 'type') == 'reg'
+  end
 end
 
 
