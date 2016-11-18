@@ -8,17 +8,17 @@ local io = require("io")
 local ubus = require("ubus")
 local uci = require("uci")
 
---[[
-local qmp_network  = qmp_network  or require("qmp_network")
-local qmp_uci      = qmp_uci      or require("qmp_uci")
-]]--
-
 local qmp_system = qmp_system or {}
+
+local qmp_io     = qmp_io  or require("qmp.io")
+local qmp_uci    = qmp_uci or require("qmp.uci")
+
 
 -- Local functions declaration
 local configure_hostname
 local get_community_id
 local get_hostname
+local get_key
 local get_node_id
 local get_primary_device
 local set_hostname
@@ -99,6 +99,10 @@ function get_hostname()
 
 end
 
+-- Get the device mesh key
+function get_key()
+  return qmp_io.read_file(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "key"))[1]
+end
 
 -- Get the device node_id
 function get_node_id()
@@ -147,6 +151,7 @@ end
 
 qmp_system.configure_hostname = configure_hostname
 qmp_system.get_hostname = get_hostname
+qmp_system.get_key = get_key
 qmp_system.get_node_id = get_node_id
 qmp_system.get_community_id = get_community_id
 qmp_system.get_primary_device = get_primary_device
