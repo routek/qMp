@@ -1,6 +1,7 @@
 #!/usr/bin/lua
 
 qmp_config   = qmp_config   or require("qmp.config")
+qmp_io       = qmp_io       or require("qmp.io")
 qmp_network  = qmp_network  or require("qmp.network")
 qmp_system   = qmp_system   or require("qmp.system")
 qmp_uci      = qmp_uci      or require("qmp.uci")
@@ -15,29 +16,32 @@ function print_help()
         print("Available sections and commands:")
         print("")
         print(" config")
-        print("  set_device_role <device> <role>     : set a device the specified qMp role")
+        print("  set_device_role <device> <role>                 : set a device the specified qMp role")
+        print("")
+        print(" io")
+        print("  read_file <filename>                            : print the content of a file")
         print("")
         print(" network")
-        print("  device_mac <device>                        : get a network device's MAC address")
-        print("  get_primary_device                         : get the primary network device")
-        print("  is_device <device>                         : check if a device (e.g. eth0, radio1) is a network device")
-        print("  is_ethernet_device <device>                : check if a device (e.g. eth0) is an Ethernet network device")
-        print("  is_ethernet_switched_device <device>       : check if a device (e.g. eth0) is an Ethernet network device with a switch")
-        print("  is_valid_mac <mac>                         : check if a MAC address (e.g. \"02:CA:FF:EE:BA:BE\") is valid")
-        print("  list_all_devices                           : print the list of all network devices")
-        print("  list_ethernet_devices                      : print the list of Ethernet network devices")
-        print("  list_ethernet_switch_devices               : print the list of Ethernet network devices with a switch")
-        print("  list_switch_devices                        : print the list of Ethernet network devices")
-        print("  list_vlan_devices                          : print the list of VLAN network devices")
-        print("  table_etherswitch_devices                  : print the table of Ethernet network devices with a switch")
-        print("  table_etherswitch_swconfig_devices         : print the table of Ethernet network devices with a switch as returned by swconfig")
-        print("  table_vlan_ethernet_devices                : print the table of the VLAN network devices and their lower Ethernet device")
+        print("  device_mac <device>                             : get a network device's MAC address")
+        print("  get_primary_device                              : get the primary network device")
+        print("  is_device <device>                              : check if a device (e.g. eth0, radio1) is a network device")
+        print("  is_ethernet_device <device>                     : check if a device (e.g. eth0) is an Ethernet network device")
+        print("  is_ethernet_switched_device <device>            : check if a device (e.g. eth0) is an Ethernet network device with a switch")
+        print("  is_valid_mac <mac>                              : check if a MAC address (e.g. \"02:CA:FF:EE:BA:BE\") is valid")
+        print("  list_all_devices                                : print the list of all network devices")
+        print("  list_ethernet_devices                           : print the list of Ethernet network devices")
+        print("  list_ethernet_switch_devices                    : print the list of Ethernet network devices with a switch")
+        print("  list_switch_devices                             : print the list of Ethernet network devices")
+        print("  list_vlan_devices                               : print the list of VLAN network devices")
+        print("  table_etherswitch_devices                       : print the table of Ethernet network devices with a switch")
+        print("  table_etherswitch_swconfig_devices              : print the table of Ethernet network devices with a switch as returned by swconfig")
+        print("  table_vlan_ethernet_devices                     : print the table of the VLAN network devices and their lower Ethernet device")
         print("")
         print(" system")
-        print("  get_community_id                           : get the device's community id")
-        print("  get_node_id                                : get the device's node id")
-        print("  get_primary_device                         : get the device's configured primary device")
-        print("  set_system_hostname <hostname>             : set the system hostname specified by hostname")
+        print("  get_community_id                                : get the device's community id")
+        print("  get_node_id                                     : get the device's node id")
+        print("  get_primary_device                              : get the device's configured primary device")
+        print("  set_system_hostname <hostname>                  : set the system hostname specified by hostname")
         print("")
         print(" uci")
         print("  get_namesec <file> <type> <op>                  : get an option in a named section of a file")
@@ -48,18 +52,18 @@ function print_help()
         print("  set_typenamesec <file> <type> <name> <op> <val> : set an option in named section of a type in a file")
         print("")
         print(" wireless")
-        print("  get_radio_channels <device> [band]        : get the channels a radio device (e.g. radio0) can use, optionally specifying the band (2g or 5g)")
-        print("  get_radio_hwmode <device>                 : get the hwmode info of a radio device")
-        print("  get_radios_band_2g                        : get the wireless radios that work on the 2.4 GHz band")
-        print("  get_radios_band_5g                        : get the wireless radios that work on the 5 GHz band")
-        print("  get_radios_band_dual                      : get the wireless radios that work on both the 5 and 2.4 GHz bands")
-        print("  is_radio_device <device>                  : check if a device (e.g. radio0) is a wireless radio device")
-        print("  is_radio_band <device> <band>             : check if a wireless radio device (e.g. radio0) works on the given band (2g or 5g)")
-        print("  is_radio_band_2g <device>                 : check if a wireless radio device (e.g. radio0) works on the 2.4 GHz band")
-        print("  is_radio_band_5g <device>                 : check if a wireless radio device (e.g. radio0) works on the 5 GHz band")
-        print("  is_radio_band_dual <device>               : check if a wireless radio device (e.g. radio0) works on both the 5 and 2.4 GHz bands")
-        print("  list_physical_devices                     : print the list of wireless physical devices")
-        print("  list_radio_devices                        : print the list of wireless radio devices")
+        print("  get_radio_channels <device> [band]              : get the channels a radio device (e.g. radio0) can use, optionally specifying the band (2g or 5g)")
+        print("  get_radio_hwmode <device>                       : get the hwmode info of a radio device")
+        print("  get_radios_band_2g                              : get the wireless radios that work on the 2.4 GHz band")
+        print("  get_radios_band_5g                              : get the wireless radios that work on the 5 GHz band")
+        print("  get_radios_band_dual                            : get the wireless radios that work on both the 5 and 2.4 GHz bands")
+        print("  is_radio_device <device>                        : check if a device (e.g. radio0) is a wireless radio device")
+        print("  is_radio_band <device> <band>                   : check if a wireless radio device (e.g. radio0) works on the given band (2g or 5g)")
+        print("  is_radio_band_2g <device>                       : check if a wireless radio device (e.g. radio0) works on the 2.4 GHz band")
+        print("  is_radio_band_5g <device>                       : check if a wireless radio device (e.g. radio0) works on the 5 GHz band")
+        print("  is_radio_band_dual <device>                     : check if a wireless radio device (e.g. radio0) works on both the 5 and 2.4 GHz bands")
+        print("  list_physical_devices                           : print the list of wireless physical devices")
+        print("  list_radio_devices                              : print the list of wireless radio devices")
 
 
 
@@ -343,6 +347,18 @@ function print_table_network_vlan_ethernet_devices()
 end
 
 
+function read_io_file()
+  if #arg == 3 then
+    for k, v in pairs(qmp_io.read_file(arg[3])) do
+      print (v)
+    end
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 function set_config_device_role()
   if #arg == 4 then
     qmp_config.set_device_role(arg[3], arg[4])
@@ -406,6 +422,14 @@ if section == "config" then
 
   if command == "set_config_device_role" then
     set_config_device_role()
+  end
+
+
+
+elseif section == "io" then
+
+  if command == "read_file" then
+    read_io_file()
   end
 
 
