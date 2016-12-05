@@ -4,6 +4,6 @@ cat /etc/qmp/qmp.banner >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
 echo " qMp $COD ($REL, $BRANCH rev.$REV-$DATE)" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
-echo " http://qmp.cat/projects/qmp/repository/show?branch=$BRANCH&rev=$REV" >> /etc/banner
+echo " http://dev.qmp.cat/projects/qmp/repository/show?branch=$BRANCH&rev=$REV" >> /etc/banner
 echo " ---------------------------------------------------" >> /etc/banner
 
