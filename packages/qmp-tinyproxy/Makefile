@@ -27,7 +27,7 @@ define Package/qmp-tinyproxy
   CATEGORY:=qMp
   TITLE:=A lightweight HTTP(S) proxy with splash screen support
   URL:=http://tinyproxy.sourceforge.net/
-  DEPENDS:=+tinymce
+  DEPENDS:=
 endef
 
 define Package/qmp-tinyproxy/conffiles
