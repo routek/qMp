@@ -228,7 +228,7 @@ end
 
 -- Check if a radio device can operate on the 5 GHz band
 function is_radio_band_5g(radiodev)
-
+  print(radiodev)
   if is_radio_device(radiodev) then
     local iw = get_radio_iwinfo(radiodev)
     for k, v in pairs(iw.hwmodelist) do

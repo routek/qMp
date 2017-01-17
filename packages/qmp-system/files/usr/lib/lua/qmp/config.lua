@@ -18,7 +18,8 @@ local get_radios_for_criteria
 local get_wifi_iface_name
 local initialize
 local initialize_network
-
+local initialize_node
+local wireless_criteria
 
 
 -- Initialize the qMp configuration file with the default sections and paramenters
@@ -27,43 +28,13 @@ function initialize()
   -- Check if the configuration file exists or create it
   if qmp_io.is_file(OWRT_CONFIG_DIR .. QMP_CONFIG_FILENAME) or qmp_io.new_file(OWRT_CONFIG_DIR .. QMP_CONFIG_FILENAME) then
 
-    -- Create the node section or, if already present, add any missing value
-    qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "node")
-    local ndefaults = qmp_defaults.get_node_defaults()
+    -- Initialize the node section
+    initialize_node()
 
-    -- In the past, community_id and community_node_id options were [oddly] used.
-    -- If upgrading a device, take it into account
-    local community_node_id = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "community_node_id")
-    if community_node_id then
-      qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "community_node_id", '')
-      local node_id = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "community_id")
-      qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "node_id", node_id)
-      qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "community_id", '')
-    end
+    -- Initialize the devices section
+    initialize_devices()
 
-    -- Merge the missing values from the defaults
-    for k, v in pairs(ndefaults) do
-      if not qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", k) then
-        qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", k, v)
-      end
-    end
-
-    -- Create the devices section or, if already present, add any missing value
-    qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "devices")
-
-    -- Add the primary network device
-    local primary_device = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device")
-    if not primary_device or not qmp_network.is_network_device(primary_device) then
-      primary_device = qmp_network.get_primary_device()
-    end
-    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "devices", "primary_device", primary_device)
-
-    -- Remove parameters from previous versions which no longer must be here
-    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "key", '')
-    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device", '')
   end
-
-  initialize_devices()
 end
 
 
@@ -78,7 +49,7 @@ function initialize_devices(force)
   -- Create the network section if not already there
   qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "devices")
 
-  -- Get previously configured interfaces in older qMp versions and wipe out old stuff
+  -- Get previously configured interfaces from older qMp versions and wipe out old stuff
   local old_lan_devices = qmp_tools.list_to_array(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "interfaces", "lan_devices"))
   local old_wan_devices = qmp_tools.list_to_array(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "interfaces", "wan_devices"))
   local old_mesh_devices = qmp_tools.list_to_array(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "interfaces", "mesh_devices"))
@@ -100,6 +71,7 @@ function initialize_devices(force)
   local no_vlan_devices = qmp_tools.array_unique(qmp_tools.list_to_array(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "devices", "no_vlan_devices")))
   local switch_devices = qmp_tools.array_unique(qmp_tools.list_to_array(qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "devices", "switch_devices")))
 
+  -- If force is true, whipe out any previous configuration
   if force then
     local lan_devices = {}
     local wan_devices = {}
@@ -167,7 +139,7 @@ function initialize_devices(force)
     end
   end
 
-  -- TODO: detect IPIP tunnels and process them here to!
+  -- TODO: detect IPIP, GRE, GRETAP, etc. tunnels and devices and process them here to!
 
   local added_lan = false
   local added_wan = false
@@ -267,61 +239,13 @@ function initialize_devices(force)
   -- Configure wireless devices
   -- Get the lists of wireless devices
   local allradios = qmp_wireless.get_wireless_radio_devices()
+
   local confradios = {}
 
-  -- Wireless configuration criteria
-  --
-  -- 1) 5 GHz in adhoc_mesh mode
-  -- 2) 2.4 GHz in AP_lan and 80211s_mesh modes
-  -- 3) 5 GHz in AP_lan mode (lowest channel +)
-  -- 4) 2.4 GHz in AP_lan and 80211s_mesh modes
+  -- Get the predefined criteria set for configuring wireless devices
+  local criteria = wireless_criteria()
 
-  local criteria = {}
-
-    criteria[1] = {}
-    criteria[1]["selected"] = nil
-    criteria[1]["band"] = "5g"
-    criteria[1]["channel"] = 1
-    criteria[1]["configs"] = {}
-      criteria[1]["configs"][1] = {}
-      criteria[1]["configs"][1]["phymode"] = "adhoc"
-      criteria[1]["configs"][1]["netmode"] = "mesh"
-
-    criteria[2] = {}
-    criteria[2]["selected"] = nil
-    criteria[2]["band"] = "2g"
-    criteria[2]["channel"] = 1
-    criteria[2]["configs"] = {}
-      criteria[2]["configs"][1] = {}
-      criteria[2]["configs"][1]["phymode"] = "ap"
-      criteria[2]["configs"][1]["netmode"] = "lan"
-      criteria[2]["configs"][2] = {}
-      criteria[2]["configs"][2]["phymode"] = "mesh"
-      criteria[2]["configs"][2]["netmode"] = "mesh"
-
-    criteria[3] = {}
-    criteria[3]["selected"] = nil
-    criteria[3]["band"] = "5g"
-    criteria[3]["channel"] = -1
-    criteria[3]["configs"] = {}
-      criteria[3]["configs"][1] = {}
-      criteria[3]["configs"][1]["phymode"] = "ap"
-      criteria[3]["configs"][1]["netmode"] = "lan"
-
-    criteria[4] = {}
-    criteria[4]["selected"] = nil
-    criteria[4]["band"] = "2g"
-    criteria[4]["channel"] = -1
-    criteria[4]["configs"] = {}
-      criteria[4]["configs"][1] = {}
-      criteria[4]["configs"][1]["phymode"] = "ap"
-      criteria[4]["configs"][1]["netmode"] = "lan"
-      criteria[4]["configs"][2] = {}
-      criteria[4]["configs"][2]["phymode"] = "mesh"
-      criteria[4]["configs"][2]["netmode"] = "mesh"
-
-
-
+  -- Try to assign a device to each criteria, sequentially
   for k, v in pairs(criteria) do
     print ("")
     print ("Criteria " .. k)
@@ -354,17 +278,40 @@ function initialize_devices(force)
         table.insert(confradios, selradio)
         configure_radio_with_criteria(selradio, v)
       end
-
     end
+  end
+end
 
+
+function initialize_node()
+  -- Create the node section or, if already present, add any missing value
+  qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "node")
+  local ndefaults = qmp_defaults.get_node_defaults()
+
+  -- In the past, community_id and community_node_id options were [oddly] used.
+    -- If upgrading a device, take it into account
+  local community_node_id = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "community_node_id")
+  if community_node_id then
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "community_node_id", '')
+    local node_id = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "community_id")
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "node_id", node_id)
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "community_id", '')
   end
 
+  -- Merge the missing values from the defaults
+  for k, v in pairs(ndefaults) do
+    if not qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", k) then
+      qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", k, v)
+      print(k..': '..v)
+    end
+  end
 
-
-
-
-
-
+  -- Add the primary network device
+  local primary_device = qmp_uci.get_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device")
+  if not primary_device or not qmp_network.is_network_device(primary_device) then
+    primary_device = qmp_network.get_primary_device()
+  end
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "node", "primary_device", primary_device)
 end
 
 
@@ -373,32 +320,47 @@ function configure_radio_with_criteria(radio, criteria)
 
   local iw = qmp_wireless.get_radio_iwinfo(radio)
 
-  print ("Configuring " .. radio .. " with the following criteria:")
-  for k, v in pairs(criteria) do
-    if type(v) == table then
-      for l, m in pairs(v) do
-        print (k .. "." .. l .. tostring(v))
-      end
-    else
-      print (k .. ": " .. tostring(v))
+print ("Configuring " .. radio .. " with the following criteria:")
+
+for k, v in pairs(criteria) do
+
+  if type(v) == table then
+
+    for l, m in pairs(v) do
+
+      print (k .. "." .. l .. tostring(v))
+
     end
+
+  else
+
+    print (k .. ": " .. tostring(v))
+
   end
 
-  -- Create the section for the radio device
-  qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-device", radio)
-  -- Set the channel
-  print("Criteria->channel: " .. criteria["channel"])
+end
 
-  if criteria["channel"] < 0 then
-    criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
-  end
+-- Create the section for the radio device
 
-  local channel = qmp_wireless.get_radio_channels(radio, criteria.band)[criteria.channel]
+qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-device", radio)
 
-  print ("Channel: " .. channel)
-  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
+-- Set the channel
 
-  local macaddr = qmp_wireless.get_device_mac(radio)
+print("Criteria->channel: " .. criteria["channel"])
+
+if criteria["channel"] < 0 then
+
+  criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
+
+end
+
+local channel = qmp_wireless.get_radio_channels(radio, criteria.band)[criteria.channel]
+
+print ("Channel: " .. channel)
+
+qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
+
+local macaddr = qmp_wireless.get_device_mac(radio)
   print ("MAC address: " .. macaddr)
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "macaddr", macaddr)
 
@@ -502,11 +464,68 @@ function set_device_role(dev, role)
   qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "devices", "wan_devices", qmp_tools.array_to_list(wan_devices))
 end
 
+function wireless_criteria()
+  -- Define the criteria for automatic configuration of wireless devices. The
+  -- following configurations are preferred, in this order:
+  --  1) 5 GHz in adhoc_mesh mode (lowest channel)
+  --  2) 2.4 GHz in AP_lan and 80211s_mesh modes (lowest channel)
+  --  3) 5 GHz in AP_lan mode (highest channel)
+  --  4) 2.4 GHz in AP_lan and 80211s_mesh modes (highest channel)
+
+  local criteria = {}
+
+  criteria[1] = {}
+  criteria[1]["selected"] = nil
+  criteria[1]["band"] = "5g"
+  criteria[1]["channel"] = 1
+  criteria[1]["configs"] = {}
+    criteria[1]["configs"][1] = {}
+    criteria[1]["configs"][1]["phymode"] = "adhoc"
+    criteria[1]["configs"][1]["netmode"] = "mesh"
+
+  criteria[2] = {}
+  criteria[2]["selected"] = nil
+  criteria[2]["band"] = "2g"
+  criteria[2]["channel"] = 1
+  criteria[2]["configs"] = {}
+    criteria[2]["configs"][1] = {}
+    criteria[2]["configs"][1]["phymode"] = "ap"
+    criteria[2]["configs"][1]["netmode"] = "lan"
+    criteria[2]["configs"][2] = {}
+    criteria[2]["configs"][2]["phymode"] = "mesh"
+    criteria[2]["configs"][2]["netmode"] = "mesh"
+
+  criteria[3] = {}
+  criteria[3]["selected"] = nil
+  criteria[3]["band"] = "5g"
+  criteria[3]["channel"] = -1
+  criteria[3]["configs"] = {}
+    criteria[3]["configs"][1] = {}
+    criteria[3]["configs"][1]["phymode"] = "ap"
+    criteria[3]["configs"][1]["netmode"] = "lan"
+
+  criteria[4] = {}
+  criteria[4]["selected"] = nil
+  criteria[4]["band"] = "2g"
+  criteria[4]["channel"] = -1
+  criteria[4]["configs"] = {}
+    criteria[4]["configs"][1] = {}
+    criteria[4]["configs"][1]["phymode"] = "ap"
+    criteria[4]["configs"][1]["netmode"] = "lan"
+    criteria[4]["configs"][2] = {}
+    criteria[4]["configs"][2]["phymode"] = "mesh"
+    criteria[4]["configs"][2]["netmode"] = "mesh"
+
+  return criteria
+end
+
 
 qmp_config.configure_radio_with_criteria = configure_radio_with_criteria
 qmp_config.get_radios_for_criteria = get_radios_for_criteria
 qmp_config.initialize = initialize
 qmp_config.initialize_network = initialize_network
+qmp_config.initialize_node = initialize_node
 qmp_config.set_device_role = set_device_role
+qmp_config.wireless_criteria = wireless_criteria
 
 return qmp_config

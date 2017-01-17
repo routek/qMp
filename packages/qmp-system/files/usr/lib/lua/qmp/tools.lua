@@ -30,6 +30,17 @@ function array_to_list(arr)
 end
 
 
+function array_length(arr)
+
+  local count = 0
+
+  for k, v in pairs (arr) do
+    count = count + 1
+  end
+
+  return count
+end
+
 
 function array_unique(arr)
 
@@ -52,6 +63,7 @@ function array_unique(arr)
 
   return arr
 end
+
 
 -- Generate a string of a certain length containing random hex [lowercase] characters
 function get_random_hex(length, seed)
@@ -154,11 +166,13 @@ end
 
 
 qmp_tools.array_to_list = array_to_list
+qmp_tools.array_length = array_length
+qmp_tools.array_unique = array_unique
+qmp_tools.get_random_hex = get_random_hex
 qmp_tools.is_item_in_array = is_item_in_array
 qmp_tools.list_to_array = list_to_array
 qmp_tools.remove_item_from_array = remove_item_from_array
 qmp_tools.times_item_in_array = times_item_in_array
-qmp_tools.array_unique = array_unique
-qmp_tools.get_random_hex = get_random_hex
+
 
 return qmp_tools

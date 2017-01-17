@@ -27,6 +27,8 @@ local longitude = '0.0'
 local elevation = '5.0'
 -- Default contact
 local contact = 'your@email.qmp'
+-- Default key location
+local key = '/tmp/qmp_key'
 
 -- Default hostname
 local hostname = "qMp"
@@ -85,6 +87,7 @@ function get_node_defaults()
   t["latitude"] = latitude
   t["longitude"] = longitude
   t["elevation"] = elevation
+  t["key"] =  key
   t["contact"] =  contact
   return (t)
 end
