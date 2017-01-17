@@ -46,7 +46,10 @@ function print_help()
         print("  set_system_hostname <hostname>                  : set the system hostname specified by hostname")
         print("")
         print(" uci")
+        print("  count_typesec <file> <type>                     : count the number of sections of a type in a file")
         print("  get_namesec <file> <type> <op>                  : get an option in a named section of a file")
+        print("  delete_namesec <file> <name>                    : delete the section with the given name in a file")
+        print("  delete_typesecs_by_opval <file> <type> <op> <value>  : delete all sections of a given type in a file containing an option of a certain name and value")
         print("  get_nonamesec <file> <type> <index> <op>        : get an option in an indexed unnamed section of a file")
         print("  new_section_typename <file> <type> <name>       : create a new uci section of the given type and name in a file")
         print("  set_namesec <file> <type> <op> <val>            : set an option in a named section of a file")
@@ -54,6 +57,9 @@ function print_help()
         print("  set_typenamesec <file> <type> <name> <op> <val> : set an option in named section of a type in a file")
         print("")
         print(" wireless")
+        print("  configure_wifi_device <device>                  : configure /etc/config/wireless for a wireless device already configured in /etc/config/qmp)")
+        print("  configure_wifi_iface <interfaces>               : configure /etc/config/wireless for a wireless interface already configured in /etc/config/qmp)")
+        print("  delete_wifi_ifaces <device>                     : delete all wireless interfaces for a wireless device in /etc/config/wireless)")
         print("  get_radio_channels <device> [band]              : get the channels a radio device (e.g. radio0) can use, optionally specifying the band (2g or 5g)")
         print("  get_radio_hwmode <device>                       : get the hwmode info of a radio device")
         print("  get_radios_band_2g                              : get the wireless radios that work on the 2.4 GHz band")
@@ -221,6 +227,36 @@ function get_tools_random_hex_string()
 end
 
 
+function count_uci_typesec()
+  if #arg == 4 then
+    print (qmp_uci.count_typesec(arg[3], arg[4]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function del_uci_namesec()
+  if #arg == 4 then
+    print (qmp_uci.delete_namesec(arg[3], arg[4]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function del_uci_typesecs_by_opval()
+  if #arg == 6 then
+    print (qmp_uci.delete_typesecs_by_option_value(arg[3], arg[4], arg[5], arg[6]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 function get_uci_namesec()
   if #arg == 5 then
     print (qmp_uci.get_option_namesec(arg[3], arg[4], arg[5]))
@@ -233,7 +269,41 @@ end
 
 function get_uci_nonamesec()
   if #arg == 6 then
-    print (qmp_uci.get_option_nonamesec(arg[3], arg[4], arg[5], arg[6]))
+    result = qmp_uci.get_option_nonamesec(arg[3], arg[4], arg[5], arg[6])
+    for k, v in pairs (result) do
+      print (k .. v)
+    end
+    print (result)
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function config_wireless_wifi_device()
+  if #arg == 3 then
+    print (qmp_wireless.configure_wifi_device(arg[3]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function config_wireless_wifi_iface()
+  if #arg == 3 then
+    print (qmp_wireless.configure_wifi_iface(arg[3]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function del_wireless_wifi_ifaces()
+  if #arg == 3 then
+    print (qmp_wireless.delete_wifi_ifaces(arg[3]))
   else
     print_help()
     os.exit(1)
@@ -526,7 +596,16 @@ elseif section == "tools" then
 
 elseif section == "uci" then
 
-  if command == "get_namesec" then
+  if command == "count_typesec" then
+    count_uci_typesec()
+
+  elseif command == "delete_namesec" then
+    del_uci_namesec()
+
+  elseif command == "delete_typesecs_by_opval" then
+    del_uci_typesecs_by_opval()
+
+  elseif command == "get_namesec" then
     get_uci_namesec()
 
   elseif command == "get_nonamesec" then
@@ -546,7 +625,16 @@ elseif section == "uci" then
 
 elseif section == "wireless" then
 
-  if command == "get_radio_channels" then
+  if command == "configure_wifi_device" then
+    config_wireless_wifi_device()
+
+  elseif command == "configure_wifi_iface" then
+    config_wireless_wifi_iface()
+
+  elseif command == "delete_wifi_ifaces" then
+    del_wireless_wifi_ifaces()
+
+  elseif command == "get_radio_channels" then
     get_wireless_radio_channels()
 
   elseif command == "get_radio_hwmode" then

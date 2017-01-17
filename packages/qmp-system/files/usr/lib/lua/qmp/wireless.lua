@@ -17,6 +17,9 @@ local qmp_tools    = qmp_tools    or require("qmp.tools")
 
 local qmp_wireless = qmp_wireless or {}
 
+local configure_wifi_device
+local configure_wifi_iface
+local delete_wifi_ifaces
 local get_device_mac
 local get_radio_channels
 local get_radio_iwinfo
@@ -36,6 +39,54 @@ local is_radio_band_5g
 local is_radio_band_dual
 
 
+
+-- Configure a wifi-device (e.g. radio0) in /etc/config/wireless
+local function configure_wifi_device(wdev)
+  -- Check if the device is a radio device
+  if is_radio_device(wdev) then
+
+    -- Check if the wifi-device section for this radio device already exists in /etc/config/wireless
+    if qmp_uci.sectypename_in_file("wireless", "wifi-device", wdev) then
+      -- We only configure a few of the options by now, namely:
+
+      -- Channel
+        qmp_uci.set_option_typenamesec("wireless", "wifi-device", wdev, "channel", qmp_uci.get_option_namesec("qmp", wdev, "channel"))
+
+      -- Disabled
+        qmp_uci.set_option_typenamesec("wireless", "wifi-device", wdev, "disabled", 0)
+    end
+  end
+end
+
+
+-- Configure a wifi-iface (e.g. wlan0adhoc) in /etc/config/wireless
+local function configure_wifi_iface(wiface)
+  -- Check if the wifi-iface is configured in /etc/config/qmp
+  if (qmp_uci.sectypename_in_file("qmp", "wifi-iface", wiface)) then
+    -- Create the wifi-device section for this radio device if it does not already exist in /etc/config/wireless
+    if (not qmp_uci.sectypename_in_file("wireless", "wifi-iface", wiface)) then
+      qmp_uci.new_section_typename("wireless", "wifi-iface", wiface)
+    end
+
+    -- Populate the section in /etc/config/wireless
+    sect = qmp_uci.get_section_by_type_name("qmp", "wifi-iface", wiface)
+    for k, v in pairs (sect) do
+      if ( type(k) == "string" and string.sub(k,1,1) ~= '.' ) then
+        qmp_uci.set_option_typenamesec("wireless", "wifi-iface", wiface, k, v)
+      end
+    end
+
+  end
+end
+
+
+-- Configure all wifi-ifaces (e.g. wlan0adhoc) in /etc/config/wireless for a certain wifi-device (e.g. radio0)
+local function delete_wifi_ifaces(wdev)
+  -- Check if the device is a radio device
+  if is_radio_device(wdev) then
+    qmp_uci.delete_typesecs_by_option_value ("wireless", "wifi-iface", "device", wdev)
+  end
+end
 
 -- Get the MAC address (lowercase) of a wireless device
 local function get_device_mac(wdev)
@@ -307,7 +358,9 @@ function get_wireless_radio_devices()
 end
 
 
-
+qmp_wireless.configure_wifi_device = configure_wifi_device
+qmp_wireless.configure_wifi_iface = configure_wifi_iface
+qmp_wireless.delete_wifi_ifaces = delete_wifi_ifaces
 qmp_wireless.get_device_mac = get_device_mac
 qmp_wireless.get_radio_channels = get_radio_channels
 qmp_wireless.get_radio_iwinfo = get_radio_iwinfo

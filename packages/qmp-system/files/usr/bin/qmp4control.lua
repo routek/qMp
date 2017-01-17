@@ -26,7 +26,19 @@ function configure_network()
 end
 
 function configure_wireless()
-  qmp_wireless.initial()
+  -- Configure /etc/config/wireless according to /etc/config/qmp's settings
+    for k, v in pairs (qmp_wireless.get_wireless_radio_devices()) do
+      print ("Configuring wireless device " .. v)
+      qmp_wireless.configure_wifi_device(v)
+      qmp_wireless.delete_wifi_ifaces(v)
+      for l, w in pairs (qmp_uci.get_secnames_by_type_option_value("qmp", "wifi-iface", "device", v)) do
+        print ("Configuring wireless interface " .. w)
+        qmp_wireless.configure_wifi_iface(w)
+      end
+    end
+
+  -- Configure wireless devices in mesh/LAN/WAN roles
+
   -- qmp_configure_wifi_initial
   -- qmp_configure_wifi
   -- configure_network
