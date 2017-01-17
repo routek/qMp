@@ -100,18 +100,6 @@ function get_wifi_iface_defaults(phymode)
   if phymode == "adhoc" then
     return (get_wifi_iface_adhoc_defaults())
   end
-
-  return (defaults)
-end
-
-
-function get_wifi_iface_defaults(phymode)
-
-  local defaults = {}
-
-  if phymode == "adhoc" then
-    return (get_wifi_iface_adhoc_defaults())
-  end
   if phymode == "ap" then
     return (get_wifi_iface_ap_defaults())
   end
