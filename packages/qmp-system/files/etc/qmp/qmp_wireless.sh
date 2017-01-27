@@ -552,7 +552,8 @@ qmp_reset_wifi() {
 	country="${country:-US}"
 	
 	mv /etc/config/wireless /tmp/wireless.old
-	wifi detect | sed s/"disabled 1"/"country $country"/g > /etc/config/wireless
+	wifi config
+	sed -i s/"disabled '1'"/"country $country"/g /etc/config/wireless
 
         wifi
 	sleep 5
