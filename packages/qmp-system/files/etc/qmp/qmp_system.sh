@@ -79,6 +79,11 @@ qmp_set_maps() {
 				qmp_uci_set_raw libremap.location.latitude="$lat"
 				qmp_uci_set_raw libremap.location.longitude="$lon"
 				qmp_uci_set_raw libremap.location.elev="$elev"
+				
+				uci set libremap.qmp.enabled=1
+				uci set libremap.bmx6.enabled=1
+				uci set libremap.wireless.enabled=1
+				uci commit
 			}
 		}
 	}

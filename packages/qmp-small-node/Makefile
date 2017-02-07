@@ -25,11 +25,13 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-QMP_RELEASE?=r20161013-1
+QMP_RELEASE?=r20170207-3
+QMP_PKGRELEASE=r20170207-3
 QMP_CODENAME?=testing
+QMP_BUILDDATE:=$(shell date +%Y%m%d-%H%M)
 
 PKG_NAME:=qmp-small-node
-PKG_VERSION:=$(QMP_RELEASE)
+	PKG_VERSION:=$(QMP_RELEASE)-$(QMP_PKGRELEASE)
 PKG_RELEASE:=$(QMP_CODENAME)
 PGK_LICENSE:=GPL-2.0+
 
@@ -47,7 +49,8 @@ define Package/qmp-small-node
 	+iputils-ping6 +mtr +netperf \
 	+munin-mesh +mini_snmpd +cgi-bin-zero +ipip +kmod-ipip +kmod-gre \
 	+libremap-agent +luci-lib-libremap-contact +luci-lib-libremap-wireless \
-	+luci +luci-lib-libremap-system +luci-lib-libremap-location +bmx6-mdns
+	+luci +luci-lib-libremap-system +luci-lib-libremap-location \
+	+luci-lib-libremap-bmx6 +luci-lib-libremap-qmp +bmx6-mdns
 endef
 
 define Package/qmp-small-node/description
