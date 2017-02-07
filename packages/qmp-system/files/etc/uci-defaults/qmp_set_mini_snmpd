@@ -4,6 +4,9 @@
         # Enable mini_snmpd
         uci set mini_snmpd.@mini_snmpd[0].enabled=1
 
+        # Make mini_snmpd listen on any interfaces
+        uci set mini_snmpd.@mini_snmpd[0].listen_interface=""
+
         # Remove br-lan from the interfaces list
         local elem
         local list="$(uci get mini_snmpd.@mini_snmpd[0].interfaces)"
