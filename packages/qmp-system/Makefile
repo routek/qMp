@@ -25,7 +25,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-QMP_RELEASE?=r$(shell date +%Y%m%d-%H%M)
+QMP_RELEASE?=r20170207-1
 QMP_CODENAME?=testing
 QMP_BUILDDATE:=$(shell date +%Y%m%d-%H%M)
 
