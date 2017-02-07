@@ -789,8 +789,8 @@ fi
 
   local primary_mesh_device="$(qmp_get_primary_device)"
 
-  local community_node_id=$(qmp_get_id)
-
+  local device_id=$(qmp_get_id)
+	device_id="$(echo -n $device_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
   if qmp_uci_test qmp.interfaces.mesh_devices &&
   qmp_uci_test qmp.networks.mesh_protocol_vids
 
@@ -866,10 +866,10 @@ fi
 
 
   if qmp_uci_test qmp.networks.bmx6_ripe_prefix48 ; then
-    uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+    uci set $conf.general.tun6Address="$(uci get qmp.networks.bmx6_ripe_prefix48):$device_id:0:0:0:1/64"
     uci set $conf.tmain=tunDev
     uci set $conf.tmain.tunDev=tmain
-    uci set $conf.tmain.tun6Address="$(qmp_uci_get networks.bmx6_ripe_prefix48):$community_node_id:0:0:0:1/64"
+    uci set $conf.tmain.tun6Address="$(qmp_uci_get networks.bmx6_ripe_prefix48):$device_id:0:0:0:1/64"
   fi
 
   qmp_configure_bmx6_gateways

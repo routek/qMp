@@ -37,9 +37,9 @@ function index()
 	-- Rest of entries
 	entry({"qmp","status"}, template("admin_status/index"), "Status", 2).dependent=false
 
-	entry({"qmp","configuration"}, cbi("qmp/easy_setup"), "Node configuration", 4).dependent=false
+	entry({"qmp","configuration"}, cbi("qmp/easy_setup"), "Device configuration", 4).dependent=false
 	entry({"qmp","configuration","easy_setup"}, cbi("qmp/easy_setup"), "qMp easy setup", 1).dependent=false
-	entry({"qmp","configuration","node"}, cbi("qmp/node"), "Basic settings", 2).dependent=false
+	entry({"qmp","configuration","basic"}, cbi("qmp/basic"), "Basic settings", 2).dependent=false
 	entry({"qmp","configuration","network"}, cbi("qmp/network"), "Network settings", 3).dependent=false
 	entry({"qmp","configuration","network","advanced"}, cbi("qmp/network_adv"), "Advanced network settings", 1).dependent=false
 	entry({"qmp","configuration","wifi"}, cbi("qmp/wireless"), "Wireless settings", 4).dependent=false

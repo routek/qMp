@@ -29,14 +29,14 @@ local uciout = uci.cursor()
 package.path = package.path .. ";/etc/qmp/?.lua"
 qmpinfo = require "qmpinfo"
 
-m = SimpleForm("qmp", translate("qMp easy setup"),translate("This page provides a fast and simple way to configure the basic settings of a qMp node.").." "..translate("Use the fields below to specify the network mode, the IP addressing and the interface modes."))
+m = SimpleForm("qmp", translate("qMp easy setup"), translate("This page provides a fast and simple way to configure the basic settings of a qMp device.") .. " " .. translate("Use the form below to specify the required settings, such as mesh mode, naming, addressing and interface operation modes."))
 
 local mode_help
 mode_help = m:field(DummyValue,"mode_help")
 mode_help.rawhtml = true
-mode_help.default = "<strong>"..translate("Network mode").."</strong>".."<br/> <br/>"..translate("qMp nodes can operate in two different modes, depending on the kind of network to deploy.").." "..translate("According to your needs, you can choose between")..":<br/> <br/> · "..translate("roaming mode, for quick, temporal deployments. User devices connected to the network can roam between Access Points without loosing connectivity. However, they can not see other devices connected to the Mesh.").."<br/> · "..translate("community mode for static, long-term deployments (such as community networks). User devices connected to the network get an IP address from a specific range and are accessible from the rest of the Mesh. However, roaming between stations is not possible.").."<br/> <br/>"
+mode_help.default = "<strong>"..translate("Mesh mode").."</strong>".."<br/> <br/>" .. translate("qMp devices can operate in two different modes, depending on the kind of network to deploy.").." "..translate("According to your needs, you can choose between")..":<br/> <br/> · " .. translate("<i>roaming</i> mode, for quick, temporal or ephemeral deployments") .. "<br/> · " .. translate("<i>community</i> mode for static, long-term deployments such as community networks") .. "<br /> <br >" .. translate ("In <i>roaming</i> mode, end-users' devices can roam between Access Points without losing connectivity. However, they are hidden from other devices in the mesh. In <i>community</i> mode, end-users' devices get an IP address accessible from anywhere in the mesh network.").."<br/> <br/>"
 
-netmode = m:field(ListValue, "_netmode","<strong>"..translate(" ").."</strong>",translate("\"Roaming\" mode for quick, temporal network setups. \"Community\" mode for community networks and long-term deployments."))
+netmode = m:field(ListValue, "_netmode","<strong>"..translate(" ").."</strong>",translate("Select <i>roaming</i> or <i>community</i> mode."))
 netmode:value("community","community")
 netmode:value("roaming","roaming")
 
@@ -55,15 +55,84 @@ else
 end
 netmode.default=networkmode
 
+
+
+--Community Network
+local communityname_help
+communityname_help = m:field(DummyValue,"_communityname_help")
+communityname_help.rawhtml = true
+communityname_help:depends("_netmode","community")
+communityname_help.default = "<strong>"..translate("Community network name").."</strong>".."<br/> <br/>"..translate("The name of the Community Network this device belongs to.").."<br/> <br/>"
+
+local communityname = m:field(Value, "_communityname", " ", translate("Select a predefined Community Network or type your own name."))
+communityname:depends("_netmode","community")
+communityname.datatype="string"
+communityname:value("Bogotá Mesh","Bogotá Mesh")
+communityname:value("DigitalMerthyr","Digital Merthyr")
+communityname:value("Guifi.net","Guifi.net")
+
+if uciout:get("qmp","node","community_name") ~= nil then
+	communityname.default=uciout:get("qmp","node","community_name")
+end
+
+
+--Mesh network name, if applicable
+local guifimeshname = m:field(Value, "_guifimeshname", " ", translate("Select a predefined Mesh Network or type your own name."))
+guifimeshname:depends("_communityname","Guifi.net")
+guifimeshname.datatype="string"
+guifimeshname.default="GuifiSants"
+guifimeshname:value("GuifiBaix", "Baix Llobregat (GB)")
+guifimeshname:value("Bellvitge", "Bellvitge")
+guifimeshname:value("GraciaSenseFils", "Gràcia Sense Fils (GSF)")
+guifimeshname:value("PoblenouSenseFils", "Poblenou Sense Fils (P9SF)")
+guifimeshname:value("Quesa", "Quesa (QUESA)")
+guifimeshname:value("Raval", "Raval (GuifiBaix)")
+guifimeshname:value("GuifiSants", "Sants-Les Corts-UPC (GS)")
+guifimeshname:value("SantAndreu", "Sant Andreu (SAND)")
+guifimeshname:value("Vallcarca", "Vallcarca (VKK)")
+
+
+
+if uciout:get("qmp","node","mesh_name") ~= nil then
+	guifimeshname.default=uciout:get("qmp","node","mesh_name")
+end
+
+
+--Device name and ID
+local devicename_help
+local devicename_help = m:field(DummyValue,"_devicename_help")
+devicename_help.rawhtml = true
+devicename_help.default = "<strong>"..translate("Device name").."</strong>".."<br/> <br/>"..translate("Choose a name for this device. It will be used to identify it in the mesh network.").."<br/> <br/>"
+
+local devicename = m:field(Value, "_devicename", " ", translate("Device name. Use only alphanumeric characters, spaces are not allowed."))
+devicename.datatype="hostname"
+devicename.optional=false
+devicename.default="MyMeshDevice"
+
+if uciout:get("qmp","node","device_name") ~= nil then
+	devicename.default=uciout:get("qmp","node","device_name")
+end
+
+
+local guifideviceid = m:field(Value, "_guifideviceid", " ", translate("Device ID in Guifi.net's web site. Use numbers only."))
+guifideviceid:depends({_communityname = "Guifi.net"})
+guifideviceid.datatype="uinteger"
+
+if uciout:get("qmp","node","device_id") ~= nil then
+	guifideviceid.default=uciout:get("qmp","node","device_id")
+end
+
+
+
 local roaming_ipaddress_help
 roaming_ipaddress_help = m:field(DummyValue,"roaming_ipaddress_help")
 roaming_ipaddress_help.rawhtml = true
 roaming_ipaddress_help:depends("_netmode","roaming")
-roaming_ipaddress_help.default = "<strong>"..translate("IP address").."</strong>".."<br/> <br/>"..translate("Specify here an IP address for this node.").." "..translate("In roaming mode, all qMp nodes in a mesh network need a unique IPv4 address.").." "..translate("If unsure about which one to select, leave the field blank and a random one will be assigned automatically.").."<br/> <br/>"
+roaming_ipaddress_help.default = "<strong>"..translate("IP address and network mask").."</strong>".."<br/> <br/>"..translate("Specify here an IP address for this device.").." "..translate("In roaming mode, all qMp devices in a mesh network need a unique IPv4 address.").." "..translate("If unsure about which one to select, leave the field blank and a random one will be assigned automatically.").."<br/> <br/>"
 
 
 local nodeip_roaming =  m:field(Value, "_nodeip_roaming", " ",
-translate("Main IPv4 address for this node.").." "..translate("Leave it blank to get a random one."))
+translate("Main IPv4 address for this device.").." "..translate("Leave it blank to get a random one."))
 nodeip_roaming:depends("_netmode","roaming")
 
 
@@ -78,31 +147,18 @@ end
 nodeip_roaming.default=rip
 nodeip_roaming.datatype="ip4prefix"
 
-local community_name_help
-community_name_help = m:field(DummyValue,"community_name_help")
-community_name_help.rawhtml = true
-community_name_help:depends("_netmode","community")
-community_name_help.default = "<strong>"..translate("Node name").."</strong>".."<br/> <br/>"..translate("Choose a name for this node. It will be used to identify the device in the network. Use only alphanumeric characters, spaces are not allowed.").."<br/> <br/>"
 
-local nodename = m:field(Value, "_nodename", " ",
-translate("The name of this node. Four hex numbers will be appended, according the the device's MAC address."))
 
-nodename:depends("_netmode","community")
-nodename.default="qMp"
-nodename.datatype="hostname"
-if uciout:get("qmp","node","community_id") ~= nil then
-	nodename.default=uciout:get("qmp","node","community_id")
-end
 
 local community_addressing_help
 community_addressing_help = m:field(DummyValue,"community_addressing_help")
 community_addressing_help.rawhtml = true
 community_addressing_help:depends("_netmode","community")
-community_addressing_help.default = "<strong>"..translate("IP address and network mask").."</strong>".."<br/> <br/>"..translate("Specify the IP address and the network mask for this node, according to the planification of your community or your network deployment.").." "..translate("End-user devices will get an IP address within the valid range determined by these two values.").."<br/> <br/>"
+community_addressing_help.default = "<strong>"..translate("IP address and network mask").."</strong>".."<br/> <br/>"..translate("Specify the IP address and the network mask for this device, according to the planification of your community or your network deployment.").." "..translate("End-user devices will get an IP address within the valid range determined by these two values.").."<br/> <br/>"
 
 
 local nodeip = m:field(Value, "_nodeip", " ",
-translate("Main IPv4 address for this node."))
+translate("Main IPv4 address for this device."))
 
 nodeip:depends("_netmode","community")
 nodeip.default = "10.30."..util.trim(util.exec("echo $((($(date +%M)*$(date +%S)%254)+1))"))..".1"
@@ -111,13 +167,20 @@ nodeip.datatype="ip4addr"
 local nodemask = m:field(Value, "_nodemask"," ",
 translate("Network mask to be used with the IPv4 address above."))
 nodemask:depends("_netmode","community")
-nodemask.default = "255.255.255.0"
+nodemask.default = "255.255.255.224"
+nodemask:value("255.255.255.0", "255.255.255.0 (/24, 254 hosts)")
+nodemask:value("255.255.255.128", "255.255.255.128 (/25, 126 hosts)")
+nodemask:value("255.255.255.192", "255.255.255.192 (/26, 62 hosts)")
+nodemask:value("255.255.255.224", "255.255.255.224 (/27, 30 hosts)")
+nodemask:value("255.255.255.240", "255.255.255.240 (/28, 14 hosts)")
+nodemask:value("255.255.255.248", "255.255.255.248 (/29, 6 hosts)")
+
 nodemask.datatype="ip4addr"
 
 local interface_mode_help
 interface_mode_help = m:field(DummyValue,"interface_mode_help")
 interface_mode_help.rawhtml = true
-interface_mode_help.default = "<strong>"..translate("Interface modes").."</strong>".."<br/> <br/>"..translate("Select the working mode of the network interfaces")..":<br/> <br/> · "..translate("LAN mode is used to provide connectivity to end-users (a DHCP server will be enabled to assign IP addresses to the devices connecting)").."<br/> · "..translate("WAN mode is used on interfaces connected to an Internet up-link or any other gateway connection").."<br/> · "..translate("Mesh mode is used on wireless interfaces to join the qMp mesh and, on wired interfaces, to link with other qMp nodes").."<br/> · "..translate("AP mode is used on wireless interfaces to act as an access point and provide connectivity to end-users").."<br/> <br/>"
+interface_mode_help.default = "<strong>"..translate("Interface modes").."</strong>".."<br/> <br/>"..translate("Select the working mode of the network interfaces")..":<br/> <br/> · "..translate("LAN mode is used to provide connectivity to end-users (a DHCP server will be enabled to assign IP addresses to the devices connecting)").."<br/> · "..translate("WAN mode is used on interfaces connected to an Internet up-link or any other gateway connection").."<br/> · "..translate("Mesh mode is used on wireless interfaces to join the qMp mesh and, on wired interfaces, to link with other qMp devices").."<br/> · "..translate("AP mode is used on wireless interfaces to act as an access point and provide connectivity to end-users").."<br/> <br/>"
 
 if networkmode == "community" then
 	nodeip.default=uciout:get("qmp","networks","lan_address")
@@ -195,19 +258,30 @@ end
 
 
 function netmode.write(self, section, value)
-	local name = nodename:formvalue(section)
+	local device_name = devicename:formvalue(section)
 	local mode = netmode:formvalue(section)
 	local nodeip = nodeip:formvalue(section)
 	local nodemask = nodemask:formvalue(section)
 	local nodeip_roaming = nodeip_roaming:formvalue(section)
 
 	if mode == "community" then
+		local community_name = communityname:formvalue(section)
+		
 		uciout:set("qmp","roaming","ignore","1")
 		uciout:set("qmp","networks","publish_lan","1")
 		uciout:set("qmp","networks","lan_address",nodeip)
 		uciout:set("qmp","networks","bmx6_ipv4_address",ip.IPv4(nodeip,nodemask):string())
 		uciout:set("qmp","networks","lan_netmask",nodemask)
-		uciout:set("qmp","node","community_id",name)
+		uciout:set("qmp","node","device_name",device_name)
+		uciout:set("qmp","node","community_name",community_name)
+
+		
+		if community_name == "Guifi.net" then
+			local mesh_name = guifimeshname:formvalue(section)
+			local device_id = guifideviceid:formvalue(section)
+			uciout:set("qmp","node","mesh_name",mesh_name)
+			uciout:set("qmp","node","device_id",device_id)
+		end
 
 	else
 		uciout:set("qmp","roaming","ignore","0")

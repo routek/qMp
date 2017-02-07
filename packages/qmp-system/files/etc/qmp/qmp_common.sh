@@ -245,10 +245,11 @@ qmp_get_crc16() {
 
 # qmp_get_id [8bit]
 qmp_get_id() {
-  local community_node_id="$(qmp_uci_get node.community_node_id)"
-  [ -z "$community_node_id" ] && \
-    community_node_id="$(qmp_get_crc16)"
-  [ "$1" == "8bit" ] && echo "$(( 0x$community_node_id % 0x100 ))" || echo "$community_node_id"
+  local device_id="$(qmp_uci_get node.device_id)"
+	device_id="$(echo -n $device_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
+  [ -z "$device_id" ] && \
+    device_id="$(qmp_get_crc16)"
+  [ "$1" == "8bit" ] && echo "$(( 0x$device_id % 0x100 ))" || echo "$device_id"
 }
 
 # qmp_get_id_ip <1,2>
@@ -282,12 +283,12 @@ qmp_get_dec_node_id() {
   PRIMARY_MESH_DEVICE="$(uci get qmp.interfaces.mesh_devices | awk '{print $1}')"
   LSB_PRIM_MAC="$( qmp_get_mac_for_dev $PRIMARY_MESH_DEVICE | awk -F':' '{print $6}' )"
 
-  if qmp_uci_test qmp.node.community_node_id; then
-    COMMUNITY_NODE_ID="$(uci get qmp.node.community_node_id)"
+  if qmp_uci_test qmp.node.device_id; then
+    DEVICE_ID="$(uci get qmp.node.device_id)"
   elif ! [ -z "$PRIMARY_MESH_DEVICE" ] ; then
-    COMMUNITY_NODE_ID=$LSB_PRIM_MAC
+    DEVICE_ID=$LSB_PRIM_MAC
   fi
-  echo $(printf %d 0x$COMMUNITY_NODE_ID)
+  echo $(printf %d 0x$DEVICE_ID)
 }
 
 # Returns the prefix /XX from netmask

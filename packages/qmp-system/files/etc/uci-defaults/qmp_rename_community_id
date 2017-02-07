@@ -1,0 +1,14 @@
+#!/bin/sh
+
+[ -f /etc/config/qmp ] && {
+        if uci get qmp.node.community_id; then
+                uci set qmp.node.device_name=$(uci get qmp.node.community_id)
+                uci set qmp.node.community_id=""
+        fi
+        if uci get qmp.node.community_node_id; then
+                uci set qmp.node.device_id=$(uci get qmp.node.community_node_id)
+                uci set qmp.node.community_node_id=""
+        fi
+        uci commit
+}
+

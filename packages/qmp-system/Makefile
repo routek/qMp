@@ -25,9 +25,9 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-QMP_RELEASE?=r20161111-1
+QMP_RELEASE?=r$(shell date +%Y%m%d-%H%M)
 QMP_CODENAME?=testing
-QMP_BUILDDATE:=$(shell date +%Y%m%d_%H%M)
+QMP_BUILDDATE:=$(shell date +%Y%m%d-%H%M)
 
 PKG_NAME:=qmp-system
 PKG_VERSION:=$(QMP_RELEASE)

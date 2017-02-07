@@ -8,28 +8,35 @@ SOURCE_SYS=1
 
 qmp_configure_system() {
 
-	if [ -n "$(qmp_uci_get node.community_node_id)" ]; then
-		local community_node_id=$(qmp_uci_get node.community_node_id)
+	if [ -n "$(qmp_uci_get node.device_id)" ]; then
+		local device_id=$(qmp_uci_get node.device_id)
+		device_id="$(echo -n $device_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 10)"
 	else
-		local community_node_id=$(qmp_get_id_hostname)
-		qmp_uci_set node.community_node_id $community_node_id
+		local device_id=$(qmp_get_id_hostname)
+		device_id="$(echo -n $device_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
+		qmp_uci_set node.device_id $device_id
 	fi
 
-	# check if community_node_id is hexadecimal and get last 4 characters
-	community_node_id="$(echo -n $community_node_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
-
-	[ $(echo -n $community_node_id | wc -c) -lt 4 ] && {
-		qmp_log "Warning, community_node_id not defined properly, using failsafe 0000"
-		community_node_id=0000
+	[ $(echo -n $device_id | wc -c) -lt 4 ] && {
+		qmp_log "Warning, device_id not defined properly, using failsafe 0000"
+		device_id=0000
 	}
 
-	local community_id="$(qmp_uci_get node.community_id)"
-	[ -z "$community_id" ] && community_id="qmp" && qmp_uci_set node.community_id $community_id
+	local device_name="$(qmp_uci_get node.device_name)"
+	[ -z "$device_name" ] && device_name="qMp" && qmp_uci_set node.device_name $device_name
 
 	# set hostname
-	uci set system.@system[0].hostname="${community_id}-${community_node_id}"
+	local ig_roaming="$(uci get qmp.roaming.ignore)"
+	
+	if [ $ig_roaming -eq 1 ]; then
+		uci set system.@system[0].hostname="${device_name}"
+		echo "${device_name}" > /proc/sys/kernel/hostname
+	else
+		uci set system.@system[0].hostname="${device_name}-${device_id}"
+		echo "${device_name}-${device_id}" > /proc/sys/kernel/hostname
+	fi
 	uci commit system
-	echo "${community_id}-${community_node_id}" > /proc/sys/kernel/hostname
+
 
 	uci set uhttpd.main.listen_http="80"
 	uci set uhttpd.main.listen_https="443"

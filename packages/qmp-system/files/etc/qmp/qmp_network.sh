@@ -471,7 +471,8 @@ qmp_get_rescue_ip() {
 # apply the non-overlapping DHCP-range preset policy
 # qmp_configure_dhcp <node_id>
 qmp_configure_dhcp() {
-	local community_node_id="$1"
+	local device_id="$1"
+  device_id="$(echo -n $device_id | tr -cd 'ABCDEFabcdef0123456789' | tail -c 4)"
 	local start=2
 	local limit=253
 	local leasetime="$(qmp_uci_get non_overlapping.qmp_leasetime)"
@@ -485,7 +486,7 @@ qmp_configure_dhcp() {
 		uci_offset=${uci_offset:-2}
 		local offset=0
 		[ $uci_offset -lt $num_grp ] && offset=$uci_offset
-		start=$(( 0x$community_node_id * $num_grp + $offset ))
+		start=$(( 0x$device_id * $num_grp + $offset ))
 		limit=$(( $num_grp - $offset ))
 	fi
 
