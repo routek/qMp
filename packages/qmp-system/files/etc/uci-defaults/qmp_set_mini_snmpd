@@ -1,14 +1,39 @@
 #!/bin/sh
 
 [ -f /etc/config/mini_snmpd ] && {
+        # Enable mini_snmpd
         uci set mini_snmpd.@mini_snmpd[0].enabled=1
-        if ! uci get mini_snmpd.@mini_snmpd[0].interfaces | egrep -q 'br-lan|wlan0'        
-                then
+
+        # Remove br-lan from the interfaces list
+        local elem
+        local list="$(uci get mini_snmpd.@mini_snmpd[0].interfaces)"
+
+        uci delete mini_snmpd.@mini_snmpd[0].interfaces
+
+        for elem in $list; do
+                if [ "$elem" != "br-lan" ]; then
+                    echo $elem
+                        uci add_list mini_snmpd.@mini_snmpd[0].interfaces=$elem
+                fi
+        done
+        uci commit
+
+        # Ensure wlan0 is added
+        if ! uci get mini_snmpd.@mini_snmpd[0].interfaces | egrep -q 'wlan0'; then
                 uci add_list mini_snmpd.@mini_snmpd[0].interfaces="wlan0"
-                uci add_list mini_snmpd.@mini_snmpd[0].interfaces="br-lan"
         fi
+
+        # Ensure lan is added
+        if ! uci get mini_snmpd.@mini_snmpd[0].interfaces | egrep -q 'lan'; then
+                uci add_list mini_snmpd.@mini_snmpd[0].interfaces="lan"
+        fi
+
+        uci commit
+
+        # Remove old items
+        uci_remove_list_element "olsrd.@Interface[0].interface" "wan"
+
         uci commit
 
 	/etc/init.d/mini_snmpd restart
 }
-
