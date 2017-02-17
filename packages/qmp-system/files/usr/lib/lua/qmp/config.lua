@@ -2,11 +2,15 @@
 
 local OWRT_CONFIG_DIR = "/etc/config/"
 local QMP_CONFIG_FILENAME = "qmp"
+local BMX6_BIN_FILENAME = "/usr/sbin/bmx6"
+local BMX7_BIN_FILENAME = "/usr/sbin/bmx7"
 
+local qmp_bmx6     = qmp_bmx6     or require("qmp.bmx6")
+--local qmp_bmx7     = qmp_bmx7     or require("qmp.bmx7")
 local qmp_defaults = qmp_defaults or require("qmp.defaults")
 local qmp_io       = qmp_io       or require("qmp.io")
-local qmp_tools    = qmp_tools    or require("qmp.tools")
 local qmp_network  = qmp_network  or require("qmp.network")
+local qmp_tools    = qmp_tools    or require("qmp.tools")
 local qmp_uci      = qmp_uci      or require("qmp.uci")
 local qmp_wireless = qmp_wireless or require("qmp.wireless")
 
@@ -34,6 +38,11 @@ function initialize()
     -- Initialize the devices section
     initialize_devices()
 
+    -- Initialize IPv4
+    initialize_ipv4()
+    
+    -- Initialize routing protocols
+    initialize_routing_protocols()
   end
 end
 
@@ -283,6 +292,37 @@ function initialize_devices(force)
 end
 
 
+-- Initialize the IPv4 part of the qMp configuration file with some default settings
+function initialize_ipv4(force)
+
+  -- Check if the configuration file exists
+  if not qmp_io.is_file(OWRT_CONFIG_DIR .. QMP_CONFIG_FILENAME) then
+    os.exit(1)
+  end
+
+  -- Create the IPv4 section if not already there
+  qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "ip")
+
+  -- Use NAT on IPv4
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "ipv4_nat", "1")
+
+  -- LAN bridge IPv4 configuration
+  -- IPv4 address and netmask
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "lan_ipv4_address", "172.30.22.1")
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "lan_ipv4_netmask", "255.255.0.0")
+  -- IPv4 DHCP server on the LAN
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "lan_ipv4_dhcp", "1")
+  
+  -- Mesh IPv4 configuration
+  -- IPv4 address and netmask
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "mesh_ipv4_address", "10.202.0." .. math.random(1,254))
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "mesh_ipv4_netmask", "255.255.255.255")
+  -- DHCP server
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, "ip", "mesh_ipv4_dhcp", "0")
+
+end
+
+
 function initialize_node()
   -- Create the node section or, if already present, add any missing value
   qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "qmp", "node")
@@ -320,49 +360,38 @@ function configure_radio_with_criteria(radio, criteria)
 
   local iw = qmp_wireless.get_radio_iwinfo(radio)
 
-print ("Configuring " .. radio .. " with the following criteria:")
+  print ("Configuring " .. radio .. " with the following criteria:")
 
-for k, v in pairs(criteria) do
+  for k, v in pairs(criteria) do
+    if type(v) == table then
+      for l, m in pairs(v) do
+        print (k .. "." .. l .. tostring(v))
+      end
 
-  if type(v) == table then
-
-    for l, m in pairs(v) do
-
-      print (k .. "." .. l .. tostring(v))
-
+    else
+      print (k .. ": " .. tostring(v))
     end
-
-  else
-
-    print (k .. ": " .. tostring(v))
-
   end
 
-end
+  -- Create the section for the radio device
+  qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-device", radio)
 
--- Create the section for the radio device
+  -- Set the channel
+  print("Criteria->channel: " .. criteria["channel"])
 
-qmp_uci.new_section_typename(QMP_CONFIG_FILENAME, "wifi-device", radio)
+  if criteria["channel"] < 0 then
+    criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
+  end
 
--- Set the channel
+  local channel = qmp_wireless.get_radio_channels(radio, criteria.band)[criteria.channel]
 
-print("Criteria->channel: " .. criteria["channel"])
+  print ("Channel: " .. channel)
 
-if criteria["channel"] < 0 then
+  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
 
-  criteria["channel"] = table.getn(iw.freqlist) + criteria["channel"]
-
-end
-
-local channel = qmp_wireless.get_radio_channels(radio, criteria.band)[criteria.channel]
-
-print ("Channel: " .. channel)
-
-qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "channel", channel)
-
-local macaddr = qmp_wireless.get_device_mac(radio)
-  print ("MAC address: " .. macaddr)
-  qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "macaddr", macaddr)
+  local macaddr = qmp_wireless.get_device_mac(radio)
+    print ("MAC address: " .. macaddr)
+    qmp_uci.set_option_namesec(QMP_CONFIG_FILENAME, radio, "macaddr", macaddr)
 
 
   -- Configure the wifi-ifaces
@@ -390,6 +419,20 @@ local macaddr = qmp_wireless.get_device_mac(radio)
   end
 end
 
+
+-- Initialize the different routing protocols available in the device
+function initialize_routing_protocols(force)
+
+  -- Check if the configuration file exists
+  if qmp_io.is_file( BMX6_BIN_FILENAME ) then
+    qmp_bmx6.initialize(force)
+  end
+
+  if qmp_io.is_file( BMX7_BIN_FILENAME ) then
+    qmp_bmx7.initialize(force)
+  end
+
+end
 
 
 -- Get the name for a wifi-iface for a given radio and mode
@@ -479,42 +522,42 @@ function wireless_criteria()
   criteria[1]["band"] = "5g"
   criteria[1]["channel"] = 1
   criteria[1]["configs"] = {}
-    criteria[1]["configs"][1] = {}
-    criteria[1]["configs"][1]["phymode"] = "adhoc"
-    criteria[1]["configs"][1]["netmode"] = "mesh"
+  criteria[1]["configs"][1] = {}
+  criteria[1]["configs"][1]["phymode"] = "adhoc"
+  criteria[1]["configs"][1]["netmode"] = "mesh"
 
   criteria[2] = {}
   criteria[2]["selected"] = nil
   criteria[2]["band"] = "2g"
   criteria[2]["channel"] = 1
   criteria[2]["configs"] = {}
-    criteria[2]["configs"][1] = {}
-    criteria[2]["configs"][1]["phymode"] = "ap"
-    criteria[2]["configs"][1]["netmode"] = "lan"
-    criteria[2]["configs"][2] = {}
-    criteria[2]["configs"][2]["phymode"] = "mesh"
-    criteria[2]["configs"][2]["netmode"] = "mesh"
+  criteria[2]["configs"][1] = {}
+  criteria[2]["configs"][1]["phymode"] = "ap"
+  criteria[2]["configs"][1]["netmode"] = "lan"
+  criteria[2]["configs"][2] = {}
+  criteria[2]["configs"][2]["phymode"] = "mesh"
+  criteria[2]["configs"][2]["netmode"] = "mesh"
 
   criteria[3] = {}
   criteria[3]["selected"] = nil
   criteria[3]["band"] = "5g"
   criteria[3]["channel"] = -1
   criteria[3]["configs"] = {}
-    criteria[3]["configs"][1] = {}
-    criteria[3]["configs"][1]["phymode"] = "ap"
-    criteria[3]["configs"][1]["netmode"] = "lan"
+  criteria[3]["configs"][1] = {}
+  criteria[3]["configs"][1]["phymode"] = "ap"
+  criteria[3]["configs"][1]["netmode"] = "lan"
 
   criteria[4] = {}
   criteria[4]["selected"] = nil
   criteria[4]["band"] = "2g"
   criteria[4]["channel"] = -1
   criteria[4]["configs"] = {}
-    criteria[4]["configs"][1] = {}
-    criteria[4]["configs"][1]["phymode"] = "ap"
-    criteria[4]["configs"][1]["netmode"] = "lan"
-    criteria[4]["configs"][2] = {}
-    criteria[4]["configs"][2]["phymode"] = "mesh"
-    criteria[4]["configs"][2]["netmode"] = "mesh"
+  criteria[4]["configs"][1] = {}
+  criteria[4]["configs"][1]["phymode"] = "ap"
+  criteria[4]["configs"][1]["netmode"] = "lan"
+  criteria[4]["configs"][2] = {}
+  criteria[4]["configs"][2]["phymode"] = "mesh"
+  criteria[4]["configs"][2]["netmode"] = "mesh"
 
   return criteria
 end
@@ -523,8 +566,12 @@ end
 qmp_config.configure_radio_with_criteria = configure_radio_with_criteria
 qmp_config.get_radios_for_criteria = get_radios_for_criteria
 qmp_config.initialize = initialize
+qmp_config.initialize_bmx6 = initialize_bmx6
+qmp_config.initialize_bmx7 = initialize_bmx7
+qmp_config.initialize_ipv4 = initialize_ipv4
 qmp_config.initialize_network = initialize_network
 qmp_config.initialize_node = initialize_node
+qmp_config.initialize_routing_protocols = initialize_routing_protocols
 qmp_config.set_device_role = set_device_role
 qmp_config.wireless_criteria = wireless_criteria
 

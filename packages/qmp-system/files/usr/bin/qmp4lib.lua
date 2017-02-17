@@ -1,7 +1,9 @@
 #!/usr/bin/lua
 
+qmp_bmx6     = qmp_bmx6     or require("qmp.bmx6")
 qmp_config   = qmp_config   or require("qmp.config")
 qmp_io       = qmp_io       or require("qmp.io")
+qmp_ipv4     = qmp_ipv4     or require("qmp.ipv4")
 qmp_network  = qmp_network  or require("qmp.network")
 qmp_system   = qmp_system   or require("qmp.system")
 qmp_tools    = qmp_tools    or require("qmp.tools")
@@ -16,11 +18,18 @@ function print_help()
         print("")
         print("Available sections and commands:")
         print("")
+        print(" bmx6")
+        print("  configure_tmain                                 : configure tmain tunDev device")
+        print("")
         print(" config")
         print("  set_device_role <device> <role>                 : set a device the specified qMp role")
         print("")
         print(" io")
         print("  read_file <filename>                            : print the content of a file")
+        print("")
+        print(" ipv4")
+        print("  netmask_cidr_to_full <netmask>                 : convert a CIDR netmask to a full-length netmask")
+        print("  netmask_full_to_cidr <netmask>                 : convert a full-length netmask to a CIDR netmask")
         print("")
         print(" network")
         print("  get_device_mac <device>                         : get a network device's MAC address")
@@ -281,6 +290,16 @@ function get_uci_nonamesec()
 end
 
 
+function config_bmx6_tmain()
+  if #arg == 2 then
+    print (qmp_bmx6.configure_tmain(arg[3]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
 function config_wireless_wifi_device()
   if #arg == 3 then
     print (qmp_wireless.configure_wifi_device(arg[3]))
@@ -304,6 +323,26 @@ end
 function del_wireless_wifi_ifaces()
   if #arg == 3 then
     print (qmp_wireless.delete_wifi_ifaces(arg[3]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function netmask_ipv4_cidr_to_full()
+  if #arg == 3 then
+    print (qmp_ipv4.netmask_cidr_to_full(arg[3]))
+  else
+    print_help()
+    os.exit(1)
+  end
+end
+
+
+function netmask_ipv4_full_to_cidr()
+  if #arg == 3 then
+    print (qmp_ipv4.netmask_full_to_cidr(arg[3]))
   else
     print_help()
     os.exit(1)
@@ -502,15 +541,23 @@ if #arg < 2 then
         os.exit(1)
 end
 
+
 local section = arg[1]
 local command = arg[2]
 
-if section == "config" then
+
+if section == "bmx6" then
+
+  if command == "configure_tmain" then
+    config_bmx6_tmain()
+  end
+
+
+elseif section == "config" then
 
   if command == "set_config_device_role" then
     set_config_device_role()
   end
-
 
 
 elseif section == "io" then
@@ -519,6 +566,15 @@ elseif section == "io" then
     read_io_file()
   end
 
+
+elseif section == "ipv4" then
+
+  if command == "netmask_cidr_to_full" then
+    netmask_ipv4_cidr_to_full()
+
+  elseif command == "netmask_full_to_cidr" then
+    netmask_ipv4_full_to_cidr()
+  end
 
 
 elseif section == "network" then
